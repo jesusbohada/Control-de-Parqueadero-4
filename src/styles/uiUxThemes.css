@@ -1,0 +1,314 @@
+/**
+ * ============================================================================
+ * SISTEMA DE DISEÑO UNIFICADO POS (WolfZone POS - Parking & Billing)
+ * ============================================================================
+ * Tema Único de Alto Desempeño Operativo con Selector Claro / Oscuro (WCAG AAA)
+ * Diseñado específicamente para entornos de parqueadero vehicular, taquillas
+ * de alta intensidad, lectura instantánea de matrículas y facturación POS.
+ */
+
+/* ==========================================================================
+   1. TEMA CLARO UNIFICADO (LIGHT MODE - LUZ SOLAR / TAQUILLAS EXTERIORES)
+   ========================================================================== */
+:root,
+:root[data-theme="light"],
+html.light,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Superficies y Fondos Antirreflejo */
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-1: #FFFFFF;
+  --bg-surface-2: #FFFFFF;
+  --bg-surface-3: #F1F5F9;
+  --bg-surface-hover: #E2E8F0;
+  --bg-card: #FFFFFF;
+  --bg-subcard: #F8FAFC;
+  --bg-header: #FFFFFF;
+  --bg-input: #F1F5F9;
+  --bg-modal-backdrop: rgba(15, 23, 42, 0.6);
+
+  /* Bordes de Definición */
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --border-ui: #E2E8F0;
+  --border-input: #CBD5E1;
+  --border-focus: #D97706;
+
+  /* Tipografía de Máximo Contraste (Ratio > 18:1 s/blanco) */
+  --text-primary: #020617;
+  --text-secondary: #1E293B;
+  --text-muted: #334155;
+  --text-disabled: #64748B;
+  --text-main: #020617;
+  --text-label: #0F172A;
+  --text-on-primary: #FFFFFF;
+  --text-on-accent: #020617;
+
+  /* Color Primario POS (Ámbar Industrial de Alta Visibilidad) */
+  --primary: #D97706;
+  --primary-hover: #B45309;
+  --primary-contrast: #FFFFFF;
+  --primary-glow: rgba(217, 119, 6, 0.22);
+  --secondary: #0F172A;
+
+  /* Acento de Marca & Información (Cobalt Blue) */
+  --brand-accent: #2563EB;
+  --brand-accent-bg: rgba(37, 99, 235, 0.08);
+  --brand-accent-text: #1D4ED8;
+
+  /* Semántica de Plazas y Celdas de Parqueadero (WCAG AA/AAA) */
+  --slot-available-bg: #ECFDF5;
+  --slot-available-border: #10B981;
+  --slot-available-text: #047857;
+
+  --slot-occupied-bg: #FEF2F2;
+  --slot-occupied-border: #EF4444;
+  --slot-occupied-text: #B91C1C;
+
+  --slot-reserved-bg: #FFFBEB;
+  --slot-reserved-border: #F59E0B;
+  --slot-reserved-text: #B45309;
+
+  /* Elevación y Sombras Suaves */
+  --shadow-low: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 8px -1px rgba(15, 23, 42, 0.07), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 20px 30px -8px rgba(15, 23, 42, 0.18), 0 8px 12px -4px rgba(15, 23, 42, 0.08);
+  --radius-card: 1rem;
+  --ring: #D97706;
+}
+
+/* ==========================================================================
+   2. TEMA OSCURO UNIFICADO (DARK MODE - CABINAS, NOCTURNO & MONITORES OLED)
+   ========================================================================== */
+:root[data-theme="dark"],
+html.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Superficies de Grafito y Carbón Profundo */
+  --bg-app: #0B0F19;
+  --bg-surface: #1E293B;
+  --bg-surface-1: #111827;
+  --bg-surface-2: #1E293B;
+  --bg-surface-3: #0F172A;
+  --bg-surface-hover: #26334D;
+  --bg-card: #1E293B;
+  --bg-subcard: #26334D;
+  --bg-header: #111827;
+  --bg-input: #0F172A;
+  --bg-modal-backdrop: rgba(3, 7, 18, 0.82);
+
+  /* Bordes de Alta Definición */
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.20);
+  --border-ui: rgba(255, 255, 255, 0.09);
+  --border-input: #334155;
+  --border-focus: #F59E0B;
+
+  /* Tipografía Nítida Anti-Fatiga (Ratio > 16:1 s/fondo) */
+  --text-primary: #F8FAFC;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-disabled: #64748B;
+  --text-main: #F8FAFC;
+  --text-label: #F8FAFC;
+  --text-on-primary: #020617;
+  --text-on-accent: #FFFFFF;
+
+  /* Color Primario POS (Ámbar Dorado Intenso) */
+  --primary: #F59E0B;
+  --primary-hover: #D97706;
+  --primary-contrast: #020617;
+  --primary-glow: rgba(245, 158, 11, 0.35);
+  --secondary: #1E293B;
+
+  /* Acento de Marca & Información (Electric Blue / LPR) */
+  --brand-accent: #3B82F6;
+  --brand-accent-bg: rgba(59, 130, 246, 0.16);
+  --brand-accent-text: #60A5FA;
+
+  /* Semántica de Plazas y Celdas de Parqueadero (Modo Nocturno) */
+  --slot-available-bg: rgba(16, 185, 129, 0.16);
+  --slot-available-border: #10B981;
+  --slot-available-text: #34D399;
+
+  --slot-occupied-bg: rgba(239, 68, 68, 0.18);
+  --slot-occupied-border: #EF4444;
+  --slot-occupied-text: #F87171;
+
+  --slot-reserved-bg: rgba(245, 158, 11, 0.18);
+  --slot-reserved-border: #F59E0B;
+  --slot-reserved-text: #FBBF24;
+
+  /* Elevación y Sombras Profundas */
+  --shadow-low: 0 1px 3px 0 rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 4px 16px -2px rgba(0, 0, 0, 0.55), 0 2px 6px -1px rgba(0, 0, 0, 0.35);
+  --shadow-modal: 0 24px 45px -8px rgba(0, 0, 0, 0.75), 0 12px 18px -4px rgba(0, 0, 0, 0.5);
+  --radius-card: 1rem;
+  --ring: #F59E0B;
+}
+
+/* ==========================================================================
+   3. COMPONENTES Y UTILIDADES INDUSTRIALES POS (WOLFZONE POS)
+   ========================================================================== */
+
+/* Barra de Navegación Flotante Superior */
+.uupm-floating-navbar {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background-color: var(--bg-surface-1);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Barra Lateral (Sidebar) de Gestión */
+.uupm-sidebar {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: var(--bg-surface-1);
+  border-right: 1px solid var(--border-subtle);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Tarjeta KPI / Métrica de Taquilla */
+.uupm-kpi-card,
+.pos-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card, 1rem);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.uupm-kpi-card:hover,
+.pos-card:hover {
+  border-color: var(--border-strong);
+}
+
+/* Elementos de Navegación Activos / Inactivos */
+.uupm-nav-item-active {
+  background-color: var(--primary);
+  color: var(--primary-contrast, #ffffff);
+  box-shadow: 0 2px 10px 0 var(--primary-glow);
+  font-weight: 700;
+}
+
+.uupm-nav-item-inactive {
+  color: var(--text-secondary);
+}
+
+.uupm-nav-item-inactive:hover {
+  background-color: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+/* Foco Táctil y Accesibilidad */
+.uupm-focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--border-focus);
+}
+
+.uupm-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Badges de Estado Operativo */
+.uupm-badge-green,
+.pos-badge-free {
+  background-color: var(--slot-available-bg);
+  color: var(--slot-available-text);
+  border: 1px solid var(--slot-available-border);
+  font-weight: 700;
+}
+
+.uupm-badge-red,
+.pos-badge-occupied {
+  background-color: var(--slot-occupied-bg);
+  color: var(--slot-occupied-text);
+  border: 1px solid var(--slot-occupied-border);
+  font-weight: 700;
+}
+
+.uupm-badge-yellow,
+.pos-badge-reserved {
+  background-color: var(--slot-reserved-bg);
+  color: var(--slot-reserved-text);
+  border: 1px solid var(--slot-reserved-border);
+  font-weight: 700;
+}
+
+.uupm-badge-blue {
+  background-color: var(--brand-accent-bg);
+  color: var(--brand-accent-text);
+  border: 1px solid var(--brand-accent);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   4. DISTINTIVOS DE MATRÍCULA VEHICULAR (PLACA POS REFLECTIVA)
+   ========================================================================== */
+.pos-plate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.375rem;
+  font-family: var(--font-mono, ui-monospace, Menlo, monospace);
+  font-size: 0.875rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  user-select: all;
+}
+
+/* Placa Amarilla Particular (Estilo Colombia Reflectiva) */
+.pos-plate-yellow {
+  background-color: #FBBF24;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Placa Blanca Servicio Público */
+.pos-plate-white {
+  background-color: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Tipografía Numérica Tabular para Facturas y Cierres */
+.pos-tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Botón de Acción Principal POS Ultra-Táctil */
+.pos-btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-contrast);
+  font-weight: 700;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px var(--primary-glow);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pos-btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.pos-btn-primary:active {
+  transform: scale(0.98);
+}

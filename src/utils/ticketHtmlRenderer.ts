@@ -1,0 +1,774 @@
+import QRCode from 'qrcode';
+import fs from 'fs';
+import path from 'path';
+import { ParkingTicket, CashShift, OperationalDay, ParkingBusinessInfo, RatesConfig, VehicleCategoryConfig } from '../types';
+
+export interface GenerateTicketHtmlOptions {
+  type: 'entry_ticket' | 'exit_receipt' | 'cash_shift' | 'day_closure' | 'test';
+  ticket?: ParkingTicket | null;
+  shift?: CashShift | null;
+  day?: OperationalDay | null;
+  businessInfo?: Partial<ParkingBusinessInfo>;
+  rates?: Partial<RatesConfig>;
+  vehicleCategories?: VehicleCategoryConfig[];
+  paperWidth?: '80mm' | '58mm';
+}
+
+function getLogoBase64(businessInfo?: Partial<ParkingBusinessInfo>): string {
+  try {
+    if (businessInfo?.logoUrl && businessInfo.logoUrl.startsWith('data:image')) {
+      return businessInfo.logoUrl;
+    }
+    const localLogo = path.join(process.cwd(), 'public', 'logo_compacto.png');
+    if (fs.existsSync(localLogo)) {
+      const data = fs.readFileSync(localLogo).toString('base64');
+      return `data:image/png;base64,${data}`;
+    }
+  } catch {}
+  return '';
+}
+
+function getJsBarcodeCode(): string {
+  try {
+    const jsbPath = path.join(process.cwd(), 'node_modules', 'jsbarcode', 'dist', 'JsBarcode.all.min.js');
+    if (fs.existsSync(jsbPath)) {
+      return fs.readFileSync(jsbPath, 'utf8');
+    }
+  } catch {}
+  return '';
+}
+
+function formatMoney(amount: number = 0, symbol: string = '$'): string {
+  return `${symbol} ${Math.round(amount).toLocaleString('es-CO')}`;
+}
+
+function getVehicleLabel(type: string = 'car', categories?: VehicleCategoryConfig[]): string {
+  const custom = categories?.find(c => c.id === type);
+  if (custom) return custom.name.toUpperCase();
+  switch (type.toLowerCase()) {
+    case 'car': return 'AUTOMÓVIL / CARRO';
+    case 'motorcycle': return 'MOTOCICLETA';
+    case 'suv': return 'CAMIONETA / SUV';
+    case 'bicycle': return 'BICICLETA';
+    case 'heavy': return 'VEHÍCULO PESADO';
+    default: return type.toUpperCase();
+  }
+}
+
+/**
+ * Genera un documento HTML autónomo y auto-contenido con diseño idéntico al ticket en pantalla,
+ * optimizado para impresión térmica monocromática profunda (máximo contraste, negro 100% puro).
+ */
+export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Promise<string> {
+  const {
+    type,
+    ticket,
+    shift,
+    day,
+    businessInfo = {},
+    rates = {},
+    vehicleCategories = [],
+    paperWidth = '80mm'
+  } = options;
+
+  const is58 = paperWidth === '58mm';
+  const widthPx = is58 ? 256 : 384;
+  const logoDataUrl = getLogoBase64(businessInfo);
+  const jsBarcodeCode = getJsBarcodeCode();
+
+  // Generación de Hash de Seguridad Criptográfica
+  const rawHash = `${ticket?.ticketNumber || 'TKT'}-${ticket?.plate || 'PLATE'}-${ticket?.entryTime || Date.now()}-${businessInfo.nit || 'WOLF'}`;
+  let hashVal = 0;
+  for (let i = 0; i < rawHash.length; i++) {
+    hashVal = ((hashVal << 5) - hashVal) + rawHash.charCodeAt(i);
+    hashVal |= 0;
+  }
+  const hex = Math.abs(hashVal).toString(16).toUpperCase().padStart(8, '0');
+  const securityHash = `WOLF-${hex.substring(0, 4)}-${hex.substring(4, 8)}`;
+
+  // Generación de Código QR Escaneable de Alta Definición
+  const qrPayload = JSON.stringify({
+    t: ticket?.ticketNumber || 'TEST',
+    p: ticket?.plate || 'TEST',
+    in: ticket?.entryTime || new Date().toISOString(),
+    out: ticket?.exitTime,
+    tot: ticket?.totalAmount,
+    sec: securityHash
+  });
+
+  let qrDataUrl = '';
+  try {
+    qrDataUrl = await QRCode.toDataURL(qrPayload, {
+      width: is58 ? 160 : 200,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+  } catch (err) {
+    console.warn('[TicketRenderer] Error generando QR data URL:', err);
+  }
+
+  // Estilos de Alta Definición Térmica: Negro Puro (#000000), trazo nítido y estilizado sin engrosamiento excesivo
+  const baseStyles = `
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: ${widthPx}px;
+      padding: ${is58 ? '6px 5px 18px' : '10px 8px 22px'};
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+      font-size: ${is58 ? '10px' : '11.5px'};
+      line-height: 1.35;
+      color: #000000;
+      background: #ffffff;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .text-center { text-align: center; }
+    .bold { font-weight: 700; }
+    .bolder { font-weight: 800; }
+    .font-black { font-weight: 800; }
+    .uppercase { text-transform: uppercase; }
+    .font-mono { font-family: 'Consolas', 'Courier New', monospace; font-weight: 700; }
+    
+    .header-logo { max-height: ${is58 ? '38px' : '46px'}; max-width: 150px; margin: 0 auto 3px; display: block; object-fit: contain; }
+    .header-name { font-size: ${is58 ? '12px' : '14px'}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; color: #000000; }
+    .header-sub { font-size: ${is58 ? '9px' : '10.5px'}; font-weight: 500; color: #000000; }
+    
+    /* Inverted Solid Black Badge */
+    .badge-black {
+      display: inline-block;
+      margin: 5px 0 3px;
+      padding: 3px 8px;
+      font-size: ${is58 ? '9.5px' : '11px'};
+      font-weight: 700;
+      background: #000000;
+      color: #ffffff;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .badge-outline {
+      display: inline-block;
+      margin: 5px 0 3px;
+      padding: 2.5px 7px;
+      font-size: ${is58 ? '9.5px' : '10.5px'};
+      font-weight: 700;
+      border: 1.5px solid #000000;
+      border-radius: 3px;
+      background: #ffffff;
+      color: #000000;
+      text-transform: uppercase;
+    }
+    
+    .divider { border-top: 1.2px dashed #000000; margin: 7px 0; }
+    .thick-divider { border-top: 2px solid #000000; margin: 7px 0; }
+    .thin-divider { border-top: 1px dashed #000000; margin: 5px 0; }
+    
+    /* Caja de Placa de Alto Impacto Nítida */
+    .plate-box {
+      border: 2px solid #000000;
+      border-radius: 5px;
+      padding: 5px 4px;
+      margin: 6px 0;
+      text-align: center;
+      background: #ffffff;
+    }
+    .plate-label { font-size: ${is58 ? '8.5px' : '10px'}; font-weight: 700; color: #000000; text-transform: uppercase; letter-spacing: 0.5px; }
+    .plate-text {
+      font-family: 'Arial Black', Arial, Impact, sans-serif;
+      font-size: ${is58 ? '22px' : '28px'};
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 1px 0;
+      color: #000000;
+      line-height: 1.15;
+    }
+    .plate-type { font-size: ${is58 ? '9.5px' : '11px'}; font-weight: 700; color: #000000; }
+    
+    .row { display: flex; justify-content: space-between; align-items: center; margin: 2.5px 0; font-weight: 500; color: #000000; }
+    .rates-box {
+      background: #ffffff;
+      border: 1.5px dashed #000000;
+      border-radius: 4px;
+      padding: 5px 7px;
+      margin: 6px 0;
+    }
+    
+    /* Caja de Observaciones de Ingreso */
+    .notes-box {
+      border: 1.5px dashed #000000;
+      border-radius: 4px;
+      padding: 5px 7px;
+      margin: 6px 0;
+      background: #ffffff;
+      text-align: left;
+    }
+    .notes-title {
+      font-size: ${is58 ? '8.5px' : '9.5px'};
+      font-weight: 700;
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 2px;
+      border-bottom: 1px dashed #000000;
+      padding-bottom: 2px;
+    }
+    .notes-content {
+      font-size: ${is58 ? '9.5px' : '10.5px'};
+      font-weight: 600;
+      color: #000000;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    
+    .security-seal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1.5px solid #000000;
+      border-radius: 3px;
+      padding: 2.5px 5px;
+      font-family: 'Consolas', monospace;
+      font-size: ${is58 ? '8.5px' : '10px'};
+      font-weight: 600;
+      margin: 6px 0;
+      background: #ffffff;
+      color: #000000;
+    }
+    
+    .barcode-container {
+      text-align: center;
+      margin: 8px auto 4px;
+      padding: 6px 0;
+      width: 100%;
+      background: #ffffff;
+    }
+    .barcode-container svg {
+      display: inline-block;
+      margin: 0 auto;
+      max-width: 100%;
+      height: auto;
+      background: #ffffff;
+    }
+    
+    .footer { font-size: ${is58 ? '9px' : '10px'}; font-weight: 600; color: #000000; text-align: center; margin-top: 7px; line-height: 1.3; }
+    .wolf-brand {
+      border-top: 1.5px dashed #000000;
+      margin-top: 7px;
+      padding-top: 5px;
+      font-family: 'Consolas', monospace;
+      font-weight: 800;
+      font-size: ${is58 ? '10px' : '11.5px'};
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #000000;
+    }
+    
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0;
+      font-size: ${is58 ? '9px' : '10.5px'};
+      font-family: 'Consolas', monospace;
+      color: #000000;
+    }
+    table.data-table th, table.data-table td {
+      padding: 2.5px 2px;
+      text-align: left;
+      font-weight: 500;
+    }
+    table.data-table th {
+      font-weight: 700;
+    }
+    table.data-table th.text-right, table.data-table td.text-right {
+      text-align: right;
+    }
+    table.data-table thead tr {
+      border-bottom: 1.5px solid #000000;
+    }
+    table.data-table tfoot tr {
+      border-top: 2px solid #000000;
+      border-bottom: 2px solid #000000;
+      font-weight: 800;
+    }
+  `;
+
+  let bodyContent = '';
+
+  if (type === 'entry_ticket' && ticket) {
+    const entryDate = new Date(ticket.entryTime || Date.now());
+    const formattedDate = entryDate.toLocaleDateString('es-CO');
+    const formattedTime = entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const vehicleRate = rates[ticket.vehicleType] || { hourRate: 4000, gracePeriodMinutes: 15 };
+
+    bodyContent = `
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        ${businessInfo.branchName ? `<div class="header-sub">SEDE: ${businessInfo.branchName}</div>` : ''}
+        <div><span class="badge-black">*** TICKET DE INGRESO ***</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">N° TICKET:</span>
+        <span class="font-black">${ticket.ticketNumber || ticket.barcode || 'N/A'}</span>
+      </div>
+
+      <div class="plate-box">
+        <div class="plate-label">${ticket.isForeignPlate ? `PLACA EXTRANJERA (${ticket.originCountry || 'INTERNACIONAL'})` : 'PLACA / VEHÍCULO'}</div>
+        <div class="plate-text">${ticket.plate}</div>
+        <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)} ${ticket.isForeignPlate ? '• INTERNACIONAL' : ''}</div>
+      </div>
+
+      ${ticket.notes ? `
+      <div class="notes-box">
+        <div class="notes-title">OBSERVACIÓN / DETALLES DE INGRESO:</div>
+        <div class="notes-content">${ticket.notes}</div>
+      </div>` : ''}
+
+      <div class="row">
+        <span>Puesto Asignado:</span>
+        <span class="bold" style="border:1.5px solid #000;padding:1px 6px;border-radius:3px;">${ticket.spotCode || 'PATIO GENERAL'}</span>
+      </div>
+      <div class="row">
+        <span>Jornada Operativa:</span>
+        <span class="bold">Día #${ticket.operationalDayNumber || 1} • Turno #${ticket.shiftNumber || 1}</span>
+      </div>
+      <div class="row">
+        <span>Fecha / Hora Entrada:</span>
+        <span class="bold">${formattedDate} ${formattedTime}</span>
+      </div>
+      ${ticket.cashierName ? `
+      <div class="row">
+        <span>Operador:</span>
+        <span class="bold">${ticket.cashierName}</span>
+      </div>` : ''}
+
+      <div class="rates-box">
+        <div class="bold uppercase" style="font-size:${is58 ? '10px' : '11px'};margin-bottom:3px;border-bottom:1.5px solid #000;padding-bottom:2px;">Tarifas Vigentes:</div>
+        <div class="row">
+          <span>Hora ${getVehicleLabel(ticket.vehicleType, vehicleCategories)}:</span>
+          <span class="font-black">${formatMoney(vehicleRate.hourRate, rates.currencySymbol)}</span>
+        </div>
+        <div class="row">
+          <span>Minutos de gracia:</span>
+          <span class="bold">${vehicleRate.gracePeriodMinutes || 0} minutos</span>
+        </div>
+      </div>
+
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
+
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
+      <div class="text-center font-mono" style="font-size:9px;margin-top:2px;">
+        ID: ${ticket.id}
+      </div>
+
+      <div class="footer">
+        <div>${businessInfo.ticketFooter || 'Conserve este ticket para retirar su vehículo.'}</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+        <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
+      </div>
+    `;
+  } else if (type === 'exit_receipt' && ticket) {
+    const entryDate = new Date(ticket.entryTime);
+    const exitDate = new Date(ticket.exitTime || Date.now());
+    const hours = Math.floor((ticket.totalMinutes || 0) / 60);
+    const mins = (ticket.totalMinutes || 0) % 60;
+    const isFE = !!ticket.electronicInvoice;
+
+    bodyContent = `
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        <div>
+          <span class="badge-black">
+            ${isFE ? '*** FACTURA ELECTRÓNICA DE VENTA ***' : '*** COMPROBANTE DE SALIDA POS ***'}
+          </span>
+        </div>
+        ${isFE ? `
+        <div style="font-size:9.5px;border:1.5px solid #000;padding:3px;border-radius:3px;margin-top:4px;font-weight:bold;">
+          <div>Factura N°: ${ticket.electronicInvoice?.prefix}${ticket.electronicInvoice?.invoiceNumber}</div>
+          <div>Resolución DIAN: ${ticket.electronicInvoice?.resolutionNumber}</div>
+        </div>` : ''}
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">N° TICKET:</span>
+        <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
+      </div>
+
+      <div class="plate-box">
+        <div class="plate-label">PLACA / VEHÍCULO</div>
+        <div class="plate-text">${ticket.plate}</div>
+        <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)}</div>
+      </div>
+
+      ${ticket.notes ? `
+      <div class="notes-box">
+        <div class="notes-title">OBSERVACIONES REGISTRADAS:</div>
+        <div class="notes-content">${ticket.notes}</div>
+      </div>` : ''}
+
+      <div class="row">
+        <span>Fecha / Hora Entrada:</span>
+        <span class="bold">${entryDate.toLocaleDateString('es-CO')} ${entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+      <div class="row">
+        <span>Fecha / Hora Salida:</span>
+        <span class="bold">${exitDate.toLocaleDateString('es-CO')} ${exitDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+      <div class="row bold" style="border:1.5px solid #000;padding:3.5px 6px;border-radius:4px;margin:4px 0;">
+        <span>Tiempo Total:</span>
+        <span class="font-black">${hours}h ${mins}m (${ticket.totalMinutes || 0} min)</span>
+      </div>
+
+      <div class="thin-divider"></div>
+
+      <div class="row">
+        <span>Tarifa Base:</span>
+        <span class="bold">${formatMoney(ticket.baseAmount || 0, rates.currencySymbol)}</span>
+      </div>
+      ${ticket.taxAmount ? `
+      <div class="row">
+        <span>IVA / Impuesto:</span>
+        <span class="bold">${formatMoney(ticket.taxAmount, rates.currencySymbol)}</span>
+      </div>` : ''}
+      ${ticket.discountAmount ? `
+      <div class="row">
+        <span>Descuento aplicado:</span>
+        <span class="bold">-${formatMoney(ticket.discountAmount, rates.currencySymbol)}</span>
+      </div>` : ''}
+
+      <div class="thick-divider"></div>
+
+      <div class="row font-black" style="font-size:${is58 ? '14px' : '17px'};padding:2px 0;">
+        <span>TOTAL COBRADO:</span>
+        <span>${formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
+      </div>
+
+      <div class="thick-divider"></div>
+
+      <div class="row">
+        <span>Medio de Pago:</span>
+        <span class="font-black uppercase">${ticket.paymentMethod || 'Efectivo'}</span>
+      </div>
+      ${ticket.cashReceived ? `
+      <div class="row">
+        <span>Efectivo Recibido:</span>
+        <span class="bold">${formatMoney(ticket.cashReceived, rates.currencySymbol)}</span>
+      </div>
+      <div class="row font-black">
+        <span>Cambio / Vueltas:</span>
+        <span>${formatMoney(ticket.changeGiven || 0, rates.currencySymbol)}</span>
+      </div>` : ''}
+      ${ticket.cashierName ? `
+      <div class="row">
+        <span>Atendido por:</span>
+        <span class="bold">${ticket.cashierName}</span>
+      </div>` : ''}
+
+      ${isFE && ticket.electronicInvoice?.cufe ? `
+      <div style="font-size:8.5px;border-top:1.5px dashed #000;padding-top:4px;margin-top:4px;word-break:break-all;font-weight:bold;">
+        <span>CUFE:</span> ${ticket.electronicInvoice.cufe}
+      </div>` : ''}
+
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
+
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
+
+      <div class="footer">
+        <div>${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+        <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
+      </div>
+    `;
+  } else if (type === 'cash_shift' && shift) {
+    const diff = shift.cashDifference || 0;
+    const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';
+
+    bodyContent = `
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div><span class="badge-black">**** ARQUEO DE TURNO ****</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">TURNO N°:</span>
+        <span class="font-black">#${shift.shiftNumber || 1}</span>
+      </div>
+      <div class="row">
+        <span>Cajero / Operador:</span>
+        <span class="font-black uppercase">${shift.operatorName || 'Cajero'}</span>
+      </div>
+      <div class="row">
+        <span>Apertura:</span>
+        <span class="bold">${new Date(shift.startTime).toLocaleString('es-CO')}</span>
+      </div>
+      ${shift.endTime ? `
+      <div class="row">
+        <span>Cierre:</span>
+        <span class="bold">${new Date(shift.endTime).toLocaleString('es-CO')}</span>
+      </div>` : ''}
+
+      <div class="thin-divider"></div>
+      <div class="font-black uppercase text-center" style="font-size:10.5px;border:1.5px solid #000;padding:2px;margin:4px 0;">
+        DISCRIMINACIÓN DE VENTAS / RECAUDO
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>MEDIO</th>
+            <th class="text-right">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Efectivo Recaudado</td>
+            <td class="text-right bold">${formatMoney(shift.cashCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+          <tr>
+            <td>Tarjetas Déb/Créd</td>
+            <td class="text-right bold">${formatMoney(shift.cardCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+          <tr>
+            <td>Billeteras / QR / Transf</td>
+            <td class="text-right bold">${formatMoney((shift.walletCollectedSnapshot || 0) + (shift.qrCollectedSnapshot || 0), rates.currencySymbol)}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>TOTAL VENTAS</td>
+            <td class="text-right font-black">${formatMoney(shift.totalCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="font-black uppercase text-center" style="font-size:10.5px;border:1.5px solid #000;padding:2px;margin:6px 0 3px;">
+        FLUJO DE EFECTIVO EN GAVETA
+      </div>
+
+      <div class="row">
+        <span>(+) Base Inicial:</span>
+        <span class="bold">${formatMoney(shift.initialCash || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row">
+        <span>(+) Ventas Efectivo:</span>
+        <span class="bold">${formatMoney(shift.cashCollectedSnapshot || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row">
+        <span>(-) Gastos de Caja:</span>
+        <span class="bold">-${formatMoney(shift.totalExpensesSnapshot || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row">
+        <span>(-) Retiros Parciales:</span>
+        <span class="bold">-${formatMoney(shift.totalPickupsSnapshot || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="thin-divider"></div>
+      <div class="row font-black">
+        <span>(=) Efectivo Esperado:</span>
+        <span>${formatMoney(shift.expectedCashSnapshot || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row font-black">
+        <span>Efectivo Físico Contado:</span>
+        <span>${formatMoney(shift.countedCashSnapshot ?? shift.finalCountedCash ?? 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row font-black" style="border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:3px 0;margin:3px 0;">
+        <span>${diffLabel}</span>
+        <span>${formatMoney(Math.abs(diff), rates.currencySymbol)}</span>
+      </div>
+
+      ${shift.totalToConsignSnapshot ? `
+      <div class="divider"></div>
+      <div class="row font-black" style="font-size:13px;border:1.5px solid #000;padding:3px 5px;border-radius:3px;">
+        <span>TOTAL A CONSIGNAR:</span>
+        <span>${formatMoney(shift.totalToConsignSnapshot, rates.currencySymbol)}</span>
+      </div>` : ''}
+
+      <div style="margin-top:30px;text-align:center;">
+        <div style="border-top:1.5px solid #000;width:75%;margin:0 auto 3px;"></div>
+        <div style="font-size:9px;" class="bold">FIRMA CAJERO RESPONSABLE</div>
+      </div>
+      <div style="margin-top:24px;text-align:center;">
+        <div style="border-top:1.5px solid #000;width:75%;margin:0 auto 3px;"></div>
+        <div style="font-size:9px;" class="bold">FIRMA SUPERVISOR / AUDITOR</div>
+      </div>
+
+      <div class="wolf-brand text-center" style="margin-top:10px;">wolfzonepos</div>
+    `;
+  } else if (type === 'day_closure' && day) {
+    const electronicDay = (day.cardCollectedSnapshot || 0) + (day.walletCollectedSnapshot || 0) + (day.qrCollectedSnapshot || 0);
+
+    bodyContent = `
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div><span class="badge-black">**** CIERRE DEFINITIVO (REPORTE Z) ****</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">JORNADA N°:</span>
+        <span class="font-black">#${day.dayNumber || 1}</span>
+      </div>
+      <div class="row">
+        <span>Apertura:</span>
+        <span class="bold">${new Date(day.openedAt).toLocaleString('es-CO')}</span>
+      </div>
+      ${day.closedAt ? `
+      <div class="row">
+        <span>Cierre:</span>
+        <span class="bold">${new Date(day.closedAt).toLocaleString('es-CO')}</span>
+      </div>` : ''}
+      <div class="row">
+        <span>Total Turnos:</span>
+        <span class="bold">${day.shiftsCount || 1}</span>
+      </div>
+      ${day.closedByOperator ? `
+      <div class="row">
+        <span>Administrador:</span>
+        <span class="bold">${day.closedByOperator}</span>
+      </div>` : ''}
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <span>Total Efectivo Recaudado:</span>
+        <span class="bold">${formatMoney(day.cashCollectedSnapshot || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row">
+        <span>Total Tarjetas / Billeteras / QR:</span>
+        <span class="bold">${formatMoney(electronicDay, rates.currencySymbol)}</span>
+      </div>
+      <div class="thick-divider"></div>
+      <div class="row font-black" style="font-size:${is58 ? '13px' : '15.5px'};">
+        <span>GRAN TOTAL VENTAS DEL DÍA:</span>
+        <span>${formatMoney(day.totalCollected || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="thick-divider"></div>
+      <div class="row font-black" style="font-size:13px;border:1.5px solid #000;padding:3.5px;border-radius:4px;">
+        <span>LIQUIDACIÓN A DEPOSITAR:</span>
+        <span>${formatMoney(day.totalToConsignSnapshot ?? day.finalDayCash ?? 0, rates.currencySymbol)}</span>
+      </div>
+
+      <div style="margin-top:32px;text-align:center;">
+        <div style="border-top:1.5px solid #000;width:75%;margin:0 auto 3px;"></div>
+        <div style="font-size:9px;" class="bold">FIRMA ADMINISTRADOR GENERAL</div>
+      </div>
+
+      <div class="wolf-brand text-center" style="margin-top:12px;">wolfzonepos</div>
+    `;
+  } else {
+    // TEST PRINT
+    bodyContent = `
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'WOLFZONE PARKING'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || '901.847.291-5'}</div>
+        <div><span class="badge-black">*** PRUEBA DE IMPRESIÓN GRÁFICA ***</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="plate-box">
+        <div class="plate-label">PLACA / VEHÍCULO DE PRUEBA</div>
+        <div class="plate-text">ABC-123</div>
+        <div class="plate-type">AUTOMÓVIL / CARRO</div>
+      </div>
+
+      <div class="row">
+        <span>Fecha / Hora:</span>
+        <span class="bold">${new Date().toLocaleString('es-CO')}</span>
+      </div>
+      <div class="row">
+        <span>Estado Impresora:</span>
+        <span class="font-black">CONECTADA (OK)</span>
+      </div>
+
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
+
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
+
+      <div class="footer">
+        <div>Impresión térmica de alta definición completada exitosamente.</div>
+        <div class="bold" style="margin-top:4px;">¡SISTEMA LISTO PARA OPERAR!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+      </div>
+    `;
+  }
+
+  const barcodeValue = ticket?.barcode || ticket?.ticketNumber || 'TKT-TEST-001';
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ticket Impresión Térmica</title>
+  <style>${baseStyles}</style>
+</head>
+<body>
+  ${bodyContent}
+  ${jsBarcodeCode ? `
+  <script>
+    ${jsBarcodeCode}
+    try {
+      var target = document.getElementById('barcode-target');
+      if (target) {
+        JsBarcode(target, "${barcodeValue}", {
+          format: "CODE128",
+          width: ${is58 ? 1.6 : 2.0},
+          height: ${is58 ? 52 : 62},
+          displayValue: true,
+          text: "* ${barcodeValue} *",
+          font: "monospace",
+          fontOptions: "bold",
+          fontSize: ${is58 ? 11 : 12.5},
+          lineColor: "#000000",
+          margin: 12,
+          background: "#ffffff"
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  </script>
+  ` : ''}
+</body>
+</html>
+`;
+}

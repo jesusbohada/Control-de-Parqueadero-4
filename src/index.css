@@ -1,0 +1,593 @@
+@import "tailwindcss";
+@import "./styles/uiUxThemes.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ==========================================================================
+   WOLFZONE POS - TOKENS SEMÁNTICOS INDUSTRIALES PRO MAX (WCAG AAA)
+   ========================================================================== */
+
+/* 1. MODO OSCURO PREDETERMINADO (DARK MODE INDUSTRIAL) */
+:root,
+:root[data-theme="dark"],
+[data-theme="dark"],
+html.dark {
+  transition: background-color 0.25s ease, color 0.25s ease;
+  color-scheme: dark;
+
+  /* Fondos por capas de elevación */
+  --bg-app: #0B0F19;              /* Ventana base ultra-profunda */
+  --bg-surface-1: #111827;        /* Sidebar, TopNavbar, Footers */
+  --bg-surface-2: #1E293B;        /* Tarjetas de taquilla, modales y tablas */
+  --bg-surface-3: #0F172A;        /* Inputs de placa, búsqueda, teclados */
+  --bg-surface-hover: #26334D;
+  --bg-modal-backdrop: rgba(3, 7, 18, 0.75);
+
+  /* Textos de alta legibilidad */
+  --text-primary: #F8FAFC;        /* Slate-50 puro (Ratio 16.5:1 sobre surface-2) */
+  --text-secondary: #94A3B8;      /* Slate-400 nítido */
+  --text-muted: #64748B;          /* Slate-500 */
+  --text-disabled: #64748B;
+  --text-on-accent: #020617;
+  --text-on-primary: #FFFFFF;
+
+  /* Acentos tácticos */
+  --primary: #F59E0B;             /* Ámbar de acción principal */
+  --primary-hover: #D97706;
+  --primary-contrast: #020617;
+  --primary-glow: rgba(245, 158, 11, 0.35);
+
+  --accent-info: #3B82F6;         /* Cámaras LPR y enlaces */
+  --accent-info-bg: rgba(59, 130, 246, 0.15);
+  --accent-info-border: rgba(59, 130, 246, 0.40);
+
+  --accent-success: #10B981;      /* Plazas Libres y Recaudo */
+  --accent-success-bg: rgba(16, 185, 129, 0.16);
+  --accent-success-border: #10B981;
+
+  --accent-danger: #EF4444;       /* Plazas Ocupadas / Alerta */
+  --accent-danger-bg: rgba(239, 68, 68, 0.18);
+  --accent-danger-border: #EF4444;
+
+  --accent-warning: #F59E0B;
+  --accent-warning-bg: rgba(245, 158, 11, 0.18);
+  --accent-warning-border: #F59E0B;
+
+  /* Bordes y Sombras */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-focus: #F59E0B;
+  --border-input: #334155;
+
+  --shadow-low: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  --shadow-modal: 0 20px 35px -5px rgba(0, 0, 0, 0.7);
+  --glow-primary: 0 0 16px -2px var(--primary-glow);
+
+  /* Compatibilidad con componentes legacy */
+  --bg-surface: var(--bg-surface-2);
+  --bg-card: var(--bg-surface-2);
+  --bg-subcard: var(--bg-surface-hover);
+  --bg-header: var(--bg-surface-1);
+  --bg-input: var(--bg-surface-3);
+  --border-ui: var(--border-subtle);
+  --border-color: var(--border-subtle);
+  --border-hover: var(--border-strong);
+  --text-main: var(--text-primary);
+  --text-label: var(--text-primary);
+  --brand-accent: var(--primary);
+  --brand-accent-bg: var(--accent-info-bg);
+  --brand-accent-text: var(--accent-info);
+}
+
+/* 2. MODO CLARO DE ALTO CONTRASTE (LIGHT MODE - LUZ SOLAR) */
+:root[data-theme="light"],
+[data-theme="light"],
+html.light {
+  transition: background-color 0.25s ease, color 0.25s ease;
+  color-scheme: light;
+
+  /* Fondos por capas */
+  --bg-app: #F8FAFC;              /* Blanco técnico antirreflejos */
+  --bg-surface-1: #FFFFFF;        /* Sidebar y TopNavbar limpios */
+  --bg-surface-2: #FFFFFF;        /* Tarjetas de taquilla y tablas */
+  --bg-surface-3: #F1F5F9;        /* Inputs y campos de búsqueda */
+  --bg-surface-hover: #E2E8F0;
+  --bg-modal-backdrop: rgba(15, 23, 42, 0.55);
+
+  /* Textos de alta legibilidad (Elimina grises lavados) */
+  --text-primary: #020617;        /* Negro Slate-950 puro (Ratio > 18:1 sobre blanco) */
+  --text-secondary: #334155;      /* Slate-700 nítido (Ratio > 7.5:1) */
+  --text-muted: #64748B;
+  --text-disabled: #94A3B8;
+  --text-on-accent: #020617;
+  --text-on-primary: #FFFFFF;
+
+  /* Acentos tácticos */
+  --primary: #D97706;             /* Ámbar profundo de alto contraste */
+  --primary-hover: #B45309;
+  --primary-contrast: #FFFFFF;
+  --primary-glow: rgba(217, 119, 6, 0.25);
+
+  --accent-info: #2563EB;
+  --accent-info-bg: #EFF6FF;
+  --accent-info-border: #BFDBFE;
+
+  --accent-success: #059669;
+  --accent-success-bg: #ECFDF5;
+  --accent-success-border: #34D399;
+
+  --accent-danger: #DC2626;
+  --accent-danger-bg: #FEF2F2;
+  --accent-danger-border: #F87171;
+
+  --accent-warning: #D97706;
+  --accent-warning-bg: #FFFBEB;
+  --accent-warning-border: #FCD34D;
+
+  /* Bordes y Sombras */
+  --border-subtle: #E2E8F0;
+  --border-strong: #CBD5E1;
+  --border-focus: #2563EB;
+  --border-input: #CBD5E1;
+
+  --shadow-low: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 4px 14px 0 rgba(15, 23, 42, 0.08);
+  --shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.15);
+  --glow-primary: 0 0 12px rgba(217, 119, 6, 0.20);
+
+  /* Mapeo de compatibilidad */
+  --bg-surface: var(--bg-surface-2);
+  --bg-card: var(--bg-surface-2);
+  --bg-subcard: var(--bg-surface-hover);
+  --bg-header: var(--bg-surface-1);
+  --bg-input: var(--bg-surface-3);
+  --border-ui: var(--border-subtle);
+  --border-color: var(--border-subtle);
+  --border-hover: var(--border-strong);
+  --text-main: var(--text-primary);
+  --text-label: var(--text-primary);
+  --brand-accent: var(--primary);
+  --brand-accent-bg: var(--accent-info-bg);
+  --brand-accent-text: var(--accent-info);
+}
+
+/* 3. CLASES UTILITARIAS INDESTRUCTIBLES DE TEXTO (ANTI-CLASH WCAG AAA) */
+.u-text-main {
+  color: var(--text-primary) !important;
+}
+.u-text-sub {
+  color: var(--text-secondary) !important;
+}
+.u-text-muted {
+  color: var(--text-muted) !important;
+}
+.u-panel {
+  background-color: var(--bg-surface-2) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-card) !important;
+  color: var(--text-primary) !important;
+}
+.u-input {
+  background-color: var(--bg-surface-3) !important;
+  border: 1px solid var(--border-input) !important;
+  color: var(--text-primary) !important;
+}
+.u-input:focus {
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 2px var(--primary-glow) !important;
+}
+
+
+
+/* ========================================================================= */
+/* ESTILOS BASE GLOBALES                                                     */
+/* ========================================================================= */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Transición suave para superficies, tarjetas y bordes al alternar temas */
+*, *::before, *::after {
+  border-color: var(--border-subtle, #e2e8f0);
+}
+
+.theme-transition,
+header,
+nav,
+aside,
+main,
+section,
+button,
+input,
+select,
+textarea {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+/* ========================================================================= */
+/* AUDITORÍA Y ACCESIBILIDAD WCAG                                            */
+/* ========================================================================= */
+.wcag-aaa-text {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.wcag-fail-highlight {
+  outline: 2.5px dashed #ef4444 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35) !important;
+  position: relative !important;
+  animation: wcag-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+  border-radius: 4px !important;
+}
+
+@keyframes wcag-pulse {
+  0%, 100% {
+    outline-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    outline-color: #f87171;
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.65);
+  }
+}
+
+/* Animaciones suaves */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out forwards;
+}
+
+/* ========================================================================= */
+/* AMBIENTE CYBER POS / PORTAL DE ACCESO Y LOGIN                             */
+/* ========================================================================= */
+.animated-background {
+  background: radial-gradient(circle at 50% 15%, #131c31 0%, #090e1a 50%, #04060c 100%) !important;
+  background-color: #070b14 !important;
+}
+
+.slow-star {
+  position: absolute;
+  background: rgba(251, 191, 36, 0.85);
+  border-radius: 9999px;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+  pointer-events: none;
+  animation: starPulse infinite ease-in-out alternate;
+}
+
+@keyframes starPulse {
+  0% { opacity: 0.25; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1.35); }
+}
+
+/* ========================================================================= */
+/* IMPRESIÓN TÉRMICA DE TICKETS Y COMPROBANTES POS (80mm y 58mm)             */
+/* ========================================================================= */
+@media print {
+  @page {
+    margin: 0 !important;
+    size: auto !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Si hay un ticket o comprobante en pantalla, aislarlo exclusivamente para bobina térmica */
+  body:has(#printable-ticket, .printable-receipt) * {
+    visibility: hidden !important;
+  }
+
+  body:has(#printable-ticket, .printable-receipt) #printable-ticket,
+  body:has(#printable-ticket, .printable-receipt) #printable-ticket *,
+  body:has(#printable-ticket, .printable-receipt) .printable-receipt,
+  body:has(#printable-ticket, .printable-receipt) .printable-receipt * {
+    visibility: visible !important;
+  }
+
+  #printable-ticket,
+  .printable-receipt {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    padding: 3mm 2mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ancho Estándar 80mm */
+  #printable-ticket,
+  #printable-ticket.paper-80mm,
+  #printable-ticket[data-paper-width="80mm"],
+  .printable-receipt,
+  .printable-receipt.paper-80mm,
+  .printable-receipt[data-paper-width="80mm"] {
+    width: 80mm !important;
+    max-width: 80mm !important;
+  }
+
+  /* Ancho Compacto 58mm (Mini-printer) */
+  #printable-ticket.paper-58mm,
+  #printable-ticket[data-paper-width="58mm"],
+  .printable-receipt.paper-58mm,
+  .printable-receipt[data-paper-width="58mm"] {
+    width: 58mm !important;
+    max-width: 58mm !important;
+    font-size: 9.5px !important;
+    padding: 2mm 1mm !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+}
+
+/* ========================================================================= */
+/* BLINDAJE UNIVERSAL DE CONTRASTE Y LEGIBILIDAD (ANTI-CLASH WCAG AAA)       */
+/* ========================================================================= */
+
+/* 1. MODO CLARO: El texto SIEMPRE debe ser oscuro sobre superficies claras */
+:root[data-theme="light"],
+html.light,
+[data-theme="light"] {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] body,
+html.light body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+}
+
+/* En Modo Claro: Encabezados y títulos siempre ultra-oscuros con máxima especificidad */
+:root[data-theme="light"] h1,
+:root[data-theme="light"] h2,
+:root[data-theme="light"] h3,
+:root[data-theme="light"] h4,
+:root[data-theme="light"] h5,
+:root[data-theme="light"] h6,
+html.light h1,
+html.light h2,
+html.light h3,
+html.light h4,
+html.light h5,
+html.light h6 {
+  color: #020617 !important;
+}
+
+/* En Modo Claro: Textos atenuados (slate-400 / gray-400 / slate-500) blindados para no lavarse */
+:root[data-theme="light"] .text-slate-400,
+:root[data-theme="light"] .text-gray-400,
+:root[data-theme="light"] .text-zinc-400,
+:root[data-theme="light"] .text-neutral-400,
+html.light .text-slate-400,
+html.light .text-gray-400,
+html.light .text-zinc-400,
+html.light .text-neutral-400 {
+  color: #334155 !important; /* Ratio > 7.5:1 contra fondo blanco */
+}
+
+:root[data-theme="light"] .text-slate-500,
+:root[data-theme="light"] .text-gray-500,
+:root[data-theme="light"] .text-zinc-500,
+:root[data-theme="light"] .text-neutral-500,
+html.light .text-slate-500,
+html.light .text-gray-500,
+html.light .text-zinc-500,
+html.light .text-neutral-500 {
+  color: #1E293B !important; /* Ratio > 10:1 contra fondo blanco */
+}
+
+/* En Modo Claro: Tablas y listas con contraste garantizado */
+:root[data-theme="light"] table thead th,
+html.light table thead th {
+  background-color: #F1F5F9 !important;
+  color: #020617 !important;
+  border-bottom: 2px solid #CBD5E1 !important;
+}
+
+:root[data-theme="light"] table tbody td,
+html.light table tbody td {
+  color: #0F172A !important;
+}
+
+/* En Modo Claro: Inputs, selects y textareas */
+:root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea,
+html.light input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+html.light select,
+html.light textarea {
+  background-color: #FFFFFF !important;
+  color: #020617 !important;
+  border-color: #CBD5E1 !important;
+}
+
+:root[data-theme="light"] input::placeholder,
+:root[data-theme="light"] textarea::placeholder,
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* 2. MODO OSCURO: El texto SIEMPRE debe ser claro sobre superficies oscuras */
+:root[data-theme="dark"],
+html.dark,
+[data-theme="dark"] {
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] body,
+html.dark body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+}
+
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6,
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #F8FAFC !important;
+}
+
+/* En Modo Oscuro: Textos atenuados garantizados para no perderse */
+:root[data-theme="dark"] .text-slate-500,
+:root[data-theme="dark"] .text-gray-500,
+:root[data-theme="dark"] .text-zinc-500,
+:root[data-theme="dark"] .text-neutral-500,
+html.dark .text-slate-500,
+html.dark .text-gray-500,
+html.dark .text-zinc-500,
+html.dark .text-neutral-500 {
+  color: #94A3B8 !important; /* Ratio > 5.5:1 contra oscuro */
+}
+
+:root[data-theme="dark"] .text-slate-400,
+:root[data-theme="dark"] .text-gray-400,
+:root[data-theme="dark"] .text-zinc-400,
+:root[data-theme="dark"] .text-neutral-400,
+html.dark .text-slate-400,
+html.dark .text-gray-400,
+html.dark .text-zinc-400,
+html.dark .text-neutral-400 {
+  color: #CBD5E1 !important; /* Ratio > 8.5:1 contra oscuro */
+}
+
+/* Prevenir texto oscuro accidental sobre fondo oscuro (excluye placas amarillas y chips con fondo explícito) */
+:root[data-theme="dark"] p.text-slate-900:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+:root[data-theme="dark"] span.text-slate-900:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+:root[data-theme="dark"] div.text-slate-900:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark p.text-slate-900:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark span.text-slate-900:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark div.text-slate-900:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]) {
+  color: #F8FAFC !important;
+}
+
+:root[data-theme="dark"] p.text-slate-800:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+:root[data-theme="dark"] span.text-slate-800:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark p.text-slate-800:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark span.text-slate-800:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]) {
+  color: #E2E8F0 !important;
+}
+
+:root[data-theme="dark"] p.text-slate-700:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+:root[data-theme="dark"] span.text-slate-700:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark p.text-slate-700:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]),
+html.dark span.text-slate-700:not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-white"]):not([class*="pos-plate"]) {
+  color: #CBD5E1 !important;
+}
+
+/* En Modo Oscuro: Tablas */
+:root[data-theme="dark"] table thead th,
+html.dark table thead th {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-bottom: 2px solid #334155 !important;
+}
+
+:root[data-theme="dark"] table tbody td,
+html.dark table tbody td {
+  color: #F1F5F9 !important;
+}
+
+/* En Modo Oscuro: Inputs, selects y textareas */
+:root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea,
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+html.dark select,
+html.dark textarea {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+/* 3. ALTO CONTRASTE TÁCTIL WCAG AAA (Cuando data-contrast-level="high") */
+[data-contrast-level="high"] :root,
+:root[data-contrast-level="high"],
+html[data-contrast-level="high"] {
+  --border-subtle: #475569;
+  --border-strong: #000000;
+}
+
+html[data-contrast-level="high"].light {
+  --text-primary: #000000 !important;
+  --text-secondary: #0F172A !important;
+  --border-subtle: #94A3B8 !important;
+  --border-input: #475569 !important;
+}
+
+html[data-contrast-level="high"].dark {
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #F1F5F9 !important;
+  --border-subtle: #64748B !important;
+  --border-input: #94A3B8 !important;
+}

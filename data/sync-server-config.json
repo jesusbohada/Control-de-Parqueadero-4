@@ -1,0 +1,19 @@
+{
+  "localDbHost": "localhost",
+  "localDbName": "PostgreSQL_Parqueadero_SERVER-CENTRAL",
+  "localDbUser": "admin",
+  "localDbPassword": "••••••••",
+  "localOperatingSystem": "Windows 10 / 11 Pro",
+  "remoteDbHost": "152.200.144.62:3001",
+  "remoteDbName": "ParqueaderoPOS_CENTRAL_DB",
+  "remoteDbUser": "admin_central",
+  "remoteDbPassword": "",
+  "remoteWebSocketsUrl": "ws://152.200.144.62:3001/ws",
+  "nodeRole": "branch",
+  "autoSyncEnabled": true,
+  "autoSyncIntervalMinutes": 5,
+  "lastSyncTimestamp": "2026-10-14T20:54:44.373Z",
+  "connectionStatus": "connected",
+  "latencyMs": 18,
+  "lastUpdated": "2026-10-15T16:54:40.959Z"
+}

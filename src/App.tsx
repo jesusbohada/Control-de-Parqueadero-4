@@ -1,0 +1,4169 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  ParkingSpot, 
+  ParkingTicket, 
+  RatesConfig, 
+  ParkingBusinessInfo, 
+  CashShift, 
+  VehicleType, 
+  PaymentMethod,
+  TerminalConfig,
+  SystemUser,
+  PaymentGatewayConfig,
+  PaymentTransactionDetails,
+  OperationalDay,
+  VehicleCategoryConfig,
+  ExpenseConcept,
+  ExpenseCategory,
+  CashMovement,
+  BranchLocation,
+  CentralUpdatePackage,
+  SoftwareReleaseBuild,
+  BranchSyncAuditRecord,
+  SystemNodeConfig,
+  Warehouse,
+  PosPoint,
+  RemoteExecutionOrder,
+  PrinterConfig
+} from './types';
+import { printInstantThermal } from './services/printerService';
+import { PrinterSettingsModal } from './components/PrinterSettingsModal';
+import { 
+  DEFAULT_RATES, 
+  DEFAULT_BUSINESS_INFO, 
+  INITIAL_SPOTS, 
+  INITIAL_ACTIVE_TICKETS, 
+  INITIAL_PAID_TICKETS, 
+  INITIAL_CASH_SHIFT,
+  INITIAL_OPERATIONAL_DAY,
+  INITIAL_USERS,
+  DEFAULT_PAYMENT_GATEWAY_CONFIG,
+  INITIAL_VEHICLE_CATEGORIES,
+  INITIAL_EXPENSE_CONCEPTS,
+  INITIAL_EXPENSE_CATEGORIES,
+  INITIAL_CLOSED_SHIFTS,
+  INITIAL_CLOSED_DAYS,
+  INITIAL_BRANCHES,
+  INITIAL_CENTRAL_PACKAGES,
+  INITIAL_SOFTWARE_BUILDS,
+  INITIAL_SYNC_AUDIT_LOGS,
+  INITIAL_SYSTEM_NODE_CONFIG,
+  INITIAL_WAREHOUSES,
+  INITIAL_POS_POINTS,
+  INITIAL_REMOTE_ORDERS
+} from './data/initialData';
+import { 
+  ensureUniqueBranchFarmadeskCredentials, 
+  generateFarmadeskId, 
+  generateFarmadeskPassword 
+} from './utils/farmadeskCredentials';
+import {
+  reportBranchHeartbeatAndIp,
+  detectCurrentPublicIp,
+  fetchBranchesTelemetry
+} from './services/centralSyncService';
+import { 
+  loadTerminalDatabaseData,
+  getStoredTerminalId,
+  getDatabaseNameForTerminal,
+  exportDatabaseBackup,
+  dbSaveSpots,
+  dbSaveActiveTicket,
+  dbRemoveActiveTicket,
+  dbSavePaidTicket,
+  dbSaveRates,
+  dbSaveBusinessInfo,
+  dbSaveCashShift,
+  dbAddAuditLog,
+  dbGetUsers,
+  dbSaveUser,
+  dbSaveUsers,
+  dbDeleteUser,
+  dbSavePaymentGatewayConfig
+} from './db/terminalDatabase';
+import { Building2, XCircle, Monitor, Radio, Cpu, HardDrive, RefreshCw, Terminal, Keyboard, MousePointer, ShieldAlert, Wifi, Sliders, Send, Settings, User, ExternalLink, Car, Database, ShieldCheck, Printer } from 'lucide-react';
+import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
+import { Sidebar } from './components/Sidebar';
+import { TopNavbar } from './components/TopNavbar';
+import { OperationsView } from './components/OperationsView';
+import { ParkingMap } from './components/ParkingMap';
+import { RealTimeReports } from './components/RealTimeReports';
+import { CashShiftModal } from './components/CashShiftModal';
+import { RatesSettingsModal } from './components/RatesSettingsModal';
+import { TicketModal } from './components/TicketModal';
+import { TerminalDatabaseModal } from './components/TerminalDatabaseModal';
+import { ProtectedRoutesManager } from './components/ProtectedRoutesManager';
+import { AccessGate } from './components/AccessGate';
+import { LoginView } from './components/LoginView';
+import { UsersManagementModal } from './components/UsersManagementModal';
+import { VehicleCategoriesModal } from './components/VehicleCategoriesModal';
+import { ExpenseConceptsModal } from './components/ExpenseConceptsModal';
+import { SpotsManagementModal } from './components/SpotsManagementModal';
+import { CentralHubModal } from './components/CentralHubModal';
+import { BranchSyncModal } from './components/BranchSyncModal';
+import { SoftwareUpdaterModal } from './components/SoftwareUpdaterModal';
+import { SystemWorkModeConfigModal } from './components/SystemWorkModeConfigModal';
+import { BranchesManagementModal } from './components/BranchesManagementModal';
+import { AnprCameraModule } from './components/AnprCameraModule';
+import { VncRemoteDesktop } from './components/VncRemoteDesktop';
+import { RemoteControlWorkspace } from './components/RemoteControlWorkspace';
+import { FarmaDeskDocsModal } from './components/FarmaDeskDocsModal';
+import { CentralDashboard } from './components/CentralDashboard';
+import { TicketScannerModal } from './components/TicketScannerModal';
+import { BarcodeScanToast } from './components/BarcodeScanToast';
+import { useBarcodeScanner } from './hooks/useBarcodeScanner';
+import { ThemeId, EnvThemeId } from './types/theme';
+import { ThemeManager, ContrastLevel, ThemeMode } from './utils/themeManager';
+import { calculateParkingFee, formatPlate, formatCurrency } from './utils/billing';
+import { playSound } from './utils/audio';
+import { ensurePaymentGatewayConfigDefaults } from './utils/paymentUtils';
+import {
+  publishCentralPackage,
+  recordPackageApplied,
+  pullCentralData,
+  pushBranchTelemetry,
+  fetchCentralPackages,
+  getServerDataConfig,
+  getInstalledGlobalVersion,
+  setInstalledGlobalVersion,
+  fetchCentralGlobalVersion,
+  pushBranchOperationsToCentral,
+  fetchBranchesOperations
+} from './services/centralSyncService';
+import { FarmaDeskSocketClient } from './services/websocketService';
+import { webNotificationService } from './services/webNotificationService';
+import { SystemRecoveryModal, IntegrityCheckResult } from './components/SystemRecoveryModal';
+import { AuditHistory } from './components/AuditHistory';
+import { 
+  DEFAULT_PROTECTED_ROUTES, 
+  ProtectedRouteConfig, 
+  saveAuthorizedRoute, 
+  clearAuthorizedRoutesSession,
+  getStoredAuthorizedRoutes,
+  getStoredDynamicRoutes,
+  saveDynamicRoutes
+} from './types/routes';
+
+export default function App() {
+  // --- Rutina de Verificación de Integridad de Base de Datos y Recuperación de Sistema ---
+  const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
+  const [integrityCheckData, setIntegrityCheckData] = useState<IntegrityCheckResult | null>(null);
+
+  // --- Monitoreo de Espacio en Disco del Host (< 500MB crítico) ---
+  const [diskSpaceInfo, setDiskSpaceInfo] = useState<{
+    freeMB: number;
+    totalMB: number;
+    freeGB: number;
+    totalGB: number;
+    isCritical: boolean;
+    isWarning: boolean;
+  } | null>(null);
+  const [isDiskSpaceDismissed, setIsDiskSpaceDismissed] = useState<boolean>(false);
+
+  // --- Flexible Multi-Protected Administrative Routes Configuration (Dynamic & Persisted) ---
+  const [protectedRoutes, setProtectedRoutes] = useState<ProtectedRouteConfig[]>(() => {
+    return getStoredDynamicRoutes();
+  });
+
+  const [databaseSubTab, setDatabaseSubTab] = useState<'terminal_db' | 'protected_routes' | 'audit_history'>('terminal_db');
+
+  const handleUpdateProtectedRoutes = (newRoutes: ProtectedRouteConfig[]) => {
+    setProtectedRoutes(newRoutes);
+    saveDynamicRoutes(newRoutes);
+  };
+
+  const [isPathAuthorized, setIsPathAuthorized] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    const currentPath = window.location.pathname.toLowerCase();
+    const sessionAuth = sessionStorage.getItem('wolfzone_authorized_path') || localStorage.getItem('wolfzone_authorized_path');
+    
+    // Check if the current URL matches any configured protected route
+    const currentRoutes = getStoredDynamicRoutes();
+    const matchesConfiguredRoute = currentRoutes.some(route => {
+      const clean = route.path.toLowerCase().replace(/^\/+/, '');
+      return currentPath.includes(clean);
+    });
+
+    const isRoot = currentPath === '/' || currentPath === '';
+    if (matchesConfiguredRoute || sessionAuth === 'true' || isRoot) {
+      return true;
+    }
+    return false;
+  });
+
+  const [currentPathname, setCurrentPathname] = useState<string>(() => {
+    return typeof window !== 'undefined' ? window.location.pathname : '/';
+  });
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      setCurrentPathname(window.location.pathname);
+      const isRoot = path === '/' || path === '';
+      const matchesConfigured = isRoot || protectedRoutes.some(route => {
+        const clean = route.path.toLowerCase().replace(/^\/+/, '');
+        return path.includes(clean);
+      });
+      if (matchesConfigured) {
+        setIsPathAuthorized(true);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [protectedRoutes]);
+
+  const handleGrantAccess = (targetRoute?: ProtectedRouteConfig) => {
+    const route = targetRoute || protectedRoutes[0];
+    saveAuthorizedRoute(route.path);
+    setIsPathAuthorized(true);
+    setCurrentPathname(route.path);
+    if (route.defaultView) {
+      setActiveView(route.defaultView);
+    }
+    if (route.defaultCategory) {
+      setActiveCategory(route.defaultCategory);
+    }
+  };
+
+  // --- Users & Authentication State ---
+  const [users, setUsers] = useState<SystemUser[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_system_users');
+      if (!saved) return INITIAL_USERS;
+      const parsed: SystemUser[] = JSON.parse(saved);
+      const updated = parsed.map(u => {
+        if (u.username === 'admin' && (u.password === 'admin' || !u.password)) {
+          return { ...u, password: 'admin123' };
+        }
+        if (u.username === 'supervisor' && (u.password === 'super' || !u.password)) {
+          return { ...u, password: 'super123' };
+        }
+        if (u.username === 'caja' && (u.password === 'caja' || !u.password)) {
+          return { ...u, password: 'caja123' };
+        }
+        return u;
+      });
+      if (!updated.some(u => u.username === 'cajero')) {
+        const cajeroUser = INITIAL_USERS.find(u => u.username === 'cajero');
+        if (cajeroUser) updated.push(cajeroUser);
+      }
+      return updated;
+    } catch {
+      return INITIAL_USERS;
+    }
+  });
+
+  // Persistent sync and detailed logging for `users` state changes
+  useEffect(() => {
+    console.log('🔍 [LOG DETALLADO - UPDATE ESTADO USERS] Estado `users` ha sido actualizado en App.tsx:', {
+      timestamp: new Date().toISOString(),
+      totalUsersInState: users.length,
+      usersList: users.map(u => ({
+        id: u.id,
+        name: u.name,
+        username: u.username,
+        role: u.role,
+        isActive: u.isActive,
+        createdAt: u.createdAt,
+      })),
+      localStoragePrevious: localStorage.getItem('pk_system_users') ? 'Existe valor' : 'Vacío',
+    });
+
+    try {
+      localStorage.setItem('pk_system_users', JSON.stringify(users));
+      console.log('✅ [LOG DETALLADO - PERSISTENCIA LOCALSTORAGE] Estado `users` guardado correctamente en localStorage (`pk_system_users`). Count:', users.length);
+    } catch (err) {
+      console.error('❌ [LOG DETALLADO - PERSISTENCIA LOCALSTORAGE ERROR] Error guardando usuarios en localStorage:', err);
+    }
+  }, [users]);
+
+  const [currentUser, setCurrentUser] = useState<SystemUser | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const savedUser = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        // Ensure immediate parity between both storages
+        localStorage.setItem('pk_current_user', savedUser);
+        sessionStorage.setItem('pk_current_user', savedUser);
+        localStorage.setItem('wolfzone_authorized_path', 'true');
+        return parsed;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  // Ensure any active currentUser is automatically propagated to localStorage for other tabs
+  useEffect(() => {
+    if (currentUser) {
+      try {
+        const serialized = JSON.stringify(currentUser);
+        localStorage.setItem('pk_current_user', serialized);
+        sessionStorage.setItem('pk_current_user', serialized);
+        localStorage.setItem('wolfzone_authorized_path', 'true');
+        sessionStorage.setItem('wolfzone_authorized_path', 'true');
+      } catch (err) {
+        console.error('Error syncing currentUser across storages:', err);
+      }
+    }
+  }, [currentUser]);
+
+  // Cross-tab synchronization via StorageEvent and BroadcastChannel
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'pk_current_user') {
+        if (e.newValue) {
+          try {
+            setCurrentUser(JSON.parse(e.newValue));
+          } catch {
+            // ignore
+          }
+        } else {
+          setCurrentUser(null);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // Instant cross-tab auth handshake via BroadcastChannel
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('wolfzone_tab_auth');
+      channel.onmessage = (event) => {
+        if (event.data?.type === 'REQUEST_AUTH') {
+          if (currentUser) {
+            channel?.postMessage({ type: 'SYNC_AUTH', user: currentUser });
+          }
+        } else if (event.data?.type === 'SYNC_AUTH') {
+          if (event.data?.user && !currentUser) {
+            setCurrentUser(event.data.user);
+          }
+        }
+      };
+
+      if (!currentUser) {
+        channel.postMessage({ type: 'REQUEST_AUTH' });
+      }
+    } catch {
+      // BroadcastChannel optional fallback
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      try {
+        channel?.close();
+      } catch {
+        // ignore
+      }
+    };
+  }, [currentUser]);
+
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+
+  const handleLockTerminal = () => {
+    clearAuthorizedRoutesSession();
+    sessionStorage.removeItem('pk_current_user');
+    localStorage.removeItem('pk_current_user');
+    setCurrentUser(null);
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', '/');
+      setCurrentPathname('/');
+    }
+    setIsPathAuthorized(false);
+  };
+
+  // --- Pure High-Contrast Theme System (Reactivo & Persistente) ---
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => ThemeManager.getTheme() === 'dark');
+
+  // --- Manual Contrast Level State (Low / Medium / High) ---
+  const [contrastLevel, setContrastLevel] = useState<ContrastLevel>(() => ThemeManager.getContrastLevel());
+
+  const [isAccessibilityReportOpen, setIsAccessibilityReportOpen] = useState(false);
+
+  const handleSelectContrastLevel = (level: ContrastLevel) => {
+    setContrastLevel(level);
+    ThemeManager.applyContrastLevel(level);
+    playSound('beep', soundEnabled);
+  };
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('wolfpos_sidebar_collapsed');
+      if (saved !== null) return saved === 'true';
+    }
+    return false;
+  });
+
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => {
+      const next = !prev;
+      ThemeManager.applyTheme(next ? 'dark' : 'light', 'global_project');
+      playSound('beep', soundEnabled);
+      return next;
+    });
+  };
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed(prev => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('wolfpos_sidebar_collapsed', String(next));
+      }
+      return next;
+    });
+  };
+
+  // 1. Inicialización y sincronización multi-ventana
+  useEffect(() => {
+    ThemeManager.initTheme();
+
+    // Suscripción reactiva interna al cambio de modo claro/oscuro
+    const unsubscribeTheme = ThemeManager.subscribeTheme((mode) => {
+      setIsDarkMode(mode === 'dark');
+    });
+
+    // Escucha de eventos de almacenamiento entre ventanas/pestañas
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === ThemeManager.themeKey && (e.newValue === 'light' || e.newValue === 'dark')) {
+        ThemeManager.applyTheme(e.newValue, 'active_window');
+        setIsDarkMode(e.newValue === 'dark');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      unsubscribeTheme();
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // --- Terminal Database Identification & Configuration ---
+  const [terminalConfig, setTerminalConfig] = useState<TerminalConfig>(() => ({
+    terminalId: getStoredTerminalId(),
+    terminalName: `Taquilla ${getStoredTerminalId()}`,
+    databaseName: getDatabaseNameForTerminal(getStoredTerminalId()),
+    createdAt: new Date().toISOString()
+  }));
+
+  const [isDatabaseModalOpen, setIsDatabaseModalOpen] = useState(false);
+
+  // --- Persistent State Initialization ---
+  const [spots, setSpots] = useState<ParkingSpot[]>(() => {
+    const saved = localStorage.getItem('pk_spots_data');
+    return saved ? JSON.parse(saved) : INITIAL_SPOTS;
+  });
+
+  const [activeTickets, setActiveTickets] = useState<ParkingTicket[]>(() => {
+    const saved = localStorage.getItem('pk_active_tickets');
+    return saved ? JSON.parse(saved) : INITIAL_ACTIVE_TICKETS;
+  });
+
+  const [paidTickets, setPaidTickets] = useState<ParkingTicket[]>(() => {
+    const saved = localStorage.getItem('pk_paid_tickets');
+    return saved ? JSON.parse(saved) : INITIAL_PAID_TICKETS;
+  });
+
+  const [rates, setRates] = useState<RatesConfig>(() => {
+    const saved = localStorage.getItem('pk_rates_config');
+    return saved ? JSON.parse(saved) : DEFAULT_RATES;
+  });
+
+  const [businessInfo, setBusinessInfo] = useState<ParkingBusinessInfo>(() => {
+    const saved = localStorage.getItem('pk_business_info');
+    return saved ? JSON.parse(saved) : DEFAULT_BUSINESS_INFO;
+  });
+
+  const [currentShift, setCurrentShift] = useState<CashShift>(() => {
+    const saved = localStorage.getItem('pk_current_shift');
+    return saved ? JSON.parse(saved) : INITIAL_CASH_SHIFT;
+  });
+
+  const [operationalDay, setOperationalDay] = useState<OperationalDay>(() => {
+    const saved = localStorage.getItem('pk_operational_day');
+    return saved ? JSON.parse(saved) : INITIAL_OPERATIONAL_DAY;
+  });
+
+  const [backupLockState, setBackupLockState] = useState<{
+    isLocked: boolean;
+    message: string;
+    type: 'shift' | 'day' | null;
+  } | null>(null);
+
+  const triggerBlockingBackup = async (type: 'shift' | 'day'): Promise<boolean> => {
+    setBackupLockState({
+      isLocked: true,
+      message: `Generando y comprimiendo Copia de Seguridad obligatoria en formato ZIP de alta densidad (${type === 'shift' ? 'Arqueo de Turno' : 'Cierre Definitivo de Día'}). Por favor espera, no cierres la aplicación...`,
+      type
+    });
+
+    try {
+      // Pause to let the UI update and show the blocking backdrop
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      const jsonBackup = await exportDatabaseBackup();
+      
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+      const timeStr = `${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+      const terminalId = getStoredTerminalId();
+      const dbName = getDatabaseNameForTerminal(terminalId);
+
+      const jsonFilename = `BACKUP_${type === 'shift' ? 'ARQUEO_TURNO' : 'CIERRE_DEFINITIVO'}_${dbName}_${dateStr}_${timeStr}.json`;
+      const zipFilename = `BACKUP_${type === 'shift' ? 'ARQUEO_TURNO' : 'CIERRE_DEFINITIVO'}_${dbName}_${dateStr}_${timeStr}.zip`;
+
+      // Dynamically import fflate to prevent compilation errors during background npm installations
+      let fflateModule;
+      try {
+        fflateModule = await import('fflate');
+      } catch (e) {
+        throw new Error('La librería de compresión se está terminando de descargar e instalar en segundo plano. Por favor, espere 5 segundos y vuelva a intentarlo.');
+      }
+      const { zipSync, strToU8 } = fflateModule;
+
+      // Compress using fflate with maximum compression level (level 9)
+      const u8Data = strToU8(jsonBackup);
+      const zipped = zipSync({
+        [jsonFilename]: [u8Data, { level: 9 }]
+      });
+
+      const blob = new Blob([zipped], { type: 'application/zip' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = url;
+      a.download = zipFilename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setBackupLockState({
+        isLocked: true,
+        message: '¡Copia de seguridad comprimida ZIP descargada con éxito! Desbloqueando la aplicación...',
+        type
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setBackupLockState(null);
+      return true;
+    } catch (err: any) {
+      console.error('[Backup Error]', err);
+      setBackupLockState({
+        isLocked: true,
+        message: `❌ Error al generar la copia de seguridad comprimida: ${err.message || 'Error desconocido'}. El proceso está bloqueado por seguridad.`,
+        type
+      });
+
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem('pk_operational_day', JSON.stringify(operationalDay));
+  }, [operationalDay]);
+
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
+    const saved = localStorage.getItem('pk_sound_enabled');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const [paymentGatewayConfig, setPaymentGatewayConfig] = useState<PaymentGatewayConfig>(() => {
+    try {
+      const saved = localStorage.getItem('pk_payment_gateway_config');
+      return ensurePaymentGatewayConfigDefaults(saved ? JSON.parse(saved) : null);
+    } catch {
+      return DEFAULT_PAYMENT_GATEWAY_CONFIG;
+    }
+  });
+
+  const [vehicleCategories, setVehicleCategories] = useState<VehicleCategoryConfig[]>(() => {
+    const saved = localStorage.getItem('pk_vehicle_categories');
+    return saved ? JSON.parse(saved) : INITIAL_VEHICLE_CATEGORIES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_vehicle_categories', JSON.stringify(vehicleCategories));
+  }, [vehicleCategories]);
+
+  const [expenseCategories, setExpenseCategories] = useState<ExpenseCategory[]>(() => {
+    const saved = localStorage.getItem('pk_expense_categories');
+    return saved ? JSON.parse(saved) : INITIAL_EXPENSE_CATEGORIES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_expense_categories', JSON.stringify(expenseCategories));
+  }, [expenseCategories]);
+
+  const [expenseConcepts, setExpenseConcepts] = useState<ExpenseConcept[]>(() => {
+    const saved = localStorage.getItem('pk_expense_concepts');
+    return saved ? JSON.parse(saved) : INITIAL_EXPENSE_CONCEPTS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_expense_concepts', JSON.stringify(expenseConcepts));
+  }, [expenseConcepts]);
+
+  const [closedShiftsHistory, setClosedShiftsHistory] = useState<CashShift[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_closed_shifts_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error('Error loading pk_closed_shifts_history:', e);
+    }
+    return INITIAL_CLOSED_SHIFTS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pk_closed_shifts_history', JSON.stringify(closedShiftsHistory || []));
+    } catch (e) {
+      console.error('Error saving pk_closed_shifts_history:', e);
+    }
+  }, [closedShiftsHistory]);
+
+  const [closedDaysHistory, setClosedDaysHistory] = useState<OperationalDay[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_closed_days_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error('Error loading pk_closed_days_history:', e);
+    }
+    return INITIAL_CLOSED_DAYS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pk_closed_days_history', JSON.stringify(closedDaysHistory || []));
+    } catch (e) {
+      console.error('Error saving pk_closed_days_history:', e);
+    }
+  }, [closedDaysHistory]);
+
+  const handleUpdateShiftInHistory = (updatedShift: CashShift) => {
+    setClosedShiftsHistory(prev => {
+      const safePrev = Array.isArray(prev) ? prev : [];
+      return safePrev.map(s => s && s.id === updatedShift.id ? updatedShift : s);
+    });
+  };
+
+  const handleUpdateDayInHistory = (updatedDay: OperationalDay) => {
+    setClosedDaysHistory(prev => {
+      const safePrev = Array.isArray(prev) ? prev : [];
+      return safePrev.map(d => d && d.id === updatedDay.id ? updatedDay : d);
+    });
+  };
+
+  const [isPrinterModalOpen, setIsPrinterModalOpen] = useState(false);
+  const [printers, setPrinters] = useState<PrinterConfig[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_printers');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.warn('Error cargando impresoras desde localStorage:', e);
+    }
+    return [
+      { id: '1', name: 'Impresora Principal (Térmica POS)', printerName: 'POS-80', port: 'USB', isDefault: true, paperSize: '80mm', enabled: true, autoCut: true, openDrawer: true }
+    ];
+  });
+  
+  const handleSavePrinter = (printer: PrinterConfig) => {
+    setPrinters(prev => {
+      const exists = prev.some(p => p.id === printer.id);
+      let updated: PrinterConfig[];
+      if (printer.isDefault) {
+        // Si la que se guarda es predeterminada, desactivar isDefault en las demás
+        const sanitized = prev.map(p => ({ ...p, isDefault: false }));
+        updated = exists ? sanitized.map(p => p.id === printer.id ? printer : p) : [...sanitized, printer];
+      } else {
+        updated = exists ? prev.map(p => p.id === printer.id ? printer : p) : [...prev, printer];
+      }
+      try {
+        localStorage.setItem('pk_printers', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Error guardando impresoras:', e);
+      }
+      return updated;
+    });
+  };
+
+  const handleDeletePrinter = (printerId: string) => {
+    setPrinters(prev => {
+      const updated = prev.filter(p => p.id !== printerId);
+      try {
+        localStorage.setItem('pk_printers', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Error eliminando impresora:', e);
+      }
+      return updated;
+    });
+  };
+
+  // --- Multi-Branch, Central Hub & OTA Updater States ---
+  const [branches, setBranches] = useState<BranchLocation[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_branches');
+      const list = saved ? JSON.parse(saved) : INITIAL_BRANCHES;
+      return ensureUniqueBranchFarmadeskCredentials(list);
+    } catch {
+      return ensureUniqueBranchFarmadeskCredentials(INITIAL_BRANCHES);
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_branches', JSON.stringify(branches));
+  }, [branches]);
+
+  const [currentBranchId, setCurrentBranchId] = useState<string>(() => {
+    const saved = localStorage.getItem('pk_current_branch_id');
+    return (!saved || saved === 'branch-01') ? 'suc-001' : saved;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_current_branch_id', currentBranchId);
+  }, [currentBranchId]);
+
+  const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
+
+  const [centralPackages, setCentralPackages] = useState<CentralUpdatePackage[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_central_packages');
+      return saved ? JSON.parse(saved) : INITIAL_CENTRAL_PACKAGES;
+    } catch {
+      return INITIAL_CENTRAL_PACKAGES;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_central_packages', JSON.stringify(centralPackages));
+  }, [centralPackages]);
+
+  // Load packages from Central Server on startup and branch switch
+  useEffect(() => {
+    fetchCentralPackages(currentBranchId)
+      .then(remotePackages => {
+        if (remotePackages && remotePackages.length > 0) {
+          setCentralPackages(prev => {
+            const map = new Map<string, CentralUpdatePackage>();
+            const prevIds = new Set(prev.map(p => p.id));
+            // Add existing local packages
+            prev.forEach(p => map.set(p.id, p));
+            // Add or update with remote packages
+            remotePackages.forEach(p => {
+              map.set(p.id, p);
+              // Notificar al personal si es un paquete nuevo recibido y no aplicado
+              if (!prevIds.has(p.id) && !p.appliedByBranches?.some(b => b.branchId === currentBranchId)) {
+                webNotificationService.notifyPendingCentralPackage(
+                  p,
+                  currentBranch?.name,
+                  () => setIsBranchSyncModalOpen(true)
+                );
+              }
+            });
+            return Array.from(map.values());
+          });
+        }
+      })
+      .catch(err => console.warn('[App] Error consultando paquetes remotos:', err));
+  }, [currentBranchId]);
+
+  const [softwareBuilds, setSoftwareBuilds] = useState<SoftwareReleaseBuild[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_software_builds');
+      return saved ? JSON.parse(saved) : INITIAL_SOFTWARE_BUILDS;
+    } catch {
+      return INITIAL_SOFTWARE_BUILDS;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_software_builds', JSON.stringify(softwareBuilds));
+  }, [softwareBuilds]);
+
+  const [syncAuditLogs, setSyncAuditLogs] = useState<BranchSyncAuditRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_sync_audit_logs');
+      return saved ? JSON.parse(saved) : INITIAL_SYNC_AUDIT_LOGS;
+    } catch {
+      return INITIAL_SYNC_AUDIT_LOGS;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_sync_audit_logs', JSON.stringify(syncAuditLogs));
+  }, [syncAuditLogs]);
+
+  // --- Warehouses, POS Points & Remote Orders States ---
+  const [warehouses, setWarehouses] = useState<Warehouse[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_warehouses');
+      return saved ? JSON.parse(saved) : INITIAL_WAREHOUSES;
+    } catch {
+      return INITIAL_WAREHOUSES;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_warehouses', JSON.stringify(warehouses));
+  }, [warehouses]);
+
+  const [posPoints, setPosPoints] = useState<PosPoint[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_pos_points');
+      return saved ? JSON.parse(saved) : INITIAL_POS_POINTS;
+    } catch {
+      return INITIAL_POS_POINTS;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_pos_points', JSON.stringify(posPoints));
+  }, [posPoints]);
+
+  const [remoteOrders, setRemoteOrders] = useState<RemoteExecutionOrder[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_remote_orders');
+      return saved ? JSON.parse(saved) : INITIAL_REMOTE_ORDERS;
+    } catch {
+      return INITIAL_REMOTE_ORDERS;
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pk_remote_orders', JSON.stringify(remoteOrders));
+  }, [remoteOrders]);
+
+  const [isBranchesModalOpen, setIsBranchesModalOpen] = useState(false);
+
+  // Handlers para Sucursales, Bodegas y POS
+  const handleSaveBranch = (branchToSave: BranchLocation) => {
+    setBranches(prev => {
+      const exists = prev.some(b => b.id === branchToSave.id);
+      if (exists) {
+        return prev.map(b => b.id === branchToSave.id ? branchToSave : b);
+      }
+      return [branchToSave, ...prev];
+    });
+  };
+
+  const handleDeleteBranch = (branchId: string) => {
+    if (branches.length <= 1) {
+      alert('No se puede eliminar la única sucursal existente.');
+      return;
+    }
+    setBranches(prev => prev.filter(b => b.id !== branchId));
+  };
+
+  const handleSaveWarehouse = (whToSave: Warehouse) => {
+    setWarehouses(prev => {
+      const exists = prev.some(w => w.id === whToSave.id);
+      if (exists) {
+        return prev.map(w => w.id === whToSave.id ? whToSave : w);
+      }
+      return [whToSave, ...prev];
+    });
+  };
+
+  const handleDeleteWarehouse = (whId: string) => {
+    setWarehouses(prev => prev.filter(w => w.id !== whId));
+  };
+
+  const handleSavePosPoint = (posToSave: PosPoint) => {
+    setPosPoints(prev => {
+      const exists = prev.some(p => p.id === posToSave.id);
+      if (exists) {
+        return prev.map(p => p.id === posToSave.id ? posToSave : p);
+      }
+      return [posToSave, ...prev];
+    });
+  };
+
+  const handleDeletePosPoint = (posId: string) => {
+    setPosPoints(prev => prev.filter(p => p.id !== posId));
+  };
+
+  const handleExecuteRemoteOrder = (orderData: Omit<RemoteExecutionOrder, 'id' | 'commandNumber' | 'issuedAt' | 'status'>) => {
+    const nextCmdNum = `REM-${new Date().getFullYear()}-${String(remoteOrders.length + 1).padStart(4, '0')}`;
+    const newOrder: RemoteExecutionOrder = {
+      ...orderData,
+      id: `cmd-${Date.now()}`,
+      commandNumber: nextCmdNum,
+      issuedAt: new Date().toISOString(),
+      status: 'completed',
+      executionTimeMs: Math.floor(Math.random() * 80) + 20,
+      resultMessage: `Comando ejecutado remotamente con éxito sobre ${orderData.branchName || 'Sucursal'}. Estado: OK.`
+    };
+    setRemoteOrders(prev => [newOrder, ...prev]);
+  };
+
+  const [isCentralHubModalOpen, setIsCentralHubModalOpen] = useState(false);
+  const [isBranchSyncModalOpen, setIsBranchSyncModalOpen] = useState(false);
+  const [isSoftwareUpdaterModalOpen, setIsSoftwareUpdaterModalOpen] = useState(false);
+
+  // --- Strict Node Role & Work Mode Configuration (Server vs POS) ---
+  const [systemNodeConfig, setSystemNodeConfig] = useState<SystemNodeConfig>(() => {
+    try {
+      const saved = localStorage.getItem('pk_system_node_config');
+      return saved ? JSON.parse(saved) : INITIAL_SYSTEM_NODE_CONFIG;
+    } catch {
+      return INITIAL_SYSTEM_NODE_CONFIG;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pk_system_node_config', JSON.stringify(systemNodeConfig));
+    } catch (e) {
+      console.error('Error saving pk_system_node_config:', e);
+    }
+  }, [systemNodeConfig]);
+
+  const [isSystemWorkModeModalOpen, setIsSystemWorkModeModalOpen] = useState(false);
+
+  // --- Estado de Sesión de Control y Acceso Remoto POS en Vivo ---
+  const [activeRemoteSession, setActiveRemoteSession] = useState<{
+    branchId: string;
+    branchName: string;
+    city: string;
+    ipAddress: string;
+    connectedAt: string;
+    pingMs: number;
+    mode: 'system' | 'desktop';
+  } | null>(null);
+
+  const handleConnectRemoteBranch = (branch: BranchLocation, mode: 'system' | 'desktop') => {
+    setCurrentBranchId(branch.id);
+    setActiveRemoteSession({
+      branchId: branch.id,
+      branchName: branch.name,
+      city: branch.city,
+      ipAddress: branch.ipAddress || '192.168.1.100',
+      connectedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      pingMs: Math.floor(Math.random() * 12) + 12,
+      mode
+    });
+    if (mode === 'system') {
+      setActiveCategory('operations');
+      setActiveView('operations');
+    } else {
+      setActiveCategory('central');
+      setActiveView('vnc_remote');
+    }
+    setIsBranchesModalOpen(false);
+    playSound('success', soundEnabled);
+  };
+
+  const handleExitRemoteSession = () => {
+    setActiveRemoteSession(null);
+    playSound('beep', soundEnabled);
+  };
+
+  // --- Scoped Data Selectors for Remote Control or Active Branch POS ---
+  const effectiveBusinessInfo = useMemo<ParkingBusinessInfo>(() => {
+    const curBranch = branches.find(b => b.id === currentBranchId) || branches[0];
+    const bName = curBranch?.name || businessInfo.name || 'Sucursal Principal';
+    const nowStr = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+    if (activeRemoteSession) {
+      const targetB = branches.find(b => b.id === activeRemoteSession.branchId);
+      return {
+        ...businessInfo,
+        name: activeRemoteSession.branchName,
+        branchName: activeRemoteSession.branchName,
+        sucursal: activeRemoteSession.branchName,
+        address: targetB?.address || `${activeRemoteSession.city} — Sede Remota`,
+        nit: `${targetB?.code || 'SUC'} - CONEXIÓN REMOTA EN VIVO`,
+        phone: targetB?.phone || businessInfo.phone,
+        emissionDate: nowStr,
+        fechaEmision: nowStr,
+      };
+    }
+    return {
+      ...businessInfo,
+      branchName: bName,
+      sucursal: bName,
+      emissionDate: nowStr,
+      fechaEmision: nowStr,
+    };
+  }, [activeRemoteSession, businessInfo, branches, currentBranchId]);
+
+  const effectiveActiveTickets = useMemo<ParkingTicket[]>(() => {
+    const activeBranchId = activeRemoteSession?.branchId || currentBranchId;
+    if (activeBranchId) {
+      const filtered = activeTickets.filter(t => !t.branchId || t.branchId === activeBranchId);
+      return filtered;
+    }
+    return activeTickets;
+  }, [activeTickets, activeRemoteSession, currentBranchId]);
+
+  const effectiveSpots = useMemo<ParkingSpot[]>(() => {
+    // Si tenemos spots reales configurados (de PostgreSQL o memoria), usarlos con sincronización en tiempo real
+    if (spots && spots.length > 0) {
+      return spots.map(s => {
+        const activeTicket = effectiveActiveTickets.find(t => t.spotCode === s.code);
+        if (activeTicket) {
+          return { ...s, status: 'occupied' as const, currentTicketId: activeTicket.id };
+        }
+        if (s.status === 'occupied') {
+          return { ...s, status: 'available' as const, currentTicketId: undefined };
+        }
+        return s;
+      });
+    }
+
+    const activeBranchId = activeRemoteSession?.branchId || currentBranchId;
+    if (activeBranchId) {
+      const targetB = branches.find(b => b.id === activeBranchId);
+      if (targetB && targetB.totalSpots > 0) {
+        const branchSpots: ParkingSpot[] = [];
+        const total = targetB.totalSpots;
+        for (let i = 1; i <= total; i++) {
+          const isCar = i <= Math.ceil(total * 0.6);
+          const type = isCar ? 'car' : 'motorcycle';
+          const prefix = isCar ? 'A' : 'M';
+          const code = `${prefix}-${String(i).padStart(2, '0')}`;
+          const currentTicket = effectiveActiveTickets.find(t => t.spotCode === code);
+          branchSpots.push({
+            id: `spot-branch-${targetB.id}-${i}`,
+            code,
+            type,
+            status: currentTicket ? 'occupied' : 'available',
+            currentTicketId: currentTicket?.id
+          });
+        }
+        return branchSpots;
+      }
+    }
+    return spots;
+  }, [spots, activeRemoteSession, currentBranchId, branches, effectiveActiveTickets]);
+
+  const handleSaveSystemNodeConfig = (updatedConfig: SystemNodeConfig) => {
+    setSystemNodeConfig(updatedConfig);
+    
+    // Notify network services layer of updated FarmaDesk ports
+    const lanPort = updatedConfig.farmadeskPort || updatedConfig.farmadeskLanPort || 9050;
+    const wanPort = updatedConfig.farmadeskWanPort || 9050;
+    console.log(`[Config Red] Puertos FarmaDesk actualizados: LAN/Relay=${lanPort}, WAN=${wanPort}, ServerHost=${updatedConfig.centralServerHost}:${updatedConfig.centralServerPort}`);
+
+    // When in POS mode and a branch is chosen, sync the active branch ID
+    if (updatedConfig.workMode === 'pos' && updatedConfig.selectedBranchId) {
+      setCurrentBranchId(updatedConfig.selectedBranchId);
+    }
+    // Sync establishment name with businessInfo
+    if (updatedConfig.establishmentName) {
+      setBusinessInfo(prev => ({
+        ...prev,
+        name: updatedConfig.establishmentName,
+        nit: updatedConfig.establishmentNit || prev.nit,
+        representative: updatedConfig.legalRepresentative || prev.representative,
+        address: updatedConfig.establishmentAddress || prev.address,
+        phone: updatedConfig.establishmentPhone || prev.phone,
+      }));
+    }
+  };
+
+  // --- Global Parameter Synchronization (Server -> Client / POS) ---
+  const [isSyncingGlobal, setIsSyncingGlobal] = useState(false);
+  const [hasInitialServerLoadDone, setHasInitialServerLoadDone] = useState(false);
+
+  const getSyncUrl = (endpoint: string) => {
+    if (systemNodeConfig?.workMode === 'pos' && systemNodeConfig?.centralServerHost) {
+      const host = systemNodeConfig.centralServerHost.trim();
+      // Ignore dummy or local placeholder IPs that cannot be reached directly from client browser
+      const isDummyHost = !host || host === 'localhost' || host === '127.0.0.1' || host === '192.168.10.150' || host === 'central.parqueaderopos.com';
+      if (!isDummyHost) {
+        const port = systemNodeConfig.centralServerPort || 3000;
+        const baseUrl = host.startsWith('http') ? host : `http://${host}:${port}`;
+        return `${baseUrl}${endpoint}`;
+      }
+    }
+    return endpoint;
+  };
+
+  const fetchWithSyncFallback = async (endpoint: string, options?: RequestInit): Promise<Response> => {
+    const targetUrl = getSyncUrl(endpoint);
+    if (targetUrl !== endpoint) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2800);
+        const res = await fetch(targetUrl, { ...options, signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) return res;
+      } catch (err) {
+        console.warn(`[Sync] Servidor remoto no respondió en ${targetUrl}, aplicando endpoint local de respaldo.`);
+      }
+    }
+    return fetch(endpoint, options);
+  };
+
+  const saveGlobalConfigToServer = async (customPackage?: any) => {
+    try {
+      const configToSave = customPackage || {
+        branches,
+        warehouses,
+        rates,
+        vehicleCategories,
+        expenseCategories,
+        expenseConcepts,
+        users,
+        businessInfo,
+        lastUpdated: new Date().toISOString()
+      };
+
+      await fetchWithSyncFallback('/api/sync/global-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: configToSave })
+      });
+      console.log('[Sync] Configuración global sincronizada en el servidor.');
+    } catch (e) {
+      console.error('[Sync] Error al guardar config en el servidor:', e);
+    }
+  };
+
+  const loadGlobalConfigFromServer = async (isManual = false) => {
+    // If we are the Central Server, we only pull the config from disk ONCE on app startup.
+    // Subsequent background pulls are completely skipped to prevent overwriting active UI edits before they are written to disk.
+    if (systemNodeConfig?.workMode === 'server' && !isManual && hasInitialServerLoadDone) {
+      return;
+    }
+
+    if (isManual) {
+      setIsSyncingGlobal(true);
+    }
+    try {
+      const res = await fetchWithSyncFallback('/api/sync/global-config');
+      const result = await res.json();
+      if (result.success && result.data) {
+        const {
+          branches: sBranches,
+          warehouses: sWarehouses,
+          rates: sRates,
+          vehicleCategories: sVehicleCategories,
+          expenseCategories: sExpenseCategories,
+          expenseConcepts: sExpenseConcepts,
+          users: sUsers,
+          businessInfo: sBusinessInfo
+        } = result.data;
+
+        if (sBranches && JSON.stringify(sBranches) !== JSON.stringify(branches)) {
+          setBranches(sBranches);
+          localStorage.setItem('pk_branches', JSON.stringify(sBranches));
+        }
+        if (sWarehouses && JSON.stringify(sWarehouses) !== JSON.stringify(warehouses)) {
+          setWarehouses(sWarehouses);
+          localStorage.setItem('pk_warehouses', JSON.stringify(sWarehouses));
+        }
+        if (sRates && JSON.stringify(sRates) !== JSON.stringify(rates)) {
+          setRates(sRates);
+          localStorage.setItem('pk_rates_config', JSON.stringify(sRates));
+          dbSaveRates(sRates).catch(console.error);
+
+          // Synchronize vehicle category rates immediately
+          setVehicleCategories(prev => {
+            const updated = prev.map(cat => {
+              let r = (sRates as any)[cat.id];
+              if (!r && cat.id.includes('car')) r = sRates.car;
+              if (!r && (cat.id.includes('moto') || cat.id.includes('bike'))) r = sRates.motorcycle;
+              if (!r) return cat;
+              return {
+                ...cat,
+                defaultHourlyRate: r.hourRate ?? cat.defaultHourlyRate,
+                defaultMinuteRate: r.minuteRate ?? cat.defaultMinuteRate,
+                defaultDailyRate: r.dayRate ?? cat.defaultDailyRate,
+                gracePeriodMinutes: r.gracePeriodMinutes ?? cat.gracePeriodMinutes,
+                rate: { ...cat.rate, ...r }
+              };
+            });
+            localStorage.setItem('pk_vehicle_categories', JSON.stringify(updated));
+            return updated;
+          });
+        }
+        if (sVehicleCategories && JSON.stringify(sVehicleCategories) !== JSON.stringify(vehicleCategories)) {
+          setVehicleCategories(sVehicleCategories);
+          localStorage.setItem('pk_vehicle_categories', JSON.stringify(sVehicleCategories));
+        }
+        if (sExpenseCategories && JSON.stringify(sExpenseCategories) !== JSON.stringify(expenseCategories)) {
+          setExpenseCategories(sExpenseCategories);
+          localStorage.setItem('pk_expense_categories', JSON.stringify(sExpenseCategories));
+        }
+        if (sExpenseConcepts && JSON.stringify(sExpenseConcepts) !== JSON.stringify(expenseConcepts)) {
+          setExpenseConcepts(sExpenseConcepts);
+          localStorage.setItem('pk_expense_concepts', JSON.stringify(sExpenseConcepts));
+        }
+        if (sUsers && sUsers.length > 0 && JSON.stringify(sUsers) !== JSON.stringify(users)) {
+          setUsers(sUsers);
+          localStorage.setItem('pk_system_users', JSON.stringify(sUsers));
+          dbSaveUsers(sUsers).catch(console.error);
+        }
+        if (sBusinessInfo && JSON.stringify(sBusinessInfo) !== JSON.stringify(businessInfo)) {
+          setBusinessInfo(sBusinessInfo);
+          localStorage.setItem('pk_business_info', JSON.stringify(sBusinessInfo));
+          dbSaveBusinessInfo(sBusinessInfo).catch(console.error);
+        }
+        console.log('[Sync] Parámetros globales cargados/actualizados desde el servidor.');
+      }
+      setHasInitialServerLoadDone(true);
+    } catch (e) {
+      console.error('[Sync] Error al cargar config desde el servidor:', e);
+    } finally {
+      if (isManual) {
+        setTimeout(() => {
+          setIsSyncingGlobal(false);
+        }, 800);
+      }
+    }
+  };
+
+  const handleManualSyncParams = async () => {
+    await loadGlobalConfigFromServer(true);
+  };
+
+  // 1. Initial Load on startup
+  useEffect(() => {
+    loadGlobalConfigFromServer();
+  }, [
+    systemNodeConfig?.workMode, 
+    systemNodeConfig?.centralServerHost, 
+    systemNodeConfig?.centralServerPort
+  ]);
+
+  // 1.2 Rutina de Verificación de Integridad de Base de Datos y Carpeta Data
+  useEffect(() => {
+    const verifyDatabaseIntegrity = async () => {
+      try {
+        const res = await fetch('/api/database/integrity-check');
+        if (res.ok) {
+          const data: IntegrityCheckResult = await res.json();
+          setIntegrityCheckData(data);
+          const hasSessionBypass = sessionStorage.getItem('wolfpos_integrity_bypass') === 'true';
+          if ((data.corrupted || (!data.healthy && data.issues?.length > 0)) && !hasSessionBypass) {
+            console.warn('[Integrity Guard] Inconsistencia detectada en archivos de base de datos:', data.issues);
+            setIsRecoveryModalOpen(true);
+          }
+        }
+      } catch (err) {
+        console.warn('[Integrity Guard] Error al comprobar integridad de PostgreSQL:', err);
+      }
+    };
+
+    verifyDatabaseIntegrity();
+  }, []);
+
+  const handleRecoveryRestoreSuccess = async () => {
+    setIsRecoveryModalOpen(false);
+    sessionStorage.removeItem('wolfpos_integrity_bypass');
+    playSound('success', soundEnabled);
+    try {
+      await loadGlobalConfigFromServer(true);
+      const bootData = await loadTerminalDatabaseData(terminalConfig.terminalId);
+      if (bootData) {
+        if (bootData.spots) setSpots(bootData.spots);
+        if (bootData.activeTickets) setActiveTickets(bootData.activeTickets);
+        if (bootData.paidTickets) setPaidTickets(bootData.paidTickets);
+        if (bootData.rates) setRates(bootData.rates);
+        if (bootData.businessInfo) setBusinessInfo(bootData.businessInfo);
+        if (bootData.currentShift) setCurrentShift(bootData.currentShift);
+      }
+    } catch (e) {
+      console.error('[Recovery] Error refrescando datos tras restaurar:', e);
+    }
+  };
+
+  const handleContinueOffline = () => {
+    sessionStorage.setItem('wolfpos_integrity_bypass', 'true');
+    setIsRecoveryModalOpen(false);
+    playSound('beep', soundEnabled);
+  };
+
+  // 1.3 Verificación de Espacio en Disco del Host al Iniciar (< 500MB crítico)
+  useEffect(() => {
+    const checkHostDiskSpace = async () => {
+      try {
+        const res = await fetch('/api/system/disk-space');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data.freeMB === 'number') {
+            setDiskSpaceInfo(data);
+            if (data.isCritical) {
+              console.error(`[ALERTA CRÍTICA DISCO] Espacio en disco host crítico: ${data.freeMB} MB (< 500MB).`);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[Disk Space Guard] Error consultando espacio en disco:', err);
+      }
+    };
+
+    checkHostDiskSpace();
+  }, []);
+
+  // --- Función de Auditoría Automática de Estado de Base de Datos para Cambios Críticos ---
+  const logCriticalDatabaseState = (action: string, details?: any) => {
+    try {
+      const occupiedSpotsCount = spots.filter(s => s.status === 'occupied').length;
+      const op = currentUser?.name || currentShift.operatorName || 'Cajero';
+      const payload = {
+        action,
+        operator: op,
+        terminalId: terminalConfig.terminalId,
+        details: details || {},
+        databaseState: {
+          activeTicketsCount: activeTickets.length,
+          paidTicketsCount: paidTickets.length,
+          occupiedSpotsCount,
+          totalSpotsCount: spots.length,
+          currentShiftId: currentShift.id,
+          shiftNumber: currentShift.shiftNumber,
+          initialCash: currentShift.initialCash,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // 1. Envío al backend
+      fetch('/api/audit/state-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).catch(err => console.warn('[Audit Log API Error]:', err));
+
+      // 2. Registro en IndexedDB local
+      dbAddAuditLog(
+        action,
+        `[AUDITORÍA DE ESTADO]: ${action} ${JSON.stringify(details || {})}`,
+        op
+      ).catch(console.error);
+    } catch (e) {
+      console.warn('[Audit Log Guard Error]:', e);
+    }
+  };
+
+  // 1.5. Conexión WebSocket y Heartbeat REST en segundo plano para Sucursal (Enlace de Red e IP Pública en Vivo)
+  useEffect(() => {
+    if (systemNodeConfig?.workMode !== 'pos') return;
+
+    let localPublicIp = currentBranch?.publicIp || currentBranch?.ipAddress || '190.158.12.44';
+
+    // Intenta auto-detectar la IP pública real de la sucursal de forma automática
+    const detectIpAndReport = async () => {
+      try {
+        const detected = await detectCurrentPublicIp(systemNodeConfig?.centralServerHost);
+        if (detected && detected !== '127.0.0.1') {
+          localPublicIp = detected;
+          console.log(`[FarmaDesk Autodetección] IP pública de la sede detectada: ${localPublicIp}`);
+        }
+        
+        // Reportar directamente a Central vía REST
+        await reportBranchHeartbeatAndIp(currentBranchId, {
+          localIp: currentBranch?.localIp || '192.168.1.100',
+          port: currentBranch?.port || 3000,
+          farmadeskId: currentBranch?.farmadeskId,
+          farmadeskPassword: currentBranch?.farmadeskPassword
+        }, systemNodeConfig?.centralServerHost);
+      } catch (err) {
+        console.warn('[FarmaDesk IP Check Error]', err);
+      }
+    };
+
+    detectIpAndReport();
+
+    console.log(`[FarmaDesk Sede] Iniciando túnel de red WebSocket para Sede ${currentBranchId}...`);
+    const branchSocket = new FarmaDeskSocketClient('branch', currentBranchId, systemNodeConfig?.centralServerHost);
+    branchSocket.connect();
+
+    // Enviar telemetría de red, IP pública y hardware periódica (cada 15 segundos)
+    const intervalId = setInterval(() => {
+      // Re-detectar IP y reportar
+      detectIpAndReport();
+
+      branchSocket.reportNetworkTelemetry({
+        ipAddress: localPublicIp,
+        publicIp: localPublicIp,
+        localIp: currentBranch?.localIp || '192.168.1.100',
+        systemUrl: `${window.location.protocol}//${window.location.host}/?branchId=${currentBranchId}`,
+        farmadeskId: currentBranch?.farmadeskId || '770 130 282',
+        farmadeskPassword: currentBranch?.farmadeskPassword || 'farma_secure_pass',
+        anydeskId: currentBranch?.farmadeskId || '770 130 282',
+        rustdeskId: currentBranch?.rustdeskId || '904812354',
+        vncPassword: currentBranch?.farmadeskPassword || 'farma_secure_pass',
+        cpuLoad: Math.floor(Math.random() * 20) + 15,
+        ramLoad: parseFloat((Math.random() * 1.5 + 3.5).toFixed(2)),
+        activeCashier: currentBranch?.currentCashier || currentUser?.name || 'Cajero de Turno',
+        status: 'online'
+      });
+    }, 15000);
+
+    const unsubscribe = branchSocket.registerOnMessage((event, data) => {
+      console.log(`[FarmaDesk Sede WS] Recibido de Central: '${event}'`, data);
+      
+      if (event === 'branch:control:action_received') {
+        const { actionType, params } = data;
+        console.log(`[FarmaDesk Sede WS] Ejecutando acción remota: ${actionType}`);
+
+        // Responder con estado de pantalla actualizado para simular AnyDesk bidireccional en tiempo real
+        branchSocket.sendBranchScreenUpdate({
+          cpuLoad: Math.floor(Math.random() * 15) + 30,
+          ramLoad: parseFloat((Math.random() * 0.5 + 4.1).toFixed(2)),
+          entryPlate: params?.plate || '',
+          vncViewMode: params?.viewMode || 'tickets',
+          printJobs: [
+            { id: String(Date.now()).slice(-5), time: new Date().toLocaleTimeString(), desc: `Acción Remota: ${actionType}`, status: 'Impreso OK' }
+          ]
+        });
+      }
+      else if (event === 'chat:message_received') {
+        console.log(`[Chat Central] Soporte Técnico: ${data.text}`);
+        playSound('beep');
+      }
+      else if (event === 'central:package_published') {
+        const pkg = data?.package || data;
+        if (pkg && pkg.id) {
+          webNotificationService.notifyPendingCentralPackage(
+            pkg,
+            currentBranch?.name,
+            () => setIsBranchSyncModalOpen(true)
+          );
+        }
+      }
+    });
+
+    return () => {
+      clearInterval(intervalId);
+      unsubscribe();
+      branchSocket.disconnect();
+    };
+  }, [systemNodeConfig?.workMode, systemNodeConfig?.centralServerHost, currentBranchId, currentBranch, currentUser]);
+
+  // 1.8. Servidor Central: Monitoreo periódico de IPs públicas y telemetría de sucursales
+  useEffect(() => {
+    if (systemNodeConfig?.workMode !== 'server') return;
+
+    const pullBranchesTelemetryFromDisk = async () => {
+      try {
+        const telemetryList = await fetchBranchesTelemetry();
+        if (Array.isArray(telemetryList) && telemetryList.length > 0) {
+          setBranches(prev => {
+            let hasChanges = false;
+            const updated = prev.map(branch => {
+              const telemetry = telemetryList.find(t => t.id === branch.id);
+              if (telemetry) {
+                const newPublicIp = telemetry.publicIp || telemetry.reportedPublicIp || telemetry.ipAddress;
+                const newStatus = telemetry.status || branch.status;
+                if (newPublicIp && (branch.publicIp !== newPublicIp || branch.ipAddress !== newPublicIp || branch.status !== newStatus)) {
+                  hasChanges = true;
+                  // Si una sucursal pasa a estar offline o desconectada, notificar al personal
+                  if (branch.status === 'online' && newStatus === 'offline') {
+                    webNotificationService.notifyBranchCriticalState(
+                      branch,
+                      `La sucursal ${branch.name} ha perdido comunicación con la Central y pasó a estado Fuera de Línea`,
+                      undefined,
+                      () => setIsBranchesModalOpen(true)
+                    );
+                  }
+                  return {
+                    ...branch,
+                    publicIp: newPublicIp,
+                    reportedPublicIp: newPublicIp,
+                    ipAddress: newPublicIp,
+                    localIp: telemetry.localIp || branch.localIp,
+                    status: newStatus,
+                    lastSyncTimestamp: (telemetry as any).lastReportedAt || branch.lastSyncTimestamp,
+                    lastIpReportedAt: telemetry.lastIpReportedAt || branch.lastIpReportedAt,
+                    farmadeskId: telemetry.farmadeskId || branch.farmadeskId,
+                    farmadeskPassword: telemetry.farmadeskPassword || branch.farmadeskPassword
+                  };
+                }
+              }
+              return branch;
+            });
+            return hasChanges ? updated : prev;
+          });
+        }
+      } catch (err) {
+        // quiet fallback
+      }
+    };
+
+    pullBranchesTelemetryFromDisk();
+    const pollInterval = setInterval(pullBranchesTelemetryFromDisk, 8000);
+
+    return () => clearInterval(pollInterval);
+  }, [systemNodeConfig?.workMode]);
+
+  // 2. Debounced automatic push for server role (Central)
+  useEffect(() => {
+    if (systemNodeConfig?.workMode === 'server') {
+      const delayDebounceFn = setTimeout(() => {
+        saveGlobalConfigToServer();
+      }, 2500); // 2.5s debounce to cluster close updates
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [
+    systemNodeConfig?.workMode,
+    branches,
+    warehouses,
+    rates,
+    vehicleCategories,
+    expenseCategories,
+    expenseConcepts,
+    users,
+    businessInfo
+  ]);
+
+  const handleAddNewBranchFromConfig = (newBranchData: Partial<BranchLocation>) => {
+    const newBranch: BranchLocation = {
+      id: `branch-${Date.now()}`,
+      code: newBranchData.code || `SUC-00${branches.length + 1}`,
+      name: newBranchData.name || 'Nueva Sucursal',
+      city: newBranchData.city || 'Bogotá D.C.',
+      address: newBranchData.address || '',
+      ipAddress: newBranchData.ipAddress || '192.168.1.105',
+      status: 'online',
+      todayRevenue: 0,
+      occupiedSpots: 0,
+      totalSpots: newBranchData.totalSpots || 30,
+      activeShiftNumber: 1,
+      currentCashier: currentUser?.name || 'Administrador',
+      lastSyncTimestamp: new Date().toISOString(),
+      pendingUpdatesCount: 0,
+      ...newBranchData
+    } as BranchLocation;
+
+    setBranches(prev => [newBranch, ...prev]);
+    setSystemNodeConfig(prev => ({
+      ...prev,
+      selectedBranchId: newBranch.id,
+      establishmentName: newBranch.name
+    }));
+    setCurrentBranchId(newBranch.id);
+  };
+
+  // Compute pending updates for current branch
+  const pendingUpdatesForBranchCount = centralPackages.filter(pkg => {
+    const isTarget = pkg.targetScope === 'all' || pkg.targetBranchIds.includes(currentBranch.id);
+    const isApplied = pkg.appliedByBranches.some(app => app.branchId === currentBranch.id);
+    return isTarget && !isApplied;
+  }).length;
+
+  const hasSoftwareUpdateAvailable = softwareBuilds.some(b => b.status === 'available');
+
+  // Multi-Branch Handlers
+  const handleSaveNewBranch = async (newBranchData: Partial<BranchLocation>) => {
+    const branchCode = newBranchData.code || `SUC-00${branches.length + 1}`;
+    const branchName = newBranchData.name || 'Nueva Sucursal';
+    const uniqueFarmadeskId = newBranchData.farmadeskId && (newBranchData.farmadeskId !== '891 042 150')
+      ? newBranchData.farmadeskId
+      : generateFarmadeskId(`${branchCode}-${Date.now()}`);
+    const uniqueFarmadeskPass = newBranchData.farmadeskPassword && !(newBranchData.farmadeskPassword || '').includes('farma')
+      ? newBranchData.farmadeskPassword
+      : generateFarmadeskPassword(branchCode || branchName);
+
+    const newBranch: BranchLocation = {
+      id: `branch-${Date.now()}`,
+      code: branchCode,
+      name: branchName,
+      city: newBranchData.city || 'Bogotá D.C.',
+      address: newBranchData.address || '',
+      ipAddress: newBranchData.ipAddress || '192.168.10.155',
+      port: newBranchData.port || 3000,
+      farmadeskId: uniqueFarmadeskId,
+      farmadeskPassword: uniqueFarmadeskPass,
+      anydeskId: uniqueFarmadeskId,
+      vncPassword: uniqueFarmadeskPass,
+      status: 'online',
+      todayRevenue: 0,
+      occupiedSpots: 0,
+      totalSpots: newBranchData.totalSpots || 30,
+      activeShiftNumber: 1,
+      currentCashier: 'Sin asignar',
+      lastSyncTimestamp: new Date().toISOString(),
+      pendingUpdatesCount: 0,
+      ...newBranchData
+    } as BranchLocation;
+
+    setBranches(prev => ensureUniqueBranchFarmadeskCredentials([newBranch, ...prev]));
+    
+    // Add sync log
+    const auditRecord: BranchSyncAuditRecord = {
+      id: `log-${Date.now()}`,
+      branchId: newBranch.id,
+      branchName: newBranch.name,
+      syncType: 'inbound_push',
+      summary: `Sucursal registrada en red central por ${currentUser?.name || 'Administrador'}`,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      itemsReceived: 0,
+      itemsSent: 1,
+      performedBy: currentUser?.name || 'Maestro'
+    };
+    setSyncAuditLogs(prev => [auditRecord, ...prev]);
+  };
+
+  const handlePublishCentralPackage = async (packageData: Partial<CentralUpdatePackage>) => {
+    const newPackage: CentralUpdatePackage = {
+      id: `pkg-${Date.now()}`,
+      packageNumber: `PKG-${(centralPackages.length + 101).toString()}`,
+      title: packageData.title || 'Actualización de Parámetros',
+      description: packageData.description || 'Nuevas directrices enviadas desde servidor central',
+      type: packageData.type || 'rates',
+      targetScope: packageData.targetScope || 'all',
+      targetBranchIds: packageData.targetBranchIds || [],
+      createdAt: new Date().toISOString(),
+      author: currentUser?.name || 'Administrador Central',
+      appliedByBranches: [],
+      payload: packageData.payload || {}
+    };
+
+    setCentralPackages(prev => {
+      const updated = [newPackage, ...prev];
+      localStorage.setItem('pk_central_packages', JSON.stringify(updated));
+      return updated;
+    });
+
+    if (newPackage.payload.rates) {
+      setRates(newPackage.payload.rates);
+      localStorage.setItem('pk_rates_config', JSON.stringify(newPackage.payload.rates));
+      dbSaveRates(newPackage.payload.rates).catch(console.error);
+    }
+    if (newPackage.payload.vehicleCategories) {
+      setVehicleCategories(newPackage.payload.vehicleCategories);
+      localStorage.setItem('pk_vehicle_categories', JSON.stringify(newPackage.payload.vehicleCategories));
+    }
+    if (newPackage.payload.expenseConcepts) {
+      setExpenseConcepts(newPackage.payload.expenseConcepts);
+      localStorage.setItem('pk_expense_concepts', JSON.stringify(newPackage.payload.expenseConcepts));
+    }
+
+    // Persist to central server backend
+    try {
+      await publishCentralPackage(newPackage);
+      await saveGlobalConfigToServer({
+        branches,
+        warehouses,
+        rates: newPackage.payload.rates || rates,
+        vehicleCategories: newPackage.payload.vehicleCategories || vehicleCategories,
+        expenseCategories,
+        expenseConcepts: newPackage.payload.expenseConcepts || expenseConcepts,
+        users,
+        businessInfo,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (err) {
+      console.warn('[Sync] Advertencia al persistir en servidor central:', err);
+    }
+
+    // If target includes current branch or all, and it's rates or concepts, update immediately if desired or notify
+    const auditRecord: BranchSyncAuditRecord = {
+      id: `log-${Date.now()}`,
+      branchId: 'central-hub',
+      branchName: 'Matriz / Servidor Central',
+      syncType: 'inbound_push',
+      summary: `Paquete ${newPackage.packageNumber} ("${newPackage.title}") publicado en Servidor Central y emitido a sucursales`,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      itemsReceived: 0,
+      itemsSent: newPackage.targetScope === 'all' ? branches.length : newPackage.targetBranchIds.length,
+      performedBy: currentUser?.name || 'Maestro'
+    };
+    setSyncAuditLogs(prev => [auditRecord, ...prev]);
+  };
+
+  const applyPackagePayloadDirectly = async (pkg: CentralUpdatePackage, allPackagesList?: CentralUpdatePackage[]): Promise<{ applied: boolean; details: string[] }> => {
+    if (!pkg || !pkg.payload) return { applied: false, details: [] };
+    const details: string[] = [];
+
+    // 1. Rates
+    if (pkg.payload.rates) {
+      const mergedRates: RatesConfig = {
+        ...rates,
+        ...pkg.payload.rates,
+        car: {
+          ...rates.car,
+          ...(pkg.payload.rates.car || {})
+        },
+        motorcycle: {
+          ...rates.motorcycle,
+          ...(pkg.payload.rates.motorcycle || {})
+        },
+        suv: {
+          ...rates.suv,
+          ...(pkg.payload.rates.suv || {})
+        }
+      };
+
+      setRates(mergedRates);
+      localStorage.setItem('pk_rates_config', JSON.stringify(mergedRates));
+      await dbSaveRates(mergedRates).catch(console.error);
+
+      // Propagate into vehicleCategories
+      setVehicleCategories(prev => {
+        const updated = prev.map(cat => {
+          let r = (mergedRates as any)[cat.id];
+          if (!r && cat.id.includes('car')) r = mergedRates.car;
+          if (!r && (cat.id.includes('moto') || cat.id.includes('bike'))) r = mergedRates.motorcycle;
+          if (!r) return cat;
+
+          return {
+            ...cat,
+            defaultHourlyRate: r.hourRate ?? cat.defaultHourlyRate,
+            defaultMinuteRate: r.minuteRate ?? cat.defaultMinuteRate,
+            defaultDailyRate: r.dayRate ?? cat.defaultDailyRate,
+            gracePeriodMinutes: r.gracePeriodMinutes ?? cat.gracePeriodMinutes,
+            rate: {
+              ...cat.rate,
+              ...r
+            }
+          };
+        });
+        localStorage.setItem('pk_vehicle_categories', JSON.stringify(updated));
+        return updated;
+      });
+
+      const carMin = mergedRates.minuteRate || mergedRates.car?.minuteRate || 70;
+      const motoMin = mergedRates.motorcycle?.minuteRate || 35;
+      details.push(`Tarifas actualizadas (Carros: $${carMin}/min, Motos: $${motoMin}/min)`);
+    }
+
+    // 2. Vehicle categories
+    if (pkg.payload.vehicleCategories && Array.isArray(pkg.payload.vehicleCategories)) {
+      setVehicleCategories(prev => {
+        const map = new Map<string, VehicleCategoryConfig>();
+        prev.forEach(c => map.set(c.id, c));
+        pkg.payload.vehicleCategories.forEach((c: VehicleCategoryConfig) => {
+          const existing = map.get(c.id);
+          map.set(c.id, existing ? { ...existing, ...c } : c);
+        });
+        const combined = Array.from(map.values());
+        localStorage.setItem('pk_vehicle_categories', JSON.stringify(combined));
+        return combined;
+      });
+      details.push(`${pkg.payload.vehicleCategories.length} categorías vehiculares sincronizadas`);
+    }
+
+    // 3. Expense concepts
+    if (pkg.payload.expenseConcepts && Array.isArray(pkg.payload.expenseConcepts)) {
+      setExpenseConcepts(prev => {
+        const map = new Map<string, ExpenseConcept>();
+        prev.forEach(c => map.set(c.id, c));
+        pkg.payload.expenseConcepts.forEach((c: ExpenseConcept) => {
+          map.set(c.id, c);
+        });
+        const combined = Array.from(map.values());
+        localStorage.setItem('pk_expense_concepts', JSON.stringify(combined));
+        return combined;
+      });
+      details.push(`${pkg.payload.expenseConcepts.length} conceptos de egresos integrados`);
+    }
+
+    // 4. Expense categories
+    if (pkg.payload.expenseCategories && Array.isArray(pkg.payload.expenseCategories)) {
+      setExpenseCategories(prev => {
+        const map = new Map<string, ExpenseCategory>();
+        prev.forEach(c => map.set(c.id, c));
+        pkg.payload.expenseCategories.forEach((c: ExpenseCategory) => {
+          map.set(c.id, c);
+        });
+        const combined = Array.from(map.values());
+        localStorage.setItem('pk_expense_categories', JSON.stringify(combined));
+        return combined;
+      });
+    }
+
+    // 5. Users, Cashiers and Role Matrix
+    if (pkg.payload.users && Array.isArray(pkg.payload.users) && pkg.payload.users.length > 0) {
+      setUsers(prev => {
+        const map = new Map<string, SystemUser>();
+        prev.forEach(u => map.set(u.id, u));
+        pkg.payload.users!.forEach((u: SystemUser) => {
+          map.set(u.id, u);
+        });
+        const combined = Array.from(map.values());
+        localStorage.setItem('pk_system_users', JSON.stringify(combined));
+        dbSaveUsers(combined).catch(console.error);
+        return combined;
+      });
+      details.push(`${pkg.payload.users.length} usuarios/perfiles sincronizados desde Central`);
+    }
+
+    // 6. Business Information and Commercial Parameters
+    if (pkg.payload.businessInfoUpdates) {
+      setBusinessInfo(prev => {
+        const merged = { ...prev, ...pkg.payload.businessInfoUpdates };
+        localStorage.setItem('pk_business_info', JSON.stringify(merged));
+        dbSaveBusinessInfo(merged).catch(console.error);
+        return merged;
+      });
+      details.push('Parámetros comerciales y fiscales actualizados');
+    }
+
+    // 7. System & App Parameters
+    if (pkg.payload.parameters) {
+      try {
+        localStorage.setItem('pk_central_parameters', JSON.stringify(pkg.payload.parameters));
+        details.push('Parámetros operativos de la aplicación actualizados');
+      } catch (e) {
+        console.warn('[Sync] Error guardando parámetros:', e);
+      }
+    }
+
+    // 8. Global Version Registration
+    if (pkg.payload.globalVersion) {
+      setInstalledGlobalVersion(pkg.payload.globalVersion);
+      setBranches(prev => prev.map(b => b.id === currentBranch.id ? {
+        ...b,
+        installedGlobalVersion: pkg.payload.globalVersion,
+        isGlobalOutdated: false
+      } : b));
+      details.push(`Versión de Globales elevada a ${pkg.payload.globalVersion}`);
+    }
+
+    // 9. Mark package as applied in local state and localStorage
+    setCentralPackages(prev => {
+      const list = allPackagesList || prev;
+      const updated = list.map(p => {
+        if (p.id === pkg.id) {
+          const existingApps = p.appliedByBranches || [];
+          const filtered = existingApps.filter(a => a.branchId !== currentBranch.id && a.branchId !== currentBranch.code);
+          filtered.push({
+            branchId: currentBranch.id,
+            branchName: currentBranch.name,
+            appliedAt: new Date().toISOString()
+          });
+          return { ...p, appliedByBranches: filtered };
+        }
+        return p;
+      });
+      localStorage.setItem('pk_central_packages', JSON.stringify(updated));
+      return updated;
+    });
+
+    // Notify backend
+    try {
+      await recordPackageApplied(pkg.id, currentBranch.id, currentBranch.name);
+    } catch (e) {
+      console.warn('[Sync] Error notificando paquete aplicado:', e);
+    }
+
+    // Audit log
+    const auditRecord: BranchSyncAuditRecord = {
+      id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      branchId: currentBranch.id,
+      branchName: currentBranch.name,
+      syncType: 'inbound_push',
+      summary: `Paquete ${pkg.packageNumber} ("${pkg.title}") aplicado en terminal local con éxito`,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      itemsReceived: 1,
+      itemsSent: 0,
+      performedBy: currentUser?.name || 'Cajero'
+    };
+    setSyncAuditLogs(prev => [auditRecord, ...prev]);
+
+    return { applied: true, details };
+  };
+
+  const handleApplyPackageToBranch = async (packageId: string) => {
+    // Look up in state or re-fetch from central packages
+    let pkg = centralPackages.find(p => p.id === packageId);
+    if (!pkg) {
+      const refreshed = await fetchCentralPackages(currentBranch.id);
+      pkg = refreshed.find(p => p.id === packageId);
+    }
+    if (!pkg) return;
+
+    await applyPackagePayloadDirectly(pkg);
+  };
+
+  const handlePerformFullBranchSync = async (): Promise<string> => {
+    const appliedSummaryDetails: string[] = [];
+    let packagesAppliedCount = 0;
+
+    // 1. Pull data directly from Central Server
+    let currentRemotePackages: CentralUpdatePackage[] = centralPackages;
+    try {
+      const centralData = await pullCentralData(currentBranch.id);
+      if (centralData.success && centralData.packages && centralData.packages.length > 0) {
+        currentRemotePackages = centralData.packages;
+        setCentralPackages(centralData.packages);
+        localStorage.setItem('pk_central_packages', JSON.stringify(centralData.packages));
+      }
+
+      // If centralData returned direct globalConfig, apply it immediately
+      if (centralData.globalConfig?.rates) {
+        const gRates = centralData.globalConfig.rates;
+        setRates(gRates);
+        localStorage.setItem('pk_rates_config', JSON.stringify(gRates));
+        await dbSaveRates(gRates).catch(console.error);
+
+        setVehicleCategories(prev => {
+          const updated = prev.map(cat => {
+            let r = (gRates as any)[cat.id];
+            if (!r && cat.id.includes('car')) r = gRates.car;
+            if (!r && (cat.id.includes('moto') || cat.id.includes('bike'))) r = gRates.motorcycle;
+            if (!r) return cat;
+            return {
+              ...cat,
+              defaultHourlyRate: r.hourRate ?? cat.defaultHourlyRate,
+              defaultMinuteRate: r.minuteRate ?? cat.defaultMinuteRate,
+              defaultDailyRate: r.dayRate ?? cat.defaultDailyRate,
+              gracePeriodMinutes: r.gracePeriodMinutes ?? cat.gracePeriodMinutes,
+              rate: { ...cat.rate, ...r }
+            };
+          });
+          localStorage.setItem('pk_vehicle_categories', JSON.stringify(updated));
+          return updated;
+        });
+        appliedSummaryDetails.push('Directiva de tarifas centrales actualizada');
+      }
+      if (centralData.globalConfig?.vehicleCategories) {
+        setVehicleCategories(centralData.globalConfig.vehicleCategories);
+        localStorage.setItem('pk_vehicle_categories', JSON.stringify(centralData.globalConfig.vehicleCategories));
+      }
+      if (centralData.globalConfig?.expenseConcepts) {
+        setExpenseConcepts(centralData.globalConfig.expenseConcepts);
+        localStorage.setItem('pk_expense_concepts', JSON.stringify(centralData.globalConfig.expenseConcepts));
+      }
+    } catch (err) {
+      console.warn('[Sync] Error en pullCentralData:', err);
+    }
+
+    // Also pull global-config endpoint
+    try {
+      await loadGlobalConfigFromServer(false);
+    } catch (e) {
+      console.warn('[Sync] Error cargando global config:', e);
+    }
+
+    // 2. Find pending packages for this branch (by id or code)
+    const pendingPkgs = currentRemotePackages.filter(pkg => {
+      const isTarget = pkg.targetScope === 'all' || (
+        Array.isArray(pkg.targetBranchIds) && (
+          pkg.targetBranchIds.includes(currentBranch.id) ||
+          pkg.targetBranchIds.includes(currentBranch.code)
+        )
+      );
+      const isApplied = Array.isArray(pkg.appliedByBranches) && pkg.appliedByBranches.some(app => 
+        app.branchId === currentBranch.id || app.branchId === currentBranch.code
+      );
+      return isTarget && !isApplied;
+    });
+
+    for (const pkg of pendingPkgs) {
+      const res = await applyPackagePayloadDirectly(pkg, currentRemotePackages);
+      if (res.applied) {
+        packagesAppliedCount++;
+        appliedSummaryDetails.push(...res.details);
+      }
+    }
+
+    // 3. Telemetry and complete operational dataset push to Central
+    const todayRevenue = paidTickets.reduce((acc, t) => acc + (t.totalAmount || 0), 0);
+    const occupiedCount = spots.filter(s => s.status === 'occupied').length;
+
+    try {
+      await handlePushBranchOperations();
+    } catch (pushErr) {
+      console.warn('[Sync] Error transmitiendo operaciones a Central:', pushErr);
+    }
+
+    // 4. Audit Log
+    const auditRecord: BranchSyncAuditRecord = {
+      id: `log-${Date.now()}`,
+      branchId: currentBranch.id,
+      branchName: currentBranch.name,
+      syncType: 'bidirectional_sync',
+      summary: packagesAppliedCount > 0 
+        ? `Sincronización total exitosa: ${packagesAppliedCount} paquetes aplicados (${appliedSummaryDetails.slice(0, 2).join(', ')}) y operaciones transmitidas.`
+        : `Sincronización de telemetría y operaciones completada. Terminal al día con Servidor Central.`,
+      status: 'success',
+      timestamp: new Date().toISOString(),
+      itemsReceived: packagesAppliedCount,
+      itemsSent: 1,
+      performedBy: currentUser?.name || 'Operador'
+    };
+    setSyncAuditLogs(prev => [auditRecord, ...prev]);
+
+    if (packagesAppliedCount > 0) {
+      return `✅ ¡Sincronización completada con éxito! Se aplicaron ${packagesAppliedCount} paquetes de Globales pendientes desde la Central: ${appliedSummaryDetails.join('. ')}. La terminal local y finanzas están sincronizadas.`;
+    } else {
+      return `✅ ¡Sincronización completada! La sucursal "${currentBranch.name}" se encuentra al día con la Central. Información financiera, turnos y patio transmitidos correctamente.`;
+    }
+  };
+
+  const handlePushBranchOperations = async (): Promise<string> => {
+    const todayRevenue = paidTickets.reduce((acc, t) => acc + (t.totalAmount || 0), 0);
+    const occupiedCount = spots.filter(s => s.status === 'occupied').length;
+    const currentGlobalVer = getInstalledGlobalVersion();
+    const installedSoftwareVer = softwareBuilds.find(b => b.status === 'installed')?.version || 'v2.6.0-enterprise';
+    const currentShiftExpenses = currentShift?.cashMovements?.filter(m => m.type === 'expense') || [];
+
+    const pushPayload = {
+      branchId: currentBranch.id,
+      branchName: currentBranch.name,
+      installedGlobalVersion: currentGlobalVer,
+      installedSoftwareVersion: installedSoftwareVer,
+      operationalDay: operationalDay,
+      currentShift: currentShift,
+      closedShiftsCount: closedShiftsHistory.length,
+      recentClosedShifts: closedShiftsHistory.slice(0, 5),
+      todayRevenue,
+      paidTicketsCount: paidTickets.length,
+      recentPaidTickets: paidTickets.slice(-20),
+      occupiedSpots: occupiedCount,
+      totalSpots: spots.length,
+      activeExpensesCount: currentShiftExpenses.length,
+      totalExpensesAmount: currentShiftExpenses.reduce((acc, e) => acc + (e.amount || 0), 0)
+    };
+
+    const res = await pushBranchOperationsToCentral(pushPayload);
+
+    // Update branch telemetry state
+    const branchTelemetry: BranchLocation = {
+      ...currentBranch,
+      todayRevenue,
+      occupiedSpots: occupiedCount,
+      totalSpots: spots.length,
+      activeShiftNumber: currentShift?.shiftNumber || 1,
+      currentCashier: currentUser?.name || currentShift?.operatorName || 'Cajero',
+      lastSyncTimestamp: new Date().toISOString(),
+      installedGlobalVersion: currentGlobalVer,
+      installedSoftwareVersion: installedSoftwareVer,
+      isGlobalOutdated: res.isGlobalOutdated ?? currentBranch.isGlobalOutdated,
+      isAppOutdated: res.isAppOutdated ?? currentBranch.isAppOutdated,
+      financialShiftSummary: {
+        totalCollected: todayRevenue,
+        cashInDrawer: currentShift.initialCash + (currentShift.cashMovements?.filter(m => m.type === 'income').reduce((acc, m) => acc + m.amount, 0) || 0) - (currentShift.cashMovements?.filter(m => m.type === 'expense').reduce((acc, m) => acc + m.amount, 0) || 0),
+        shiftNumber: currentShift.shiftNumber || 1,
+        consecutiveArqueo: `ARQ-${closedShiftsHistory.length + 421}`,
+        lastClosureDate: closedShiftsHistory[0]?.endTime || currentShift.startTime
+      },
+      status: 'online' as const
+    };
+
+    setBranches(prev => prev.map(b => b.id === currentBranch.id ? branchTelemetry : b));
+    await pushBranchTelemetry(branchTelemetry).catch(console.warn);
+
+    return res.message || 'Operaciones, arqueos y estado de patio transmitidos a la Central con éxito.';
+  };
+
+  const handleInstallSoftwareBuild = async (buildId: string) => {
+    setSoftwareBuilds(prev => prev.map(b => {
+      if (b.id === buildId) {
+        return { ...b, status: 'installed' as const };
+      }
+      if (b.status === 'installed') {
+        return { ...b, status: 'available' as const };
+      }
+      return b;
+    }));
+
+    const build = softwareBuilds.find(b => b.id === buildId);
+    if (build) {
+      setBranches(prev => prev.map(b => b.id === currentBranch.id ? {
+        ...b,
+        installedSoftwareVersion: build.version,
+        isAppOutdated: false
+      } : b));
+
+      const auditRecord: BranchSyncAuditRecord = {
+        id: `log-${Date.now()}`,
+        branchId: currentBranch.id,
+        branchName: currentBranch.name,
+        syncType: 'inbound_push',
+        summary: `Actualización de Software instalada en sucursal: ${build.version} (${build.title})`,
+        status: 'success',
+        timestamp: new Date().toISOString(),
+        itemsReceived: build.newModules.length,
+        itemsSent: 0,
+        performedBy: currentUser?.name || 'Administrador'
+      };
+      setSyncAuditLogs(prev => [auditRecord, ...prev]);
+
+      // Report new build to Central
+      handlePushBranchOperations().catch(console.warn);
+    }
+  };
+
+  // --- Initial Load from Terminal Database ---
+  const reloadFromTerminalDb = async () => {
+    try {
+      const data = await loadTerminalDatabaseData(terminalConfig.terminalId);
+      setSpots(data.spots);
+      setActiveTickets(data.activeTickets);
+      setPaidTickets(data.paidTickets);
+      setRates(data.rates);
+      setBusinessInfo(data.businessInfo);
+      setCurrentShift(data.currentShift);
+      setTerminalConfig(data.terminalConfig);
+      if (data.paymentGatewayConfig) {
+        const sanitizedGatewayConfig = ensurePaymentGatewayConfigDefaults(data.paymentGatewayConfig);
+        setPaymentGatewayConfig(sanitizedGatewayConfig);
+        localStorage.setItem('pk_payment_gateway_config', JSON.stringify(sanitizedGatewayConfig));
+      }
+      if (data.users && data.users.length > 0) {
+        setUsers(data.users);
+        localStorage.setItem('pk_system_users', JSON.stringify(data.users));
+      }
+    } catch (e) {
+      console.warn('Carga inicial desde IndexedDB completada con fallback local:', e);
+    }
+  };
+
+  useEffect(() => {
+    reloadFromTerminalDb();
+  }, [terminalConfig.terminalId]);
+
+  // Navigation Domain Category and Independent View Tab with URL Query Parameter Support
+  const getViewFromUrl = (): { view: ActiveWorkspaceView; category: WorkspaceCategory } => {
+    if (typeof window === 'undefined') return { view: 'operations', category: 'operations' };
+    const params = new URLSearchParams(window.location.search);
+    const requested = (params.get('view') || params.get('module') || params.get('tab') || '').toLowerCase();
+    
+    const viewCategoryMap: Record<string, { view: ActiveWorkspaceView; category: WorkspaceCategory }> = {
+      operations: { view: 'operations', category: 'operations' },
+      map: { view: 'map', category: 'operations' },
+      spots: { view: 'spots', category: 'operations' },
+      anpr_camera: { view: 'anpr_camera', category: 'operations' },
+      anpr: { view: 'anpr_camera', category: 'operations' },
+      camera: { view: 'anpr_camera', category: 'operations' },
+      cash: { view: 'cash', category: 'finance' },
+      caja: { view: 'cash', category: 'finance' },
+      shift: { view: 'cash', category: 'finance' },
+      expense_concepts: { view: 'expense_concepts', category: 'finance' },
+      expenses: { view: 'expense_concepts', category: 'finance' },
+      reports: { view: 'reports', category: 'reports' },
+      informes: { view: 'reports', category: 'reports' },
+      bi: { view: 'reports', category: 'reports' },
+      branches: { view: 'branches', category: 'central' },
+      sucursales: { view: 'branches', category: 'central' },
+      central_hub: { view: 'central_hub', category: 'central' },
+      central: { view: 'central_hub', category: 'central' },
+      central_dashboard: { view: 'central_dashboard', category: 'central' },
+      telemetria: { view: 'central_dashboard', category: 'central' },
+      mapa_sedes: { view: 'central_dashboard', category: 'central' },
+      branch_sync: { view: 'branch_sync', category: 'central' },
+      sync: { view: 'branch_sync', category: 'central' },
+      vnc_remote: { view: 'vnc_remote', category: 'central' },
+      remote: { view: 'vnc_remote', category: 'central' },
+      software_updater: { view: 'software_updater', category: 'updates' },
+      updates: { view: 'software_updater', category: 'updates' },
+      updater: { view: 'software_updater', category: 'updates' },
+      work_mode: { view: 'work_mode', category: 'updates' },
+      rates: { view: 'rates', category: 'config' },
+      tarifas: { view: 'rates', category: 'config' },
+      vehicle_categories: { view: 'vehicle_categories', category: 'config' },
+      vehicles: { view: 'vehicle_categories', category: 'config' },
+      users: { view: 'users', category: 'config' },
+      usuarios: { view: 'users', category: 'config' },
+      database: { view: 'database', category: 'config' },
+      db: { view: 'database', category: 'config' },
+      agent_skills: { view: 'agent_skills', category: 'config' },
+      skills: { view: 'agent_skills', category: 'config' },
+      printer_config: { view: 'printer_config', category: 'config' },
+      printer: { view: 'printer_config', category: 'config' },
+      impresoras: { view: 'printer_config', category: 'config' },
+    };
+
+    if (requested && viewCategoryMap[requested]) {
+      return viewCategoryMap[requested];
+    }
+    return { view: 'operations', category: 'operations' };
+  };
+
+  const initialUrlRouting = getViewFromUrl();
+  const [activeCategory, setActiveCategory] = useState<WorkspaceCategory>(initialUrlRouting.category);
+  const [activeView, setActiveView] = useState<ActiveWorkspaceView>(initialUrlRouting.view);
+
+  // Detailed logging when user management modal / view is opened
+  useEffect(() => {
+    if (activeView === 'users' || isUsersModalOpen) {
+      console.log('📂 [LOG DETALLADO - APERTURA MODAL USUARIOS] Se ha abierto la Gestión de Usuarios/Perfiles/Permisos:', {
+        timestamp: new Date().toISOString(),
+        activeView,
+        isUsersModalOpen,
+        currentUser: currentUser ? { id: currentUser.id, username: currentUser.username, role: currentUser.role } : null,
+        usersInStateCount: users.length,
+        usersInState: users.map(u => ({
+          id: u.id,
+          name: u.name,
+          username: u.username,
+          role: u.role,
+          isActive: u.isActive
+        })),
+        rawLocalStorageSystemUsers: localStorage.getItem('pk_system_users'),
+        rawLocalStorageUserTemplates: localStorage.getItem('pk_user_templates'),
+        rawLocalStorageRoleMatrix: localStorage.getItem('farmadesk_role_matrix_config')
+      });
+    }
+  }, [activeView, isUsersModalOpen, users, currentUser]);
+
+  // Sync URL query params whenever activeView changes
+  const handleSwitchView = (newView: ActiveWorkspaceView, newCategory?: WorkspaceCategory) => {
+    setActiveView(newView);
+    if (newCategory) {
+      setActiveCategory(newCategory);
+    } else {
+      const mapped = getViewFromUrl();
+      const catMap: Record<ActiveWorkspaceView, WorkspaceCategory> = {
+        operations: 'operations',
+        map: 'operations',
+        spots: 'operations',
+        anpr_camera: 'operations',
+        cash: 'finance',
+        expense_concepts: 'finance',
+        reports: 'reports',
+        branches: 'central',
+        central_hub: 'central',
+        central_dashboard: 'central',
+        branch_sync: 'central',
+        vnc_remote: 'central',
+        software_updater: 'updates',
+        work_mode: 'updates',
+        rates: 'config',
+        vehicle_categories: 'config',
+        users: 'config',
+        database: 'config',
+        agent_skills: 'config',
+        printer_config: 'config',
+      };
+      setActiveCategory(catMap[newView] || 'operations');
+    }
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (newView === 'operations') {
+        url.searchParams.delete('view');
+        url.searchParams.delete('module');
+      } else {
+        url.searchParams.set('view', newView);
+      }
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
+  // Listen for browser back/forward buttons
+  useEffect(() => {
+    const handlePopStateRouting = () => {
+      const routed = getViewFromUrl();
+      setActiveView(routed.view);
+      setActiveCategory(routed.category);
+    };
+    window.addEventListener('popstate', handlePopStateRouting);
+    return () => window.removeEventListener('popstate', handlePopStateRouting);
+  }, []);
+
+  // Ensure active tab is allowed for user
+  const ensureAllowedTab = (user: SystemUser, currentTab: string) => {
+    if (currentTab === 'operations' && !user.permissions.canRegisterEntry && !user.permissions.canRegisterExit) {
+      if (user.permissions.canViewMap) return 'map';
+      if (user.permissions.canManageCashShift) return 'cash';
+      if (user.permissions.canViewReports) return 'reports';
+      if (user.permissions.canEditRates) return 'settings';
+    }
+    if (currentTab === 'map' && !user.permissions.canViewMap) return 'operations';
+    if (currentTab === 'reports' && !user.permissions.canViewReports) return 'operations';
+    if (currentTab === 'cash' && !user.permissions.canManageCashShift) return 'operations';
+    if (currentTab === 'settings' && !user.permissions.canEditRates) return 'operations';
+    return currentTab as 'operations' | 'map' | 'reports' | 'cash' | 'settings';
+  };
+
+  // User Login & Session Handlers
+  const handleLoginSuccess = (user: SystemUser) => {
+    setCurrentUser(user);
+    sessionStorage.setItem('pk_current_user', JSON.stringify(user));
+    localStorage.setItem('pk_current_user', JSON.stringify(user));
+    setCurrentShift(prev => ({
+      ...prev,
+      operatorName: user.name
+    }));
+    setActiveView('operations');
+    playSound('success', soundEnabled);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    sessionStorage.removeItem('pk_current_user');
+    localStorage.removeItem('pk_current_user');
+    playSound('beep', soundEnabled);
+  };
+
+  const handleSaveUser = async (userToSave: SystemUser) => {
+    console.log('💾 [LOG DETALLADO - GUARDANDO USUARIO] handleSaveUser invocado en App.tsx:', {
+      timestamp: new Date().toISOString(),
+      userToSave: {
+        id: userToSave.id,
+        name: userToSave.name,
+        username: userToSave.username,
+        role: userToSave.role,
+        isActive: userToSave.isActive,
+      },
+      currentUsersCount: users.length,
+    });
+
+    await dbSaveUser(userToSave);
+    setUsers(prev => {
+      const idx = prev.findIndex(u => u.id === userToSave.id);
+      let nextUsers: SystemUser[];
+      if (idx >= 0) {
+        nextUsers = [...prev];
+        nextUsers[idx] = userToSave;
+        console.log(`✏️ [LOG DETALLADO - EDITAR USUARIO] ID: ${userToSave.id}, Username: ${userToSave.username}. Total actual: ${nextUsers.length}`);
+      } else {
+        nextUsers = [userToSave, ...prev];
+        console.log(`➕ [LOG DETALLADO - NUEVO USUARIO] ID: ${userToSave.id}, Username: ${userToSave.username}. Total actual: ${nextUsers.length}`);
+      }
+      return nextUsers;
+    });
+
+    if (currentUser && currentUser.id === userToSave.id) {
+      setCurrentUser(userToSave);
+      sessionStorage.setItem('pk_current_user', JSON.stringify(userToSave));
+      localStorage.setItem('pk_current_user', JSON.stringify(userToSave));
+    }
+    dbAddAuditLog('USER_UPDATE', `Usuario modificado o creado: ${userToSave.username}`, currentUser?.name || 'Maestro').catch(console.error);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    const toDelete = users.find(u => u.id === userId);
+    console.log('🗑️ [LOG DETALLADO - ELIMINAR USUARIO] handleDeleteUser invocado:', {
+      userId,
+      deletedUsername: toDelete?.username,
+      usersCountBeforeDelete: users.length
+    });
+    await dbDeleteUser(userId);
+    setUsers(prev => {
+      const remaining = prev.filter(u => u.id !== userId);
+      console.log(`🗑️ [LOG DETALLADO - USUARIO ELIMINADO] Quedan ${remaining.length} usuario(s) en estado.`);
+      return remaining;
+    });
+    if (toDelete) {
+      dbAddAuditLog('USER_DELETE', `Usuario eliminado: ${toDelete.username}`, currentUser?.name || 'Maestro').catch(console.error);
+    }
+  };
+
+  // Modal ticket print
+  const [ticketModalState, setTicketModalState] = useState<{
+    isOpen: boolean;
+    ticket: ParkingTicket | null;
+    mode: 'entry' | 'exit';
+  }>({
+    isOpen: false,
+    ticket: null,
+    mode: 'entry',
+  });
+
+  // Modal de Escáner QR de Tickets
+  const [isTicketScannerModalOpen, setIsTicketScannerModalOpen] = useState(false);
+
+  // Cross-view selection (e.g. from Map to Operations)
+  const [selectedPlateForExit, setSelectedPlateForExit] = useState<string | null>(null);
+
+  // Floating print toast notification
+  const [printToast, setPrintToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  const triggerInstantPrint = async (options: {
+    type: 'entry_ticket' | 'exit_receipt' | 'cash_shift' | 'day_closure' | 'test';
+    ticket?: ParkingTicket | null;
+    shift?: CashShift | null;
+    day?: OperationalDay | null;
+    autoCut?: boolean;
+    openDrawer?: boolean;
+  }) => {
+    const activePrinter = printers.find(p => p.isDefault) || printers[0];
+    const targetPrinter = businessInfo.defaultPrinterName || activePrinter?.printerName || activePrinter?.name || 'POS-80';
+
+    try {
+      const result = await printInstantThermal({
+        type: options.type,
+        ticket: options.ticket,
+        shift: options.shift,
+        day: options.day,
+        businessInfo,
+        rates,
+        targetPrinterName: targetPrinter,
+        paperWidth: activePrinter?.paperSize || businessInfo.defaultPaperWidth || '80mm',
+        autoCut: options.autoCut ?? businessInfo.cutPaperOnPrint ?? true,
+        openDrawer: options.openDrawer ?? (options.ticket?.paymentMethod === 'cash' && businessInfo.openCashDrawerOnCashPayment),
+      });
+
+      if (result.success) {
+        setPrintToast({
+          type: 'success',
+          message: `🖨️ ${options.type === 'entry_ticket' ? 'Ticket de ingreso' : options.type === 'exit_receipt' ? 'Factura POS' : options.type === 'cash_shift' ? 'Comprobante de arqueo' : 'Cierre de jornada'} impreso automáticamente en '${result.printerName}'`
+        });
+        setTimeout(() => setPrintToast(null), 3500);
+      } else {
+        console.warn('[Auto-Print Warning] Spooler directo no completó, abriendo modal como respaldo:', result.error);
+        if (options.ticket) {
+          handleOpenPrintModal(options.ticket, options.type === 'entry_ticket' ? 'entry' : 'exit');
+        }
+      }
+    } catch (err) {
+      console.warn('[Auto-Print Exception] Error enviando trabajo al spooler:', err);
+      if (options.ticket) {
+        handleOpenPrintModal(options.ticket, options.type === 'entry_ticket' ? 'entry' : 'exit');
+      }
+    }
+  };
+
+  // Sync to fallback localStorage cache
+  useEffect(() => {
+    localStorage.setItem('pk_spots_data', JSON.stringify(spots));
+  }, [spots]);
+
+  useEffect(() => {
+    localStorage.setItem('pk_active_tickets', JSON.stringify(activeTickets));
+  }, [activeTickets]);
+
+  useEffect(() => {
+    localStorage.setItem('pk_paid_tickets', JSON.stringify(paidTickets));
+  }, [paidTickets]);
+
+  useEffect(() => {
+    localStorage.setItem('pk_rates_config', JSON.stringify(rates));
+  }, [rates]);
+
+  useEffect(() => {
+    localStorage.setItem('pk_business_info', JSON.stringify(businessInfo));
+  }, [businessInfo]);
+
+  useEffect(() => {
+    localStorage.setItem('pk_current_shift', JSON.stringify(currentShift));
+  }, [currentShift]);
+
+  useEffect(() => {
+    localStorage.setItem('pk_sound_enabled', JSON.stringify(soundEnabled));
+  }, [soundEnabled]);
+
+  // --- Handlers: Register Entry with DB Persistence ---
+  const handleRegisterEntry = (ticketData: {
+    plate: string;
+    vehicleType: VehicleType;
+    spotCode: string;
+    notes?: string;
+    isForeignPlate?: boolean;
+    originCountry?: string;
+  }): ParkingTicket | null => {
+    const cleanPlate = formatPlate(ticketData.plate);
+    const targetBranchId = activeRemoteSession?.branchId || currentBranchId;
+    const targetBranch = branches.find(b => b.id === targetBranchId) || currentBranch;
+
+    const existingActiveTicket = activeTickets.find(
+      t => (formatPlate(t.plate) === cleanPlate || t.plate.toUpperCase().trim() === cleanPlate) &&
+           (!t.branchId || t.branchId === targetBranchId)
+    );
+
+    if (existingActiveTicket) {
+      console.warn(`[Validación de Ingreso] La placa ${cleanPlate} ya tiene un ticket activo: #${existingActiveTicket.ticketNumber}`);
+      setPrintToast({
+        type: 'error',
+        message: `⚠️ La placa ${cleanPlate} ya tiene ticket activo #${existingActiveTicket.ticketNumber} en puesto ${existingActiveTicket.spotCode}`
+      });
+      setTimeout(() => setPrintToast(null), 4500);
+      return null;
+    }
+
+    const nextTicketNumber = `PK-${(activeTickets.length + paidTickets.length + 430).toString().padStart(4, '0')}`;
+
+    const newTicket: ParkingTicket = {
+      id: `tk-${Date.now()}`,
+      ticketNumber: nextTicketNumber,
+      barcode: nextTicketNumber,
+      plate: ticketData.plate,
+      vehicleType: ticketData.vehicleType,
+      spotCode: ticketData.spotCode,
+      entryTime: new Date().toISOString(),
+      status: 'active',
+      notes: ticketData.notes,
+      isForeignPlate: ticketData.isForeignPlate,
+      originCountry: ticketData.originCountry,
+      operationalDayNumber: operationalDay.dayNumber,
+      shiftNumber: currentShift.shiftNumber,
+      branchId: targetBranchId,
+      branchName: targetBranch?.name || activeRemoteSession?.branchName || 'Sucursal Local'
+    };
+
+    // Update active tickets in state and local DB
+    setActiveTickets(prev => [newTicket, ...prev]);
+    dbSaveActiveTicket(newTicket).catch(console.error);
+
+    // Update spot status in state and local DB
+    const updatedSpots = spots.map(s => {
+      if (s.code === ticketData.spotCode) {
+        return { ...s, status: 'occupied' as const, currentTicketId: newTicket.id };
+      }
+      return s;
+    });
+    setSpots(updatedSpots);
+    dbSaveSpots(updatedSpots).catch(console.error);
+
+    // Record audit log in terminal database
+    dbAddAuditLog(
+      'ENTRY', 
+      `Ingreso vehículo: ${newTicket.vehicleType.toUpperCase()} [${newTicket.plate}] en plaza ${newTicket.spotCode} - Ticket ${newTicket.ticketNumber}`,
+      currentShift.operatorName
+    ).catch(console.error);
+
+    // Registro automático de estado para auditoría de integridad
+    logCriticalDatabaseState('INGRESO_VEHICULO', {
+      ticketNumber: newTicket.ticketNumber,
+      plate: newTicket.plate,
+      vehicleType: newTicket.vehicleType,
+      spotCode: newTicket.spotCode
+    });
+
+    // Impresión automática instantánea al registrar entrada
+    if (businessInfo.autoPrintOnEntry !== false) {
+      if (businessInfo.silentBackgroundPrint !== false) {
+        triggerInstantPrint({ type: 'entry_ticket', ticket: newTicket });
+      } else {
+        handleOpenPrintModal(newTicket, 'entry');
+      }
+    }
+
+    return newTicket;
+  };
+
+  // --- Handlers: Register Exit & Billing with DB Persistence ---
+  const handleRegisterExit = (
+    ticketId: string,
+    billingDetails: {
+      paymentMethod: PaymentMethod;
+      cashReceived?: number;
+      changeGiven?: number;
+      discountAmount?: number;
+      paymentDetails?: PaymentTransactionDetails;
+    }
+  ): ParkingTicket | null => {
+    const targetTicket = activeTickets.find(t => t.id === ticketId);
+    if (!targetTicket) return null;
+
+    const exitIso = new Date().toISOString();
+    const feeCalculation = calculateParkingFee(
+      targetTicket.entryTime,
+      exitIso,
+      targetTicket.vehicleType,
+      rates
+    );
+
+    const discount = billingDetails.discountAmount || 0;
+    const finalAmount = Math.max(0, feeCalculation.totalAmount - discount);
+
+    const paidTicket: ParkingTicket = {
+      ...targetTicket,
+      exitTime: exitIso,
+      status: 'paid',
+      totalMinutes: feeCalculation.totalMinutes,
+      billableMinutes: feeCalculation.billableMinutes,
+      baseAmount: feeCalculation.baseAmount,
+      taxAmount: feeCalculation.taxAmount,
+      discountAmount: discount,
+      totalAmount: finalAmount,
+      paymentMethod: billingDetails.paymentMethod,
+      paymentDetails: billingDetails.paymentDetails,
+      cashReceived: billingDetails.cashReceived,
+      changeGiven: billingDetails.changeGiven,
+      paidAt: exitIso,
+      cashierName: currentShift.operatorName,
+      operationalDayNumber: operationalDay.dayNumber,
+      shiftNumber: currentShift.shiftNumber,
+      electronicInvoice: billingDetails.paymentDetails?.isElectronicInvoice ? {
+        cufe: billingDetails.paymentDetails.cufe || '',
+        invoiceNumber: billingDetails.paymentDetails.electronicInvoiceNumber || '',
+        prefix: businessInfo.dianPrefix || 'FE',
+        resolutionNumber: businessInfo.dianResolutionNumber || '',
+        customer: {
+          name: billingDetails.paymentDetails.customerName || 'Consumidor Final',
+          documentNumber: billingDetails.paymentDetails.customerDocument || '222222222222',
+          docType: billingDetails.paymentDetails.customerDocType || 'CC',
+          email: billingDetails.paymentDetails.customerEmail,
+        }
+      } : undefined,
+    };
+
+    // Remove from active tickets in state and local DB
+    setActiveTickets(prev => prev.filter(t => t.id !== ticketId));
+    dbRemoveActiveTicket(ticketId).catch(console.error);
+
+    // Add to paid tickets in state and local DB
+    setPaidTickets(prev => [paidTicket, ...prev]);
+    dbSavePaidTicket(paidTicket).catch(console.error);
+
+    // Free up spot in state and local DB
+    const updatedSpots = spots.map(s => {
+      if (s.code === targetTicket.spotCode) {
+        return { ...s, status: 'available' as const, currentTicketId: undefined };
+      }
+      return s;
+    });
+    setSpots(updatedSpots);
+    dbSaveSpots(updatedSpots).catch(console.error);
+
+    // Record audit log in terminal database
+    dbAddAuditLog(
+      'EXIT_PAYMENT',
+      `Salida y cobro: Ticket ${paidTicket.ticketNumber} [${paidTicket.plate}] - $${paidTicket.totalAmount} (${paidTicket.paymentMethod})`,
+      currentShift.operatorName
+    ).catch(console.error);
+
+    // Registro automático de estado para auditoría de integridad
+    logCriticalDatabaseState('SALIDA_COBRO_VEHICULO', {
+      ticketNumber: paidTicket.ticketNumber,
+      plate: paidTicket.plate,
+      totalAmount: paidTicket.totalAmount,
+      paymentMethod: paidTicket.paymentMethod
+    });
+
+    // Impresión automática instantánea al registrar salida y pago
+    if (businessInfo.autoPrintOnExit !== false) {
+      if (businessInfo.silentBackgroundPrint !== false) {
+        triggerInstantPrint({ 
+          type: 'exit_receipt', 
+          ticket: paidTicket, 
+          openDrawer: paidTicket.paymentMethod === 'cash' 
+        });
+      } else {
+        handleOpenPrintModal(paidTicket, 'exit');
+      }
+    }
+
+    return paidTicket;
+  };
+
+  // --- Global Keyboard Wedge Barcode Scanner Listener ---
+  useBarcodeScanner({
+    activeTickets: effectiveActiveTickets,
+    paidTickets,
+    rates,
+    onTicketFound: (ticket, autoAction) => {
+      setSelectedPlateForExit(ticket.plate);
+      setActiveCategory('operations');
+      setActiveView('operations');
+      if (isTicketScannerModalOpen) {
+        setIsTicketScannerModalOpen(false);
+      }
+    },
+    onFastExitDirect: async (ticket) => {
+      try {
+        const exitFee = calculateParkingFee(
+          ticket.entryTime,
+          new Date().toISOString(),
+          ticket.vehicleType,
+          rates
+        );
+        const paidResult = await handleRegisterExit(ticket.id, {
+          paymentMethod: 'cash',
+          cashReceived: exitFee.totalAmount,
+          changeGiven: 0
+        });
+        if (paidResult) {
+          handleOpenPrintModal(paidResult, 'exit');
+        }
+      } catch (err) {
+        console.error('[Global Scanner] Error en salida directa:', err);
+      }
+    },
+    enabled: true
+  });
+
+  // --- Handlers: Print Ticket Modal ---
+  const handleOpenPrintModal = (ticket: ParkingTicket, mode: 'entry' | 'exit') => {
+    setTicketModalState({
+      isOpen: true,
+      ticket,
+      mode,
+    });
+  };
+
+  // --- Handlers: Map Interaction ---
+  const handleSelectSpotForEntry = (spotCode: string, vehicleType: VehicleType) => {
+    setActiveCategory('operations');
+    setActiveView('operations');
+  };
+
+  const handleSelectSpotForExit = (plate: string) => {
+    setSelectedPlateForExit(plate);
+    setActiveCategory('operations');
+    setActiveView('operations');
+  };
+
+  const handleToggleSpotStatus = (spotId: string, newStatus: 'available' | 'reserved' | 'maintenance') => {
+    const updated = spots.map(s => s.id === spotId ? { ...s, status: newStatus } : s);
+    setSpots(updated);
+    dbSaveSpots(updated).catch(console.error);
+  };
+
+  // --- Handlers: Parking Spots Dedicated Panel ---
+  const handleSaveSpot = (spotToSave: ParkingSpot) => {
+    setSpots(prev => {
+      const idx = prev.findIndex(s => s.id === spotToSave.id);
+      let updated: ParkingSpot[] = [];
+      if (idx >= 0) {
+        updated = [...prev];
+        updated[idx] = spotToSave;
+      } else {
+        updated = [...prev, spotToSave];
+      }
+      dbSaveSpots(updated).catch(console.error);
+      return updated;
+    });
+    dbAddAuditLog('SYSTEM_CONFIG', `Plaza de parqueo guardada: ${spotToSave.code}`, currentUser?.username || 'Administrador').catch(console.error);
+    playSound('success', soundEnabled);
+  };
+
+  const handleSaveMultipleSpots = (newSpotsBatch: ParkingSpot[]) => {
+    setSpots(prev => {
+      const updated = [...prev, ...newSpotsBatch];
+      dbSaveSpots(updated).catch(console.error);
+      return updated;
+    });
+    dbAddAuditLog('SYSTEM_CONFIG', `Se generaron ${newSpotsBatch.length} plazas de parqueo por lote`, currentUser?.username || 'Administrador').catch(console.error);
+    playSound('success', soundEnabled);
+  };
+
+  const handleDeleteSpot = (spotId: string) => {
+    const toDelete = spots.find(s => s.id === spotId);
+    if (toDelete && toDelete.status === 'occupied') {
+      alert('No se puede eliminar una plaza ocupada por un vehículo.');
+      return;
+    }
+    setSpots(prev => {
+      const updated = prev.filter(s => s.id !== spotId);
+      dbSaveSpots(updated).catch(console.error);
+      return updated;
+    });
+    if (toDelete) {
+      dbAddAuditLog('SYSTEM_CONFIG', `Plaza de parqueo eliminada: ${toDelete.code}`, currentUser?.username || 'Administrador').catch(console.error);
+    }
+    playSound('beep', soundEnabled);
+  };
+
+  const handleDeleteMultipleSpots = (spotIds: string[]) => {
+    setSpots(prev => {
+      const updated = prev.filter(s => !spotIds.includes(s.id) || s.status === 'occupied');
+      dbSaveSpots(updated).catch(console.error);
+      return updated;
+    });
+    dbAddAuditLog('SYSTEM_CONFIG', `Eliminación masiva de ${spotIds.length} plazas de parqueo`, currentUser?.username || 'Administrador').catch(console.error);
+    playSound('beep', soundEnabled);
+  };
+
+  const handleUpdateMultipleSpotStatus = (spotIds: string[], status: 'available' | 'reserved' | 'maintenance') => {
+    setSpots(prev => {
+      const updated = prev.map(s => {
+        if (spotIds.includes(s.id) && s.status !== 'occupied') {
+          return { ...s, status };
+        }
+        return s;
+      });
+      dbSaveSpots(updated).catch(console.error);
+      return updated;
+    });
+    dbAddAuditLog('SYSTEM_CONFIG', `Cambio de estado masivo a ${status} para ${spotIds.length} plazas`, currentUser?.username || 'Administrador').catch(console.error);
+    playSound('beep', soundEnabled);
+  };
+
+  // --- Handlers: Cash Shift Movements with DB Persistence ---
+  const handleAddCashMovement = (
+    type: 'income' | 'expense' | 'withdrawal' | 'pickup',
+    amount: number,
+    description: string,
+    conceptId?: string,
+    conceptName?: string,
+    voucherNumber?: string,
+    attachmentUrl?: string,
+    attachmentName?: string,
+    attachmentType?: 'image' | 'pdf' | 'document',
+    attachmentSize?: number
+  ) => {
+    const newMovement: CashMovement = {
+      id: `mov-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      type,
+      amount,
+      description,
+      operator: currentShift.operatorName,
+      conceptId,
+      conceptName,
+      voucherNumber,
+      attachmentUrl,
+      attachmentName,
+      attachmentType,
+      attachmentSize,
+    };
+
+    const updatedShift: CashShift = {
+      ...currentShift,
+      cashMovements: [newMovement, ...currentShift.cashMovements],
+    };
+
+    setCurrentShift(updatedShift);
+    dbSaveCashShift(updatedShift).catch(console.error);
+    dbAddAuditLog(
+      'CASH_MOVEMENT',
+      `Caja (${type}): $${amount} - ${description}${attachmentName ? ` [Comprobante adjunto: ${attachmentName}]` : ''}`,
+      currentShift.operatorName
+    ).catch(console.error);
+    playSound('cash', soundEnabled);
+  };
+
+  // --- Handlers: Shift Change / Arqueo ---
+  const handleCloseShiftAndArqueo = async (countedCash: number, nextOperator: string, nextBase: number) => {
+    // Filter tickets for this specific shift
+    const shiftPaidTickets = paidTickets.filter((t) => {
+      if (t.shiftNumber !== undefined && currentShift.shiftNumber !== undefined) {
+        return t.shiftNumber === currentShift.shiftNumber;
+      }
+      if (currentShift.startTime && t.paidAt) {
+        return new Date(t.paidAt).getTime() >= new Date(currentShift.startTime).getTime();
+      }
+      return true;
+    });
+
+    // Compute shift payment method breakdown
+    let cash = 0;
+    let card = 0;
+    let wallet = 0;
+    let qr = 0;
+    let breB = 0;
+    let agreement = 0;
+
+    shiftPaidTickets.forEach((t) => {
+      const total = t.totalAmount || 0;
+      const method = t.paymentMethod || 'cash';
+      if (method === 'cash') {
+        cash += total;
+      } else if (method === 'agreement') {
+        agreement += total;
+      } else if (method === 'mixed') {
+        const splits = t.paymentDetails?.splitPayments || [];
+        splits.forEach(s => {
+          if (s.method === 'cash') cash += s.amount;
+          else if (s.method === 'agreement') agreement += s.amount;
+          else if (s.method === 'card') card += s.amount;
+          else if (s.method === 'wallet' || s.method === 'nequi' || s.method === 'daviplata') wallet += s.amount;
+          else if (s.method === 'qr' || s.method === 'qr_bancolombia' || s.method === 'transfer') qr += s.amount;
+          else if (s.method === 'bre_b') breB += s.amount;
+        });
+      } else {
+        if (method === 'card') card += total;
+        else if (method === 'wallet' || method === 'nequi' || method === 'daviplata') wallet += total;
+        else if (method === 'qr' || method === 'qr_bancolombia' || method === 'transfer') qr += total;
+        else if (method === 'bre_b') breB += total;
+        else if (method === 'agreement') agreement += total;
+      }
+    });
+
+    const totalOtherIncomes = currentShift.cashMovements
+      .filter((m) => m.type === 'income' && !m.description.includes('Apertura'))
+      .reduce((acc, m) => acc + m.amount, 0);
+
+    const totalExpenses = currentShift.cashMovements
+      .filter((m) => m.type === 'expense')
+      .reduce((acc, m) => acc + m.amount, 0);
+
+    const totalPickups = currentShift.cashMovements
+      .filter((m) => m.type === 'pickup' || m.type === 'withdrawal')
+      .reduce((acc, m) => acc + m.amount, 0);
+
+    const totalOutflows = totalExpenses + totalPickups;
+    const expectedCashInDrawer = currentShift.initialCash + cash + totalOtherIncomes - totalOutflows;
+    const totalCollected = cash + card + wallet + qr + breB + agreement;
+
+    // Generate consecutive sequential code for shift arqueo
+    const nextShiftConsecutive = closedShiftsHistory.length + 421;
+    const consecutiveCode = `ARQ-${nextShiftConsecutive.toString().padStart(6, '0')}`;
+
+    // Push current shift to history as closed with all snapshots
+    const closedShiftRecord: CashShift = {
+      ...currentShift,
+      endTime: new Date().toISOString(),
+      finalCountedCash: countedCash,
+      status: 'closed',
+      consecutiveCode,
+      cashCollectedSnapshot: cash,
+      cardCollectedSnapshot: card,
+      walletCollectedSnapshot: wallet,
+      qrCollectedSnapshot: qr,
+      breBCollectedSnapshot: breB,
+      agreementCollectedSnapshot: agreement,
+      totalCollectedSnapshot: totalCollected,
+      totalExpensesSnapshot: totalExpenses,
+      totalPickupsSnapshot: totalPickups,
+      expectedCashSnapshot: expectedCashInDrawer,
+      countedCashSnapshot: countedCash,
+      cashDifference: countedCash - expectedCashInDrawer,
+      totalToConsignSnapshot: totalPickups + Math.max(0, countedCash - currentShift.initialCash),
+    };
+    setClosedShiftsHistory(prev => [closedShiftRecord, ...prev]);
+
+    const nextShiftNumber = (currentShift.shiftNumber || 1) + 1;
+    const nextShift: CashShift = {
+      id: `shift-${operationalDay.dayNumber}-${nextShiftNumber}-${Date.now()}`,
+      shiftNumber: nextShiftNumber,
+      operationalDayId: operationalDay.id,
+      operationalDayNumber: operationalDay.dayNumber,
+      operatorName: nextOperator,
+      startTime: new Date().toISOString(),
+      initialCash: nextBase,
+      status: 'open',
+      cashMovements: [
+        {
+          id: `mov-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          type: 'income',
+          amount: nextBase,
+          description: `Apertura de turno #${nextShiftNumber} - Base inicial entregada por ${currentShift.operatorName}`,
+          operator: nextOperator,
+        }
+      ],
+    };
+
+    setCurrentShift(nextShift);
+    dbSaveCashShift(nextShift).catch(console.error);
+
+    setOperationalDay(prev => ({
+      ...prev,
+      shiftsCount: (prev.shiftsCount || 1) + 1,
+    }));
+
+    dbAddAuditLog(
+      'SHIFT_CLOSE_ARQUEO',
+      `Arqueo de turno #${currentShift.shiftNumber} cerrado (Físico: $${countedCash}). Abre Turno #${nextShiftNumber} con ${nextOperator} y base $${nextBase}`,
+      currentShift.operatorName
+    ).catch(console.error);
+
+    logCriticalDatabaseState('CIERRE_ARQUEO_TURNO', {
+      shiftNumber: currentShift.shiftNumber,
+      countedCash,
+      totalCollected,
+      consecutiveCode
+    });
+
+    playSound('success', soundEnabled);
+
+    // Impresión automática instantánea del arqueo de turno
+    if (businessInfo.autoPrintOnShiftClose !== false) {
+      triggerInstantPrint({ type: 'cash_shift', shift: closedShiftRecord });
+    }
+
+    await triggerBlockingBackup('shift');
+    handlePushBranchOperations().catch(err => console.warn('[Sync] Auto-push de operaciones tras cierre de turno:', err));
+  };
+
+  // --- Handlers: Definitive Day Close ---
+  const handleCloseDefinitiveDay = async (finalCash: number, notes?: string) => {
+    // Compute day breakdown from all paid tickets of this day
+    let dayCash = 0;
+    let dayCard = 0;
+    let dayWallet = 0;
+    let dayQr = 0;
+    let dayBreB = 0;
+    let dayAgreement = 0;
+
+    paidTickets.forEach((t) => {
+      const total = t.totalAmount || 0;
+      const method = t.paymentMethod || 'cash';
+      if (method === 'cash') {
+        dayCash += total;
+      } else if (method === 'agreement') {
+        dayAgreement += total;
+      } else if (method === 'mixed') {
+        const splits = t.paymentDetails?.splitPayments || [];
+        splits.forEach(s => {
+          if (s.method === 'cash') dayCash += s.amount;
+          else if (s.method === 'agreement') dayAgreement += s.amount;
+          else if (s.method === 'card') dayCard += s.amount;
+          else if (s.method === 'wallet' || s.method === 'nequi' || s.method === 'daviplata') dayWallet += s.amount;
+          else if (s.method === 'qr' || s.method === 'qr_bancolombia' || s.method === 'transfer') dayQr += s.amount;
+          else if (s.method === 'bre_b') dayBreB += s.amount;
+        });
+      } else {
+        if (method === 'card') dayCard += total;
+        else if (method === 'wallet' || method === 'nequi' || method === 'daviplata') dayWallet += total;
+        else if (method === 'qr' || method === 'qr_bancolombia' || method === 'transfer') dayQr += total;
+        else if (method === 'bre_b') dayBreB += total;
+        else if (method === 'agreement') dayAgreement += total;
+      }
+    });
+
+    const dayShifts = [currentShift, ...closedShiftsHistory.filter(s => s.operationalDayId === operationalDay.id)];
+
+    let dayTotalOtherIncomes = 0;
+    let dayTotalExpenses = 0;
+    let dayTotalPickups = 0;
+
+    dayShifts.forEach(s => {
+      const movements = s.cashMovements || [];
+      movements.forEach(m => {
+        if (m.type === 'income' && !m.description.includes('Apertura')) {
+          dayTotalOtherIncomes += m.amount;
+        } else if (m.type === 'expense') {
+          dayTotalExpenses += m.amount;
+        } else if (m.type === 'pickup' || m.type === 'withdrawal') {
+          dayTotalPickups += m.amount;
+        }
+      });
+    });
+
+    const dayBaseCash = operationalDay.initialDayCash || currentShift.initialCash;
+    const dayExpectedCashInDrawer = dayBaseCash + dayCash + dayTotalOtherIncomes - (dayTotalExpenses + dayTotalPickups);
+    const dayTotalCollected = dayCash + dayCard + dayWallet + dayQr + dayBreB + dayAgreement;
+
+    // Generate consecutive sequential code for day closure starting at 4310
+    const nextDayConsecutive = closedDaysHistory.length + 4310;
+    const consecutiveCode = `${nextDayConsecutive.toString().padStart(6, '0')}`;
+
+    // Push current operational day to history as closed
+    const closedDayRecord: OperationalDay = {
+      ...operationalDay,
+      closedAt: new Date().toISOString(),
+      status: 'closed',
+      consecutiveCode,
+      finalDayCash: finalCash,
+      closedByOperator: currentUser?.name || 'Administrador',
+      closingNotes: notes,
+      cashCollectedSnapshot: dayCash,
+      cardCollectedSnapshot: dayCard,
+      walletCollectedSnapshot: dayWallet,
+      qrCollectedSnapshot: dayQr,
+      breBCollectedSnapshot: dayBreB,
+      agreementCollectedSnapshot: dayAgreement,
+      totalCollected: dayTotalCollected,
+      totalExpensesSnapshot: dayTotalExpenses,
+      totalPickupsSnapshot: dayTotalPickups,
+      expectedCashSnapshot: dayExpectedCashInDrawer,
+      countedCashSnapshot: finalCash,
+      cashDifferenceSnapshot: finalCash - dayExpectedCashInDrawer,
+      totalToConsignSnapshot: dayTotalPickups + Math.max(0, finalCash - dayBaseCash),
+    };
+    setClosedDaysHistory(prev => [closedDayRecord, ...prev]);
+
+    const nextDayNumber = (operationalDay.dayNumber || 1) + 1;
+    
+    // Calculate next day date cleanly
+    let nextDateStr = '';
+    try {
+      const baseDate = operationalDay.date ? new Date(operationalDay.date + 'T12:00:00') : new Date();
+      baseDate.setDate(baseDate.getDate() + 1);
+      nextDateStr = baseDate.toISOString().split('T')[0];
+    } catch {
+      nextDateStr = new Date().toISOString().split('T')[0];
+    }
+
+    const newDay: OperationalDay = {
+      id: `day-${nextDateStr}-${nextDayNumber}`,
+      dayNumber: nextDayNumber,
+      date: nextDateStr,
+      openedAt: new Date().toISOString(),
+      status: 'open',
+      initialDayCash: currentShift.initialCash,
+      totalCollected: 0,
+      shiftsCount: 1,
+      closingNotes: notes,
+    };
+
+    setOperationalDay(newDay);
+
+    const newShift: CashShift = {
+      id: `shift-${nextDayNumber}-1-${Date.now()}`,
+      shiftNumber: 1,
+      operationalDayId: newDay.id,
+      operationalDayNumber: nextDayNumber,
+      operatorName: currentUser?.name || 'Cajero Principal',
+      startTime: new Date().toISOString(),
+      initialCash: currentShift.initialCash,
+      status: 'open',
+      cashMovements: [
+        {
+          id: `mov-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          type: 'income',
+          amount: currentShift.initialCash,
+          description: `Apertura Día Operativo #${nextDayNumber} - Turno #1`,
+          operator: currentUser?.name || 'Cajero Principal',
+        }
+      ],
+    };
+
+    setCurrentShift(newShift);
+    dbSaveCashShift(newShift).catch(console.error);
+
+    dbAddAuditLog(
+      'DAY_DEFINITIVE_CLOSE',
+      `Cierre definitivo Día Operativo #${operationalDay.dayNumber} (${operationalDay.date || 'Actual'}). Iniciado Día Operativo #${nextDayNumber} (${nextDateStr}).`,
+      currentUser?.name || 'Administrador'
+    ).catch(console.error);
+
+    logCriticalDatabaseState('CIERRE_DEFINITIVO_DIA', {
+      dayNumber: operationalDay.dayNumber,
+      finalCash,
+      consecutiveCode
+    });
+
+    playSound('success', soundEnabled);
+
+    // Impresión automática instantánea del cierre definitivo de jornada
+    if (businessInfo.autoPrintOnDayClose !== false) {
+      triggerInstantPrint({ type: 'day_closure', day: closedDayRecord });
+    }
+
+    await triggerBlockingBackup('day');
+    handlePushBranchOperations().catch(err => console.warn('[Sync] Auto-push de operaciones tras cierre definitivo:', err));
+  };
+
+  // --- Handlers: Vehicle Categories & Expense Concepts ---
+  const handleSaveVehicleCategory = (catToSave: VehicleCategoryConfig) => {
+    const hr = catToSave.defaultHourlyRate ?? catToSave.rate?.hourRate ?? 4000;
+    const mr = catToSave.defaultMinuteRate ?? catToSave.rate?.minuteRate ?? Math.round(hr / 60);
+    const dr = catToSave.defaultDailyRate ?? catToSave.rate?.dayRate ?? 25000;
+    const gp = catToSave.gracePeriodMinutes ?? catToSave.rate?.gracePeriodMinutes ?? 15;
+    const minCharge = catToSave.rate?.minimumChargeMinutes ?? gp;
+    const lostFee = catToSave.rate?.lostTicketFee ?? 15000;
+
+    const completeCategory: VehicleCategoryConfig = {
+      ...catToSave,
+      defaultHourlyRate: hr,
+      defaultMinuteRate: mr,
+      defaultDailyRate: dr,
+      gracePeriodMinutes: gp,
+      rate: {
+        hourRate: hr,
+        minuteRate: mr,
+        dayRate: dr,
+        gracePeriodMinutes: gp,
+        minimumChargeMinutes: minCharge,
+        lostTicketFee: lostFee,
+      }
+    };
+
+    let nextCategories: VehicleCategoryConfig[] = [];
+    setVehicleCategories(prev => {
+      const idx = prev.findIndex(c => c.id === catToSave.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = completeCategory;
+        nextCategories = copy;
+        return copy;
+      }
+      nextCategories = [...prev, completeCategory];
+      return nextCategories;
+    });
+
+    // Synchronize rates state & DB
+    setRates(prevRates => {
+      const updatedRates: RatesConfig = {
+        ...prevRates,
+        [catToSave.id]: {
+          hourRate: hr,
+          minuteRate: mr,
+          dayRate: dr,
+          gracePeriodMinutes: gp,
+          minimumChargeMinutes: minCharge,
+          lostTicketFee: lostFee,
+        },
+        categories: nextCategories.length > 0 ? nextCategories : vehicleCategories,
+      };
+      dbSaveRates(updatedRates).catch(console.error);
+      return updatedRates;
+    });
+
+    dbAddAuditLog('RATE_CHANGE', `Categoría de vehículo guardada: ${catToSave.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    playSound('success', soundEnabled);
+  };
+
+  const handleDeleteVehicleCategory = (catId: string) => {
+    const toDelete = vehicleCategories.find(c => c.id === catId);
+    const nextCategories = vehicleCategories.filter(c => c.id !== catId);
+    setVehicleCategories(nextCategories);
+    
+    setRates(prevRates => {
+      const copy = { ...prevRates };
+      delete copy[catId];
+      copy.categories = nextCategories;
+      dbSaveRates(copy).catch(console.error);
+      return copy;
+    });
+
+    if (toDelete) {
+      dbAddAuditLog('RATE_CHANGE', `Categoría de vehículo eliminada: ${toDelete.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    }
+    playSound('beep', soundEnabled);
+  };
+
+  const handleSaveExpenseConcept = (conceptToSave: ExpenseConcept) => {
+    setExpenseConcepts(prev => {
+      const idx = prev.findIndex(c => c.id === conceptToSave.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = conceptToSave;
+        return copy;
+      }
+      return [...prev, conceptToSave];
+    });
+    dbAddAuditLog('CASH_MOVEMENT', `Concepto de gasto guardado: ${conceptToSave.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    playSound('success', soundEnabled);
+  };
+
+  const handleDeleteExpenseConcept = (conceptId: string) => {
+    const toDelete = expenseConcepts.find(c => c.id === conceptId);
+    setExpenseConcepts(prev => prev.filter(c => c.id !== conceptId));
+    if (toDelete) {
+      dbAddAuditLog('CASH_MOVEMENT', `Concepto de gasto eliminado: ${toDelete.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    }
+    playSound('beep', soundEnabled);
+  };
+
+  const handleSaveExpenseCategory = (categoryToSave: ExpenseCategory) => {
+    setExpenseCategories(prev => {
+      const idx = prev.findIndex(c => c.id === categoryToSave.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = categoryToSave;
+        return copy;
+      }
+      return [...prev, categoryToSave];
+    });
+    dbAddAuditLog('CASH_MOVEMENT', `Categoría de gasto guardada: ${categoryToSave.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    playSound('success', soundEnabled);
+  };
+
+  const handleDeleteExpenseCategory = (categoryId: string) => {
+    const toDelete = expenseCategories.find(c => c.id === categoryId);
+    setExpenseCategories(prev => prev.filter(c => c.id !== categoryId));
+    if (toDelete) {
+      dbAddAuditLog('CASH_MOVEMENT', `Categoría de gasto eliminada: ${toDelete.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    }
+    playSound('beep', soundEnabled);
+  };
+
+  const handleSaveRates = (newRates: RatesConfig) => {
+    setRates(newRates);
+    localStorage.setItem('pk_rates_config', JSON.stringify(newRates));
+
+    const updatedCategories = vehicleCategories.map(cat => {
+      const r = newRates[cat.id];
+      if (!r) return cat;
+      return {
+        ...cat,
+        defaultHourlyRate: r.hourRate,
+        defaultMinuteRate: r.minuteRate,
+        defaultDailyRate: r.dayRate,
+        gracePeriodMinutes: r.gracePeriodMinutes,
+        rate: { ...r }
+      };
+    });
+    setVehicleCategories(updatedCategories);
+    localStorage.setItem('pk_vehicle_categories', JSON.stringify(updatedCategories));
+
+    dbSaveRates(newRates).catch(console.error);
+    dbAddAuditLog('RATE_CHANGE', 'Tarifas del parqueadero actualizadas', currentShift?.operatorName || 'Administrador').catch(console.error);
+
+    // Save to server immediately so all sucursales receive it
+    saveGlobalConfigToServer({
+      branches,
+      warehouses,
+      rates: newRates,
+      vehicleCategories: updatedCategories,
+      expenseCategories,
+      expenseConcepts,
+      users,
+      businessInfo,
+      lastUpdated: new Date().toISOString()
+    });
+  };
+
+  const handleSaveBusinessInfo = (newInfo: ParkingBusinessInfo) => {
+    setBusinessInfo(newInfo);
+    dbSaveBusinessInfo(newInfo).catch(console.error);
+  };
+
+  const handleSavePaymentGatewayConfig = (newConfig: PaymentGatewayConfig) => {
+    setPaymentGatewayConfig(newConfig);
+    localStorage.setItem('pk_payment_gateway_config', JSON.stringify(newConfig));
+    dbSavePaymentGatewayConfig(newConfig).catch(console.error);
+    dbAddAuditLog('GATEWAY_CONFIG', 'Medios y pasarela de pago actualizados', currentShift.operatorName).catch(console.error);
+  };
+
+  // Gatekeeper 1: if not accessed via /wolfzonepos or authorized session
+  if (!isPathAuthorized) {
+    return (
+      <AccessGate 
+        onGrantAccess={handleGrantAccess} 
+        attemptedPath={currentPathname} 
+        protectedRoutes={protectedRoutes}
+      />
+    );
+  }
+
+  // Gatekeeper 2: User Login Required (Master, Supervisor, Cashier)
+  if (!currentUser) {
+    return (
+      <LoginView
+        users={users}
+        businessName={businessInfo.name}
+        currentBranch={currentBranch}
+        onLogin={handleLoginSuccess}
+        onLoginSuccess={handleLoginSuccess}
+        onQuickLogin={handleLoginSuccess}
+      />
+    );
+  }
+
+  return (
+    <div 
+      data-theme={isDarkMode ? 'dark' : 'light'}
+      className="min-h-screen flex bg-[var(--bg-app)] text-[var(--text-main)] font-sans transition-colors duration-200 overflow-x-hidden selection:bg-amber-500 selection:text-slate-950"
+    >
+      {/* Barra lateral izquierda colapsable (Sidebar) */}
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebar}
+        businessInfo={effectiveBusinessInfo}
+        currentBranch={currentBranch}
+        systemNodeConfig={systemNodeConfig}
+        activeRemoteSession={activeRemoteSession}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        activeView={activeView}
+        setActiveView={handleSwitchView}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        activeTicketsCount={effectiveActiveTickets.length}
+        pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
+        softwareUpdateAvailable={hasSoftwareUpdateAvailable}
+        isDarkMode={isDarkMode}
+        onToggleTheme={toggleDarkMode}
+        contrastLevel={contrastLevel}
+        onSelectContrastLevel={handleSelectContrastLevel}
+      />
+
+      {/* Columna Principal de Trabajo (TopNavbar + Espacio Centrado Amplio) */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+        {/* Banner de Advertencia Crítica de Espacio en Disco (< 500MB) */}
+        {diskSpaceInfo && diskSpaceInfo.isCritical && !isDiskSpaceDismissed && (
+          <div className="bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white px-4 py-2.5 text-xs font-bold flex flex-wrap items-center justify-between gap-3 shadow-xl z-50 animate-pulse border-b border-red-400/50 shrink-0">
+            <div className="flex items-center gap-3">
+              <HardDrive className="w-4 h-4 text-white shrink-0 animate-bounce" />
+              <span>
+                ⚠️ <strong>ADVERTENCIA CRÍTICA DE ESPACIO EN DISCO:</strong> El computador host tiene solo {diskSpaceInfo.freeMB} MB libres (&lt; 500 MB). Libera espacio en disco urgentemente para evitar bloqueos o corrupción en PostgreSQL.
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Barra de progreso de advertencia */}
+              <div className="hidden md:flex items-center gap-2 bg-black/30 px-2.5 py-1 rounded-lg border border-white/20">
+                <span className="text-[10px] font-mono">Usado:</span>
+                <div className="w-20 h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    style={{ width: `${Math.min(100, Math.round(((Math.max(0, (diskSpaceInfo.totalMB || 20480) - diskSpaceInfo.freeMB)) / (diskSpaceInfo.totalMB || 20480)) * 100))}%` }}
+                    className="h-full bg-white rounded-full"
+                  />
+                </div>
+                <span className="text-[10px] font-mono font-black">
+                  {Math.min(100, Math.round(((Math.max(0, (diskSpaceInfo.totalMB || 20480) - diskSpaceInfo.freeMB)) / (diskSpaceInfo.totalMB || 20480)) * 100))}%
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const res = await fetch('/api/system/disk-space');
+                  if (res.ok) setDiskSpaceInfo(await res.json());
+                }}
+                className="px-2.5 py-1 bg-black/40 hover:bg-black/60 rounded-lg text-[11px] font-semibold border border-white/30 transition-all cursor-pointer"
+              >
+                Reverificar Disco
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsDiskSpaceDismissed(true)}
+                className="px-2 py-1 bg-black/30 hover:bg-black/50 rounded-lg text-[11px] transition-all cursor-pointer"
+                title="Ocultar advertencia temporalmente"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Banner de Control Remoto POS en Vivo */}
+        {activeRemoteSession && (
+          <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border-b border-emerald-500/50 px-4 py-2 flex flex-wrap items-center justify-between text-xs text-white shadow-xl shrink-0 z-40 backdrop-blur-md">
+            <div className="flex items-center gap-3">
+              <div className="relative flex h-3 w-3 items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold uppercase text-[10px] bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">
+                    CONTROL REMOTO EN VIVO
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-white text-xs">{activeRemoteSession.branchName} ({activeRemoteSession.city})</span>
+                  <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400">IP: {activeRemoteSession.ipAddress} · Ping: {activeRemoteSession.pingMs}ms</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 mt-1 sm:mt-0">
+              <button
+                onClick={() => handleSwitchView('branches', 'central')}
+                className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-700 font-bold transition-all text-xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <Building2 className="w-3.5 h-3.5 text-blue-700 dark:text-blue-400" />
+                <span>Cambiar Sede</span>
+              </button>
+              <button
+                onClick={handleExitRemoteSession}
+                className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold transition-all text-xs flex items-center gap-1.5 shadow-md shadow-rose-600/30 cursor-pointer"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+                <span>Salir de Acceso Remoto</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Encabezado Superior (TopNavbar) */}
+        <TopNavbar
+          businessInfo={effectiveBusinessInfo}
+          activeCategory={activeCategory}
+          activeView={activeView}
+          setActiveView={handleSwitchView}
+          spots={effectiveSpots}
+          activeTickets={effectiveActiveTickets}
+          todayPaidTickets={paidTickets}
+          currentShift={currentShift}
+          operationalDay={operationalDay}
+          soundEnabled={soundEnabled}
+          setSoundEnabled={setSoundEnabled}
+          terminalConfig={terminalConfig}
+          onLockTerminal={handleLockTerminal}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          currentBranch={currentBranch}
+          systemNodeConfig={systemNodeConfig}
+          onManualSync={handleManualSyncParams}
+          isSyncingGlobal={isSyncingGlobal}
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleDarkMode}
+          contrastLevel={contrastLevel}
+          onOpenSyncModal={() => handleSwitchView('branch_sync', 'central')}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={handleToggleSidebar}
+          diskSpaceInfo={diskSpaceInfo}
+          pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
+          softwareUpdateAvailable={hasSoftwareUpdateAvailable}
+          onOpenPrinterModal={() => setIsPrinterModalOpen(true)}
+        />
+
+        {/* Espacio de Trabajo Principal Centrado y Amplio */}
+        <main className="flex-1 max-w-[1720px] w-full mx-auto p-4 md:p-6 lg:p-8 overflow-x-hidden">
+        {/* Top Floating Helper Banner when outside of Operations POS */}
+        <AnimatePresence>
+          {activeView !== 'operations' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, y: -10 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden mb-4"
+            >
+              <div className="bg-white/85 dark:bg-slate-900/85 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs backdrop-blur-md">
+                <div className="flex items-center gap-2.5 text-xs">
+                  <span className="text-slate-600 dark:text-slate-400 font-semibold">Módulo activo:</span>
+                  <span className="font-bold text-slate-950 dark:text-white capitalize px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    {activeView.replace('_', ' ')}
+                  </span>
+                  <span className="text-slate-400 dark:text-slate-600 hidden sm:inline">·</span>
+                  <span className="text-slate-600 dark:text-slate-400 text-xs hidden sm:inline">
+                    La pantalla principal de Patio POS sigue disponible en cualquier momento
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('view', activeView);
+                      window.open(url.toString(), '_blank');
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
+                    title="Abrir este módulo en una pestaña separada"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-sky-500" />
+                    <span>Abrir en Nueva Pestaña</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchView('operations')}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all cursor-pointer shadow-sm shadow-indigo-600/25"
+                  >
+                    <Car className="w-3.5 h-3.5" />
+                    <span>Volver a Patio POS</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeView}
+            initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -12, filter: "blur(4px)" }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full h-full"
+          >
+            {/* OPERACIONES PATIO */}
+        {activeView === 'operations' && (
+          <OperationsView
+            spots={effectiveSpots}
+            activeTickets={effectiveActiveTickets}
+            rates={rates}
+            businessInfo={effectiveBusinessInfo}
+            soundEnabled={soundEnabled}
+            onRegisterEntry={handleRegisterEntry}
+            onRegisterExit={handleRegisterExit}
+            onPrintTicket={handleOpenPrintModal}
+            selectedPlateForExit={selectedPlateForExit}
+            onClearSelectedPlate={() => setSelectedPlateForExit(null)}
+            currentUser={currentUser}
+            paymentGatewayConfig={paymentGatewayConfig}
+            onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
+            onOpenAnprCamera={() => setActiveView('anpr_camera')}
+            vehicleCategories={vehicleCategories}
+          />
+        )}
+
+        {activeView === 'map' && (
+          <ParkingMap
+            spots={effectiveSpots}
+            activeTickets={effectiveActiveTickets}
+            rates={rates}
+            vehicleCategories={vehicleCategories}
+            currentUser={currentUser}
+            onSelectSpotForEntry={handleSelectSpotForEntry}
+            onSelectSpotForExit={handleSelectSpotForExit}
+            onToggleSpotStatus={handleToggleSpotStatus}
+          />
+        )}
+
+        {activeView === 'spots' && (
+          <SpotsManagementModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            spots={spots}
+            activeTickets={activeTickets}
+            vehicleCategories={vehicleCategories}
+            onSaveSpot={handleSaveSpot}
+            onSaveMultipleSpots={handleSaveMultipleSpots}
+            onDeleteSpot={handleDeleteSpot}
+            onDeleteMultipleSpots={handleDeleteMultipleSpots}
+            onUpdateSpotStatus={handleToggleSpotStatus}
+            onUpdateMultipleSpotStatus={handleUpdateMultipleSpotStatus}
+          />
+        )}
+
+        {/* CÁMARAS IP & LECTOR DE PLACAS ANPR (IA) */}
+        {activeView === 'anpr_camera' && (
+          <AnprCameraModule
+            tickets={activeTickets}
+            onRegisterEntry={(plate, vehicleType, notes) => {
+              const freeSpot = spots.find(s => s.status === 'available' && (s.type === vehicleType || s.type === 'car')) || spots.find(s => s.status === 'available');
+              handleRegisterEntry({
+                plate,
+                vehicleType,
+                spotCode: freeSpot ? freeSpot.code : 'A-01',
+                notes: notes || 'Lectura de Cámara IP ANPR (Gemini AI Vision)'
+              });
+            }}
+            onSelectTicketForExit={(ticket) => {
+              handleSelectSpotForExit(ticket.spotCode);
+              setActiveView('operations');
+            }}
+            currencySymbol={rates.currencySymbol}
+            onClose={() => setActiveView('operations')}
+          />
+        )}
+
+        {/* FINANZAS & CAJA */}
+        {activeView === 'cash' && (
+          <CashShiftModal
+            currentShift={currentShift}
+            operationalDay={operationalDay}
+            todayPaidTickets={paidTickets}
+            currencySymbol={rates.currencySymbol}
+            businessInfo={businessInfo}
+            closedShiftsHistory={closedShiftsHistory}
+            closedDaysHistory={closedDaysHistory}
+            onUpdateShiftInHistory={handleUpdateShiftInHistory}
+            onUpdateDayInHistory={handleUpdateDayInHistory}
+            onAddMovement={handleAddCashMovement}
+            onCloseShiftAndArqueo={handleCloseShiftAndArqueo}
+            onCloseDefinitiveDay={handleCloseDefinitiveDay}
+            currentUser={currentUser}
+            expenseConcepts={expenseConcepts}
+            expenseCategories={expenseCategories}
+          />
+        )}
+
+        {activeView === 'expense_concepts' && (
+          <ExpenseConceptsModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            concepts={expenseConcepts}
+            categories={expenseCategories}
+            onSaveConcept={handleSaveExpenseConcept}
+            onDeleteConcept={handleDeleteExpenseConcept}
+            onSaveCategory={handleSaveExpenseCategory}
+            onDeleteCategory={handleDeleteExpenseCategory}
+            currentUser={currentUser}
+          />
+        )}
+
+        {/* INFORMES & BI */}
+        {activeView === 'reports' && (
+          <RealTimeReports
+            paidTickets={paidTickets}
+            activeTickets={activeTickets}
+            rates={rates}
+            businessInfo={{
+              ...effectiveBusinessInfo,
+              branchName: currentBranch?.name || effectiveBusinessInfo.branchName || businessInfo.name,
+              sucursal: currentBranch?.name || effectiveBusinessInfo.sucursal || businessInfo.name,
+              nit: effectiveBusinessInfo.nit || businessInfo.nit,
+              emissionDate: new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }),
+              fechaEmision: new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }),
+            }}
+            vehicleCategories={vehicleCategories}
+            spots={spots}
+            currentShift={currentShift}
+            operationalDay={operationalDay}
+            closedShiftsHistory={closedShiftsHistory}
+            closedDaysHistory={closedDaysHistory}
+            expenseConcepts={expenseConcepts}
+            expenseCategories={expenseCategories}
+            onPrintTicket={handleOpenPrintModal}
+            currentUser={currentUser}
+            currentBranch={currentBranch}
+            isDarkMode={isDarkMode}
+          />
+        )}
+
+        {/* SERVIDOR CENTRAL & RED */}
+        {activeView === 'branches' && (
+          <BranchesManagementModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            branches={branches}
+            warehouses={warehouses}
+            posPoints={posPoints}
+            remoteOrders={remoteOrders}
+            onSaveBranch={handleSaveBranch}
+            onDeleteBranch={handleDeleteBranch}
+            onSaveWarehouse={handleSaveWarehouse}
+            onDeleteWarehouse={handleDeleteWarehouse}
+            onSavePosPoint={handleSavePosPoint}
+            onDeletePosPoint={handleDeletePosPoint}
+            onExecuteRemoteOrder={handleExecuteRemoteOrder}
+            onConnectRemoteBranch={handleConnectRemoteBranch}
+            currentUser={currentUser}
+            onOpenSync={() => handleSwitchView('branch_sync', 'central')}
+            onOpenUpdater={() => handleSwitchView('software_updater', 'updates')}
+            pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
+            softwareUpdateAvailable={hasSoftwareUpdateAvailable}
+          />
+        )}
+
+        {activeView === 'central_hub' && (
+          <CentralHubModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('branches')}
+            currentUser={currentUser}
+            branches={branches}
+            centralPackages={centralPackages}
+            syncLogs={syncAuditLogs}
+            currentRates={rates}
+            expenseConcepts={expenseConcepts}
+            expenseCategories={expenseCategories}
+            vehicleCategories={vehicleCategories}
+            users={users}
+            businessInfo={businessInfo}
+            onSaveRates={handleSaveRates}
+            onSaveBusinessInfo={handleSaveBusinessInfo}
+            onPublishPackage={handlePublishCentralPackage}
+            onSaveNewBranch={handleSaveNewBranch}
+            onSwitchBranch={(branchId: string) => setCurrentBranchId(branchId)}
+            onForceSyncBranch={async (branchId: string) => {
+              await saveGlobalConfigToServer();
+              const b = branches.find(item => item.id === branchId);
+              if (b) {
+                const auditRecord: BranchSyncAuditRecord = {
+                  id: `log-${Date.now()}`,
+                  branchId: b.id,
+                  branchName: b.name,
+                  syncType: 'telemetry_push',
+                  summary: `Sincronización forzada desde el Servidor Central a ${b.name}`,
+                  status: 'success',
+                  timestamp: new Date().toISOString(),
+                  itemsReceived: 0,
+                  itemsSent: 1,
+                  performedBy: currentUser.name
+                };
+                setSyncAuditLogs(prev => [auditRecord, ...prev]);
+              }
+            }}
+            onForceSyncAllBranches={async () => {
+              await saveGlobalConfigToServer();
+              const auditRecord: BranchSyncAuditRecord = {
+                id: `log-${Date.now()}`,
+                branchId: 'all-branches',
+                branchName: 'Todas las Sedes',
+                syncType: 'telemetry_push',
+                summary: `Barrido de sincronización masivo ejecutado para las ${branches.length} sedes`,
+                status: 'success',
+                timestamp: new Date().toISOString(),
+                itemsReceived: 0,
+                itemsSent: branches.length,
+                performedBy: currentUser.name
+              };
+              setSyncAuditLogs(prev => [auditRecord, ...prev]);
+            }}
+          />
+        )}
+
+        {/* DASHBOARD DE TELEMETRÍA Y MAPA DE SEDES */}
+        {activeView === 'central_dashboard' && (
+          <div className="space-y-4">
+            <CentralDashboard
+              branches={branches}
+              onSelectBranch={(branch) => {
+                console.log('[CentralDashboard] Sucursal seleccionada:', branch.code, branch.name);
+              }}
+              onRefresh={async () => {
+                const refreshed = await fetchBranchesTelemetry();
+                if (refreshed && refreshed.length > 0) {
+                  setBranches(refreshed);
+                }
+              }}
+              isDarkMode={isDarkMode}
+              embedded={true}
+              onClose={() => setActiveView('branches')}
+            />
+          </div>
+        )}
+
+        {activeView === 'branch_sync' && (
+          <BranchSyncModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            currentBranch={currentBranch}
+            centralPackages={centralPackages}
+            syncLogs={syncAuditLogs}
+            currentUser={currentUser}
+            currentShift={currentShift}
+            onApplyPackage={handleApplyPackageToBranch}
+            onPerformFullSync={handlePerformFullBranchSync}
+            onPushBranchOperations={handlePushBranchOperations}
+            onServerConfigSaved={(savedCfg) => {
+              if (savedCfg.remoteDbHost) {
+                const parts = savedCfg.remoteDbHost.split(':');
+                const host = parts[0];
+                const port = parts[1] ? Number(parts[1]) : 3000;
+                setSystemNodeConfig(prev => ({
+                  ...prev,
+                  centralServerHost: host,
+                  centralServerPort: port
+                }));
+              }
+            }}
+            onRefreshPackages={async () => {
+              try {
+                const centralData = await pullCentralData(currentBranch.id);
+                if (centralData.packages && centralData.packages.length > 0) {
+                  setCentralPackages(centralData.packages);
+                  localStorage.setItem('pk_central_packages', JSON.stringify(centralData.packages));
+                }
+              } catch (e) {
+                console.warn('[Sync] Error refrescando paquetes:', e);
+              }
+            }}
+          />
+        )}
+
+        {activeView === 'vnc_remote' && (
+          <RemoteControlWorkspace
+            branches={branches}
+            activeRemoteSession={activeRemoteSession}
+            onConnectRemoteBranch={handleConnectRemoteBranch}
+            onExitRemoteSession={handleExitRemoteSession}
+            onExecuteRemoteOrder={handleExecuteRemoteOrder}
+            remoteOrders={remoteOrders}
+            currentUser={currentUser}
+            onOpenDocsModal={() => setIsDocsModalOpen(true)}
+          />
+        )}
+
+        {/* ACTUALIZACIONES & OTA */}
+        {activeView === 'software_updater' && (
+          <SoftwareUpdaterModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            currentUser={currentUser}
+            builds={softwareBuilds}
+            currentBranch={currentBranch}
+            onInstallBuild={handleInstallSoftwareBuild}
+          />
+        )}
+
+        <PrinterSettingsModal
+          isOpen={isPrinterModalOpen || activeView === 'printer_config'}
+          onClose={() => {
+            setIsPrinterModalOpen(false);
+            if (activeView === 'printer_config') {
+              setActiveView('operations');
+            }
+          }}
+          printers={printers}
+          onSave={handleSavePrinter}
+          onDelete={handleDeletePrinter}
+          businessInfo={businessInfo}
+          onUpdateBusinessInfo={handleSaveBusinessInfo}
+        />
+
+        {activeView === 'work_mode' && (
+          <SystemWorkModeConfigModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('software_updater')}
+            config={systemNodeConfig}
+            branches={branches}
+            onSaveConfig={handleSaveSystemNodeConfig}
+            onAddNewBranch={handleAddNewBranchFromConfig}
+            currentUser={currentUser}
+          />
+        )}
+
+        {/* CONFIGURACIÓN & PARÁMETROS */}
+        {activeView === 'rates' && (
+          <RatesSettingsModal
+            rates={rates}
+            businessInfo={businessInfo}
+            onSaveRates={handleSaveRates}
+            onSaveBusinessInfo={handleSaveBusinessInfo}
+            soundEnabled={soundEnabled}
+            setSoundEnabled={setSoundEnabled}
+            paymentGatewayConfig={paymentGatewayConfig}
+            onSavePaymentGatewayConfig={handleSavePaymentGatewayConfig}
+            currentUser={currentUser || undefined}
+            vehicleCategories={vehicleCategories}
+            printers={printers}
+            onSavePrinter={handleSavePrinter}
+            onDeletePrinter={handleDeletePrinter}
+            onClose={() => setActiveView('operations')}
+          />
+        )}
+
+        {activeView === 'vehicle_categories' && (
+          <VehicleCategoriesModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            categories={vehicleCategories}
+            onSaveCategory={handleSaveVehicleCategory}
+            onDeleteCategory={handleDeleteVehicleCategory}
+            currentUser={currentUser!}
+          />
+        )}
+
+        {activeView === 'users' && (
+          <UsersManagementModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            users={users}
+            currentUser={currentUser!}
+            onSaveUser={handleSaveUser}
+            onDeleteUser={handleDeleteUser}
+          />
+        )}
+
+        {activeView === 'database' && (
+          <div className="space-y-4">
+            {/* Database & Protected Routes Sub-Tab Navigation Header */}
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 flex items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-2 overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setDatabaseSubTab('terminal_db')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    databaseSubTab === 'terminal_db'
+                      ? 'bg-amber-500 text-slate-950 shadow-xs'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Database className="w-4 h-4" />
+                  <span>Base de Datos Local (Terminal POS)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDatabaseSubTab('audit_history')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    databaseSubTab === 'audit_history'
+                      ? 'bg-cyan-500 text-slate-950 shadow-xs font-black'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <span>Historial de Auditoría e Integridad</span>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-950/20 text-current">
+                    Logs
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDatabaseSubTab('protected_routes')}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    databaseSubTab === 'protected_routes'
+                      ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                      : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Configuración de Rutas Protegidas ({protectedRoutes.length})</span>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-950/20 text-current">
+                    Dinámico
+                  </span>
+                </button>
+              </div>
+
+              <span className="hidden md:inline text-[11px] font-mono text-slate-700 dark:text-slate-200 font-bold pr-2">
+                Persistencia Dual PostgreSQL / IndexedDB
+              </span>
+            </div>
+
+            {databaseSubTab === 'terminal_db' ? (
+              <TerminalDatabaseModal
+                embedded={true}
+                isOpen={true}
+                onClose={() => setActiveView('operations')}
+                terminalConfig={terminalConfig}
+                onTerminalConfigChange={setTerminalConfig}
+                onDatabaseReloadRequired={reloadFromTerminalDb}
+              />
+            ) : databaseSubTab === 'audit_history' ? (
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-6 shadow-xs">
+                <AuditHistory
+                  terminalId={terminalConfig.terminalId}
+                  isDarkMode={isDarkMode}
+                />
+              </div>
+            ) : (
+              <ProtectedRoutesManager
+                routes={protectedRoutes}
+                onUpdateRoutes={handleUpdateProtectedRoutes}
+                onNavigateToRoute={handleGrantAccess}
+                isDarkMode={isDarkMode}
+              />
+            )}
+          </div>
+        )}
+
+
+
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Blocking Backup Screen Overlay */}
+        {backupLockState?.isLocked && (
+          <div className="fixed inset-0 z-[9999] bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center backdrop-blur-md select-none">
+            <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+              <div className="relative flex items-center justify-center mb-6">
+                <div className="absolute w-24 h-24 bg-indigo-500/10 rounded-full animate-ping" />
+                <div className="relative bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 p-4 rounded-full border border-indigo-500/30">
+                  <HardDrive className={`w-12 h-12 ${backupLockState.message.includes('éxito') ? '' : 'animate-pulse'}`} />
+                </div>
+              </div>
+
+              <h2 className="text-xl font-black text-slate-900 dark:text-white mb-3">
+                {backupLockState.message.includes('éxito') ? 'Copia de Seguridad Exitosa' : 'Copia de Seguridad en Curso'}
+              </h2>
+              
+              <p className="text-sm text-indigo-200 leading-relaxed font-bold mb-6 animate-pulse">
+                {backupLockState.message}
+              </p>
+
+              <div className="flex flex-col gap-2.5">
+                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div className={`h-full bg-indigo-500 rounded-full transition-all duration-1000 ${backupLockState.message.includes('éxito') ? 'w-full animate-none' : 'w-3/4'}`} />
+                </div>
+                <span className="text-[11px] font-mono tracking-wider uppercase text-slate-400 font-bold">
+                  {backupLockState.message.includes('éxito') ? 'Operación Segura' : 'Bloqueo del Sistema Activo'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+      </div>
+
+      {/* Printable Thermal Receipt Modal */}
+      <TicketModal
+        isOpen={ticketModalState.isOpen}
+        ticket={ticketModalState.ticket}
+        mode={ticketModalState.mode}
+        businessInfo={businessInfo}
+        rates={rates}
+        vehicleCategories={vehicleCategories}
+        onClose={() => setTicketModalState(prev => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* Módulo de Escritorio Remoto VNC Interactivo */}
+      {activeRemoteSession && activeRemoteSession.mode === 'desktop' && (
+        <VncRemoteDesktop
+          branchId={activeRemoteSession.branchId}
+          branchName={activeRemoteSession.branchName}
+          city={activeRemoteSession.city}
+          ipAddress={activeRemoteSession.ipAddress}
+          onClose={handleExitRemoteSession}
+          branch={branches.find(b => b.id === activeRemoteSession.branchId) || currentBranch}
+          activeTickets={effectiveActiveTickets}
+          spots={effectiveSpots}
+          rates={rates}
+          vehicleCategories={vehicleCategories}
+          businessInfo={effectiveBusinessInfo}
+          currentUser={currentUser}
+          paymentGatewayConfig={paymentGatewayConfig}
+          onRegisterEntry={handleRegisterEntry}
+          onRegisterExit={handleRegisterExit}
+          onPrintTicket={handleOpenPrintModal}
+        />
+      )}
+
+
+      {/* Modal de Escáner QR de Tickets por Cámara para Salida Rápida */}
+      <TicketScannerModal
+        isOpen={isTicketScannerModalOpen}
+        onClose={() => setIsTicketScannerModalOpen(false)}
+        activeTickets={effectiveActiveTickets}
+        paidTickets={paidTickets}
+        rates={rates}
+        vehicleCategories={vehicleCategories}
+        onSelectTicketForExit={(ticket) => {
+          setSelectedPlateForExit(ticket.plate);
+          setActiveCategory('operations');
+          setActiveView('operations');
+          setIsTicketScannerModalOpen(false);
+        }}
+        onFastExit={async (ticket) => {
+          const exitFee = calculateParkingFee(
+            ticket.entryTime,
+            new Date().toISOString(),
+            ticket.vehicleType,
+            rates
+          );
+          const paidResult = await handleRegisterExit(ticket.id, {
+            paymentMethod: 'cash',
+            cashReceived: exitFee.totalAmount,
+            changeGiven: 0
+          });
+        }}
+        isDarkMode={isDarkMode}
+      />
+
+      {/* Modal de Documentación y Guía Interactiva FarmaDesk Pro */}
+      {isDocsModalOpen && (
+        <FarmaDeskDocsModal
+          isOpen={true}
+          onClose={() => setIsDocsModalOpen(false)}
+          branchId={currentBranch.id}
+          serverUrl={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}` : 'http://localhost:3000'}
+        />
+      )}
+
+      {/* Modal Independiente de Sincronización, Diagnóstico y Alertas Proactivas de Red */}
+      {isBranchSyncModalOpen && (
+        <BranchSyncModal
+          embedded={false}
+          isOpen={true}
+          onClose={() => setIsBranchSyncModalOpen(false)}
+          currentBranch={currentBranch}
+          centralPackages={centralPackages}
+          syncLogs={syncAuditLogs}
+          currentUser={currentUser}
+          currentShift={currentShift}
+          onApplyPackage={handleApplyPackageToBranch}
+          onPerformFullSync={handlePerformFullBranchSync}
+          onPushBranchOperations={handlePushBranchOperations}
+          onServerConfigSaved={(savedCfg) => {
+            if (savedCfg.remoteDbHost) {
+              const parts = savedCfg.remoteDbHost.split(':');
+              const host = parts[0];
+              const port = parts[1] ? Number(parts[1]) : 3000;
+              setSystemNodeConfig(prev => ({
+                ...prev,
+                centralServerHost: host,
+                centralServerPort: port
+              }));
+            }
+          }}
+          onRefreshPackages={async () => {
+            try {
+              const centralData = await pullCentralData(currentBranch.id);
+              if (centralData.packages && centralData.packages.length > 0) {
+                setCentralPackages(centralData.packages);
+                localStorage.setItem('pk_central_packages', JSON.stringify(centralData.packages));
+              }
+            } catch (e) {
+              console.warn('[Sync] Error refrescando paquetes:', e);
+            }
+          }}
+        />
+      )}
+
+      {/* Indicador Flotante / HUD Toast para Lecturas de Códigos de Barras USB */}
+      <BarcodeScanToast />
+
+      {/* Notificación Flotante de Impresión Automática Instantánea */}
+      {printToast && (
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-slate-950 text-white dark:bg-white dark:text-slate-950 rounded-2xl shadow-2xl border border-amber-500/50 flex items-center gap-3 text-xs font-bold animate-in slide-in-from-bottom duration-200">
+          <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+            <Printer className="w-4 h-4 animate-pulse" />
+          </div>
+          <span>{printToast.message}</span>
+        </div>
+      )}
+
+      {/* Modal de Recuperación de Sistema y Restauración de Base de Datos */}
+      <SystemRecoveryModal
+        isOpen={isRecoveryModalOpen}
+        integrityData={integrityCheckData}
+        onClose={() => setIsRecoveryModalOpen(false)}
+        onRestoreSuccess={handleRecoveryRestoreSuccess}
+        onContinueOffline={handleContinueOffline}
+      />
+    </div>
+  );
+}
+

@@ -1,0 +1,2430 @@
+import { 
+  RatesConfig, 
+  ParkingSpot, 
+  ParkingTicket, 
+  ParkingBusinessInfo, 
+  CashShift,
+  OperationalDay,
+  UserPermissions,
+  UserUIVisibility,
+  UserRole,
+  SystemUser,
+  UserPermissionTemplate,
+  PaymentGatewayConfig,
+  VehicleCategoryConfig,
+  ExpenseConcept,
+  ExpenseCategory,
+  BranchLocation,
+  CentralUpdatePackage,
+  SoftwareReleaseBuild,
+  BranchSyncAuditRecord,
+  SystemNodeConfig,
+  Warehouse,
+  PosPoint,
+  RemoteExecutionOrder
+} from '../types';
+import { DEFAULT_PAYMENT_GATEWAY_CONFIG } from '../utils/paymentUtils';
+export { DEFAULT_PAYMENT_GATEWAY_CONFIG };
+
+export const INITIAL_VEHICLE_CATEGORIES: VehicleCategoryConfig[] = [
+  {
+    id: 'car',
+    name: 'Carro / Automóvil',
+    icon: 'Car',
+    enabled: true,
+    color: '#3b82f6',
+    rate: {
+      minuteRate: 70,
+      hourRate: 4200,
+      dayRate: 28000,
+      gracePeriodMinutes: 15,
+      minimumChargeMinutes: 30,
+      lostTicketFee: 15000,
+    }
+  },
+  {
+    id: 'motorcycle',
+    name: 'Motocicleta',
+    icon: 'Bike',
+    enabled: true,
+    color: '#10b981',
+    rate: {
+      minuteRate: 35,
+      hourRate: 2100,
+      dayRate: 15000,
+      gracePeriodMinutes: 15,
+      minimumChargeMinutes: 30,
+      lostTicketFee: 10000,
+    }
+  },
+  {
+    id: 'suv',
+    name: 'Camioneta / SUV',
+    icon: 'Truck',
+    enabled: true,
+    color: '#f59e0b',
+    rate: {
+      minuteRate: 90,
+      hourRate: 5400,
+      dayRate: 36000,
+      gracePeriodMinutes: 15,
+      minimumChargeMinutes: 30,
+      lostTicketFee: 20000,
+    }
+  },
+  {
+    id: 'bicycle',
+    name: 'Bicicleta / Patineta',
+    icon: 'Bicycle',
+    enabled: true,
+    color: '#8b5cf6',
+    rate: {
+      minuteRate: 15,
+      hourRate: 1000,
+      dayRate: 7000,
+      gracePeriodMinutes: 15,
+      minimumChargeMinutes: 0,
+      lostTicketFee: 5000,
+    }
+  },
+];
+
+export const INITIAL_EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  { id: 'cat-op', name: 'Operación e Insumos', code: 'OP', description: 'Papelería, rollos térmicos, tiquetes y suministros de oficina', color: 'amber', isActive: true, isPreset: true },
+  { id: 'cat-serv', name: 'Servicios Públicos y Conectividad', code: 'SERV', description: 'Energía eléctrica, agua, internet y telefonía', color: 'blue', isActive: true, isPreset: true },
+  { id: 'cat-mant', name: 'Mantenimiento e Infraestructura', code: 'MANT', description: 'Reparaciones locativas, pintura, barreras y señalización', color: 'orange', isActive: true, isPreset: true },
+  { id: 'cat-pers', name: 'Personal y Nómina', code: 'PERS', description: 'Anticipos de turno, alimentación, transporte y bienestar de empleados', color: 'purple', isActive: true, isPreset: true },
+  { id: 'cat-aseo', name: 'Aseo y Limpieza', code: 'ASEO', description: 'Productos de desinfección, bolsas e implementos de aseo', color: 'emerald', isActive: true, isPreset: true },
+  { id: 'cat-gen', name: 'Gastos Generales / Varios', code: 'GEN', description: 'Otros egresos operativos de caja menor', color: 'slate', isActive: true, isPreset: true },
+];
+
+export const INITIAL_EXPENSE_CONCEPTS: ExpenseConcept[] = [
+  { id: 'exp-1', code: 'EXP-01', name: 'Papelería y Rollos Térmicos', category: 'Operación e Insumos', categoryId: 'cat-op', isActive: true, isPreset: true },
+  { id: 'exp-2', code: 'EXP-02', name: 'Artículos de Aseo y Limpieza', category: 'Aseo y Limpieza', categoryId: 'cat-aseo', isActive: true, isPreset: true },
+  { id: 'exp-3', code: 'EXP-03', name: 'Mantenimiento y Reparaciones Locativas', category: 'Mantenimiento e Infraestructura', categoryId: 'cat-mant', isActive: true, isPreset: true },
+  { id: 'exp-4', code: 'EXP-04', name: 'Servicios Públicos / Conectividad Internet', category: 'Servicios Públicos y Conectividad', categoryId: 'cat-serv', isActive: true, isPreset: true },
+  { id: 'exp-5', code: 'EXP-05', name: 'Anticipo de Turno / Nómina Empleado', category: 'Personal y Nómina', categoryId: 'cat-pers', isActive: true, isPreset: true },
+  { id: 'exp-6', code: 'EXP-06', name: 'Cafetería y Alimentación de Turno', category: 'Personal y Nómina', categoryId: 'cat-pers', isActive: true, isPreset: true },
+  { id: 'exp-7', code: 'EXP-07', name: 'Compra de Insumos y Repuestos de Barrera', category: 'Mantenimiento e Infraestructura', categoryId: 'cat-mant', isActive: true, isPreset: true },
+  { id: 'exp-8', code: 'EXP-08', name: 'Otros Gastos Menores Autorizados', category: 'Gastos Generales / Varios', categoryId: 'cat-gen', isActive: true, isPreset: true },
+];
+
+export const DEFAULT_RATES: RatesConfig = {
+  car: {
+    minuteRate: 70, // ~$4,200/hr
+    hourRate: 4200,
+    dayRate: 28000,
+    gracePeriodMinutes: 15,
+    minimumChargeMinutes: 30,
+    lostTicketFee: 15000,
+  },
+  motorcycle: {
+    minuteRate: 35, // ~$2,100/hr
+    hourRate: 2100,
+    dayRate: 15000,
+    gracePeriodMinutes: 15,
+    minimumChargeMinutes: 30,
+    lostTicketFee: 10000,
+  },
+  suv: {
+    minuteRate: 90, // ~$5,400/hr
+    hourRate: 5400,
+    dayRate: 36000,
+    gracePeriodMinutes: 15,
+    minimumChargeMinutes: 30,
+    lostTicketFee: 20000,
+  },
+  bicycle: {
+    minuteRate: 15,
+    hourRate: 1000,
+    dayRate: 7000,
+    gracePeriodMinutes: 15,
+    minimumChargeMinutes: 0,
+    lostTicketFee: 5000,
+  },
+  categories: INITIAL_VEHICLE_CATEGORIES,
+  lostTicketFee: 15000,
+  roundingMethod: 'fraction_15', // 'fraction_15' | 'exact' | 'fraction_30' | 'next_hour'
+  taxPercentage: 0, // In many local parking systems tax is included or 0
+  currencySymbol: '$',
+};
+
+export const DEFAULT_BUSINESS_INFO: ParkingBusinessInfo = {
+  name: 'Estacionamiento Central & Terminal',
+  branchName: 'Sucursal Principal',
+  sucursal: 'Sucursal Principal',
+  nit: '901.458.723-1',
+  address: 'Av. Libertador # 45 - 20, Zona Centro',
+  phone: '(+57) 310 892 4511',
+  ticketFooter: 'Conserve este ticket. No nos hacemos responsables por objetos personales dejados en el vehículo no declarados al ingresar. Horario: 24 Horas.',
+  autoPrintOnEntry: true,
+  autoPrintOnExit: true,
+  autoPrintOnShiftClose: true,
+  autoPrintOnDayClose: true,
+  silentBackgroundPrint: true,
+  defaultPrinterName: 'POS-80',
+  defaultPaperWidth: '80mm',
+  openCashDrawerOnCashPayment: true,
+  cutPaperOnPrint: true,
+  soundAlerts: true,
+  logoUrl: '',
+  emissionDate: '26 de septiembre de 2026',
+  fechaEmision: '26 de septiembre de 2026',
+  // Facturación Electrónica DIAN
+  electronicInvoicingEnabled: true,
+  dianResolutionNumber: '18764002918234',
+  dianPrefix: 'FE-',
+  dianFromNumber: 1,
+  dianToNumber: 50000,
+  dianCurrentNumber: 1042,
+  dianResolutionDate: '2026-01-15',
+  dianEnvironment: 'prod',
+  dianSoftwareId: 'soft-wz-84920',
+  dianTechnicalKey: 'fc81e2803b8744b7a1f6c49925208f23',
+};
+
+export const INITIAL_SPOTS: ParkingSpot[] = [
+  // Cars (A01 - A18)
+  { id: 'spot-a01', code: 'A-01', type: 'car', status: 'occupied', currentTicketId: 'tk-101' },
+  { id: 'spot-a02', code: 'A-02', type: 'car', status: 'available' },
+  { id: 'spot-a03', code: 'A-03', type: 'car', status: 'occupied', currentTicketId: 'tk-102' },
+  { id: 'spot-a04', code: 'A-04', type: 'car', status: 'available' },
+  { id: 'spot-a05', code: 'A-05', type: 'car', status: 'occupied', currentTicketId: 'tk-103' },
+  { id: 'spot-a06', code: 'A-06', type: 'car', status: 'available' },
+  { id: 'spot-a07', code: 'A-07', type: 'car', status: 'available' },
+  { id: 'spot-a08', code: 'A-08', type: 'car', status: 'occupied', currentTicketId: 'tk-104' },
+  { id: 'spot-a09', code: 'A-09', type: 'car', status: 'available' },
+  { id: 'spot-a10', code: 'A-10', type: 'car', status: 'available' },
+  { id: 'spot-a11', code: 'A-11', type: 'car', status: 'available' },
+  { id: 'spot-a12', code: 'A-12', type: 'car', status: 'occupied', currentTicketId: 'tk-105' },
+  { id: 'spot-a13', code: 'A-13', type: 'car', status: 'available' },
+  { id: 'spot-a14', code: 'A-14', type: 'car', status: 'available' },
+  { id: 'spot-a15', code: 'A-15', type: 'car', status: 'reserved' },
+  { id: 'spot-a16', code: 'A-16', type: 'car', status: 'available' },
+  { id: 'spot-a17', code: 'A-17', type: 'car', status: 'available' },
+  { id: 'spot-a18', code: 'A-18', type: 'car', status: 'maintenance' },
+
+  // Motorcycles (M01 - M10)
+  { id: 'spot-m01', code: 'M-01', type: 'motorcycle', status: 'occupied', currentTicketId: 'tk-106' },
+  { id: 'spot-m02', code: 'M-02', type: 'motorcycle', status: 'occupied', currentTicketId: 'tk-107' },
+  { id: 'spot-m03', code: 'M-03', type: 'motorcycle', status: 'available' },
+  { id: 'spot-m04', code: 'M-04', type: 'motorcycle', status: 'available' },
+  { id: 'spot-m05', code: 'M-05', type: 'motorcycle', status: 'available' },
+  { id: 'spot-m06', code: 'M-06', type: 'motorcycle', status: 'available' },
+  { id: 'spot-m07', code: 'M-07', type: 'motorcycle', status: 'occupied', currentTicketId: 'tk-108' },
+  { id: 'spot-m08', code: 'M-08', type: 'motorcycle', status: 'available' },
+  { id: 'spot-m09', code: 'M-09', type: 'motorcycle', status: 'available' },
+  { id: 'spot-m10', code: 'M-10', type: 'motorcycle', status: 'available' },
+
+  // SUVs / Camionetas (S01 - S04)
+  { id: 'spot-s01', code: 'S-01', type: 'suv', status: 'occupied', currentTicketId: 'tk-109' },
+  { id: 'spot-s02', code: 'S-02', type: 'suv', status: 'available' },
+  { id: 'spot-s03', code: 'S-03', type: 'suv', status: 'available' },
+  { id: 'spot-s04', code: 'S-04', type: 'suv', status: 'available' },
+
+  // Bicycles (B01 - B04)
+  { id: 'spot-b01', code: 'B-01', type: 'bicycle', status: 'available' },
+  { id: 'spot-b02', code: 'B-02', type: 'bicycle', status: 'available' },
+  { id: 'spot-b03', code: 'B-03', type: 'bicycle', status: 'available' },
+  { id: 'spot-b04', code: 'B-04', type: 'bicycle', status: 'available' },
+];
+
+// Helper to get time ago
+const now = new Date();
+const timeAgo = (minutesAgo: number) => new Date(now.getTime() - minutesAgo * 60 * 1000).toISOString();
+
+export const INITIAL_ACTIVE_TICKETS: ParkingTicket[] = [
+  // --- Sucursal 1: Parqueadero Central Matriz (suc-001) ---
+  {
+    id: 'tk-101',
+    ticketNumber: 'PK-0421',
+    plate: 'KLU-892',
+    vehicleType: 'car',
+    spotCode: 'A-01',
+    entryTime: timeAgo(145),
+    status: 'active',
+    notes: 'Vehículo sedán plata, sin rayones',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-102',
+    ticketNumber: 'PK-0422',
+    plate: 'DFM-304',
+    vehicleType: 'car',
+    spotCode: 'A-03',
+    entryTime: timeAgo(95),
+    status: 'active',
+    notes: '',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-103',
+    ticketNumber: 'PK-0424',
+    plate: 'HZW-712',
+    vehicleType: 'car',
+    spotCode: 'A-05',
+    entryTime: timeAgo(48),
+    status: 'active',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-104',
+    ticketNumber: 'PK-0426',
+    plate: 'QWE-109',
+    vehicleType: 'car',
+    spotCode: 'A-08',
+    entryTime: timeAgo(220),
+    status: 'active',
+    isForeignPlate: true,
+    originCountry: 'Venezuela 🇻🇪',
+    notes: 'Vehículo procedente de Venezuela',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-105',
+    ticketNumber: 'PK-0429',
+    plate: 'BVC-554',
+    vehicleType: 'car',
+    spotCode: 'A-12',
+    entryTime: timeAgo(12),
+    status: 'active',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-106',
+    ticketNumber: 'PK-0423',
+    plate: 'GHT-99E',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-01',
+    entryTime: timeAgo(110),
+    status: 'active',
+    notes: 'Deja 1 casco en baúl',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-107',
+    ticketNumber: 'PK-0425',
+    plate: 'ZXC-12A',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-02',
+    entryTime: timeAgo(62),
+    status: 'active',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+  {
+    id: 'tk-108',
+    ticketNumber: 'PK-0428',
+    plate: 'TYU-44F',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-07',
+    entryTime: timeAgo(25),
+    status: 'active',
+    branchId: 'suc-001',
+    branchName: 'Parqueadero Central Matriz'
+  },
+
+  // --- Sucursal 6: Parqueadero la Sevillana (suc-006 - Cúcuta) ---
+  {
+    id: 'tk-sev-01',
+    ticketNumber: 'PK-0427',
+    plate: 'JNX-808',
+    vehicleType: 'suv',
+    spotCode: 'S-01',
+    entryTime: timeAgo(180),
+    status: 'active',
+    notes: 'Camioneta Toyota Prado Cúcuta',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-02',
+    ticketNumber: 'PK-0448',
+    plate: 'IGM-01E',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-03',
+    entryTime: timeAgo(150),
+    status: 'active',
+    notes: 'Moto Yamaha FZ con casco #03',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-03',
+    ticketNumber: 'PK-0449',
+    plate: 'IGM-01I',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-04',
+    entryTime: timeAgo(130),
+    status: 'active',
+    notes: 'Moto Pulsar NS 200',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-04',
+    ticketNumber: 'PK-0450',
+    plate: 'IGM-056',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-05',
+    entryTime: timeAgo(90),
+    status: 'active',
+    notes: '',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-05',
+    ticketNumber: 'PK-0451',
+    plate: 'FGH-225',
+    vehicleType: 'car',
+    spotCode: 'A-02',
+    entryTime: timeAgo(210),
+    status: 'active',
+    notes: 'Sedán Chevrolet Sail',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-06',
+    ticketNumber: 'PK-0452',
+    plate: 'KLY-028',
+    vehicleType: 'car',
+    spotCode: 'A-04',
+    entryTime: timeAgo(75),
+    status: 'active',
+    notes: 'Renault Logan azul',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-07',
+    ticketNumber: 'PK-0453',
+    plate: 'MNC-298',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-01',
+    entryTime: timeAgo(45),
+    status: 'active',
+    notes: 'Moto AKT Flex 125',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-08',
+    ticketNumber: 'PK-0454',
+    plate: 'JHG-482',
+    vehicleType: 'car',
+    spotCode: 'A-06',
+    entryTime: timeAgo(30),
+    status: 'active',
+    notes: 'Mazda 3 Rojo',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-09',
+    ticketNumber: 'PK-0455',
+    plate: 'CUC-902',
+    vehicleType: 'suv',
+    spotCode: 'S-02',
+    entryTime: timeAgo(115),
+    status: 'active',
+    notes: 'Camioneta Renault Duster Cúcuta',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-10',
+    ticketNumber: 'PK-0456',
+    plate: 'MXP-442',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-06',
+    entryTime: timeAgo(15),
+    status: 'active',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-11',
+    ticketNumber: 'PK-0457',
+    plate: 'BGT-210',
+    vehicleType: 'car',
+    spotCode: 'A-07',
+    entryTime: timeAgo(140),
+    status: 'active',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-12',
+    ticketNumber: 'PK-0458',
+    plate: 'ZTR-889',
+    vehicleType: 'car',
+    spotCode: 'A-09',
+    entryTime: timeAgo(60),
+    status: 'active',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+  {
+    id: 'tk-sev-13',
+    ticketNumber: 'PK-0459',
+    plate: 'HJK-302',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-08',
+    entryTime: timeAgo(22),
+    status: 'active',
+    branchId: 'suc-006',
+    branchName: 'Parqueadero la Sevillana'
+  },
+
+  // --- Sucursal 2: Sede Unicentro Norte (suc-002 - Bogotá) ---
+  {
+    id: 'tk-uni-01',
+    ticketNumber: 'UNI-0101',
+    plate: 'RTY-512',
+    vehicleType: 'car',
+    spotCode: 'A-01',
+    entryTime: timeAgo(80),
+    status: 'active',
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte'
+  },
+  {
+    id: 'tk-uni-02',
+    ticketNumber: 'UNI-0102',
+    plate: 'WQE-991',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-01',
+    entryTime: timeAgo(40),
+    status: 'active',
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte'
+  },
+
+  // --- Sucursal 3: Sede El Poblado (suc-003 - Medellín) ---
+  {
+    id: 'tk-pob-01',
+    ticketNumber: 'POB-0201',
+    plate: 'MDE-443',
+    vehicleType: 'car',
+    spotCode: 'A-01',
+    entryTime: timeAgo(120),
+    status: 'active',
+    branchId: 'suc-003',
+    branchName: 'Sede El Poblado'
+  },
+
+  // --- Sucursal 4: Sede Granada Centro (suc-004 - Cali) ---
+  {
+    id: 'tk-gra-01',
+    ticketNumber: 'GRA-0301',
+    plate: 'CAL-811',
+    vehicleType: 'car',
+    spotCode: 'A-01',
+    entryTime: timeAgo(50),
+    status: 'active',
+    branchId: 'suc-004',
+    branchName: 'Sede Granada Centro'
+  }
+];
+
+export const INITIAL_PAID_TICKETS: ParkingTicket[] = [
+  {
+    id: 'tk-091',
+    ticketNumber: 'PK-0411',
+    plate: 'ABC-123',
+    vehicleType: 'car',
+    spotCode: 'A-02',
+    entryTime: timeAgo(380),
+    exitTime: timeAgo(260),
+    status: 'paid',
+    totalMinutes: 120,
+    billableMinutes: 120,
+    baseAmount: 8400,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 8400,
+    paymentMethod: 'cash',
+    cashReceived: 10000,
+    changeGiven: 1600,
+    paidAt: timeAgo(260),
+    cashierName: 'Cajero Principal',
+  },
+  {
+    id: 'tk-092',
+    ticketNumber: 'PK-0412',
+    plate: 'MNO-45E',
+    vehicleType: 'motorcycle',
+    spotCode: 'M-03',
+    entryTime: timeAgo(350),
+    exitTime: timeAgo(290),
+    status: 'paid',
+    totalMinutes: 60,
+    billableMinutes: 60,
+    baseAmount: 2100,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 2100,
+    paymentMethod: 'transfer',
+    paidAt: timeAgo(290),
+    cashierName: 'Cajero Principal',
+  },
+  {
+    id: 'tk-093',
+    ticketNumber: 'PK-0413',
+    plate: 'XYZ-789',
+    vehicleType: 'car',
+    spotCode: 'A-04',
+    entryTime: timeAgo(310),
+    exitTime: timeAgo(190),
+    status: 'paid',
+    totalMinutes: 120,
+    billableMinutes: 120,
+    baseAmount: 8400,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 8400,
+    paymentMethod: 'card',
+    paidAt: timeAgo(190),
+    cashierName: 'Cajero Principal',
+  },
+  {
+    id: 'tk-094',
+    ticketNumber: 'PK-0414',
+    plate: 'SUV-900',
+    vehicleType: 'suv',
+    spotCode: 'S-02',
+    entryTime: timeAgo(280),
+    exitTime: timeAgo(130),
+    status: 'paid',
+    totalMinutes: 150,
+    billableMinutes: 150,
+    baseAmount: 13500,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 13500,
+    paymentMethod: 'cash',
+    cashReceived: 20000,
+    changeGiven: 6500,
+    paidAt: timeAgo(130),
+    cashierName: 'Cajero Principal',
+    isForeignPlate: true,
+    originCountry: 'Ecuador 🇪🇨',
+  },
+  {
+    id: 'tk-095',
+    ticketNumber: 'PK-0415',
+    plate: 'BIC-001',
+    vehicleType: 'bicycle',
+    spotCode: 'B-01',
+    entryTime: timeAgo(240),
+    exitTime: timeAgo(120),
+    status: 'paid',
+    totalMinutes: 120,
+    billableMinutes: 120,
+    baseAmount: 2000,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 2000,
+    paymentMethod: 'cash',
+    cashReceived: 2000,
+    changeGiven: 0,
+    paidAt: timeAgo(120),
+    cashierName: 'Cajero Principal',
+  },
+  {
+    id: 'tk-096',
+    ticketNumber: 'PK-0416',
+    plate: 'RTY-567',
+    vehicleType: 'car',
+    spotCode: 'A-06',
+    entryTime: timeAgo(160),
+    exitTime: timeAgo(75),
+    status: 'paid',
+    totalMinutes: 85,
+    billableMinutes: 90,
+    baseAmount: 6300,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 6300,
+    paymentMethod: 'card',
+    paidAt: timeAgo(75),
+    cashierName: 'Cajero Principal',
+  },
+  {
+    id: 'tk-097',
+    ticketNumber: 'PK-0417',
+    plate: 'PAS-009',
+    vehicleType: 'car',
+    spotCode: 'A-07',
+    entryTime: timeAgo(80),
+    exitTime: timeAgo(70),
+    status: 'paid',
+    totalMinutes: 10,
+    billableMinutes: 0,
+    baseAmount: 0,
+    taxAmount: 0,
+    discountAmount: 0,
+    totalAmount: 0, // Grace period exit
+    paymentMethod: 'cash',
+    paidAt: timeAgo(70),
+    cashierName: 'Cajero Principal',
+  },
+];
+
+export const INITIAL_OPERATIONAL_DAY: OperationalDay = {
+  id: 'day-20260917-1',
+  dayNumber: 1,
+  date: '2026-09-17',
+  formattedDate: '17/09/2026',
+  openedAt: new Date(now.setHours(6, 30, 0, 0)).toISOString(),
+  status: 'open',
+  initialDayCash: 150000,
+  totalCollected: 32300,
+  shiftsCount: 1,
+};
+
+export const INITIAL_CASH_SHIFT: CashShift = {
+  id: 'shift-01',
+  shiftNumber: 1,
+  operationalDayId: 'day-20260917-1',
+  operationalDayNumber: 1,
+  operatorName: 'Carlos M. (Turno Mañana)',
+  startTime: new Date(now.setHours(7, 0, 0, 0)).toISOString(),
+  initialCash: 150000, // Base de caja en efectivo
+  status: 'open',
+  cashMovements: [
+    {
+      id: 'mov-1',
+      timestamp: new Date(now.setHours(7, 0, 0, 0)).toISOString(),
+      type: 'income',
+      amount: 150000,
+      description: 'Apertura de turno - Base de caja en efectivo',
+      operator: 'Carlos M.',
+    }
+  ],
+};
+
+// --- Default UI Visibility Configurations ---
+export const DEFAULT_MASTER_UI_VISIBILITY: UserUIVisibility = {
+  // Encabezado
+  showTopRevenueMetrics: true,
+  showOccupancyWidget: true,
+  showDatabaseButton: true,
+  showUsersManagementButton: true,
+  showOperationalDayBadge: true,
+  showLiveClockWidget: true,
+  showCentralHubButton: true,
+  showBranchSyncButton: true,
+  showAppUpdaterButton: true,
+  showBranchIdentifierBadge: true,
+
+  // Pestañas Principales
+  showTabOperations: true,
+  showTabMap: true,
+  showTabReports: true,
+  showTabCash: true,
+  showTabSettings: true,
+
+  // Operaciones
+  showDailySummaryCards: true,
+  showVehiclesInYardMetric: true,
+  showTurnRevenueMetric: true,
+  showPaidTicketsHistory: true,
+  showConfigurePaymentMethodsButton: true,
+  showOpenCashDrawerButton: true,
+  showAnprCameraWidget: true,
+
+  // Mapa
+  showSpotsManagementButton: true,
+  showVncRemoteDesktopButton: true,
+
+  // Caja
+  showCashDrawerBalance: true,
+  showLivePaymentBreakdown: true,
+  showCashPickupOption: true,
+  showCashShiftsHistory: true,
+  showWarehousesGrid: true,
+
+  // Reportes
+  showFinancialKpisInReports: true,
+  showTrafficChartsInReports: true,
+  showAuditLogsPanel: true,
+  showEmployeeKpiWidget: true,
+
+  // Configuración
+  showInvoiceDianParams: true,
+  showTechnicalNetworkParams: true,
+  showBranchesGrid: true,
+  showPosPointsGrid: true,
+};
+
+export const DEFAULT_SUPERVISOR_UI_VISIBILITY: UserUIVisibility = {
+  // Encabezado
+  showTopRevenueMetrics: true,
+  showOccupancyWidget: true,
+  showDatabaseButton: false,
+  showUsersManagementButton: false,
+  showOperationalDayBadge: true,
+  showLiveClockWidget: true,
+  showCentralHubButton: true,
+  showBranchSyncButton: true,
+  showAppUpdaterButton: true,
+  showBranchIdentifierBadge: true,
+
+  // Pestañas Principales
+  showTabOperations: true,
+  showTabMap: true,
+  showTabReports: true,
+  showTabCash: true,
+  showTabSettings: false,
+
+  // Operaciones
+  showDailySummaryCards: true,
+  showVehiclesInYardMetric: true,
+  showTurnRevenueMetric: true,
+  showPaidTicketsHistory: true,
+  showConfigurePaymentMethodsButton: true,
+  showOpenCashDrawerButton: true,
+  showAnprCameraWidget: true,
+
+  // Mapa
+  showSpotsManagementButton: true,
+  showVncRemoteDesktopButton: true,
+
+  // Caja
+  showCashDrawerBalance: true,
+  showLivePaymentBreakdown: true,
+  showCashPickupOption: true,
+  showCashShiftsHistory: true,
+  showWarehousesGrid: false,
+
+  // Reportes
+  showFinancialKpisInReports: true,
+  showTrafficChartsInReports: true,
+  showAuditLogsPanel: true,
+  showEmployeeKpiWidget: true,
+
+  // Configuración
+  showInvoiceDianParams: false,
+  showTechnicalNetworkParams: false,
+  showBranchesGrid: false,
+  showPosPointsGrid: false,
+};
+
+export const DEFAULT_CASHIER_UI_VISIBILITY: UserUIVisibility = {
+  // Encabezado
+  showTopRevenueMetrics: false, // Por seguridad no ve el recaudo acumulado general en vivo
+  showOccupancyWidget: true,
+  showDatabaseButton: false,
+  showUsersManagementButton: false,
+  showOperationalDayBadge: true,
+  showLiveClockWidget: true,
+  showCentralHubButton: false,
+  showBranchSyncButton: true, // Para poder pulsar sincronizar si el supervisor lo requiere
+  showAppUpdaterButton: false,
+  showBranchIdentifierBadge: true,
+
+  // Pestañas Principales
+  showTabOperations: true,
+  showTabMap: true,
+  showTabReports: false,
+  showTabCash: true,
+  showTabSettings: false,
+
+  // Operaciones
+  showDailySummaryCards: false, // Ocultar cifras globales en turno de cajero básico
+  showVehiclesInYardMetric: true,
+  showTurnRevenueMetric: false,
+  showPaidTicketsHistory: true,
+  showConfigurePaymentMethodsButton: false,
+  showOpenCashDrawerButton: false,
+  showAnprCameraWidget: false,
+
+  // Mapa
+  showSpotsManagementButton: false,
+  showVncRemoteDesktopButton: false,
+
+  // Caja
+  showCashDrawerBalance: false, // Arqueo ciego - no ve el saldo teórico en gaveta
+  showLivePaymentBreakdown: false, // Ocultar medios de pago hasta el arqueo final
+  showCashPickupOption: true, // Permitir ver opción de recogida
+  showCashShiftsHistory: false, // No ve histórico anterior de otros turnos
+  showWarehousesGrid: false,
+
+  // Reportes
+  showFinancialKpisInReports: false,
+  showTrafficChartsInReports: false,
+  showAuditLogsPanel: false,
+  showEmployeeKpiWidget: false,
+
+  // Configuración
+  showInvoiceDianParams: false,
+  showTechnicalNetworkParams: false,
+  showBranchesGrid: false,
+  showPosPointsGrid: false,
+};
+
+// --- Default Permissions Configuration ---
+export const DEFAULT_MASTER_PERMISSIONS: UserPermissions = {
+  // Operaciones y Cobro
+  canRegisterEntry: true,
+  canRegisterExit: true,
+  canCancelTicket: true,
+  canApplyDiscounts: true,
+  canWaiveFee: true,
+  canReprintTickets: true,
+  canManualSpotSelect: true,
+  canProcessLostTicket: true,
+  canApplyLostTicketFee: true,
+  canChangePaymentMethod: true,
+  canConfigurePaymentMethods: true,
+  canIssueElectronicInvoice: true,
+  canOpenCashDrawerWithoutSale: true,
+  canEditActiveTicketPlate: true,
+  canApplyManualRateOverride: true,
+  canForceRegisterExit: true,
+  canViewANPRCameraModule: true,
+
+  // Control de Plazas y Patio
+  canViewMap: true,
+  canChangeSpotStatus: true,
+  canForceReleaseSpot: true,
+  canManageSpots: true,
+  canReserveSpots: true,
+  canViewVncRemoteDesktop: true,
+  canExecuteRemoteOrders: true,
+
+  // Caja y Movimientos
+  canManageCashShift: true,
+  canWithdrawCash: true,
+  canDepositCash: true,
+  canPickupCash: true,
+  canManageExpenseConcepts: true,
+  canCloseOperationalDay: true,
+  canAuditCashShifts: true,
+  blindCashCount: false,
+  canViewLiveFinancialBreakdown: true,
+  canViewOperationalDayInHistory: true,
+  canViewConsecutiveInHistory: true,
+  canViewCashShiftsHistory: true,
+  canEditClosedShifts: true,
+  canConfigureExpenseCategories: true,
+  canManageWarehouses: true,
+  canManagePosPoints: true,
+  canViewShiftClosingDiscrepancies: true,
+
+  // Reportes y Auditoría
+  canViewReports: true,
+  canExportReports: true,
+  canViewAuditLogs: true,
+  canFilterReportDates: true,
+  canDeleteAuditLogs: true,
+  canViewEmployeePerformanceKpi: true,
+  canViewGeneralProfitMargin: true,
+
+  // Configuración, Sucursales y Servidor Central
+  canEditRates: true,
+  canManageVehicleCategories: true,
+  canEditBusinessInfo: true,
+  canConfigureDianInvoicing: true,
+  canManageDatabase: true,
+  canManageUsers: true,
+  canAccessCentralHub: true,
+  canPublishCentralUpdates: true,
+  canSyncWithCentralServer: true,
+  canPerformAppUpdates: true,
+  canSwitchBranchSimulation: true,
+  canManageBranchLocations: true,
+  canConfigureSystemTheme: true,
+  canConfigureTechnicalTerminalProps: true,
+  uiVisibility: { ...DEFAULT_MASTER_UI_VISIBILITY },
+};
+
+export const DEFAULT_SUPERVISOR_PERMISSIONS: UserPermissions = {
+  // Operaciones y Cobro
+  canRegisterEntry: true,
+  canRegisterExit: true,
+  canCancelTicket: true,
+  canApplyDiscounts: true,
+  canWaiveFee: true,
+  canReprintTickets: true,
+  canManualSpotSelect: true,
+  canProcessLostTicket: true,
+  canApplyLostTicketFee: true,
+  canChangePaymentMethod: true,
+  canConfigurePaymentMethods: true,
+  canIssueElectronicInvoice: true,
+  canOpenCashDrawerWithoutSale: true,
+  canEditActiveTicketPlate: true,
+  canApplyManualRateOverride: false,
+  canForceRegisterExit: true,
+  canViewANPRCameraModule: true,
+
+  // Control de Plazas y Patio
+  canViewMap: true,
+  canChangeSpotStatus: true,
+  canForceReleaseSpot: true,
+  canManageSpots: true,
+  canReserveSpots: true,
+  canViewVncRemoteDesktop: true,
+  canExecuteRemoteOrders: true,
+
+  // Caja y Movimientos
+  canManageCashShift: true,
+  canWithdrawCash: true,
+  canDepositCash: true,
+  canPickupCash: true,
+  canManageExpenseConcepts: true,
+  canCloseOperationalDay: true,
+  canAuditCashShifts: true,
+  blindCashCount: false,
+  canViewLiveFinancialBreakdown: true,
+  canViewOperationalDayInHistory: true,
+  canViewConsecutiveInHistory: true,
+  canViewCashShiftsHistory: true,
+  canEditClosedShifts: false,
+  canConfigureExpenseCategories: false,
+  canManageWarehouses: false,
+  canManagePosPoints: false,
+  canViewShiftClosingDiscrepancies: true,
+
+  // Reportes y Auditoría
+  canViewReports: true,
+  canExportReports: true,
+  canViewAuditLogs: true,
+  canFilterReportDates: true,
+  canDeleteAuditLogs: false,
+  canViewEmployeePerformanceKpi: true,
+  canViewGeneralProfitMargin: true,
+
+  // Configuración, Sucursales y Servidor Central
+  canEditRates: false,
+  canManageVehicleCategories: false,
+  canEditBusinessInfo: false,
+  canConfigureDianInvoicing: false,
+  canManageDatabase: false,
+  canManageUsers: false,
+  canAccessCentralHub: true,
+  canPublishCentralUpdates: false,
+  canSyncWithCentralServer: true,
+  canPerformAppUpdates: true,
+  canSwitchBranchSimulation: true,
+  canManageBranchLocations: false,
+  canConfigureSystemTheme: true,
+  canConfigureTechnicalTerminalProps: false,
+  uiVisibility: { ...DEFAULT_SUPERVISOR_UI_VISIBILITY },
+};
+
+export const DEFAULT_CASHIER_PERMISSIONS: UserPermissions = {
+  // Operaciones y Cobro
+  canRegisterEntry: true,
+  canRegisterExit: true,
+  canCancelTicket: false,
+  canApplyDiscounts: false,
+  canWaiveFee: false,
+  canReprintTickets: true,
+  canManualSpotSelect: false,
+  canProcessLostTicket: false,
+  canApplyLostTicketFee: true,
+  canChangePaymentMethod: true,
+  canConfigurePaymentMethods: false,
+  canIssueElectronicInvoice: false,
+  canOpenCashDrawerWithoutSale: false,
+  canEditActiveTicketPlate: false,
+  canApplyManualRateOverride: false,
+  canForceRegisterExit: false,
+  canViewANPRCameraModule: false,
+
+  // Control de Plazas y Patio
+  canViewMap: true,
+  canChangeSpotStatus: false,
+  canForceReleaseSpot: false,
+  canManageSpots: false,
+  canReserveSpots: false,
+  canViewVncRemoteDesktop: false,
+  canExecuteRemoteOrders: false,
+
+  // Caja y Movimientos
+  canManageCashShift: true,
+  canWithdrawCash: true, // Puede registrar gastos seleccionando de la lista de conceptos
+  canDepositCash: false,
+  canPickupCash: true, // Puede realizar recogidas parciales
+  canManageExpenseConcepts: false, // NO puede crear/editar conceptos de gastos
+  canCloseOperationalDay: false, // NO puede hacer cierre definitivo de día
+  canAuditCashShifts: false, // NO puede auditar/recalcular cierres
+  blindCashCount: true, // Arqueo ciego para mayor transparencia
+  canViewLiveFinancialBreakdown: false, // Desglose financiero oculto durante el turno
+  canViewOperationalDayInHistory: true,
+  canViewConsecutiveInHistory: true,
+  canViewCashShiftsHistory: false,
+  canEditClosedShifts: false,
+  canConfigureExpenseCategories: false,
+  canManageWarehouses: false,
+  canManagePosPoints: false,
+  canViewShiftClosingDiscrepancies: false,
+
+  // Reportes y Auditoría
+  canViewReports: false,
+  canExportReports: false,
+  canViewAuditLogs: false,
+  canFilterReportDates: false,
+  canDeleteAuditLogs: false,
+  canViewEmployeePerformanceKpi: false,
+  canViewGeneralProfitMargin: false,
+
+  // Configuración, Sucursales y Servidor Central
+  canEditRates: false,
+  canManageVehicleCategories: false,
+  canEditBusinessInfo: false,
+  canConfigureDianInvoicing: false,
+  canManageDatabase: false,
+  canManageUsers: false,
+  canAccessCentralHub: false,
+  canPublishCentralUpdates: false,
+  canSyncWithCentralServer: true,
+  canPerformAppUpdates: false,
+  canSwitchBranchSimulation: false,
+  canManageBranchLocations: false,
+  canConfigureSystemTheme: false,
+  canConfigureTechnicalTerminalProps: false,
+  uiVisibility: { ...DEFAULT_CASHIER_UI_VISIBILITY },
+};
+
+export const normalizeUserPermissions = (perms?: Partial<UserPermissions>, role?: UserRole): UserPermissions => {
+  const fallback = role === 'master' 
+    ? DEFAULT_MASTER_PERMISSIONS 
+    : role === 'supervisor' 
+    ? DEFAULT_SUPERVISOR_PERMISSIONS 
+    : DEFAULT_CASHIER_PERMISSIONS;
+
+  if (!perms) return { ...fallback };
+
+  const fallbackUi = fallback.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY;
+  const userUi: Partial<UserUIVisibility> = perms.uiVisibility || {};
+
+  return {
+    canRegisterEntry: perms.canRegisterEntry ?? fallback.canRegisterEntry,
+    canRegisterExit: perms.canRegisterExit ?? fallback.canRegisterExit,
+    canCancelTicket: perms.canCancelTicket ?? fallback.canCancelTicket,
+    canApplyDiscounts: perms.canApplyDiscounts ?? fallback.canApplyDiscounts,
+    canWaiveFee: perms.canWaiveFee ?? fallback.canWaiveFee ?? (role === 'master' || role === 'supervisor'),
+    canReprintTickets: perms.canReprintTickets ?? fallback.canReprintTickets ?? true,
+    canManualSpotSelect: perms.canManualSpotSelect ?? fallback.canManualSpotSelect ?? (role === 'master' || role === 'supervisor'),
+    canProcessLostTicket: perms.canProcessLostTicket ?? fallback.canProcessLostTicket ?? (role === 'master' || role === 'supervisor'),
+    canApplyLostTicketFee: perms.canApplyLostTicketFee ?? fallback.canApplyLostTicketFee ?? true,
+    canChangePaymentMethod: perms.canChangePaymentMethod ?? fallback.canChangePaymentMethod ?? true,
+    canConfigurePaymentMethods: perms.canConfigurePaymentMethods ?? fallback.canConfigurePaymentMethods ?? (role === 'master' || role === 'supervisor'),
+    canIssueElectronicInvoice: perms.canIssueElectronicInvoice ?? fallback.canIssueElectronicInvoice ?? (role === 'master' || role === 'supervisor'),
+    canOpenCashDrawerWithoutSale: perms.canOpenCashDrawerWithoutSale ?? fallback.canOpenCashDrawerWithoutSale ?? (role === 'master' || role === 'supervisor'),
+    canEditActiveTicketPlate: perms.canEditActiveTicketPlate ?? fallback.canEditActiveTicketPlate ?? (role === 'master' || role === 'supervisor'),
+    canApplyManualRateOverride: perms.canApplyManualRateOverride ?? fallback.canApplyManualRateOverride ?? (role === 'master'),
+    canForceRegisterExit: perms.canForceRegisterExit ?? fallback.canForceRegisterExit ?? (role === 'master' || role === 'supervisor'),
+    canViewANPRCameraModule: perms.canViewANPRCameraModule ?? fallback.canViewANPRCameraModule ?? (role === 'master' || role === 'supervisor'),
+
+    canViewMap: perms.canViewMap ?? fallback.canViewMap,
+    canChangeSpotStatus: perms.canChangeSpotStatus ?? fallback.canChangeSpotStatus,
+    canForceReleaseSpot: perms.canForceReleaseSpot ?? fallback.canForceReleaseSpot ?? (role === 'master' || role === 'supervisor'),
+    canManageSpots: perms.canManageSpots ?? fallback.canManageSpots ?? (role === 'master' || role === 'supervisor'),
+    canReserveSpots: perms.canReserveSpots ?? fallback.canReserveSpots ?? (role === 'master' || role === 'supervisor'),
+    canViewVncRemoteDesktop: perms.canViewVncRemoteDesktop ?? fallback.canViewVncRemoteDesktop ?? (role === 'master' || role === 'supervisor'),
+    canExecuteRemoteOrders: perms.canExecuteRemoteOrders ?? fallback.canExecuteRemoteOrders ?? (role === 'master' || role === 'supervisor'),
+
+    canManageCashShift: perms.canManageCashShift ?? fallback.canManageCashShift,
+    canWithdrawCash: perms.canWithdrawCash ?? fallback.canWithdrawCash,
+    canDepositCash: perms.canDepositCash ?? fallback.canDepositCash ?? (role === 'master' || role === 'supervisor'),
+    canPickupCash: perms.canPickupCash ?? fallback.canPickupCash ?? true,
+    canManageExpenseConcepts: perms.canManageExpenseConcepts ?? fallback.canManageExpenseConcepts ?? (role === 'master' || role === 'supervisor'),
+    canCloseOperationalDay: perms.canCloseOperationalDay ?? fallback.canCloseOperationalDay ?? (role === 'master' || role === 'supervisor'),
+    canAuditCashShifts: perms.canAuditCashShifts ?? fallback.canAuditCashShifts ?? (role === 'master' || role === 'supervisor'),
+    blindCashCount: perms.blindCashCount ?? fallback.blindCashCount ?? (role === 'cashier'),
+    canViewLiveFinancialBreakdown: perms.canViewLiveFinancialBreakdown ?? fallback.canViewLiveFinancialBreakdown ?? (role !== 'cashier'),
+    canViewOperationalDayInHistory: perms.canViewOperationalDayInHistory ?? fallback.canViewOperationalDayInHistory ?? true,
+    canViewConsecutiveInHistory: perms.canViewConsecutiveInHistory ?? fallback.canViewConsecutiveInHistory ?? true,
+    canViewCashShiftsHistory: perms.canViewCashShiftsHistory ?? fallback.canViewCashShiftsHistory ?? (role !== 'cashier'),
+    canEditClosedShifts: perms.canEditClosedShifts ?? fallback.canEditClosedShifts ?? (role === 'master'),
+    canConfigureExpenseCategories: perms.canConfigureExpenseCategories ?? fallback.canConfigureExpenseCategories ?? (role === 'master'),
+    canManageWarehouses: perms.canManageWarehouses ?? fallback.canManageWarehouses ?? (role === 'master'),
+    canManagePosPoints: perms.canManagePosPoints ?? fallback.canManagePosPoints ?? (role === 'master'),
+    canViewShiftClosingDiscrepancies: perms.canViewShiftClosingDiscrepancies ?? fallback.canViewShiftClosingDiscrepancies ?? (role === 'master' || role === 'supervisor'),
+
+    canViewReports: perms.canViewReports ?? fallback.canViewReports,
+    canExportReports: perms.canExportReports ?? fallback.canExportReports,
+    canViewAuditLogs: perms.canViewAuditLogs ?? fallback.canViewAuditLogs ?? (role === 'master' || role === 'supervisor'),
+    canFilterReportDates: perms.canFilterReportDates ?? fallback.canFilterReportDates ?? (role === 'master' || role === 'supervisor'),
+    canDeleteAuditLogs: perms.canDeleteAuditLogs ?? fallback.canDeleteAuditLogs ?? (role === 'master'),
+    canViewEmployeePerformanceKpi: perms.canViewEmployeePerformanceKpi ?? fallback.canViewEmployeePerformanceKpi ?? (role === 'master' || role === 'supervisor'),
+    canViewGeneralProfitMargin: perms.canViewGeneralProfitMargin ?? fallback.canViewGeneralProfitMargin ?? (role === 'master' || role === 'supervisor'),
+
+    canEditRates: perms.canEditRates ?? fallback.canEditRates,
+    canManageVehicleCategories: perms.canManageVehicleCategories ?? fallback.canManageVehicleCategories ?? (role === 'master'),
+    canEditBusinessInfo: perms.canEditBusinessInfo ?? fallback.canEditBusinessInfo ?? (role === 'master'),
+    canConfigureDianInvoicing: perms.canConfigureDianInvoicing ?? fallback.canConfigureDianInvoicing ?? (role === 'master'),
+    canManageDatabase: perms.canManageDatabase ?? fallback.canManageDatabase,
+    canManageUsers: perms.canManageUsers ?? fallback.canManageUsers,
+    canAccessCentralHub: perms.canAccessCentralHub ?? fallback.canAccessCentralHub ?? (role === 'master' || role === 'supervisor'),
+    canPublishCentralUpdates: perms.canPublishCentralUpdates ?? fallback.canPublishCentralUpdates ?? (role === 'master'),
+    canSyncWithCentralServer: perms.canSyncWithCentralServer ?? fallback.canSyncWithCentralServer ?? true,
+    canPerformAppUpdates: perms.canPerformAppUpdates ?? fallback.canPerformAppUpdates ?? (role === 'master' || role === 'supervisor'),
+    canSwitchBranchSimulation: perms.canSwitchBranchSimulation ?? fallback.canSwitchBranchSimulation ?? (role === 'master' || role === 'supervisor'),
+    canManageBranchLocations: perms.canManageBranchLocations ?? fallback.canManageBranchLocations ?? (role === 'master'),
+    canConfigureSystemTheme: perms.canConfigureSystemTheme ?? fallback.canConfigureSystemTheme ?? (role === 'master' || role === 'supervisor'),
+    canConfigureTechnicalTerminalProps: perms.canConfigureTechnicalTerminalProps ?? fallback.canConfigureTechnicalTerminalProps ?? (role === 'master'),
+
+    uiVisibility: {
+      showTopRevenueMetrics: userUi.showTopRevenueMetrics ?? fallbackUi.showTopRevenueMetrics,
+      showOccupancyWidget: userUi.showOccupancyWidget ?? fallbackUi.showOccupancyWidget,
+      showDatabaseButton: userUi.showDatabaseButton ?? fallbackUi.showDatabaseButton,
+      showUsersManagementButton: userUi.showUsersManagementButton ?? fallbackUi.showUsersManagementButton ?? (role === 'master'),
+      showOperationalDayBadge: userUi.showOperationalDayBadge ?? fallbackUi.showOperationalDayBadge ?? true,
+      showLiveClockWidget: userUi.showLiveClockWidget ?? fallbackUi.showLiveClockWidget ?? true,
+      showCentralHubButton: userUi.showCentralHubButton ?? fallbackUi.showCentralHubButton ?? (role === 'master' || role === 'supervisor'),
+      showBranchSyncButton: userUi.showBranchSyncButton ?? fallbackUi.showBranchSyncButton ?? true,
+      showAppUpdaterButton: userUi.showAppUpdaterButton ?? fallbackUi.showAppUpdaterButton ?? (role === 'master' || role === 'supervisor'),
+      showBranchIdentifierBadge: userUi.showBranchIdentifierBadge ?? fallbackUi.showBranchIdentifierBadge ?? true,
+
+      showTabOperations: userUi.showTabOperations ?? fallbackUi.showTabOperations,
+      showTabMap: userUi.showTabMap ?? fallbackUi.showTabMap,
+      showTabReports: userUi.showTabReports ?? fallbackUi.showTabReports,
+      showTabCash: userUi.showTabCash ?? fallbackUi.showTabCash,
+      showTabSettings: userUi.showTabSettings ?? fallbackUi.showTabSettings,
+
+      showDailySummaryCards: userUi.showDailySummaryCards ?? fallbackUi.showDailySummaryCards,
+      showVehiclesInYardMetric: userUi.showVehiclesInYardMetric ?? fallbackUi.showVehiclesInYardMetric ?? true,
+      showTurnRevenueMetric: userUi.showTurnRevenueMetric ?? fallbackUi.showTurnRevenueMetric ?? (role !== 'cashier'),
+      showPaidTicketsHistory: userUi.showPaidTicketsHistory ?? fallbackUi.showPaidTicketsHistory,
+      showConfigurePaymentMethodsButton: userUi.showConfigurePaymentMethodsButton ?? fallbackUi.showConfigurePaymentMethodsButton,
+      showOpenCashDrawerButton: userUi.showOpenCashDrawerButton ?? fallbackUi.showOpenCashDrawerButton ?? (role === 'master' || role === 'supervisor'),
+      showAnprCameraWidget: userUi.showAnprCameraWidget ?? fallbackUi.showAnprCameraWidget ?? (role === 'master' || role === 'supervisor'),
+
+      showSpotsManagementButton: userUi.showSpotsManagementButton ?? fallbackUi.showSpotsManagementButton,
+      showVncRemoteDesktopButton: userUi.showVncRemoteDesktopButton ?? fallbackUi.showVncRemoteDesktopButton ?? (role === 'master' || role === 'supervisor'),
+
+      showCashDrawerBalance: userUi.showCashDrawerBalance ?? fallbackUi.showCashDrawerBalance,
+      showLivePaymentBreakdown: userUi.showLivePaymentBreakdown ?? fallbackUi.showLivePaymentBreakdown,
+      showCashPickupOption: userUi.showCashPickupOption ?? fallbackUi.showCashPickupOption,
+      showCashShiftsHistory: userUi.showCashShiftsHistory ?? fallbackUi.showCashShiftsHistory,
+      showWarehousesGrid: userUi.showWarehousesGrid ?? fallbackUi.showWarehousesGrid ?? (role === 'master'),
+
+      showFinancialKpisInReports: userUi.showFinancialKpisInReports ?? fallbackUi.showFinancialKpisInReports ?? (role !== 'cashier'),
+      showTrafficChartsInReports: userUi.showTrafficChartsInReports ?? fallbackUi.showTrafficChartsInReports ?? true,
+      showAuditLogsPanel: userUi.showAuditLogsPanel ?? fallbackUi.showAuditLogsPanel ?? (role === 'master' || role === 'supervisor'),
+      showEmployeeKpiWidget: userUi.showEmployeeKpiWidget ?? fallbackUi.showEmployeeKpiWidget ?? (role === 'master' || role === 'supervisor'),
+
+      showInvoiceDianParams: userUi.showInvoiceDianParams ?? fallbackUi.showInvoiceDianParams ?? (role === 'master'),
+      showTechnicalNetworkParams: userUi.showTechnicalNetworkParams ?? fallbackUi.showTechnicalNetworkParams ?? (role === 'master'),
+      showBranchesGrid: userUi.showBranchesGrid ?? fallbackUi.showBranchesGrid ?? (role === 'master'),
+      showPosPointsGrid: userUi.showPosPointsGrid ?? fallbackUi.showPosPointsGrid ?? (role === 'master'),
+    }
+  };
+};
+
+export const normalizeUser = (user: SystemUser): SystemUser => {
+  if (!user) return user;
+  return {
+    ...user,
+    permissions: normalizeUserPermissions(user.permissions, user.role),
+  };
+};
+
+export const INITIAL_USERS: SystemUser[] = [
+  {
+    id: 'user-master-01',
+    username: 'admin',
+    name: 'Administrador Maestro',
+    password: 'admin123',
+    role: 'master',
+    isActive: true,
+    permissions: { ...DEFAULT_MASTER_PERMISSIONS },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'user-supervisor-01',
+    username: 'supervisor',
+    name: 'Supervisor de Patio',
+    password: 'super123',
+    role: 'supervisor',
+    isActive: true,
+    permissions: { ...DEFAULT_SUPERVISOR_PERMISSIONS },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'user-cashier-01',
+    username: 'cajero',
+    name: 'Carlos Mendoza (Cajero)',
+    password: 'caja123',
+    role: 'cashier',
+    isActive: true,
+    permissions: { ...DEFAULT_CASHIER_PERMISSIONS },
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'user-cashier-02',
+    username: 'caja',
+    name: 'Operador de Turno',
+    password: 'caja',
+    role: 'cashier',
+    isActive: true,
+    permissions: { ...DEFAULT_CASHIER_PERMISSIONS },
+    createdAt: new Date().toISOString(),
+  },
+];
+
+export const DEFAULT_USER_TEMPLATES: UserPermissionTemplate[] = [
+  {
+    id: 'tmpl-cashier-blind',
+    name: 'Cajero Estándar (Arqueo Ciego)',
+    description: 'Cobro y entradas normales. Oculta recaudos globales y saldo en gaveta. Arqueo ciego obligatorio.',
+    role: 'cashier',
+    isSystem: true,
+    createdAt: new Date().toISOString(),
+    permissions: {
+      ...DEFAULT_CASHIER_PERMISSIONS,
+      blindCashCount: true,
+      canApplyDiscounts: false,
+      canWaiveFee: false,
+      canWithdrawCash: false,
+      canDepositCash: false,
+      canManualSpotSelect: false,
+    },
+    uiVisibility: {
+      ...DEFAULT_CASHIER_UI_VISIBILITY,
+      showTopRevenueMetrics: false,
+      showCashDrawerBalance: false,
+      showOccupancyWidget: true,
+      showDailySummaryCards: false,
+      showTabReports: false,
+      showTabSettings: false,
+    }
+  },
+  {
+    id: 'tmpl-cashier-senior',
+    name: 'Cajero Avanzado / Confianza',
+    description: 'Cobro y entradas con permisos de descuento, cortesías $0, retiros de caja menor y vista de recaudo.',
+    role: 'cashier',
+    isSystem: true,
+    createdAt: new Date().toISOString(),
+    permissions: {
+      ...DEFAULT_CASHIER_PERMISSIONS,
+      blindCashCount: false,
+      canApplyDiscounts: true,
+      canWaiveFee: true,
+      canWithdrawCash: true,
+      canDepositCash: true,
+      canManualSpotSelect: true,
+      canChangePaymentMethod: true,
+      canReprintTickets: true,
+    },
+    uiVisibility: {
+      ...DEFAULT_CASHIER_UI_VISIBILITY,
+      showTopRevenueMetrics: true,
+      showCashDrawerBalance: true,
+      showOccupancyWidget: true,
+      showDailySummaryCards: true,
+      showPaidTicketsHistory: true,
+    }
+  },
+  {
+    id: 'tmpl-valet-entry',
+    name: 'Operador de Patio / Valet (Solo Entrada)',
+    description: 'Solo registro de ingresos y visualización de puestos libres en el mapa. Sin cobros ni caja.',
+    role: 'custom',
+    isSystem: true,
+    createdAt: new Date().toISOString(),
+    permissions: {
+      ...DEFAULT_CASHIER_PERMISSIONS,
+      canRegisterEntry: true,
+      canRegisterExit: false,
+      canCancelTicket: false,
+      canApplyDiscounts: false,
+      canWaiveFee: false,
+      canManageCashShift: false,
+      canWithdrawCash: false,
+      canDepositCash: false,
+      canViewMap: true,
+      canChangeSpotStatus: true,
+      canManualSpotSelect: true,
+      canViewReports: false,
+    },
+    uiVisibility: {
+      ...DEFAULT_CASHIER_UI_VISIBILITY,
+      showTabOperations: true,
+      showTabMap: true,
+      showTabCash: false,
+      showTabReports: false,
+      showTabSettings: false,
+      showTopRevenueMetrics: false,
+      showCashDrawerBalance: false,
+      showOccupancyWidget: true,
+      showPaidTicketsHistory: false,
+      showDailySummaryCards: false,
+    }
+  },
+  {
+    id: 'tmpl-supervisor-shift',
+    name: 'Supervisor Operativo de Turno',
+    description: 'Control total de operaciones, patio, cancelaciones, caja menor y reportes. Sin editar tarifas ni BD.',
+    role: 'supervisor',
+    isSystem: true,
+    createdAt: new Date().toISOString(),
+    permissions: {
+      ...DEFAULT_SUPERVISOR_PERMISSIONS,
+    },
+    uiVisibility: {
+      ...DEFAULT_SUPERVISOR_UI_VISIBILITY,
+    }
+  },
+  {
+    id: 'tmpl-auditor-readonly',
+    name: 'Auditor Contable (Solo Lectura)',
+    description: 'Consulta de reportes financieros, exportación a Excel, bitácora de auditoría y ventas pagadas.',
+    role: 'custom',
+    isSystem: true,
+    createdAt: new Date().toISOString(),
+    permissions: {
+      canRegisterEntry: false,
+      canRegisterExit: false,
+      canCancelTicket: false,
+      canApplyDiscounts: false,
+      canWaiveFee: false,
+      canReprintTickets: true,
+      canManualSpotSelect: false,
+      canChangePaymentMethod: false,
+      canViewMap: true,
+      canChangeSpotStatus: false,
+      canForceReleaseSpot: false,
+      canManageCashShift: false,
+      canWithdrawCash: false,
+      canDepositCash: false,
+      blindCashCount: false,
+      canViewReports: true,
+      canExportReports: true,
+      canViewAuditLogs: true,
+      canEditRates: false,
+      canEditBusinessInfo: false,
+      canManageDatabase: false,
+      canManageUsers: false,
+    },
+    uiVisibility: {
+      showTabOperations: false,
+      showTabMap: true,
+      showTabReports: true,
+      showTabCash: false,
+      showTabSettings: false,
+      showTopRevenueMetrics: true,
+      showCashDrawerBalance: false,
+      showOccupancyWidget: true,
+      showDatabaseButton: false,
+      showPaidTicketsHistory: true,
+      showDailySummaryCards: true,
+    }
+  }
+];
+
+export const INITIAL_CLOSED_SHIFTS: CashShift[] = [
+  {
+    id: 'shift-hist-01',
+    shiftNumber: 1,
+    operationalDayId: 'day-hist-100',
+    operationalDayNumber: 100,
+    operatorName: 'Carlos M. (Turno Mañana)',
+    startTime: '2026-09-16T06:00:00.000Z',
+    endTime: '2026-09-16T14:00:00.000Z',
+    initialCash: 150000,
+    finalCountedCash: 350000,
+    cashDifference: 0,
+    status: 'closed',
+    isAudited: true,
+    auditedBy: 'Supervisor General',
+    auditedAt: '2026-09-16T14:15:00.000Z',
+    auditNotes: 'Arqueo entregado sin novedad. Cuadre exacto en gaveta.',
+    cashCollectedSnapshot: 420000,
+    cardCollectedSnapshot: 310000,
+    walletCollectedSnapshot: 85000,
+    qrCollectedSnapshot: 45000,
+    breBCollectedSnapshot: 0,
+    agreementCollectedSnapshot: 0,
+    totalCollectedSnapshot: 860000,
+    totalExpensesSnapshot: 20000,
+    totalPickupsSnapshot: 200000,
+    expectedCashSnapshot: 350000,
+    countedCashSnapshot: 350000,
+    totalToConsignSnapshot: 400000,
+    cashMovements: [
+      {
+        id: 'mov-h1-1',
+        timestamp: '2026-09-16T06:00:00.000Z',
+        type: 'income',
+        amount: 150000,
+        description: 'Base Inicial de Caja Entregada',
+        operator: 'Carlos M.',
+      },
+      {
+        id: 'mov-h1-2',
+        timestamp: '2026-09-16T10:30:00.000Z',
+        type: 'expense',
+        amount: 20000,
+        description: 'Compra de 2 Rollos de Papel Térmico para Impresora 80mm',
+        operator: 'Carlos M.',
+        conceptName: 'Papelería y Rollos Térmicos',
+        voucherNumber: 'FAC-8821'
+      },
+      {
+        id: 'mov-h1-3',
+        timestamp: '2026-09-16T12:00:00.000Z',
+        type: 'pickup',
+        amount: 200000,
+        description: 'Recogida Parcial de Caja en Efectivo por Seguridad',
+        operator: 'Carlos M.',
+        voucherNumber: 'REC-0012'
+      }
+    ]
+  },
+  {
+    id: 'shift-hist-02',
+    shiftNumber: 2,
+    operationalDayId: 'day-hist-100',
+    operationalDayNumber: 100,
+    operatorName: 'Ana R. (Turno Tarde)',
+    startTime: '2026-09-16T14:00:00.000Z',
+    endTime: '2026-09-16T22:00:00.000Z',
+    initialCash: 150000,
+    finalCountedCash: 275000,
+    cashDifference: -5000,
+    status: 'closed',
+    isAudited: false,
+    auditNotes: 'Faltante de $5,000 en revisión por posible cambio mal entregado.',
+    cashCollectedSnapshot: 380000,
+    cardCollectedSnapshot: 290000,
+    walletCollectedSnapshot: 60000,
+    qrCollectedSnapshot: 30000,
+    breBCollectedSnapshot: 0,
+    agreementCollectedSnapshot: 0,
+    totalCollectedSnapshot: 760000,
+    totalExpensesSnapshot: 10000,
+    totalPickupsSnapshot: 240000,
+    expectedCashSnapshot: 280000,
+    countedCashSnapshot: 275000,
+    totalToConsignSnapshot: 365000,
+    cashMovements: [
+      {
+        id: 'mov-h2-1',
+        timestamp: '2026-09-16T14:00:00.000Z',
+        type: 'income',
+        amount: 150000,
+        description: 'Base Inicial de Caja Entregada',
+        operator: 'Ana R.',
+      },
+      {
+        id: 'mov-h2-2',
+        timestamp: '2026-09-16T17:15:00.000Z',
+        type: 'expense',
+        amount: 10000,
+        description: 'Bolsas de Aseo y Desinfectante de Superficies',
+        operator: 'Ana R.',
+        conceptName: 'Artículos de Aseo y Limpieza',
+        voucherNumber: 'FAC-9912'
+      },
+      {
+        id: 'mov-h2-3',
+        timestamp: '2026-09-16T19:30:00.000Z',
+        type: 'pickup',
+        amount: 240000,
+        description: 'Recogida de Efectivo Intermedia',
+        operator: 'Ana R.',
+        voucherNumber: 'REC-0013'
+      }
+    ]
+  }
+];
+
+export const INITIAL_CLOSED_DAYS: OperationalDay[] = [
+  {
+    id: 'day-hist-100',
+    dayNumber: 100,
+    date: '2026-09-16',
+    formattedDate: '16/09/2026',
+    openedAt: '2026-09-16T06:00:00.000Z',
+    closedAt: '2026-09-16T22:30:00.000Z',
+    status: 'closed',
+    initialDayCash: 150000,
+    finalDayCash: 275000,
+    totalCollected: 1620000,
+    shiftsCount: 2,
+    closedByOperator: 'AUXSISTEMAS / Administrador',
+    closingNotes: 'Cierre de día operativo finalizado con 2 turnos. Total vehículos atendidos: 84.',
+    isAudited: true,
+    auditedBy: 'Supervisor General',
+    auditedAt: '2026-09-16T22:45:00.000Z',
+    cashCollectedSnapshot: 800000,
+    cardCollectedSnapshot: 600000,
+    walletCollectedSnapshot: 145000,
+    qrCollectedSnapshot: 75000,
+    totalExpensesSnapshot: 30000,
+    totalPickupsSnapshot: 440000,
+    expectedCashSnapshot: 480000,
+    countedCashSnapshot: 475000,
+    cashDifferenceSnapshot: -5000,
+    totalToConsignSnapshot: 765000,
+  }
+];
+
+// =========================================================================
+// DATOS INICIALES MULTI-SUCURSAL Y SERVIDOR CENTRAL
+// =========================================================================
+
+// =========================================================================
+// DATOS INICIALES MULTI-SUCURSAL, BODEGAS Y PUNTOS POS
+// =========================================================================
+
+export const INITIAL_WAREHOUSES: Warehouse[] = [
+  {
+    id: 'bod-001',
+    code: 'BOD-MATRIZ',
+    name: 'Bodega Central Matriz & Insumos',
+    type: 'general',
+    branchId: 'suc-001',
+    branchName: 'Sede Principal - Calle 72',
+    address: 'Calle 72 # 11-45, Sótano Nivel -1',
+    capacity: 5000,
+    manager: 'Carlos Mendoza',
+    phone: '(601) 745-8900 Ext. 104',
+    isActive: true,
+    itemsCount: 1420,
+    notes: 'Almacén general de rollos térmicos, tarjetas RFID, repuestos talanqueras y cajas de insumos.',
+    createdAt: '2026-01-10T08:00:00.000Z'
+  },
+  {
+    id: 'bod-002',
+    code: 'BOD-NORTE',
+    name: 'Bodega Suministros Unicentro',
+    type: 'pos_storage',
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte',
+    address: 'Avenida 15 # 122-30, Módulo de Control B2',
+    capacity: 2200,
+    manager: 'Mauricio Ramírez',
+    phone: '(601) 612-4433',
+    isActive: true,
+    itemsCount: 680,
+    notes: 'Depósito directo para taquillas Norte y cajas de nivel vehicular.',
+    createdAt: '2026-01-15T09:30:00.000Z'
+  },
+  {
+    id: 'bod-003',
+    code: 'BOD-MED',
+    name: 'Patio & Depósito El Poblado',
+    type: 'yard',
+    branchId: 'suc-003',
+    branchName: 'Sede El Poblado',
+    address: 'Carrera 43A # 7 Sur-150, Bodega 3',
+    capacity: 3500,
+    manager: 'Felipe Restrepo',
+    phone: '(604) 448-9120',
+    isActive: true,
+    itemsCount: 890,
+    notes: 'Patio de maniobras y almacenamiento de señalización y conos de seguridad.',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'bod-004',
+    code: 'BOD-CALI',
+    name: 'Bodega Auxiliar Granada',
+    type: 'supplies',
+    branchId: 'suc-004',
+    branchName: 'Sede Granada Centro',
+    address: 'Avenida 9N # 14-22, Depósito 1',
+    capacity: 1800,
+    manager: 'Andrés Echeverri',
+    phone: '(602) 889-1020',
+    isActive: true,
+    itemsCount: 340,
+    notes: 'Depósito de contingencia y repuestos básicos de impresoras térmicas.',
+    createdAt: '2026-02-18T14:00:00.000Z'
+  },
+  {
+    id: 'bod-005',
+    code: 'BOD-BAQ',
+    name: 'Bodega Prado Costa Norte',
+    type: 'general',
+    branchId: 'suc-005',
+    branchName: 'Sede Prado Oriental',
+    address: 'Carrera 54 # 74-12, Bahía A',
+    capacity: 2000,
+    manager: 'Katherin Barrios',
+    phone: '(605) 356-7890',
+    isActive: true,
+    itemsCount: 150,
+    notes: 'Bodega en sede Barranquilla para insumos climáticos e impermeables.',
+    createdAt: '2026-03-01T11:00:00.000Z'
+  }
+];
+
+export const INITIAL_POS_POINTS: PosPoint[] = [
+  // Sede Principal - Calle 72 (suc-001)
+  {
+    id: 'pos-001',
+    branchId: 'suc-001',
+    branchName: 'Sede Principal - Calle 72',
+    code: 'POS-72-ENTRADA',
+    name: 'Caja 01 - Entrada Vehicular Principal',
+    ipAddress: '192.168.10.151',
+    macAddress: 'B8:27:EB:4A:12:01',
+    warehouseId: 'bod-001',
+    warehouseName: 'Bodega Central Matriz & Insumos',
+    status: 'online',
+    cashierName: 'Carlos M.',
+    currentAppVersion: 'v2.5.0-enterprise',
+    printerSerial: 'TC6Y313412',
+    lastHeartbeat: new Date(Date.now() - 30 * 1000).toISOString(),
+    assignedZone: 'Patio Principal Autos & Motos',
+    isMasterNode: true,
+    dailyRevenue: 245000,
+    notes: 'Terminal principal con barrera y lector QR fiscal'
+  },
+  {
+    id: 'pos-002',
+    branchId: 'suc-001',
+    branchName: 'Sede Principal - Calle 72',
+    code: 'POS-72-SALIDA',
+    name: 'Caja 02 - Salida y Pagos Peatonal',
+    ipAddress: '192.168.10.152',
+    macAddress: 'B8:27:EB:4A:12:02',
+    warehouseId: 'bod-001',
+    warehouseName: 'Bodega Central Matriz & Insumos',
+    status: 'online',
+    cashierName: 'Laura G.',
+    currentAppVersion: 'v2.5.0-enterprise',
+    printerSerial: 'TC6Y313413',
+    lastHeartbeat: new Date(Date.now() - 45 * 1000).toISOString(),
+    assignedZone: 'Zona Peatonal y Pago Express',
+    isMasterNode: false,
+    dailyRevenue: 187500,
+    notes: 'Terminal de cobro rápido con datáfono integrado'
+  },
+
+  // Sede Unicentro Norte (suc-002)
+  {
+    id: 'pos-003',
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte',
+    code: 'POS-UNI-01',
+    name: 'Caja Principal Sótano 1',
+    ipAddress: '192.168.20.11',
+    macAddress: '00:1A:2B:3C:4D:5E',
+    warehouseId: 'bod-002',
+    warehouseName: 'Bodega Suministros Unicentro',
+    status: 'online',
+    cashierName: 'Mauricio R.',
+    currentAppVersion: 'v2.4.8-enterprise',
+    printerSerial: 'EPSON-TM-88-V',
+    lastHeartbeat: new Date(Date.now() - 60 * 1000).toISOString(),
+    assignedZone: 'Sótano 1 Autos',
+    isMasterNode: true,
+    dailyRevenue: 520400,
+    notes: 'Control de barrera automatizada y cámara LPR'
+  },
+  {
+    id: 'pos-004',
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte',
+    code: 'POS-UNI-02',
+    name: 'Caja Express Bahía 2',
+    ipAddress: '192.168.20.12',
+    macAddress: '00:1A:2B:3C:4D:5F',
+    warehouseId: 'bod-002',
+    warehouseName: 'Bodega Suministros Unicentro',
+    status: 'online',
+    cashierName: 'Sofia P.',
+    currentAppVersion: 'v2.4.8-enterprise',
+    printerSerial: 'EPSON-TM-88-VI',
+    lastHeartbeat: new Date(Date.now() - 90 * 1000).toISOString(),
+    assignedZone: 'Sótano 2 Motos y Bicis',
+    isMasterNode: false,
+    dailyRevenue: 370000,
+    notes: 'Punto de recaudo para motocicletas'
+  },
+
+  // Sede El Poblado (suc-003)
+  {
+    id: 'pos-005',
+    branchId: 'suc-003',
+    branchName: 'Sede El Poblado',
+    code: 'POS-POB-01',
+    name: 'Taquilla Principal Acceso',
+    ipAddress: '10.0.1.46',
+    macAddress: 'C4:57:40:99:11:A2',
+    warehouseId: 'bod-003',
+    warehouseName: 'Patio & Depósito El Poblado',
+    status: 'online',
+    cashierName: 'Juliana V.',
+    currentAppVersion: 'v2.4.8-enterprise',
+    printerSerial: 'BIXOLON-350',
+    lastHeartbeat: new Date(Date.now() - 110 * 1000).toISOString(),
+    assignedZone: 'Patio Central Poblado',
+    isMasterNode: true,
+    dailyRevenue: 620000,
+    notes: 'Terminal de cobro mixta con soporte QR Bre-B'
+  },
+
+  // Sede Granada Centro (suc-004)
+  {
+    id: 'pos-006',
+    branchId: 'suc-004',
+    branchName: 'Sede Granada Centro',
+    code: 'POS-GRA-01',
+    name: 'Caja Única Granada',
+    ipAddress: '10.0.2.89',
+    macAddress: '70:85:C2:55:77:33',
+    warehouseId: 'bod-004',
+    warehouseName: 'Bodega Auxiliar Granada',
+    status: 'busy',
+    cashierName: 'Marcela T.',
+    currentAppVersion: 'v2.3.9-enterprise',
+    printerSerial: 'ZEBRA-KR403',
+    lastHeartbeat: new Date(Date.now() - 400 * 1000).toISOString(),
+    assignedZone: 'Zona Única Cali',
+    isMasterNode: true,
+    dailyRevenue: 310000,
+    notes: 'Reporta lentitud en enlace de red'
+  },
+
+  // Sede Prado Oriental (suc-005)
+  {
+    id: 'pos-007',
+    branchId: 'suc-005',
+    branchName: 'Sede Prado Oriental',
+    code: 'POS-BAQ-01',
+    name: 'Caja Principal Prado',
+    ipAddress: '10.0.3.15',
+    macAddress: 'E0:D5:5E:22:99:88',
+    warehouseId: 'bod-005',
+    warehouseName: 'Bodega Prado Costa Norte',
+    status: 'offline',
+    cashierName: 'Sin conexión',
+    currentAppVersion: 'v2.3.5-enterprise',
+    printerSerial: 'CUSTOM-TG2480',
+    lastHeartbeat: new Date(Date.now() - 360 * 60 * 1000).toISOString(),
+    assignedZone: 'Patio Prado',
+    isMasterNode: true,
+    dailyRevenue: 0,
+    notes: 'Terminal apagada o sin suministro de energía'
+  }
+];
+
+export const INITIAL_BRANCHES: BranchLocation[] = [
+  {
+    id: 'suc-001',
+    code: 'SUC-001',
+    name: 'Sede Principal - Calle 72',
+    city: 'Bogotá D.C.',
+    address: 'Calle 72 # 11-45, Zona Financiera',
+    phone: '(601) 745-8900',
+    managerName: 'Ing. Carlos Mendoza',
+    status: 'online',
+    ipAddress: '192.168.10.150',
+    currentAppVersion: 'v2.5.0-enterprise',
+    lastSyncTimestamp: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+    totalSpots: 36,
+    occupiedSpots: 9,
+    todayRevenue: 432500,
+    todayVehicles: 48,
+    activeShiftNumber: 1,
+    currentCashier: 'Carlos M. (Turno Mañana)',
+    pendingUpdatesCount: 0,
+    isCurrentBranch: true,
+    warehouseId: 'bod-001',
+    warehouseName: 'Bodega Central Matriz & Insumos',
+    posPointsCount: 2,
+    lastRemoteCommand: 'Ping Telemetría & Conectividad',
+    lastRemoteCommandTime: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    notes: 'Sede matriz y centro de datos central.',
+    systemUrl: 'http://192.168.10.150:3000/wolfzonepos?branchId=suc-001&auth=admin_central',
+    farmadeskId: '891 042 150',
+    farmadeskPassword: 'matriz_secure_farmadesk_72',
+    anydeskId: '891 042 150',
+    rustdeskId: '192.168.10.150',
+    vncPassword: 'matriz_secure_vnc_72',
+    lat: 4.6560,
+    lng: -74.0596,
+    latencyMs: 14,
+    systemLoad: 32,
+    memoryUsage: 45,
+    diskUsage: 28,
+    activeConnections: 8
+  },
+  {
+    id: 'suc-002',
+    code: 'SUC-002',
+    name: 'Sede Unicentro Norte',
+    city: 'Bogotá D.C.',
+    address: 'Avenida 15 # 122-30',
+    phone: '(601) 612-4433',
+    managerName: 'Dra. Patricia Gómez',
+    status: 'online',
+    ipAddress: '192.168.20.10',
+    currentAppVersion: 'v2.4.8-enterprise',
+    lastSyncTimestamp: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+    totalSpots: 65,
+    occupiedSpots: 42,
+    todayRevenue: 890400,
+    todayVehicles: 94,
+    activeShiftNumber: 2,
+    currentCashier: 'Mauricio R.',
+    pendingUpdatesCount: 1,
+    isCurrentBranch: false,
+    warehouseId: 'bod-002',
+    warehouseName: 'Bodega Suministros Unicentro',
+    posPointsCount: 2,
+    lastRemoteCommand: 'Forzar Sincronización Inmediata',
+    lastRemoteCommandTime: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    notes: 'Alto flujo comercial, 2 niveles subterráneos.',
+    systemUrl: 'http://192.168.20.10:3000/wolfzonepos?branchId=suc-002&auth=admin_central',
+    farmadeskId: '824 105 322',
+    farmadeskPassword: 'unicentro_farmadesk_auth',
+    anydeskId: '824 105 322',
+    rustdeskId: '192.168.20.10',
+    vncPassword: 'unicentro_vnc_auth',
+    lat: 4.7018,
+    lng: -74.0416,
+    latencyMs: 22,
+    systemLoad: 58,
+    memoryUsage: 64,
+    diskUsage: 42,
+    activeConnections: 12
+  },
+  {
+    id: 'suc-003',
+    code: 'SUC-003',
+    name: 'Sede El Poblado',
+    city: 'Medellín',
+    address: 'Carrera 43A # 7 Sur-150',
+    phone: '(604) 448-9120',
+    managerName: 'Felipe Restrepo',
+    status: 'online',
+    ipAddress: '10.0.1.45',
+    currentAppVersion: 'v2.4.8-enterprise',
+    lastSyncTimestamp: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+    totalSpots: 50,
+    occupiedSpots: 28,
+    todayRevenue: 620000,
+    todayVehicles: 61,
+    activeShiftNumber: 1,
+    currentCashier: 'Juliana V.',
+    pendingUpdatesCount: 1,
+    isCurrentBranch: false,
+    warehouseId: 'bod-003',
+    warehouseName: 'Patio & Depósito El Poblado',
+    posPointsCount: 1,
+    lastRemoteCommand: 'Prueba de Barrera y Sensor',
+    lastRemoteCommandTime: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
+    notes: 'Zona gastronómica y corporativa.',
+    systemUrl: 'http://10.0.1.45:3000/wolfzonepos?branchId=suc-003&auth=admin_central',
+    farmadeskId: '745 109 015',
+    farmadeskPassword: 'poblado_med_farmadesk_pass',
+    anydeskId: '745 109 015',
+    rustdeskId: '10.0.1.45',
+    vncPassword: 'poblado_med_vnc_pass',
+    lat: 6.2088,
+    lng: -75.5684,
+    latencyMs: 38,
+    systemLoad: 41,
+    memoryUsage: 52,
+    diskUsage: 35,
+    activeConnections: 6
+  },
+  {
+    id: 'suc-004',
+    code: 'SUC-004',
+    name: 'Sede Granada Centro',
+    city: 'Cali',
+    address: 'Avenida 9N # 14-22',
+    phone: '(602) 889-1020',
+    managerName: 'Andrés Echeverri',
+    status: 'warning',
+    ipAddress: '10.0.2.88',
+    currentAppVersion: 'v2.3.9-enterprise',
+    lastSyncTimestamp: new Date(Date.now() - 145 * 60 * 1000).toISOString(),
+    totalSpots: 40,
+    occupiedSpots: 15,
+    todayRevenue: 310000,
+    todayVehicles: 33,
+    activeShiftNumber: 1,
+    currentCashier: 'Marcela T.',
+    pendingUpdatesCount: 2,
+    isCurrentBranch: false,
+    warehouseId: 'bod-004',
+    warehouseName: 'Bodega Auxiliar Granada',
+    posPointsCount: 1,
+    lastRemoteCommand: 'Ping Telemetría & Conectividad',
+    lastRemoteCommandTime: new Date(Date.now() - 140 * 60 * 1000).toISOString(),
+    notes: 'Conexión intermitente por ISP local.',
+    systemUrl: 'http://10.0.2.88:3000/wolfzonepos?branchId=suc-004&auth=admin_central',
+    farmadeskId: '455 109 883',
+    farmadeskPassword: 'granada_cali_farmadesk',
+    anydeskId: '455 109 883',
+    rustdeskId: '10.0.2.88',
+    vncPassword: 'granada_cali_vnc',
+    lat: 3.4560,
+    lng: -76.5320,
+    latencyMs: 118,
+    systemLoad: 79,
+    memoryUsage: 82,
+    diskUsage: 68,
+    activeConnections: 3
+  },
+  {
+    id: 'suc-005',
+    code: 'SUC-005',
+    name: 'Sede Prado Oriental',
+    city: 'Barranquilla',
+    address: 'Carrera 54 # 74-12',
+    phone: '(605) 356-7890',
+    managerName: 'Katherin Barrios',
+    status: 'offline',
+    ipAddress: '10.0.3.12',
+    currentAppVersion: 'v2.3.5-enterprise',
+    lastSyncTimestamp: new Date(Date.now() - 360 * 60 * 1000).toISOString(),
+    totalSpots: 30,
+    occupiedSpots: 0,
+    todayRevenue: 0,
+    todayVehicles: 0,
+    activeShiftNumber: 0,
+    currentCashier: 'Sin conexión',
+    pendingUpdatesCount: 3,
+    isCurrentBranch: false,
+    warehouseId: 'bod-005',
+    warehouseName: 'Bodega Prado Costa Norte',
+    posPointsCount: 1,
+    lastRemoteCommand: 'Reiniciar Terminal POS',
+    lastRemoteCommandTime: new Date(Date.now() - 350 * 60 * 1000).toISOString(),
+    notes: 'Cierre temporal por mantenimiento de acometida eléctrica.',
+    systemUrl: 'http://10.0.3.12:3000/wolfzonepos?branchId=suc-005&auth=admin_central',
+    farmadeskId: '351 042 122',
+    farmadeskPassword: 'barranquilla_farmadesk_admin',
+    anydeskId: '351 042 122',
+    rustdeskId: '10.0.3.12',
+    vncPassword: 'barranquilla_vnc_admin',
+    lat: 10.9980,
+    lng: -74.8020,
+    latencyMs: 290,
+    systemLoad: 0,
+    memoryUsage: 0,
+    diskUsage: 74,
+    activeConnections: 0
+  },
+  {
+    id: 'suc-006',
+    code: 'SUC-006',
+    name: 'Parqueadero la Sevillana',
+    city: 'Cúcuta',
+    address: 'Avenida Cero # 11-45, Zona Comercial',
+    phone: '(607) 571-2244',
+    managerName: 'Andrés Guerrero',
+    status: 'online',
+    ipAddress: '192.168.14.213',
+    currentAppVersion: 'v2.5.0-enterprise',
+    lastSyncTimestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    totalSpots: 36,
+    occupiedSpots: 4,
+    todayRevenue: 185000,
+    todayVehicles: 24,
+    activeShiftNumber: 1,
+    currentCashier: 'Andrés G. (Caja Activa)',
+    pendingUpdatesCount: 0,
+    isCurrentBranch: false,
+    warehouseId: 'bod-001',
+    warehouseName: 'Bodega Cúcuta Centro',
+    posPointsCount: 1,
+    lastRemoteCommand: 'Ping Telemetría & Conectividad',
+    lastRemoteCommandTime: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+    notes: 'Punto de venta y patio activo en Cúcuta.',
+    systemUrl: 'http://192.168.14.213:3000/wolfzonepos?branchId=suc-006&token=quick_sevillana_secure',
+    farmadeskId: '982 104 213',
+    farmadeskPassword: 'sevillana_farmadesk_pwd_98',
+    anydeskId: '982 104 213',
+    rustdeskId: '192.168.14.213',
+    vncPassword: 'sevillana_vnc_pwd_98',
+    lat: 7.8939,
+    lng: -72.5078,
+    latencyMs: 29,
+    systemLoad: 38,
+    memoryUsage: 49,
+    diskUsage: 33,
+    activeConnections: 4
+  }
+];
+
+export const INITIAL_REMOTE_ORDERS: RemoteExecutionOrder[] = [
+  {
+    id: 'cmd-001',
+    commandNumber: 'CMD-2026-081',
+    branchId: 'suc-001',
+    branchName: 'Sede Principal - Calle 72',
+    posPointId: 'pos-001',
+    posPointName: 'Caja 01 - Entrada Vehicular Principal',
+    commandType: 'ping_telemetry',
+    title: 'Verificación de Telemetría y Latencia',
+    issuedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    executedAt: new Date(Date.now() - 5 * 60 * 1000 + 420).toISOString(),
+    issuedBy: 'Administrador Maestro',
+    status: 'completed',
+    executionTimeMs: 420,
+    resultMessage: 'Respuesta OK (HTTP 200). Latencia: 14ms. Servicios activos: Barrera, LPR, Impresora Fiscal.',
+    outputLogs: [
+      '[09:16:40] Iniciando handshake seguro con nodo 192.168.10.151:3000...',
+      '[09:16:40] Token de enlace validado (SHA-256).',
+      '[09:16:40] Estado de servicios periféricos: OK.',
+      '[09:16:41] Telemetría recibida con éxito.'
+    ]
+  },
+  {
+    id: 'cmd-002',
+    commandNumber: 'CMD-2026-080',
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte',
+    commandType: 'force_sync',
+    title: 'Sincronización Forzada de Paquete Tarifario',
+    issuedAt: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    executedAt: new Date(Date.now() - 25 * 60 * 1000 + 1250).toISOString(),
+    issuedBy: 'Supervisor de Operaciones',
+    status: 'completed',
+    executionTimeMs: 1250,
+    resultMessage: '42 registros sincronizados exitosamente (Tarifas, Insumos y Categorías).',
+    outputLogs: [
+      '[08:56:10] Conectando a terminal SUC-002 (192.168.20.10)...',
+      '[08:56:11] Descargando payload de actualización PKG-2026-003...',
+      '[08:56:11] Aplicando cambios en base de datos SQLite/IndexedDB local...',
+      '[08:56:12] Sincronización completada sin errores.'
+    ]
+  },
+  {
+    id: 'cmd-003',
+    commandNumber: 'CMD-2026-079',
+    branchId: 'suc-003',
+    branchName: 'Sede El Poblado',
+    posPointId: 'pos-005',
+    posPointName: 'Taquilla Principal Acceso',
+    commandType: 'test_barrier',
+    title: 'Prueba de Apertura y Cierre de Barrera Vehicular',
+    issuedAt: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
+    executedAt: new Date(Date.now() - 40 * 60 * 1000 + 850).toISOString(),
+    issuedBy: 'Administrador Maestro',
+    status: 'completed',
+    executionTimeMs: 850,
+    resultMessage: 'Comando enviado por puerto COM3. Ciclo de apertura ejecutado normalmente.',
+    outputLogs: [
+      '[08:41:00] Transmitiendo pulso de relé COM3 a 9600 baud...',
+      '[08:41:01] Sensor de masa activo detectado.',
+      '[08:41:01] Barrera retornada a posición segura.'
+    ]
+  }
+];
+
+export const INITIAL_CENTRAL_PACKAGES: CentralUpdatePackage[] = [
+  {
+    id: 'pkg-2026-003',
+    packageNumber: 'PKG-2026-003',
+    title: 'Ajuste Nacional de Tarifas y Nuevos Conceptos de Insumos 2026',
+    description: 'Actualización general de tarifas para Carros ($70/min) y Motos ($35/min), estandarización de conceptos de caja menor autorizados y políticas de tiquete extraviado.',
+    author: 'Administrador Maestro (Dirección General)',
+    createdAt: '2026-09-17T09:00:00.000Z',
+    targetScope: 'all',
+    targetBranchIds: [],
+    updateTypes: ['rates', 'vehicle_categories', 'expense_concepts', 'expense_categories'],
+    payload: {
+      rates: {
+        ...DEFAULT_RATES,
+        car: {
+          minuteRate: 70,
+          hourRate: 4200,
+          dayRate: 28000,
+          gracePeriodMinutes: 15,
+          minimumChargeMinutes: 30,
+          lostTicketFee: 15000,
+        },
+        motorcycle: {
+          minuteRate: 35,
+          hourRate: 2100,
+          dayRate: 15000,
+          gracePeriodMinutes: 15,
+          minimumChargeMinutes: 30,
+          lostTicketFee: 10000,
+        },
+        lostTicketFee: 15000,
+      },
+      expenseConcepts: INITIAL_EXPENSE_CONCEPTS,
+      expenseCategories: INITIAL_EXPENSE_CATEGORIES,
+      newProducts: [
+        { id: 'prod-01', name: 'Lavado Ecológico Premium Carro', price: 25000, category: 'Servicios Adicionales', description: 'Lavado sin agua y encerado rápido en plaza' },
+        { id: 'prod-02', name: 'Lavado Detallado Moto', price: 15000, category: 'Servicios Adicionales', description: 'Desengrase y abrillantador de llantas' },
+        { id: 'prod-03', name: 'Ambientador Premium para Vehículo', price: 8000, category: 'Productos Tienda', description: 'Aroma fresco duradero 30 días' },
+        { id: 'prod-04', name: 'Botella de Agua Mineral 500ml', price: 3000, category: 'Productos Tienda', description: 'Bebida fría en taquilla' },
+      ],
+      featureFlags: {
+        enableInstantQRPayment: true,
+        enableBreBInteroperability: true,
+        enableBlindCashAudit: true,
+      }
+    },
+    status: 'published',
+    appliedByBranches: [
+      { branchId: 'suc-001', branchName: 'Sede Principal - Calle 72', appliedAt: '2026-09-17T09:15:00.000Z', status: 'success' },
+      { branchId: 'suc-002', branchName: 'Sede Unicentro Norte', appliedAt: '2026-09-17T09:30:00.000Z', status: 'success' },
+      { branchId: 'suc-003', branchName: 'Sede El Poblado', appliedAt: '2026-09-17T10:05:00.000Z', status: 'success' },
+    ]
+  },
+  {
+    id: 'pkg-2026-004',
+    packageNumber: 'PKG-2026-004',
+    title: 'Tarifa Nocturna Especial y Habilitación Billeteras Digitales (Bogotá y Medellín)',
+    description: 'Despacho de nuevos métodos de pago por QR Daviplata / Nequi unificados y tarifario para camionetas de gran volumen.',
+    author: 'Dirección de Operaciones',
+    createdAt: '2026-09-17T11:30:00.000Z',
+    targetScope: 'specific',
+    targetBranchIds: ['suc-001', 'suc-002', 'suc-003'],
+    updateTypes: ['rates', 'payment_methods'],
+    payload: {
+      featureFlags: {
+        enableInstantQRPayment: true,
+        enableCardTerminalIntegration: true,
+      }
+    },
+    status: 'published',
+    appliedByBranches: [
+      { branchId: 'suc-001', branchName: 'Sede Principal - Calle 72', appliedAt: '2026-09-17T11:45:00.000Z', status: 'success' }
+    ]
+  }
+];
+
+export const INITIAL_SOFTWARE_BUILDS: SoftwareReleaseBuild[] = [
+  {
+    id: 'bld-v250',
+    version: 'v2.5.0-enterprise',
+    buildNumber: 2026091701,
+    releaseDate: '2026-09-17',
+    channel: 'enterprise',
+    title: 'Versión 2.5.0 - Servidor Central, Sincronización OTA y Auditoría Financiera (Actual)',
+    description: 'Actualización mayor que incorpora la consola de gestión multi-sucursal, distribución remota de tarifas, sincronización bidireccional y motor de actualización en caliente.',
+    changelog: [
+      'Nuevo Módulo de Servidor Central con vista global y métricas consolidadas de todas las sucursales.',
+      'Sistema de Despacho Centralizado de Tarifas, Conceptos de Gastos y Matriz Modular de Sincronización.',
+      'Control de sincronización instantánea y modo fuera de línea con cola de reintento automático.',
+      'Nuevo Actualizador de Software Integrado (OTA) para recibir módulos de desarrollo y parches.',
+      'Separación de botón de Recogida de Dinero vs Gastos Operativos.',
+      'Matriz de Permisos y Visibilidad Ultra-Granular por usuario y perfil.',
+      'Soporte completo para Facturación Electrónica DIAN y Pasarelas de Pago Bancarias.'
+    ],
+    newModules: [
+      'Módulo Servidor Central & Matriz Multi-Sede',
+      'Módulo de Despacho y Publicación de Precios Centralizados',
+      'Módulo Matriz de Sincronización Auto-Adaptable',
+      'Módulo Actualizador Automático de Versiones (OTA Engine)',
+      'Módulo de Auditoría y Telemetría de Sucursales'
+    ],
+    databaseMigrationRequired: false,
+    downloadSize: '18.4 MB',
+    checksumSha256: 'a4b8c9d1e2f30456789abcdef0123456789abcdef0123456789abcdef0123456',
+    isMandatory: true,
+    status: 'installed'
+  },
+  {
+    id: 'bld-v242',
+    version: 'v2.4.2-enterprise',
+    buildNumber: 2026090101,
+    releaseDate: '2026-09-01',
+    channel: 'enterprise',
+    title: 'Versión 2.4.2 - Pasarelas Bancarias, Bre-B QR Dinámico y Facturación Electrónica DIAN',
+    description: 'Versión previa estable con integración de pagos con datáfono, códigos QR estáticos y dinámicos Bre-B, y generación de CUFE para facturas electrónicas.',
+    changelog: [
+      'Integración con pagos digitales y pasarelas de recaudo bancario.',
+      'Soporte para cobro con QR interoperable Bre-B y validación automática de comprobantes.',
+      'Módulo de Facturación Electrónica y emisión de tiquetes tipo POS fiscal.',
+      'Optimización de carga para catálogos con más de 100 productos de tienda.',
+      'Control de apertura de cajón monedero vía pulso ESC/POS.'
+    ],
+    newModules: [
+      'Módulo de Pasarelas de Pago & Bre-B QR',
+      'Módulo de Facturación Electrónica DIAN',
+      'Módulo de Drivers de Hardware Térmico ESC/POS'
+    ],
+    databaseMigrationRequired: false,
+    downloadSize: '16.8 MB',
+    checksumSha256: '7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d',
+    isMandatory: false,
+    status: 'available'
+  },
+  {
+    id: 'bld-v240',
+    version: 'v2.4.0-stable',
+    buildNumber: 2026081501,
+    releaseDate: '2026-08-15',
+    channel: 'enterprise',
+    title: 'Versión 2.4.0 - Matriz de Permisos, Recogida de Dinero y Multi-Caja',
+    description: 'Versión base con arquitectura de permisos por perfil, diferenciación contable entre salidas de dinero por gasto vs retiro a gerencia.',
+    changelog: [
+      'Separación contable estricta entre Retiro de Efectivo (Recogida) y Gastos Operativos.',
+      'Sistema de turnos de caja con arqueo ciego y doble confirmación.',
+      'Soporte multi-tarifa (tarifas diferenciadas para convenios y mensualidades).',
+      'Módulo de auditoría de modificaciones de tiquetes y anulación segura.'
+    ],
+    newModules: [
+      'Módulo de Control Contable & Recogidas',
+      'Módulo de Gestión de Abonados y Mensualidades',
+      'Motor de Tarifas Avanzadas & Descuentos'
+    ],
+    databaseMigrationRequired: false,
+    downloadSize: '15.2 MB',
+    checksumSha256: '5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f',
+    isMandatory: false,
+    status: 'available'
+  },
+  {
+    id: 'bld-v235',
+    version: 'v2.3.5-lts',
+    buildNumber: 2026072001,
+    releaseDate: '2026-07-20',
+    channel: 'enterprise',
+    title: 'Versión 2.3.5-LTS - Núcleo Operativo de Estacionamiento & IndexedDB Offline',
+    description: 'Versión fundacional de alta estabilidad con persistencia transaccional 100% offline, control de bahías visuales e impresión térmica.',
+    changelog: [
+      'Persistencia transaccional offline-first con IndexedDB.',
+      'Mapa visual e interactivo de plazas y bahías por tipo de vehículo.',
+      'Cálculo automático de liquidación por minutos, fracciones y días.',
+      'Impresión térmica de tiquete de ingreso con código de barras y QR.'
+    ],
+    newModules: [
+      'Motor Central de Liquidación de Estacionamiento',
+      'Base de Datos Transaccional IndexedDB Offline',
+      'Servidor de Impresión Térmica ESC/POS'
+    ],
+    databaseMigrationRequired: false,
+    downloadSize: '13.9 MB',
+    checksumSha256: '3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b',
+    isMandatory: false,
+    status: 'available'
+  },
+  {
+    id: 'bld-v260-rc',
+    version: 'v2.6.0-rc1',
+    buildNumber: 2026092001,
+    releaseDate: '2026-09-20',
+    channel: 'beta',
+    title: 'Versión 2.6.0-RC1 (Próximo Release: Reconocimiento Automático de Placas ANPR / LPR con IA)',
+    description: 'Versión previa experimental con módulo de cámaras LPR para lectura automática de placas por video, sensor inteligente de ocupación de bahías y analítica predictiva de horas pico.',
+    changelog: [
+      'Módulo de Inteligencia Artificial para lectura automática de placas en cámara de barrera.',
+      'Detección automática de tipo de vehículo mediante visión por computador.',
+      'Predicción de saturación de patio y tarifas dinámicas programables.',
+      'Panel de telemetría de hardware (impresoras térmicas, barreras automáticas, lectores RFID).'
+    ],
+    newModules: [
+      'Módulo ANPR / LPR Visión Artificial',
+      'Módulo Analítica Predictiva & Machine Learning',
+      'Módulo Conectores IoT de Barreras Físicas'
+    ],
+    databaseMigrationRequired: true,
+    downloadSize: '24.2 MB',
+    checksumSha256: '9f8e7d6c5b4a3210fedcba9876543210fedcba9876543210fedcba9876543210',
+    isMandatory: false,
+    status: 'available'
+  }
+];
+
+export const INITIAL_SYNC_AUDIT_LOGS: BranchSyncAuditRecord[] = [
+  {
+    id: 'sync-log-01',
+    timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    branchId: 'suc-001',
+    branchName: 'Sede Principal - Calle 72',
+    direction: 'outbound_to_central',
+    syncType: 'telemetry_push',
+    summary: 'Envío de métricas en vivo: 36 plazas, 9 ocupadas, $432,500 recaudado hoy.',
+    itemsAffectedCount: 48,
+    status: 'success',
+    operator: 'Sistema Automático'
+  },
+  {
+    id: 'sync-log-02',
+    timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+    branchId: 'suc-001',
+    branchName: 'Sede Principal - Calle 72',
+    direction: 'inbound_from_central',
+    syncType: 'config_pull',
+    summary: 'Paquete PKG-2026-004 aplicado con éxito (tarifas y pasarelas de pago).',
+    itemsAffectedCount: 8,
+    status: 'success',
+    operator: 'Carlos M. (Turno Mañana)'
+  },
+  {
+    id: 'sync-log-03',
+    timestamp: new Date(Date.now() - 65 * 60 * 1000).toISOString(),
+    branchId: 'suc-002',
+    branchName: 'Sede Unicentro Norte',
+    direction: 'outbound_to_central',
+    syncType: 'financial_close_push',
+    summary: 'Transmisión de cierre definitivo de día y 2 arqueos de turno.',
+    itemsAffectedCount: 94,
+    status: 'success',
+    operator: 'Mauricio R.'
+  }
+];
+
+export const INITIAL_SYSTEM_NODE_CONFIG: SystemNodeConfig = {
+  workMode: 'pos', // Por defecto en Punto de Venta (o Servidor según configuración)
+  selectedBranchId: 'suc-001',
+  establishmentName: 'PARKING CONTROL ENTERPRISE S.A.S. - SEDE PRINCIPAL',
+  establishmentNit: '900265730-0',
+  legalRepresentative: 'Ing. Carlos Mendoza',
+  operationalDate: '19/09/2026',
+  printerSerialOrFiscalMachine: 'TC6Y313412',
+  defaultWarehouseOrYard: 'PATIO PRINCIPAL',
+  billingMode: 'time_service',
+
+  // Servidores & Enlace Central
+  centralServerHost: '192.168.10.150',
+  centralServerPort: 3000,
+  farmadeskPort: 9050,
+  farmadeskLanPort: 9050,
+  farmadeskWanPort: 9050,
+  centralAuthToken: 'PK-CENTRAL-AUTH-TOKEN-2026-X99',
+  databaseName: 'ParqueaderoPOS_DB_Principal',
+  autoSyncIntervalMinutes: 5,
+
+  // Zonas Base
+  primaryZoneName: 'Patio Principal (Nivel 1)',
+  secondaryZoneName: 'Zona VIP Subterránea',
+
+  // Prefijos
+  defaultPrefix: 'FE-PK',
+  currentSequenceNumber: 1045,
+
+  // Email
+  alertEmail: 'gerencia@parkingcontrol.com',
+  smtpServer: 'smtp.parkingcontrol.com',
+  smtpPort: 587,
+  notifyOnShiftClose: true,
+  notifyOnDefinitiveDayClose: true,
+
+  // Integraciones
+  enableBarrierControl: true,
+  barrierComPort: 'COM3',
+  enableLprCamera: true,
+  lprCameraIp: '192.168.10.201',
+  enableRfidReader: true,
+
+  // Avisos Recordatorios
+  ticketFooterMessage: 'Gracias por su visita. Conserve su ticket en lugar seguro. No deje objetos de valor.',
+  enableLowSpotAlert: true,
+  lowSpotThreshold: 5,
+};
+
+
+

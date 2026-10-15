@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+global-config.json
+.antigravity/
+.vscode/
+scratch/
+test_snap.png
+test_script.html
