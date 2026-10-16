@@ -61,6 +61,7 @@ import {
 } from '../types';
 import { calculateParkingFee, formatCurrency, formatPlate } from '../utils/billing';
 import { playSound } from '../utils/audio';
+import { renderVehicleIcon } from '../utils/vehicleIcons';
 import { 
   PlateCountryRule,
   NATIONAL_PLATE_RULE, 
@@ -989,30 +990,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   };
 
   const getVehicleIcon = (type: string, className = 'w-4 h-4') => {
-    const custom = vehicleCategories?.find(c => c.id === type);
-    const iconKey = custom?.icon || type;
-    switch (iconKey) {
-      case 'Bike':
-      case 'motorcycle':
-      case 'bicycle':
-        return <Bike className={className} />;
-      case 'Truck':
-      case 'truck':
-      case 'suv':
-        return <Truck className={className} />;
-      case 'Bus':
-      case 'bus':
-        return <Bus className={className} />;
-      case 'Zap':
-        return <Zap className={className} />;
-      case 'Compass':
-        return <Compass className={className} />;
-      case 'Car':
-      case 'car':
-      case 'van':
-      default:
-        return <Car className={className} />;
-    }
+    return renderVehicleIcon(type, className, vehicleCategories);
   };
 
   const getVehicleName = (type: string) => {
@@ -1128,15 +1106,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         }}
                         className={`h-16 sm:h-18 rounded-2xl border-2 flex items-center justify-center transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-indigo-600 dark:border-indigo-500 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-md ring-2 ring-indigo-500/20'
-                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900'
+                            ? 'bg-indigo-600 dark:bg-indigo-600 text-white border-indigo-700 shadow-xl shadow-indigo-600/35 ring-4 ring-indigo-500/30 scale-[1.04] z-10'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-xs'
                         }`}
                       >
                         {getVehicleIcon(
-                          cat.id,
+                          cat.icon || cat.id,
                           isSelected
-                            ? 'w-8 h-8 sm:w-9 sm:h-9 text-indigo-600 dark:text-indigo-400 transition-transform scale-110'
-                            : 'w-8 h-8 sm:w-9 sm:h-9 transition-transform hover:scale-105'
+                            ? 'w-9 h-9 sm:w-10 sm:h-10 text-white transition-transform scale-110 drop-shadow-md stroke-[2.4]'
+                            : 'w-8 h-8 sm:w-9 sm:h-9 text-slate-500 dark:text-slate-400 transition-transform hover:scale-105 stroke-[1.8]'
                         )}
                       </button>
                     );

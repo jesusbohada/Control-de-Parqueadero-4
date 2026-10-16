@@ -24,6 +24,7 @@ import {
   Info
 } from 'lucide-react';
 import { ParkingSpot, VehicleType, VehicleCategoryConfig, ParkingTicket } from '../types';
+import { renderVehicleIcon } from '../utils/vehicleIcons';
 
 interface SpotsManagementModalProps {
   isOpen: boolean;
@@ -107,29 +108,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
   }, [vehicleCategories]);
 
   const getVehicleIcon = (type: string, className = 'w-4 h-4') => {
-    const custom = vehicleCategories?.find(c => c.id === type);
-    const iconKey = custom?.icon || type;
-    switch (iconKey) {
-      case 'Bike':
-      case 'motorcycle':
-      case 'bicycle':
-        return <Bike className={className} />;
-      case 'Truck':
-      case 'truck':
-      case 'suv':
-        return <Truck className={className} />;
-      case 'Bus':
-      case 'bus':
-        return <Bus className={className} />;
-      case 'Zap':
-        return <Zap className={className} />;
-      case 'Compass':
-        return <Compass className={className} />;
-      case 'Car':
-      case 'car':
-      default:
-        return <Car className={className} />;
-    }
+    return renderVehicleIcon(type, className, vehicleCategories);
   };
 
   const getVehicleName = (type: string) => {
@@ -726,7 +705,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                               : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/60'
                           }`}
                         >
-                          {getVehicleIcon(cat.id, isSelected ? 'w-4 h-4 text-amber-600 dark:text-amber-400' : 'w-4 h-4 text-slate-500 dark:text-slate-400')}
+                          {getVehicleIcon(cat.icon || cat.id, isSelected ? 'w-4 h-4 text-amber-600 dark:text-amber-400' : 'w-4 h-4 text-slate-500 dark:text-slate-400')}
                           <span className="font-bold truncate">{cat.name}</span>
                         </button>
                       );
@@ -891,7 +870,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                               : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700/60'
                           }`}
                         >
-                          {getVehicleIcon(cat.id, isSelected ? 'w-4 h-4 text-amber-600 dark:text-amber-400' : 'w-4 h-4 text-slate-500 dark:text-slate-400')}
+                          {getVehicleIcon(cat.icon || cat.id, isSelected ? 'w-4 h-4 text-amber-600 dark:text-amber-400' : 'w-4 h-4 text-slate-500 dark:text-slate-400')}
                           <span className="font-bold truncate">{cat.name}</span>
                         </button>
                       );

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ParkingSpot, ParkingTicket, RatesConfig, VehicleType, VehicleCategoryConfig, SystemUser } from '../types';
 import { calculateParkingFee, formatCurrency } from '../utils/billing';
+import { renderVehicleIcon } from '../utils/vehicleIcons';
 
 interface ParkingMapProps {
   spots: ParkingSpot[];
@@ -60,24 +61,7 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
   });
 
   const getVehicleIcon = (type: string, className = 'w-4 h-4') => {
-    const custom = vehicleCategories?.find(c => c.id === type);
-    const iconKey = custom?.icon || type;
-    switch (iconKey) {
-      case 'Bike':
-      case 'motorcycle':
-      case 'bicycle':
-        return <Bike className={className} />;
-      case 'Truck':
-      case 'truck':
-      case 'suv':
-        return <Truck className={className} />;
-      case 'Zap':
-        return <CheckCircle2 className={className} />;
-      case 'Car':
-      case 'car':
-      default:
-        return <Car className={className} />;
-    }
+    return renderVehicleIcon(type, className, vehicleCategories);
   };
 
   const getZoneTitle = (type: VehicleType) => {

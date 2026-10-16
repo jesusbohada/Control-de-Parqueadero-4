@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Car, 
   Bike, 
@@ -17,9 +17,15 @@ import {
   Shield,
   HelpCircle,
   Bus,
-  Compass
+  Compass,
+  Search
 } from 'lucide-react';
 import { VehicleCategoryConfig, SystemUser } from '../types';
+import { 
+  VEHICLE_TERRESTRIAL_ICONS, 
+  renderVehicleIcon, 
+  getVehicleIconComponent 
+} from '../utils/vehicleIcons';
 
 interface VehicleCategoriesModalProps {
   isOpen: boolean;
@@ -30,15 +36,6 @@ interface VehicleCategoriesModalProps {
   currentUser: SystemUser;
   embedded?: boolean;
 }
-
-const AVAILABLE_ICONS = [
-  { id: 'Car', label: 'Automóvil / Carro', icon: Car },
-  { id: 'Bike', label: 'Motocicleta / Bici', icon: Bike },
-  { id: 'Truck', label: 'Camión / Furgón', icon: Truck },
-  { id: 'Zap', label: 'Eléctrico / Scooter', icon: Zap },
-  { id: 'Bus', label: 'Bus / Van', icon: Bus },
-  { id: 'Compass', label: 'Otro / Especial', icon: Compass },
-];
 
 export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
   isOpen,
@@ -63,12 +60,31 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
   const [formIsActive, setFormIsActive] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Icon search and categorization
+  const [iconSearch, setIconSearch] = useState('');
+  const [selectedIconGroup, setSelectedIconGroup] = useState<'all' | 'cars' | 'motos' | 'heavy' | 'eco' | 'special'>('all');
+
+  const filteredIcons = useMemo(() => {
+    return VEHICLE_TERRESTRIAL_ICONS.filter(ic => {
+      const matchesGroup = selectedIconGroup === 'all' || ic.category === selectedIconGroup;
+      const q = iconSearch.trim().toLowerCase();
+      const matchesSearch = !q || 
+        ic.name.toLowerCase().includes(q) || 
+        ic.description.toLowerCase().includes(q) || 
+        ic.keywords.toLowerCase().includes(q) ||
+        ic.id.toLowerCase().includes(q);
+      return matchesGroup && matchesSearch;
+    });
+  }, [iconSearch, selectedIconGroup]);
+
   if (!isOpen) return null;
 
   const handleOpenCreate = () => {
     setEditingCategory(null);
     setFormName('');
     setFormIcon('Car');
+    setIconSearch('');
+    setSelectedIconGroup('all');
     setFormHourlyRate(4500);
     setFormMinuteRate(75);
     setFormDailyRate(28000);
@@ -83,6 +99,8 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
     setEditingCategory(cat);
     setFormName(cat.name);
     setFormIcon(cat.icon || 'Car');
+    setIconSearch('');
+    setSelectedIconGroup('all');
     const hr = cat.defaultHourlyRate ?? cat.rate?.hourRate ?? 4500;
     const mr = cat.defaultMinuteRate ?? cat.rate?.minuteRate ?? Math.round(hr / 60);
     const dr = cat.defaultDailyRate ?? cat.rate?.dayRate ?? hr * 7;
@@ -145,21 +163,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
   };
 
   const renderIcon = (iconName?: string) => {
-    switch (iconName) {
-      case 'Bike':
-        return <Bike className="w-5 h-5" />;
-      case 'Truck':
-        return <Truck className="w-5 h-5" />;
-      case 'Zap':
-        return <Zap className="w-5 h-5" />;
-      case 'Bus':
-        return <Bus className="w-5 h-5" />;
-      case 'Compass':
-        return <Compass className="w-5 h-5" />;
-      case 'Car':
-      default:
-        return <Car className="w-5 h-5" />;
-    }
+    return renderVehicleIcon(iconName, 'w-5 h-5', categories);
   };
 
   if (!isOpen && !embedded) return null;
@@ -234,30 +238,145 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Ícono Representativo
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {AVAILABLE_ICONS.map((ic) => {
-                      const IconComp = ic.icon;
-                      const isSelected = formIcon === ic.id;
-                      return (
-                        <button
-                          key={ic.id}
-                          type="button"
-                          onClick={() => setFormIcon(ic.id)}
-                          className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
-                            isSelected
-                              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-800 dark:text-amber-300 shadow-xs'
-                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          <IconComp className="w-4 h-4" />
-                          <span className="truncate">{ic.label.split(' ')[0]}</span>
-                        </button>
-                      );
-                    })}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                      <span>Ícono de Vehículo Terrestre</span>
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold font-mono">
+                        ({VEHICLE_TERRESTRIAL_ICONS.length} íconos disponibles)
+                      </span>
+                    </label>
+
+                    {/* Badge del ícono seleccionado actualmente */}
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800">
+                      {renderVehicleIcon(formIcon, 'w-4 h-4 text-amber-600 dark:text-amber-400')}
+                      <span className="text-[11px] truncate max-w-[140px] font-bold">
+                        {VEHICLE_TERRESTRIAL_ICONS.find(i => i.id === formIcon)?.name || formIcon}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Buscador de íconos */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Buscar ícono terrestre (ej. auto, moto, bus, furgón, grúa, ambulancia)..."
+                      value={iconSearch}
+                      onChange={(e) => setIconSearch(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 outline-none focus:border-amber-500"
+                    />
+                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    {iconSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setIconSearch('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white text-xs cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Filtros por grupo vehicular */}
+                  <div className="flex items-center gap-1 overflow-x-auto pb-0.5 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIconGroup('all')}
+                      className={`px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer shrink-0 ${
+                        selectedIconGroup === 'all'
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Todos ({VEHICLE_TERRESTRIAL_ICONS.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIconGroup('cars')}
+                      className={`px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer shrink-0 ${
+                        selectedIconGroup === 'cars'
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Autos & SUVs
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIconGroup('motos')}
+                      className={`px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer shrink-0 ${
+                        selectedIconGroup === 'motos'
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Motos & Bicis
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIconGroup('heavy')}
+                      className={`px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer shrink-0 ${
+                        selectedIconGroup === 'heavy'
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Buses & Carga
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIconGroup('eco')}
+                      className={`px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer shrink-0 ${
+                        selectedIconGroup === 'eco'
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Eléctricos & Eco
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedIconGroup('special')}
+                      className={`px-2 py-0.5 rounded-md font-semibold transition-colors cursor-pointer shrink-0 ${
+                        selectedIconGroup === 'special'
+                          ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Especiales & Auxilio
+                    </button>
+                  </div>
+
+                  {/* Cuadrícula de íconos */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-52 overflow-y-auto p-1.5 border border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/60 dark:bg-slate-950/60">
+                    {filteredIcons.length === 0 ? (
+                      <div className="col-span-full py-6 text-center text-xs text-slate-500">
+                        No se encontró ningún ícono para &quot;{iconSearch}&quot;
+                      </div>
+                    ) : (
+                      filteredIcons.map((ic) => {
+                        const IconComp = ic.icon;
+                        const isSelected = formIcon === ic.id;
+                        return (
+                          <button
+                            key={ic.id}
+                            type="button"
+                            onClick={() => setFormIcon(ic.id)}
+                            title={`${ic.name} • ${ic.description}`}
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl text-xs border transition-all cursor-pointer gap-1 text-center ${
+                              isSelected
+                                ? 'bg-amber-500 text-slate-950 font-bold border-amber-600 shadow-sm ring-2 ring-amber-400/40 scale-[1.02]'
+                                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                            }`}
+                          >
+                            <IconComp className={`w-5 h-5 ${isSelected ? 'text-slate-950 stroke-[2.2]' : 'text-slate-700 dark:text-slate-300'}`} />
+                            <span className="text-[10px] leading-tight truncate w-full font-medium">
+                              {ic.name.split('/')[0].trim()}
+                            </span>
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
 
