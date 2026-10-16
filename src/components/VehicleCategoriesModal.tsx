@@ -168,22 +168,22 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
     <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"}>
       <div 
         id="vehicle-categories-modal"
-        className={embedded ? "relative w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col" : "relative w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"}
+        className={embedded ? "relative w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col" : "relative w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80">
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
               <Car className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 Configuración de Categorías de Vehículos y Tarifas
-                <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                   WolfZone POS
                 </span>
               </h2>
-              <p className="text-xs text-slate-700 dark:text-slate-200">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 Personaliza los tipos de vehículos que ingresan al parqueadero, sus tarifas por minuto/hora/día y tiempos de gracia.
               </p>
             </div>
@@ -191,7 +191,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
           <button 
             type="button"
             onClick={onClose}
-            className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -201,28 +201,28 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {/* Create or Edit Form */}
           {isCreating ? (
-            <form onSubmit={handleSubmit} className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <form onSubmit={handleSubmit} className="bg-slate-50 dark:bg-slate-950/70 p-5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Settings2 className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Settings2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   {editingCategory ? `Editar Categoría: ${editingCategory.name}` : 'Crear Nueva Categoría de Vehículo'}
                 </h3>
-                <span className="text-xs text-slate-700 dark:text-slate-200">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
                   {editingCategory?.isPreset ? 'Categoría Base del Sistema' : 'Categoría Personalizada'}
                 </span>
               </div>
 
               {errorMessage && (
-                <div className="p-3 rounded-lg bg-red-950/60 border border-red-800/80 text-red-200 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-700 dark:text-red-400 shrink-0" />
+                <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                   {errorMessage}
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                    Nombre de la Categoría <span className="text-amber-700 dark:text-amber-400">*</span>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Nombre de la Categoría <span className="text-amber-600 dark:text-amber-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -230,12 +230,12 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     placeholder="Ej. Camioneta 4x4, Patineta Eléctrica, Buseta..."
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Ícono Representativo
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -247,10 +247,10 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                           key={ic.id}
                           type="button"
                           onClick={() => setFormIcon(ic.id)}
-                          className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-semibold border transition-colors ${
+                          className={`flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
                             isSelected
-                              ? 'bg-amber-500/20 border-amber-500 text-amber-900 shadow-xs'
-                              : 'bg-white border-slate-200 text-slate-700 hover:text-slate-950 hover:bg-slate-50'
+                              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 text-amber-800 dark:text-amber-300 shadow-xs'
+                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
                         >
                           <IconComp className="w-4 h-4" />
@@ -262,7 +262,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Tarifa por Hora ($ COP)
                   </label>
                   <input
@@ -275,12 +275,12 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                       setFormHourlyRate(val);
                       setFormMinuteRate(Math.round(val / 60));
                     }}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors font-mono"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Tarifa por Fracción / Minuto ($ COP)
                   </label>
                   <input
@@ -289,12 +289,12 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     step="5"
                     value={formMinuteRate}
                     onChange={(e) => setFormMinuteRate(Number(e.target.value))}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors font-mono"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Tarifa por Día Completo ($ COP)
                   </label>
                   <input
@@ -303,12 +303,12 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     step="500"
                     value={formDailyRate}
                     onChange={(e) => setFormDailyRate(Number(e.target.value))}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors font-mono"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Tiempo de Gracia Gratuito (Minutos)
                   </label>
                   <input
@@ -317,12 +317,12 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     max="60"
                     value={formGracePeriodMinutes}
                     onChange={(e) => setFormGracePeriodMinutes(Number(e.target.value))}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors font-mono"
                   />
                 </div>
 
                 <div className="col-span-1 md:col-span-2 space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Descripción / Observaciones
                   </label>
                   <input
@@ -330,7 +330,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     placeholder="Ej. Aplica para vehículos con altura mayor a 2.10m..."
                     value={formDescription}
                     onChange={(e) => setFormDescription(e.target.value)}
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors"
                   />
                 </div>
 
@@ -342,9 +342,9 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                       onChange={(e) => setFormIsActive(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                    <div className="w-10 h-5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
                   </label>
-                  <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                     {formIsActive ? 'Categoría Activa (Visible en Registro de Entrada)' : 'Categoría Oculta'}
                   </span>
                 </div>
@@ -354,13 +354,13 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                 <button
                   type="button"
                   onClick={handleCancelForm}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 flex items-center gap-1.5 transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Check className="w-4 h-4" />
                   Guardar Categoría
@@ -371,7 +371,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
 
           {/* Action Toolbar */}
           <div className="flex items-center justify-between gap-3">
-            <div className="text-xs text-slate-700 dark:text-slate-200">
+            <div className="text-xs text-slate-600 dark:text-slate-400 font-medium">
               Categorías de vehículos configuradas para selección en el panel de entrada POS:
             </div>
 
@@ -379,7 +379,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
               <button
                 type="button"
                 onClick={handleOpenCreate}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition-colors shadow-lg shadow-amber-500/10"
+                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 Nueva Categoría de Vehículo
@@ -394,63 +394,63 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                 key={cat.id}
                 className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                   cat.isActive 
-                    ? 'bg-[var(--bg-subcard)] border-[var(--border-color)] hover:border-slate-400' 
-                    : 'bg-[var(--bg-subcard)] border-[var(--border-color)] opacity-60'
+                    ? 'bg-white dark:bg-slate-900/90 border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/50 shadow-xs' 
+                    : 'bg-slate-50/70 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800/60 opacity-65'
                 }`}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400">
                         {renderIcon(cat.icon)}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-bold text-[var(--text-main)]">{cat.name}</h4>
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{cat.name}</h4>
                           {cat.isPreset && (
-                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[var(--bg-card)] text-[var(--text-muted)] border border-[var(--border-color)]">
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-semibold">
                               Base
                             </span>
                           )}
                         </div>
                         {cat.description && (
-                          <p className="text-xs text-[var(--text-muted)] mt-0.5">{cat.description}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{cat.description}</p>
                         )}
                       </div>
                     </div>
 
                     <div className="text-right font-mono">
-                      <div className="text-sm font-bold text-amber-500">
+                      <div className="text-sm font-bold text-amber-600 dark:text-amber-400">
                         ${(cat.defaultHourlyRate ?? cat.rate?.hourRate ?? 0).toLocaleString()}/h
                       </div>
-                      <div className="text-[11px] text-[var(--text-muted)]">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
                         ${(cat.defaultMinuteRate ?? cat.rate?.minuteRate ?? Math.round((cat.defaultHourlyRate ?? cat.rate?.hourRate ?? 0) / 60)).toLocaleString()}/min
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-3.5 pt-3 border-t border-[var(--border-color)] grid grid-cols-2 gap-2 text-xs">
-                    <div className="bg-[var(--bg-card)] p-2 rounded-lg border border-[var(--border-color)]">
-                      <span className="text-[var(--text-muted)] text-[11px] block">Día completo:</span>
-                      <span className="text-[var(--text-main)] font-mono font-bold">
+                  <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-slate-50 dark:bg-slate-800/70 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80">
+                      <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Día completo:</span>
+                      <span className="text-slate-900 dark:text-slate-100 font-mono font-bold">
                         ${(cat.defaultDailyRate ?? cat.rate?.dayRate ?? 0).toLocaleString()}
                       </span>
                     </div>
-                    <div className="bg-[var(--bg-card)] p-2 rounded-lg border border-[var(--border-color)]">
-                      <span className="text-[var(--text-muted)] text-[11px] block">Gracia gratuita:</span>
-                      <span className="text-emerald-500 font-mono font-bold">{cat.gracePeriodMinutes ?? cat.rate?.gracePeriodMinutes ?? 15} min</span>
+                    <div className="bg-slate-50 dark:bg-slate-800/70 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80">
+                      <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Gracia gratuita:</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{cat.gracePeriodMinutes ?? cat.rate?.gracePeriodMinutes ?? 15} min</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[var(--border-color)] flex items-center justify-between">
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => onSaveCategory({ ...cat, isActive: !cat.isActive })}
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors ${
+                    className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                       cat.isActive
-                        ? 'text-emerald-600 dark:text-emerald-300 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20'
-                        : 'text-[var(--text-muted)] border-[var(--border-color)] bg-[var(--bg-card)] hover:text-[var(--text-main)]'
+                        ? 'text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50'
+                        : 'text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200'
                     }`}
                   >
                     {cat.isActive ? '✓ Activo en Entrada' : 'Desactivado'}
@@ -460,7 +460,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleOpenEdit(cat)}
-                      className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-subcard)] border border-[var(--border-color)] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                       title="Editar categoría"
                     >
                       <Edit className="w-3.5 h-3.5" />
@@ -470,7 +470,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                       <button
                         type="button"
                         onClick={() => onDeleteCategory(cat.id)}
-                        className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 bg-[var(--bg-card)] hover:bg-red-500/10 border border-[var(--border-color)] transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 bg-slate-50 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                         title="Eliminar categoría"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -484,15 +484,15 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex items-center justify-between">
-          <div className="text-xs text-slate-700 dark:text-slate-200">
-            Total Categorías: <strong className="text-slate-700 dark:text-slate-200">{categories.length}</strong> | Activas:{' '}
-            <strong className="text-emerald-700 dark:text-emerald-400">{categories.filter(c => c.isActive).length}</strong>
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
+          <div className="text-xs text-slate-600 dark:text-slate-400">
+            Total Categorías: <strong className="text-slate-900 dark:text-slate-200">{categories.length}</strong> | Activas:{' '}
+            <strong className="text-emerald-600 dark:text-emerald-400">{categories.filter(c => c.isActive).length}</strong>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
           >
             Cerrar
           </button>
