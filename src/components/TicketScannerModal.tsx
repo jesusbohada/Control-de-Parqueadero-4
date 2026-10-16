@@ -516,7 +516,7 @@ export const TicketScannerModal: React.FC<TicketScannerModalProps> = ({
               className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 viewMode === 'config'
                   ? 'bg-indigo-600 text-white border-indigo-500 shadow-xs'
-                  : 'bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border-slate-700'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border-slate-700'
               }`}
               title="Configuración de lector de códigos de barras USB"
             >

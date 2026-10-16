@@ -2306,7 +2306,7 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                   <button
                     type="button"
                     onClick={handleExportSyncLogsToCSV}
-                    className="px-3 py-1.5 rounded-xl bg-slate-850 hover:bg-slate-700 hover:text-white border border-slate-300 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                     title="Exportar todos los registros de sincronización a CSV"
                   >
                     <Download className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />

@@ -329,7 +329,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
 
         {/* Modal Navigation Bar */}
         <div className="bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 px-5 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-1.5 bg-slate-200/70 dark:bg-slate-850 border border-slate-200 dark:border-slate-750 p-1 rounded-xl">
+          <div className="flex items-center gap-1.5 bg-slate-200/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1 rounded-xl">
             <button
               type="button"
               aria-selected={activeTab === 'list'}
@@ -454,7 +454,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
 
               {/* Bulk Actions Floating Bar when selection exists */}
               {selectedSpotIds.length > 0 && (
-                <div className="bg-slate-900 dark:bg-slate-850 text-white p-3 rounded-2xl shadow-lg border border-slate-800 dark:border-slate-750 flex flex-wrap items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+                <div className="bg-slate-900 dark:bg-slate-900 text-white p-3 rounded-2xl shadow-lg border border-slate-800 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center gap-2 text-xs font-bold">
                     <span className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-black">
                       {selectedSpotIds.length}

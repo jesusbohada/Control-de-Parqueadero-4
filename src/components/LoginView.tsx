@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SystemUser, BranchLocation } from '../types';
-import { ParticleBackground } from './ParticleBackground';
 
 interface LoginViewProps {
   users: SystemUser[];
@@ -107,107 +106,55 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 animated-background overflow-y-auto selection:bg-amber-500 selection:text-slate-950 dark text-slate-100">
-      {/* Background animado interactivo (Constelación de partículas de alta fidelidad) */}
-      <ParticleBackground />
+    <div className="fixed inset-0 bg-slate-950 overflow-y-auto selection:bg-amber-500 selection:text-slate-950 text-slate-100 flex flex-col justify-center items-center p-4">
+      {/* Subtle modern ambient background gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
 
-      {/* Contenedor adicional de estrellas y partículas lentas para dar profundidad */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        {[
-          { top: '12%', left: '15%', size: '3px', delay: '0s', duration: '6s' },
-          { top: '22%', left: '80%', size: '2px', delay: '1.2s', duration: '7s' },
-          { top: '35%', left: '8%', size: '3px', delay: '2.5s', duration: '5.5s' },
-          { top: '18%', left: '45%', size: '2px', delay: '0.8s', duration: '8s' },
-          { top: '65%', left: '12%', size: '2.5px', delay: '3.1s', duration: '6.5s' },
-          { top: '78%', left: '25%', size: '2px', delay: '1.7s', duration: '7.5s' },
-          { top: '48%', left: '88%', size: '3px', delay: '2.0s', duration: '5.8s' },
-          { top: '82%', left: '75%', size: '2.5px', delay: '0.4s', duration: '6.2s' },
-          { top: '90%', left: '42%', size: '2px', delay: '3.5s', duration: '8.5s' },
-          { top: '28%', left: '92%', size: '2px', delay: '2.8s', duration: '7.2s' },
-          { top: '8%', left: '62%', size: '2.5px', delay: '1.5s', duration: '6.8s' },
-          { top: '58%', left: '78%', size: '2px', delay: '4.0s', duration: '7.0s' },
-        ].map((star, idx) => (
-          <span
-            key={`star-${idx}`}
-            className="slow-star"
-            style={{
-              top: star.top,
-              left: star.left,
-              width: star.size,
-              height: star.size,
-              animationDelay: star.delay,
-              animationDuration: `${star.duration}, 14s`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Elementos de orbes luminosos ambientales con opacidad aumentada */}
-      <div 
-        className="absolute w-64 h-64 rounded-full bg-blue-500/30 blur-3xl animated-orb-1 top-1/4 left-1/4 pointer-events-none" 
-      />
-      <div 
-        className="absolute w-64 h-64 rounded-full bg-amber-500/30 blur-3xl animated-orb-2 bottom-1/4 right-1/4 pointer-events-none" 
-      />
-
-      {/* Capas ambientales de profundidad complementarias */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none -z-0" />
-
-      {/* Contenedor Principal (z-10) optimizado para superposición y visibilidad del fondo */}
-      <div className="min-h-full w-full flex flex-col justify-center items-center p-4 relative z-10">
-        <div className="w-full max-w-md relative z-10 flex flex-col items-center my-auto">
-          
-          {/* Brand Header */}
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            className="text-center mb-6 flex flex-col items-center justify-center w-full relative z-20"
-          >
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 3 }}
-              className="relative mb-4 cursor-pointer"
-            >
-              <img
-                src="/assets/wolf_logo_login_1790375008175.jpg"
-                alt="Parking POS Branding"
-                className="h-20 w-auto object-contain filter drop-shadow-[0_0_20px_rgba(245,158,11,0.25)]"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'inline-flex';
-                }}
-              />
-              <div className="hidden items-center justify-center w-20 h-20 rounded-2xl bg-slate-900 border border-slate-700 text-amber-500 shadow-xl mb-2">
-                <span className="text-xl font-black font-mono">POS</span>
-              </div>
-
-              {/* Micro-sparkle effect on brand icon */}
-              <motion.div 
-                animate={{ opacity: [0.2, 1, 0.2] }}
-                transition={{ repeat: Infinity, duration: 2.5 }}
-                className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full blur-xs"
-              />
-            </motion.div>
-
-            <h1 className="text-2xl font-black tracking-tight text-white uppercase font-mono drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
-              {businessName}
-            </h1>
-
-            <div className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-700 text-xs font-mono text-slate-200 backdrop-blur-md shadow-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="font-semibold">{currentBranch ? currentBranch.name : 'Estación Terminal Enlazada'}</span>
+      {/* Contenedor Principal */}
+      <div className="w-full max-w-md relative z-10 flex flex-col items-center my-auto">
+        
+        {/* Brand Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="text-center mb-6 flex flex-col items-center justify-center w-full relative z-20"
+        >
+          <div className="relative mb-3.5">
+            <img
+              src="/assets/wolf_logo_login_1790375008175.jpg"
+              alt="Parking POS Branding"
+              className="h-16 w-auto object-contain drop-shadow-md rounded-xl"
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'inline-flex';
+              }}
+            />
+            <div className="hidden items-center justify-center w-16 h-16 rounded-xl bg-slate-900 border border-slate-700 text-amber-500 shadow-lg">
+              <span className="text-lg font-black font-mono">POS</span>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Login Card Panel */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.97, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-            className="bg-slate-900/95 border border-slate-700/80 rounded-2xl w-full p-6 sm:p-8 shadow-2xl backdrop-blur-md relative z-10 overflow-hidden"
-          >
+          <h1 className="text-xl font-bold tracking-tight text-white uppercase font-mono">
+            {businessName}
+          </h1>
+
+          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span className="font-semibold">{currentBranch ? currentBranch.name : 'Terminal POS Local'}</span>
+          </div>
+        </motion.div>
+
+        {/* Login Card Panel */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98, y: 12 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+          className="bg-slate-900 border border-slate-800 rounded-2xl w-full p-6 sm:p-7 shadow-2xl relative z-10 overflow-hidden"
+        >
             {/* Top glowing edge line */}
             <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
 
@@ -309,7 +256,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span>Validando Firma Criptográfica...</span>
+                    <span>Iniciando sesión...</span>
                   </>
                 ) : (
                   <>
@@ -324,7 +271,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <div className="mt-6 pt-4 border-t border-slate-800 text-center">
               <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
                 <ShieldCheck className="w-4 h-4 text-amber-500" />
-                <span>Acceso protegido. Ingrese con sus credenciales asignadas.</span>
+                <span>Ingresa tus credenciales para continuar.</span>
               </div>
             </div>
           </motion.div>
@@ -361,6 +308,5 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };

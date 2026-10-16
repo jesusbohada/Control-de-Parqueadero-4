@@ -298,7 +298,7 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
                         </span>
                       </div>
 
-                      <div className="text-[11px] text-center text-emerald-850 dark:text-emerald-300 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="text-[11px] text-center text-emerald-700 dark:text-emerald-300 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                         Asignar plaza
                       </div>
                     </div>

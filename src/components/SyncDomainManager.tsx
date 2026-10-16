@@ -453,7 +453,7 @@ export const SyncDomainManager: React.FC<SyncDomainManagerProps> = ({
           <button
             type="button"
             onClick={handleResetToDefaults}
-            className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer text-xs"
+            className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer text-xs"
           >
             Restaurar Catálogo Base
           </button>

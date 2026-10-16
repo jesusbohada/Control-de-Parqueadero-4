@@ -1040,7 +1040,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
           {/* Card Header */}
           <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold">
                 <ArrowDownRight className="w-5 h-5" />
               </div>
               <div>
@@ -1518,7 +1518,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         ? 'bg-sky-500 hover:bg-sky-400 text-slate-950 hover:shadow-lg hover:shadow-sky-500/20'
                         : duplicateActiveTicket
                         ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-600/30'
+                        : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-600/30'
                     }`}
                     title={
                       duplicateActiveTicket
@@ -1726,11 +1726,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* ======================================================= */}
                 {/* SALIDA SIN TICKET / TARJETA DE PROPIEDAD                */}
                 {/* ======================================================= */}
-                <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2.5 text-xs">
+                <div className="p-3 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 rounded-xl space-y-2.5 text-xs">
                   <label className="flex items-center justify-between cursor-pointer select-none">
-                    <span className="font-bold text-amber-950 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-amber-700" />
-                      <span>¿El cliente NO presenta el ticket de ingreso impreso?</span>
+                    <span className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                      <span>Salida sin ticket físico</span>
                     </span>
                     <input
                       type="checkbox"
@@ -1741,15 +1741,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   </label>
 
                   {isNoTicketPresented && (
-                    <div className="pt-2 border-t border-amber-200/80 space-y-3 animate-in fade-in">
-                      <div className="p-2.5 bg-amber-100/80 rounded-lg border border-amber-300 text-[11px] text-amber-950 leading-relaxed">
-                        <strong className="block font-bold text-amber-900 mb-0.5">⚠️ Regla de Seguridad Obligatoria:</strong>
-                        Si el cliente no muestra el ticket físico, debe presentar obligatoriamente la <strong>Tarjeta de Propiedad del vehículo</strong> y su documento de identidad para validar la titularidad antes de autorizar la salida.
+                    <div className="pt-2 border-t border-amber-200/80 dark:border-amber-500/20 space-y-3 animate-in fade-in">
+                      <div className="p-2.5 bg-amber-100/80 dark:bg-amber-950/40 rounded-lg border border-amber-300 dark:border-amber-500/30 text-[11px] text-amber-950 dark:text-amber-200 leading-relaxed">
+                        <strong className="block font-bold text-amber-900 dark:text-amber-300 mb-0.5">⚠️ Validación de titularidad:</strong>
+                        Se requiere validar tarjeta de propiedad e identificación del conductor antes de autorizar la salida.
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 uppercase mb-1">
+                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
                             N° Tarjeta de Propiedad *
                           </label>
                           <input
@@ -1757,13 +1757,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 100293847"
                             value={propertyCardNumber}
                             onChange={(e) => setPropertyCardNumber(e.target.value.toUpperCase())}
-                            className="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500"
+                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 uppercase mb-1">
+                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
                             Nombre del Titular / Conductor *
                           </label>
                           <input
@@ -1771,13 +1771,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: Carlos Ramírez"
                             value={ownerFullName}
                             onChange={(e) => setOwnerFullName(e.target.value)}
-                            className="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500"
+                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-medium text-slate-900 dark:text-slate-100 outline-none"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 uppercase mb-1">
+                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
                             Cédula / Documento Conductor *
                           </label>
                           <input
@@ -1785,15 +1785,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 10293848"
                             value={ownerDocNumber}
                             onChange={(e) => setOwnerDocNumber(e.target.value)}
-                            className="w-full bg-white border border-amber-300 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500"
+                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
                             required
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-amber-200">
+                      <div className="flex items-center justify-between bg-white dark:bg-slate-900/80 p-2 rounded-lg border border-amber-200 dark:border-slate-800">
                         <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">
-                          Cobrar recargo por ticket extraviado ({formatCurrency(lostTicketFeeAmount, rates.currencySymbol)})
+                          Cobrar recargo por pérdida ({formatCurrency(lostTicketFeeAmount, rates.currencySymbol)})
                         </span>
                         <input
                           type="checkbox"
@@ -1807,7 +1807,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 </div>
 
                 {/* Rates & Discount summary */}
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 text-xs">
                   <div className="flex justify-between text-slate-600 dark:text-slate-300">
                     <span>Subtotal por tiempo ({liveCalculation.billableMinutes} min facturables):</span>
                     <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
@@ -3128,7 +3128,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 </div>
 
                 {exitError && (
-                  <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
                     <span>{exitError}</span>
                   </div>
@@ -3137,8 +3137,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* Submit Action */}
                 <div className="pt-2">
                   {currentUser && !currentUser.permissions.canRegisterExit ? (
-                    <div className="w-full p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                    <div className="w-full p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
                       <span>Tu usuario no tiene permiso para liquidar salidas.</span>
                     </div>
                   ) : (

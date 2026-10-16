@@ -3113,7 +3113,7 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
                       <span className="text-slate-700 dark:text-slate-200">Carga del CPU</span>
                       <span className="font-bold text-slate-900 dark:text-white">{cpuLoad}%</span>
                     </div>
-                    <div className="w-full bg-slate-850 rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                       <div 
                         className={`h-full rounded-full transition-all duration-300 ${cpuLoad > 75 ? 'bg-rose-500' : cpuLoad > 50 ? 'bg-amber-500' : 'bg-emerald-500'}`} 
                         style={{ width: `${cpuLoad}%` }}
@@ -3127,7 +3127,7 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
                       <span className="text-slate-700 dark:text-slate-200">Memoria RAM</span>
                       <span className="font-bold text-slate-900 dark:text-white">{ramLoad} GB / 8 GB</span>
                     </div>
-                    <div className="w-full bg-slate-850 rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                       <div 
                         className="h-full bg-emerald-500 rounded-full transition-all duration-300" 
                         style={{ width: `${(ramLoad / 8) * 100}%` }}
@@ -3160,13 +3160,13 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
                 <div className="flex-1 p-3 overflow-y-auto space-y-2.5 text-[11px]">
                   {chatMessages.map((msg, idx) => (
                     <div 
-                      key={idx} 
+                       key={idx} 
                       className={`flex flex-col max-w-[85%] ${msg.sender === 'admin' ? 'ml-auto items-end' : 'mr-auto items-start'}`}
                     >
                       <div className={`px-2.5 py-1.5 rounded-xl ${
                         msg.sender === 'admin' 
                           ? 'bg-blue-600 text-white rounded-br-none' 
-                          : 'bg-slate-850 text-slate-700 dark:text-slate-200 rounded-bl-none border border-slate-800'
+                          : 'bg-slate-800 text-slate-100 rounded-bl-none border border-slate-700'
                       }`}>
                         <p className="leading-relaxed">{msg.text}</p>
                       </div>
