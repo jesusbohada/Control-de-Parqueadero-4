@@ -1466,7 +1466,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Imprimir</span>
@@ -1475,14 +1475,14 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
         </div>
 
         {/* Navigation Tabs Header */}
-        <div className="flex items-center gap-2 mt-5 pt-3 border-t border-[var(--border-color)] overflow-x-auto pb-1">
+        <div className="flex items-center gap-2 mt-5 pt-3 border-t border-slate-200 dark:border-slate-800 overflow-x-auto pb-1">
           <button
             onClick={() => setActiveTab('overview')}
             aria-selected={activeTab === 'overview'}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'overview'
-                ? 'active-tab-indicator bg-[var(--bg-card)] text-[var(--text-main)] shadow-xs'
-                : 'inactive-tab-indicator text-[var(--text-muted)] hover:bg-[var(--bg-subcard)] hover:text-[var(--text-main)]'
+                ? 'bg-amber-500/10 dark:bg-amber-400/10 text-amber-950 dark:text-amber-300 border border-amber-600 dark:border-amber-500 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
             }`}
           >
             <BarChart3 className="w-4 h-4 text-amber-500" />
@@ -1494,8 +1494,8 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             aria-selected={activeTab === 'executive_summary'}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'executive_summary'
-                ? 'active-tab-indicator bg-[var(--bg-card)] text-[var(--text-main)] shadow-xs border border-amber-500/40'
-                : 'inactive-tab-indicator text-[var(--text-muted)] hover:bg-[var(--bg-subcard)] hover:text-[var(--text-main)]'
+                ? 'bg-amber-500/10 dark:bg-amber-400/10 text-amber-950 dark:text-amber-300 border border-amber-600 dark:border-amber-500 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
             }`}
           >
             <TrendingUp className="w-4 h-4 text-amber-500" />
@@ -1510,8 +1510,8 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             aria-selected={activeTab === 'accounting'}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'accounting'
-                ? 'active-tab-indicator bg-[var(--bg-card)] text-[var(--text-main)] shadow-xs'
-                : 'inactive-tab-indicator text-[var(--text-muted)] hover:bg-[var(--bg-subcard)] hover:text-[var(--text-main)]'
+                ? 'bg-emerald-500/10 dark:bg-emerald-400/10 text-emerald-950 dark:text-emerald-300 border border-emerald-600 dark:border-emerald-500 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
             }`}
           >
             <BookOpen className="w-4 h-4 text-emerald-500" />
@@ -1523,8 +1523,8 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             aria-selected={activeTab === 'analytics'}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'analytics'
-                ? 'active-tab-indicator bg-[var(--bg-card)] text-[var(--text-main)] shadow-xs'
-                : 'inactive-tab-indicator text-[var(--text-muted)] hover:bg-[var(--bg-subcard)] hover:text-[var(--text-main)]'
+                ? 'bg-sky-500/10 dark:bg-sky-400/10 text-sky-950 dark:text-sky-300 border border-sky-600 dark:border-sky-500 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
             }`}
           >
             <PieChart className="w-4 h-4 text-sky-500" />
@@ -1536,11 +1536,11 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             aria-selected={activeTab === 'ai_forecast'}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer relative ${
               activeTab === 'ai_forecast'
-                ? 'active-tab-indicator bg-indigo-600 text-white shadow-xs'
-                : 'inactive-tab-indicator text-[var(--text-muted)] hover:bg-[var(--bg-subcard)] hover:text-[var(--text-main)] border border-indigo-200/60'
+                ? 'bg-indigo-600 text-white shadow-xs border border-indigo-500'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-indigo-200 dark:border-indigo-900/60'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-300 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-300 animate-pulse" />
             <span>Inteligencia Artificial Gemini (Pronósticos)</span>
             <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-amber-400 text-slate-950 rounded-full">
               IA
@@ -1552,8 +1552,8 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             aria-selected={activeTab === 'history'}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'history'
-                ? 'active-tab-indicator bg-[var(--bg-card)] text-[var(--text-main)] shadow-xs'
-                : 'inactive-tab-indicator text-[var(--text-muted)] hover:bg-[var(--bg-subcard)] hover:text-[var(--text-main)]'
+                ? 'bg-slate-200 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border border-slate-300 dark:border-slate-700 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
             }`}
           >
             <History className="w-4 h-4" />
@@ -1684,34 +1684,34 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               <button
                 onClick={handleExportChartsPDF}
                 disabled={isExportingChartsPdf}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 transition-colors shadow-xs self-start sm:self-auto cursor-pointer disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-950/70 border border-amber-300 dark:border-amber-800/80 transition-colors shadow-xs self-start sm:self-auto cursor-pointer disabled:opacity-50"
                 title="Exportar estos gráficos generados por Recharts a PDF utilizando jsPDF y html2canvas"
               >
                 {isExportingChartsPdf ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600 dark:text-amber-400" />
                 ) : (
-                  <Printer className="w-3.5 h-3.5 text-amber-600" />
+                  <Printer className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 )}
                 <span>{isExportingChartsPdf ? 'Generando PDF...' : 'Exportar Gráficos a PDF'}</span>
               </button>
             </div>
 
-            <div ref={chartsContainerRef} className="p-5 bg-white rounded-2xl border border-slate-200 shadow-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div ref={chartsContainerRef} className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 font-mono">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
                     Sucursal Actual: {effectiveBranchName}
                   </span>
-                  <div className="text-[11px] text-slate-600 dark:text-slate-300 font-mono">
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400 font-mono">
                     NIT: {businessInfo.nit || 'Sin NIT'}
                   </div>
                   <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-0.5">Rendimiento Operativo y Flota</h4>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300 block">
+                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 block">
                     Fecha de Emisión: {businessInfo.fechaEmision || businessInfo.emissionDate || new Date().toLocaleDateString('es-CO')}
                   </span>
-                  <span className="text-[10px] font-mono text-emerald-700 font-bold">
+                  <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">
                     Período: {periodLabel}
                   </span>
                 </div>
@@ -1721,7 +1721,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200">Ingresos Diarios (Última Semana)</h4>
-                    <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">COP ($)</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">COP ($)</span>
                   </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1739,7 +1739,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200">Distribución por Tipo de Vehículo</h4>
-                    <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">Unidades</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">Unidades</span>
                   </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1761,11 +1761,11 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Graphics Section: Revenue by Vehicle Type & Payment Methods & Peak Hours */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Revenue Breakdown by Vehicle Type */}
-            <div className="lg:col-span-4 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+            <div className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
               <div>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center justify-between">
                   <span>Ingresos por Tipo de Vehículo</span>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 font-normal">Participación</span>
+                  <span className="text-xs text-slate-600 dark:text-slate-400 font-normal">Participación</span>
                 </h3>
 
                 <div className="mt-4 space-y-3.5">
@@ -1775,17 +1775,17 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <div key={key} className="space-y-1.5">
                         <div className="flex justify-between text-xs">
                           <span className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
-                            {key === 'car' && <Car className="w-3.5 h-3.5 text-blue-600" />}
-                            {key === 'motorcycle' && <Bike className="w-3.5 h-3.5 text-emerald-600" />}
-                            {key === 'suv' && <Truck className="w-3.5 h-3.5 text-amber-600" />}
-                            {key === 'bicycle' && <Bike className="w-3.5 h-3.5 text-purple-600" />}
+                            {key === 'car' && <Car className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+                            {key === 'motorcycle' && <Bike className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                            {key === 'suv' && <Truck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
+                            {key === 'bicycle' && <Bike className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />}
                             {stat.name} ({stat.count})
                           </span>
                           <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                             {formatCurrency(stat.revenue, rates.currencySymbol)} ({percentage}%)
                           </span>
                         </div>
-                        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
                               key === 'car' ? 'bg-blue-500' :
@@ -1802,70 +1802,70 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </div>
 
               {/* Payment Methods Breakdown */}
-              <div className="mt-6 pt-4 border-t border-slate-100">
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
                   Recaudo por Medio de Pago
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <Banknote className="w-4 h-4 text-emerald-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Efectivo ({paymentStats.cash.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <Banknote className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Efectivo ({paymentStats.cash.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.cash.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <CreditCard className="w-4 h-4 text-sky-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Tarjetas ({paymentStats.card.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Tarjetas ({paymentStats.card.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.card.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <Smartphone className="w-4 h-4 text-pink-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Nequi ({paymentStats.nequi.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <Smartphone className="w-4 h-4 text-pink-600 dark:text-pink-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Nequi ({paymentStats.nequi.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.nequi.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <Smartphone className="w-4 h-4 text-red-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Daviplata ({paymentStats.daviplata.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <Smartphone className="w-4 h-4 text-red-600 dark:text-red-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Daviplata ({paymentStats.daviplata.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.daviplata.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <QrCode className="w-4 h-4 text-amber-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">QR Bancolombia ({paymentStats.qr_bancolombia.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">QR Bancolombia ({paymentStats.qr_bancolombia.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.qr_bancolombia.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <QrCode className="w-4 h-4 text-purple-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Transferencia / PSE ({paymentStats.transfer.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <QrCode className="w-4 h-4 text-purple-600 dark:text-purple-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Transferencia / PSE ({paymentStats.transfer.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.transfer.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <Layers className="w-4 h-4 text-teal-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Bre-B ({paymentStats.bre_b.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <Layers className="w-4 h-4 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Bre-B ({paymentStats.bre_b.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.bre_b.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200">
-                    <Building2 className="w-4 h-4 text-indigo-600 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300">Convenios ({paymentStats.agreement.count})</div>
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <Building2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 mx-auto mb-1" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Convenios ({paymentStats.agreement.count})</div>
                     <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.agreement.amount, rates.currencySymbol)}
                     </div>
@@ -1874,19 +1874,19 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </div>
 
               {/* Foreign vs National Plates Breakdown */}
-              <div className="mt-6 pt-4 border-t border-slate-100">
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-2.5">
                   <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-sky-500" />
                     <span>Procedencia de Placas</span>
                   </h4>
-                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
                     {plateOriginStats.foreignCount} extranjeras / {filteredPaidTickets.length} total
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300 mb-1">
                       <span className="font-semibold flex items-center gap-1">🇨🇴 Nacionales</span>
                       <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{plateOriginStats.nationalCount}</span>
@@ -1894,35 +1894,35 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     <div className="font-bold font-mono text-sm text-slate-900 dark:text-slate-100">
                       {formatCurrency(plateOriginStats.nationalRevenue, rates.currencySymbol)}
                     </div>
-                    <div className="text-[10px] text-slate-700 dark:text-slate-200 mt-0.5">
+                    <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">
                       {filteredPaidTickets.length > 0 ? Math.round((plateOriginStats.nationalCount / filteredPaidTickets.length) * 100) : 0}% de los ingresos
                     </div>
                   </div>
 
-                  <div className="p-2.5 bg-sky-50/60 rounded-xl border border-sky-200">
-                    <div className="flex items-center justify-between text-[11px] text-sky-800 mb-1">
+                  <div className="p-2.5 bg-sky-50/60 dark:bg-sky-950/40 rounded-xl border border-sky-200 dark:border-sky-800/60">
+                    <div className="flex items-center justify-between text-[11px] text-sky-800 dark:text-sky-300 mb-1">
                       <span className="font-semibold flex items-center gap-1">🌐 Extranjeras</span>
-                      <span className="font-mono font-bold text-sky-900">{plateOriginStats.foreignCount}</span>
+                      <span className="font-mono font-bold text-sky-900 dark:text-sky-200">{plateOriginStats.foreignCount}</span>
                     </div>
-                    <div className="font-bold font-mono text-sm text-sky-950">
+                    <div className="font-bold font-mono text-sm text-sky-950 dark:text-sky-100">
                       {formatCurrency(plateOriginStats.foreignRevenue, rates.currencySymbol)}
                     </div>
-                    <div className="text-[10px] text-sky-600 mt-0.5">
+                    <div className="text-[10px] text-sky-600 dark:text-sky-400 mt-0.5">
                       {filteredPaidTickets.length > 0 ? Math.round((plateOriginStats.foreignCount / filteredPaidTickets.length) * 100) : 0}% de los ingresos
                     </div>
                   </div>
                 </div>
 
                 {plateOriginStats.foreignCount > 0 && Object.keys(plateOriginStats.countriesMap).length > 0 && (
-                  <div className="mt-2.5 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1">
+                  <div className="mt-2.5 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
                       Países de Origen Registrados:
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {Object.entries(plateOriginStats.countriesMap).map(([country, cData]) => (
-                        <span key={country} className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white border border-slate-300 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded-full">
+                        <span key={country} className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded-full">
                           <span>{country}</span>
-                          <span className="font-bold text-sky-700 font-mono">({cData.count})</span>
+                          <span className="font-bold text-sky-700 dark:text-sky-400 font-mono">({cData.count})</span>
                         </span>
                       ))}
                     </div>
@@ -1932,12 +1932,12 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Right: Peak Hours Histogram */}
-            <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between">
+            <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                   <div>
                     <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Análisis de Horas Pico & Flujo de Vehículos</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300">Entradas y salidas registradas en el período</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Entradas y salidas registradas en el período</p>
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
@@ -1945,7 +1945,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <span>Entradas</span>
                     </span>
                     <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                      <span className="w-2.5 h-2.5 rounded-sm bg-slate-800"></span>
+                      <span className="w-2.5 h-2.5 rounded-sm bg-slate-700 dark:bg-slate-400"></span>
                       <span>Salidas</span>
                     </span>
                   </div>
@@ -1960,17 +1960,17 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
                     return (
                       <div key={item.hour} className="flex-1 flex flex-col items-center gap-1.5 group relative h-full justify-end">
-                        <div className="absolute -top-12 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-[10px] p-1.5 rounded shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap font-mono">
+                        <div className="absolute -top-12 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-[10px] p-1.5 rounded shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap font-mono border border-slate-200 dark:border-slate-700">
                           <div>Hora: {item.hour}</div>
                           <div>Entradas: {item.entries} | Salidas: {item.exits}</div>
                         </div>
 
                         <div
-                          className="w-full max-w-[28px] rounded-t-md overflow-hidden flex flex-col justify-end bg-slate-100 transition-all"
+                          className="w-full max-w-[28px] rounded-t-md overflow-hidden flex flex-col justify-end bg-slate-100 dark:bg-slate-800 transition-all"
                           style={{ height: `${Math.max(8, totalHeight)}%` }}
                         >
                           <div
-                            className="w-full bg-slate-800"
+                            className="w-full bg-slate-700 dark:bg-slate-400"
                             style={{ height: `${exitHeight}%` }}
                           ></div>
                           <div
@@ -1988,7 +1988,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
+              <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
                 <span>💡 Diagnóstico de Afluencia: Horas pico habituales <strong>08:00 - 10:00</strong> y <strong>16:00 - 18:30</strong></span>
                 <span className="font-mono text-[11px] text-slate-700 dark:text-slate-200">Total movimientos: {filteredPaidTickets.length + activeTickets.length}</span>
               </div>
@@ -2029,13 +2029,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {activeTab === 'accounting' && (
         <div className="space-y-6">
           {/* Top Actions & Summary Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-emerald-600" />
+                <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <span>Libro Diario Contable & Integraciones Fiscales (PUC)</span>
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 Plan Único de Cuentas estándar para exportación a Siigo, World Office, Helisa, Alegra o DIAN.
               </p>
             </div>
@@ -2045,13 +2045,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 onClick={handleCopyPucText}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
               >
-                {copiedPuc ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedPuc ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedPuc ? '¡Copiado!' : 'Copiar Resumen'}</span>
               </button>
 
               <button
                 onClick={handleExportPucCSV}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 transition-colors shadow-xs cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors shadow-xs cursor-pointer"
                 title="Descargar solo asientos contables PUC para software ERP"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -2060,7 +2060,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
               <button
                 onClick={handleExportFullAccountingCSV}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 transition-colors shadow-xs cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 transition-colors shadow-xs cursor-pointer"
                 title="Descargar libro contable consolidado con P&L, transacciones y balance"
               >
                 <BookOpen className="w-3.5 h-3.5" />
@@ -2072,9 +2072,9 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Financial Statements Grid: P&L + Balance */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Estado de Resultados Operacional (P&L) */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <div className="border-b border-slate-100 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Estado Financiero</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Estado Financiero</span>
                 <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Estado de Resultados Operativo</h4>
               </div>
 
@@ -2083,33 +2083,33 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <span>(+) Ingresos Brutos por Parqueo:</span>
                   <span className="font-bold">{formatCurrency(accountingSummary.grossRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                <div className="flex justify-between text-slate-600 dark:text-slate-400">
                   <span>(-) Descuentos / Cortesías:</span>
                   <span className="font-bold">-{formatCurrency(accountingSummary.discounts, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold border-t border-slate-200 pt-1.5 bg-slate-50 p-1.5 rounded">
+                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold border-t border-slate-200 dark:border-slate-700 pt-1.5 bg-slate-50 dark:bg-slate-800/60 p-1.5 rounded">
                   <span>(=) Ingreso Neto Facturado:</span>
                   <span>{formatCurrency(accountingSummary.netRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between text-rose-700">
+                <div className="flex justify-between text-rose-700 dark:text-rose-400">
                   <span>(-) Gastos de Caja Menor (PUC 51):</span>
                   <span className="font-bold">-{formatCurrency(accountingSummary.totalExpenses, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between text-slate-950 font-black text-sm border-t-2 border-slate-200 dark:border-slate-800 pt-2 bg-emerald-50 p-2 rounded-xl border border-emerald-300">
+                <div className="flex justify-between text-slate-950 dark:text-emerald-100 font-black text-sm border-t-2 border-slate-200 dark:border-slate-800 pt-2 bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-xl border border-emerald-300 dark:border-emerald-800/80">
                   <span>UTILIDAD OPERATIVA:</span>
-                  <span className="text-emerald-950">{formatCurrency(accountingSummary.operatingIncome, rates.currencySymbol)}</span>
+                  <span className="text-emerald-950 dark:text-emerald-300">{formatCurrency(accountingSummary.operatingIncome, rates.currencySymbol)}</span>
                 </div>
               </div>
 
-              <div className="text-[10px] text-slate-600 dark:text-slate-300 bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
+              <div className="text-[10px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
                 <div className="font-bold text-slate-700 dark:text-slate-200">💡 Resumen de Gastos por Categoría:</div>
                 {Object.entries(accountingSummary.expensesByCategory).length === 0 ? (
-                  <div>Sin egresos registrados en el período seleccionado.</div>
+                  <div className="text-slate-500 dark:text-slate-400">Sin egresos registrados en el período seleccionado.</div>
                 ) : (
                   Object.entries(accountingSummary.expensesByCategory).map(([cat, amount]) => (
                     <div key={cat} className="flex justify-between">
                       <span>• {cat}:</span>
-                      <span className="font-bold text-rose-700">-{formatCurrency(amount, rates.currencySymbol)}</span>
+                      <span className="font-bold text-rose-700 dark:text-rose-400">-{formatCurrency(amount, rates.currencySymbol)}</span>
                     </div>
                   ))
                 )}
@@ -2117,9 +2117,9 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Resumen Fiscal DIAN & Facturación Electrónica */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <div className="border-b border-slate-100 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Auditoría Fiscal</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Auditoría Fiscal</span>
                 <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Facturación Electrónica & DIAN</h4>
               </div>
 
@@ -2130,7 +2130,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </div>
                 <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>IVA Generado (Tarifa {rates.taxPercentage || 0}%):</span>
-                  <span className="font-bold text-indigo-700">{formatCurrency(accountingSummary.taxAmount, rates.currencySymbol)}</span>
+                  <span className="font-bold text-indigo-700 dark:text-indigo-400">{formatCurrency(accountingSummary.taxAmount, rates.currencySymbol)}</span>
                 </div>
                 <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>Facturas Electrónicas Emitidas:</span>
@@ -2140,57 +2140,59 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <span>Tickets POS Estándar:</span>
                   <span className="font-bold">{accountingSummary.standardTicketsCount}</span>
                 </div>
-                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold border-t border-slate-200 pt-1.5 bg-slate-50 p-1.5 rounded">
+                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold border-t border-slate-200 dark:border-slate-700 pt-1.5 bg-slate-50 dark:bg-slate-800/60 p-1.5 rounded">
                   <span>Resolución DIAN:</span>
                   <span>{businessInfo.dianResolutionNumber || 'Habilitada'}</span>
                 </div>
               </div>
 
-              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[10px] text-slate-700 space-y-1">
-                <div className="font-bold text-amber-900 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/60 text-[10px] text-slate-700 dark:text-amber-200 space-y-1">
+                <div className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>Cumplimiento Normativo DIAN:</span>
                 </div>
-                <p>Todos los documentos electrónicos generados cuentan con código CUFE y prefijo autorizado ({businessInfo.dianPrefix || 'FE-'}).</p>
+                <p className="text-slate-600 dark:text-slate-300">Todos los documentos electrónicos generados cuentan con código CUFE y prefijo autorizado ({businessInfo.dianPrefix || 'FE-'}).</p>
               </div>
             </div>
 
             {/* Conciliación de Cuentas del Activo (1105 / 1110) */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <div className="border-b border-slate-100 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Activos Disponibles</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Activos Disponibles</span>
                 <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Recaudos por Cuentas Contables</h4>
               </div>
 
               <div className="space-y-2 text-xs font-mono">
-                <div className="flex justify-between">
+                <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>110505 (Caja General Efectivo):</span>
-                  <span className="font-bold text-emerald-800">{formatCurrency(accountingSummary.cashRevenue, rates.currencySymbol)}</span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(accountingSummary.cashRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>111005 (Bancos - Datáfonos):</span>
-                  <span className="font-bold">{formatCurrency(accountingSummary.bankCardRevenue, rates.currencySymbol)}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(accountingSummary.bankCardRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>111010 (Cuentas Digitales Nequi/Davi):</span>
-                  <span className="font-bold">{formatCurrency(accountingSummary.walletRevenue, rates.currencySymbol)}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(accountingSummary.walletRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>111015 (QR Bancolombia / PSE):</span>
-                  <span className="font-bold">{formatCurrency(accountingSummary.qrPseRevenue, rates.currencySymbol)}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(accountingSummary.qrPseRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>111020 (Llaves Bre-B Interoperable):</span>
-                  <span className="font-bold">{formatCurrency(accountingSummary.breBRevenue, rates.currencySymbol)}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(accountingSummary.breBRevenue, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>130505 (Convenios por Cobrar):</span>
-                  <span className="font-bold">{formatCurrency(accountingSummary.agreementRevenue, rates.currencySymbol)}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(accountingSummary.agreementRevenue, rates.currencySymbol)}</span>
                 </div>
               </div>
 
               <div className={`p-2.5 rounded-xl border text-xs font-mono font-bold flex items-center justify-between ${
-                accountingSummary.isBalanced ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-rose-50 border-rose-300 text-rose-950'
+                accountingSummary.isBalanced 
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200' 
+                  : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-950 dark:text-rose-200'
               }`}>
                 <span>SUMAS IGUALES:</span>
                 <span>{accountingSummary.isBalanced ? '✓ CUADRADO EXACTO' : '⚠ DESCUADRE'}</span>
@@ -2199,22 +2201,22 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           </div>
 
           {/* Detailed PUC Journal Entry Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
               <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>Libro Diario de Asientos Contables PUC</span>
-                <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full">
                   {accountingSummary.pucJournal.length} Asientos
                 </span>
               </h4>
-              <span className="text-xs text-slate-600 dark:text-slate-300 font-mono">
+              <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">
                 Período: {periodLabel}
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-slate-100 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
                   <tr>
                     <th className="py-2.5 px-4">Cuenta PUC</th>
                     <th className="py-2.5 px-4">Nombre de la Cuenta</th>
@@ -2223,13 +2225,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     <th className="py-2.5 px-4 text-right">Crédito (-)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {accountingSummary.pucJournal.map((entry, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="py-2.5 px-4 font-bold text-slate-900 dark:text-slate-100">{entry.code}</td>
                       <td className="py-2.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{entry.accountName}</td>
-                      <td className="py-2.5 px-4 text-slate-600 dark:text-slate-300">{entry.description}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-emerald-800">
+                      <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">{entry.description}</td>
+                      <td className="py-2.5 px-4 text-right font-bold text-emerald-700 dark:text-emerald-400">
                         {entry.debit > 0 ? formatCurrency(entry.debit, rates.currencySymbol) : '-'}
                       </td>
                       <td className="py-2.5 px-4 text-right font-bold text-slate-800 dark:text-slate-200">
@@ -2238,7 +2240,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-xs">
+                <tfoot className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-xs border-t border-slate-200 dark:border-slate-800">
                   <tr>
                     <td colSpan={3} className="py-3 px-4 uppercase text-right tracking-wider">
                       TOTAL SUMAS IGUALES DEL PERÍODO:
@@ -2265,13 +2267,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Top Analytics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Duración de Estancia */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Segmentación por Tiempos de Estancia</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Distribución de permanencia en el parqueadero</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Distribución de permanencia en el parqueadero</p>
                 </div>
-                <Clock className="w-4 h-4 text-purple-600" />
+                <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               </div>
 
               <div className="space-y-3">
@@ -2285,9 +2287,9 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                           {formatCurrency(bucket.revenue, rates.currencySymbol)} ({pct}%)
                         </span>
                       </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-purple-600 h-full rounded-full"
+                          className="bg-purple-600 dark:bg-purple-500 h-full rounded-full"
                           style={{ width: `${Math.max(4, pct)}%` }}
                         ></div>
                       </div>
@@ -2298,13 +2300,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Adopción Digital vs Efectivo */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Digitalización de Recaudos</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Efectivo vs Canales Electrónicos / QR</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Efectivo vs Canales Electrónicos / QR</p>
                 </div>
-                <CreditCard className="w-4 h-4 text-sky-600" />
+                <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               </div>
 
               {(() => {
@@ -2317,21 +2319,21 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-xs font-mono">
                       <div>
-                        <div className="text-slate-600 dark:text-slate-300">Efectivo Físico</div>
+                        <div className="text-slate-600 dark:text-slate-400">Efectivo Físico</div>
                         <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{formatCurrency(cashTotal, rates.currencySymbol)} ({cashPct}%)</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-slate-600 dark:text-slate-300">Canales Digitales</div>
-                        <div className="font-bold text-indigo-700 text-sm">{formatCurrency(digitalTotal, rates.currencySymbol)} ({digitalPct}%)</div>
+                        <div className="text-slate-600 dark:text-slate-400">Canales Digitales</div>
+                        <div className="font-bold text-indigo-700 dark:text-indigo-400 text-sm">{formatCurrency(digitalTotal, rates.currencySymbol)} ({digitalPct}%)</div>
                       </div>
                     </div>
 
-                    <div className="w-full bg-slate-100 rounded-full h-3 flex overflow-hidden">
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 flex overflow-hidden">
                       <div className="bg-emerald-500 h-full" style={{ width: `${cashPct}%` }}></div>
-                      <div className="bg-indigo-600 h-full" style={{ width: `${digitalPct}%` }}></div>
+                      <div className="bg-indigo-600 dark:bg-indigo-500 h-full" style={{ width: `${digitalPct}%` }}></div>
                     </div>
 
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div className="text-[10px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
                       💡 <strong>Nivel de Digitalización: {digitalPct}%</strong>. {digitalPct > 40 ? 'Excelente adopción de pagos electrónicos.' : 'Oportunidad para incentivar pagos QR / Bre-B para reducir manejo de efectivo.'}
                     </div>
                   </div>
@@ -2340,25 +2342,25 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Rotación y Rendimiento General */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Eficiencia Operativa</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300">Capacidad y aprovechamiento del espacio</p>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Capacidad y aprovechamiento del espacio</p>
                 </div>
                 <Zap className="w-4 h-4 text-amber-500" />
               </div>
 
               <div className="space-y-3 text-xs">
-                <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                <div className="flex justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="text-slate-600 dark:text-slate-300">Plazas Habilitadas:</span>
                   <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{totalSpotsCount} plazas</span>
                 </div>
-                <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                <div className="flex justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="text-slate-600 dark:text-slate-300">Rotación Media por Plaza:</span>
-                  <span className="font-mono font-bold text-emerald-800">{turnoverRate} rotaciones / período</span>
+                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">{turnoverRate} rotaciones / período</span>
                 </div>
-                <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                <div className="flex justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="text-slate-600 dark:text-slate-300">Ingreso Generado por Plaza:</span>
                   <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                     {formatCurrency(totalSpotsCount > 0 ? Math.round(totalRevenue / totalSpotsCount) : 0, rates.currencySymbol)}
@@ -2371,18 +2373,18 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Ranking Tables: Top Placas Frecuentes & Top Plazas Productivas */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Top 10 Placas Frecuentes */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
                 <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <Award className="w-4 h-4 text-amber-500" />
                   <span>Top Vehículos Frecuentes (Fidelización)</span>
                 </h4>
-                <span className="text-xs text-slate-600 dark:text-slate-300">Más visitas</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">Más visitas</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px]">
+                  <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="py-2.5 px-4">#</th>
                       <th className="py-2.5 px-4">Placa</th>
@@ -2391,21 +2393,23 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <th className="py-2.5 px-4 text-right">Recaudo Aportado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {frequentPlates.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-6 text-center text-slate-700 dark:text-slate-200">
+                        <td colSpan={5} className="py-6 text-center text-slate-500 dark:text-slate-400">
                           Sin visitas registradas en el período.
                         </td>
                       </tr>
                     ) : (
                       frequentPlates.map((item, idx) => (
-                        <tr key={item.plate} className="hover:bg-slate-50">
+                        <tr key={item.plate} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                           <td className="py-2.5 px-4 font-mono font-bold text-slate-700 dark:text-slate-200">{idx + 1}</td>
                           <td className="py-2.5 px-4 font-mono font-black text-slate-900 dark:text-slate-100 text-sm">{item.plate}</td>
-                          <td className="py-2.5 px-4 capitalize text-slate-600 dark:text-slate-300">{getVehicleName(item.vehicleType)}</td>
-                          <td className="py-2.5 px-4 text-center font-bold text-indigo-700 bg-indigo-50/50">
-                            {item.visits}
+                          <td className="py-2.5 px-4 capitalize text-slate-600 dark:text-slate-400">{getVehicleName(item.vehicleType)}</td>
+                          <td className="py-2.5 px-4 text-center font-bold">
+                            <span className="inline-block px-2 py-0.5 rounded text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 font-mono">
+                              {item.visits}
+                            </span>
                           </td>
                           <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
                             {formatCurrency(item.totalSpent, rates.currencySymbol)}
@@ -2419,18 +2423,18 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Top Plazas Más Productivas */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
                 <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Productividad por Plaza de Parqueo</span>
                 </h4>
-                <span className="text-xs text-slate-600 dark:text-slate-300">Mayor facturación</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">Mayor facturación</span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px]">
+                  <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
                     <tr>
                       <th className="py-2.5 px-4">Puesto</th>
                       <th className="py-2.5 px-4 text-center">Usos / Rotación</th>
@@ -2438,17 +2442,17 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <th className="py-2.5 px-4 text-right">Promedio / Uso</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {spotProductivity.slice(0, 10).map((spot) => {
                       const avg = spot.count > 0 ? Math.round(spot.revenue / spot.count) : 0;
                       return (
-                        <tr key={spot.spotCode} className="hover:bg-slate-50">
+                        <tr key={spot.spotCode} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                           <td className="py-2.5 px-4 font-mono font-black text-slate-900 dark:text-slate-100">{spot.spotCode}</td>
                           <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-700 dark:text-slate-200">{spot.count} veces</td>
-                          <td className="py-2.5 px-4 text-right font-mono font-bold text-emerald-800">
+                          <td className="py-2.5 px-4 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
                             {formatCurrency(spot.revenue, rates.currencySymbol)}
                           </td>
-                          <td className="py-2.5 px-4 text-right font-mono text-slate-600 dark:text-slate-300">
+                          <td className="py-2.5 px-4 text-right font-mono text-slate-600 dark:text-slate-400">
                             {formatCurrency(avg, rates.currencySymbol)}
                           </td>
                         </tr>
@@ -2565,8 +2569,8 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* AI Response Display Card */}
           {aiError && (
-            <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-xs text-rose-800">
-              <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+            <div className="p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-xs text-rose-800 dark:text-rose-200">
+              <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
               <div>
                 <div className="font-bold">Aviso del Asistente Gemini:</div>
                 <div>{aiError}</div>
@@ -2575,14 +2579,14 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           )}
 
           {aiLoading && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-12 text-center space-y-4">
               <div className="relative w-12 h-12 mx-auto">
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400 animate-spin"></div>
                 <Sparkles className="w-5 h-5 text-amber-500 absolute inset-0 m-auto" />
               </div>
               <div className="space-y-1">
                 <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Consultando Modelo Gemini 3.8 Flash...</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
                   Calculando correlaciones de afluencia, velocidad de rotación y pronósticos financieros.
                 </p>
               </div>
@@ -2590,15 +2594,15 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           )}
 
           {aiResponse && !aiLoading && (
-            <div className="bg-white rounded-3xl border border-indigo-200 p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-200 dark:border-indigo-900/60 p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-indigo-100 text-indigo-700">
+                  <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
                     <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Informe Ejecutivo & Dictamen de Inteligencia Artificial</h4>
-                    <span className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">Generado para: {periodLabel}</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">Generado para: {periodLabel}</span>
                   </div>
                 </div>
 
@@ -2608,7 +2612,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       navigator.clipboard.writeText(aiResponse);
                       alert('Dictamen copiado al portapapeles');
                     }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-300 dark:border-slate-700 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>Copiar</span>
@@ -2617,18 +2621,18 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </div>
 
               {/* Render AI Markdown response */}
-              <div className="prose prose-sm max-w-none text-slate-800 dark:text-slate-200 text-xs leading-relaxed space-y-3">
+              <div className="prose prose-sm dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 text-xs leading-relaxed space-y-3">
                 <ReactMarkdown>{aiResponse}</ReactMarkdown>
               </div>
             </div>
           )}
 
           {!aiResponse && !aiLoading && !aiError && (
-            <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center space-y-3">
               <Sparkles className="w-8 h-8 text-indigo-700 dark:text-indigo-400 mx-auto" />
               <div className="space-y-1">
                 <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Pronóstico y Análisis Predictivo Listo</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto">
+                <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto">
                   Haz clic en cualquiera de los botones rápidos de arriba o en <strong>"Generar Informe Ejecutivo Completo"</strong> para obtener proyecciones y recomendaciones inteligentes para tu parqueadero.
                 </p>
               </div>
@@ -2641,23 +2645,23 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {/* TAB 5: HISTÓRICO DETALLADO DE TICKETS & AUDITORÍA */}
       {/* ========================================================================= */}
       {activeTab === 'history' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden space-y-0">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden space-y-0">
           {/* Table Search & Filter Bar */}
-          <div className="p-4 border-b border-slate-200 bg-slate-50/80 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2 flex-wrap">
                 <span>Auditoría Histórica de Tickets & Facturación</span>
-                <span className="text-xs bg-slate-200 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-xs bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-full font-bold">
                   {filteredPaidTickets.length} registros
                 </span>
                 {plateOriginStats.foreignCount > 0 && (
-                  <span className="text-xs bg-sky-100 text-sky-800 border border-sky-300 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1">
+                  <span className="text-xs bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800/80 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1">
                     <span>🌐</span>
                     <span>{plateOriginStats.foreignCount} extranjeras ({formatCurrency(plateOriginStats.foreignRevenue, rates.currencySymbol)})</span>
                   </span>
                 )}
               </h3>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">Período: {periodLabel}</p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400">Período: {periodLabel}</p>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
@@ -2667,7 +2671,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setFilterType(e.target.value);
                   setTicketPage(1);
                 }}
-                className="text-xs bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-slate-700 dark:text-slate-200 outline-none"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-100 outline-none focus:border-amber-500"
               >
                 <option value="all">Todos los vehículos</option>
                 <option value="car">Carros</option>
@@ -2682,7 +2686,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setFilterPayment(e.target.value);
                   setTicketPage(1);
                 }}
-                className="text-xs bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-slate-700 dark:text-slate-200 outline-none"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-100 outline-none focus:border-amber-500"
               >
                 <option value="all">Todos los pagos</option>
                 <option value="cash">Efectivo</option>
@@ -2703,7 +2707,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setFilterPlateOrigin(e.target.value);
                   setTicketPage(1);
                 }}
-                className="text-xs bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-slate-700 dark:text-slate-200 outline-none font-medium"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-100 outline-none focus:border-amber-500 font-medium"
               >
                 <option value="all">Todas las procedencias</option>
                 <option value="national">🇨🇴 Solo Nacionales</option>
@@ -2719,9 +2723,9 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     setTicketPage(1);
                   }}
                   placeholder="Buscar placa, ticket..."
-                  className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl pl-8 pr-3 py-1.5 focus:border-amber-500 outline-none w-44 text-slate-900 dark:text-slate-100"
+                  className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl pl-8 pr-3 py-1.5 focus:border-amber-500 outline-none w-44 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
                 />
-                <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
 
               <button
@@ -2738,7 +2742,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Table Content */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-              <thead className="bg-slate-100 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+              <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="py-3 px-4">Ticket</th>
                   <th className="py-3 px-4">Placa</th>
@@ -2752,37 +2756,37 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <th className="py-3 px-4 text-center">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {pagedTickets.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-12 text-center text-slate-700 dark:text-slate-200">
+                    <td colSpan={10} className="py-12 text-center text-slate-500 dark:text-slate-400">
                       No se encontraron tickets en el período y filtros seleccionados.
                     </td>
                   </tr>
                 ) : (
                   pagedTickets.map((t) => (
-                    <tr key={t.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">
                         {t.ticketNumber}
                         {t.electronicInvoice && (
-                          <div className="text-[9px] text-indigo-700 font-bold">
+                          <div className="text-[9px] text-indigo-700 dark:text-indigo-400 font-bold">
                             FE: {t.electronicInvoice.invoiceNumber}
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-4 font-mono font-black text-slate-950 text-sm">
+                      <td className="py-3 px-4 font-mono font-black text-slate-900 dark:text-white text-sm">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span>{t.plate}</span>
                           {t.isForeignPlate ? (
                             <span 
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300 font-sans" 
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800/80 font-sans" 
                               title={`Vehículo con placa extranjera procedente de: ${t.originCountry || 'Internacional'}`}
                             >
                               <span>🌐</span>
                               <span>{t.originCountry || 'Extranjera'}</span>
                             </span>
                           ) : (
-                            <span className="text-[9px] font-bold text-slate-700 dark:text-slate-200 bg-slate-100 px-1.5 py-0.2 rounded font-sans border border-slate-200">
+                            <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-sans border border-slate-200 dark:border-slate-700">
                               COL
                             </span>
                           )}
@@ -2796,7 +2800,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       </td>
                       <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
                         {new Date(t.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-                        <div className="text-[9px] text-slate-700 dark:text-slate-200">
+                        <div className="text-[9px] text-slate-500 dark:text-slate-400">
                           {new Date(t.entryTime).toLocaleDateString('es-CO')}
                         </div>
                       </td>
@@ -2804,7 +2808,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                         {t.exitTime ? (
                           <>
                             {new Date(t.exitTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-                            <div className="text-[9px] text-slate-700 dark:text-slate-200">
+                            <div className="text-[9px] text-slate-500 dark:text-slate-400">
                               {new Date(t.exitTime).toLocaleDateString('es-CO')}
                             </div>
                           </>
@@ -2822,7 +2826,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                                 {meta.label}
                               </span>
                               {t.paymentDetails?.referenceNumber && (
-                                <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300 font-semibold">
+                                <span className="text-[9px] font-mono text-slate-600 dark:text-slate-400 font-semibold">
                                   Ref: #{t.paymentDetails.referenceNumber}
                                 </span>
                               )}
@@ -2836,7 +2840,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => onPrintTicket(t, 'exit')}
-                          className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
                           title="Reimprimir Comprobante de Salida"
                         >
                           <Printer className="w-4 h-4" />
@@ -2851,7 +2855,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+            <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
               <div>
                 Mostrando {(ticketPage - 1) * itemsPerPage + 1} a {Math.min(ticketPage * itemsPerPage, filteredPaidTickets.length)} de {filteredPaidTickets.length} tickets
               </div>
@@ -2859,7 +2863,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <button
                   onClick={() => setTicketPage((p) => Math.max(1, p - 1))}
                   disabled={ticketPage === 1}
-                  className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40"
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 transition-colors cursor-pointer"
                 >
                   Anterior
                 </button>
@@ -2869,7 +2873,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <button
                   onClick={() => setTicketPage((p) => Math.min(totalPages, p + 1))}
                   disabled={ticketPage === totalPages}
-                  className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40"
+                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 transition-colors cursor-pointer"
                 >
                   Siguiente
                 </button>

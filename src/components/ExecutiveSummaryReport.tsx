@@ -240,7 +240,7 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
             <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-mono">
               Business Intelligence & AI
             </span>
-            <span className="text-[11px] text-slate-600 dark:text-slate-300 dark:text-slate-200 font-medium">
+            <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
               Comparativa 24h vs Promedio 7 Días
             </span>
           </div>
@@ -493,45 +493,45 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
                   const isPositive = diff >= 0;
 
                   return (
-                    <div className="bg-slate-900 dark:bg-slate-950 border border-slate-700 rounded-xl p-3 shadow-xl text-xs space-y-2 min-w-[210px]">
+                    <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 shadow-xl text-xs space-y-2 min-w-[210px]">
                       <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                        <span className="font-bold text-slate-900 dark:text-white font-mono flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                        <span className="font-bold text-white font-mono flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-amber-400" />
                           <span>{label}</span>
                         </span>
                         <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded ${
                           isPositive 
-                            ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30' 
-                            : 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                            : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                         }`}>
                           {isPositive ? `+${pct}%` : `${pct}%`}
                         </span>
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                        <div className="flex items-center justify-between text-slate-300">
                           <span className="flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-amber-400" />
                             <span>Hoy:</span>
                           </span>
-                          <span className="font-bold text-amber-700 dark:text-amber-400 font-mono">
+                          <span className="font-bold text-amber-300 font-mono">
                             {isRev ? formatCurrency(valToday, rates.currencySymbol) : `${valToday} veh.`}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between text-slate-700 dark:text-slate-200">
+                        <div className="flex items-center justify-between text-slate-300">
                           <span className="flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-indigo-400" />
                             <span>Promedio 7D:</span>
                           </span>
-                          <span className="font-bold text-indigo-800 dark:text-indigo-300 font-mono">
+                          <span className="font-bold text-indigo-300 font-mono">
                             {isRev ? formatCurrency(valAvg7, rates.currencySymbol) : `${valAvg7} veh.`}
                           </span>
                         </div>
 
-                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800 text-slate-700 dark:text-slate-200">
+                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-800 text-slate-400">
                           <span>Variación neta:</span>
-                          <span className={`font-mono font-bold ${isPositive ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                          <span className={`font-mono font-bold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
                             {isPositive ? '+' : ''}{isRev ? formatCurrency(diff, rates.currencySymbol) : `${diff} veh.`}
                           </span>
                         </div>
