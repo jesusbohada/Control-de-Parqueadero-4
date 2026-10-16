@@ -90,8 +90,8 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
   const getCategoryStyles = (categoryNameOrId?: string) => {
     if (!categoryNameOrId) {
       return {
-        badge: 'text-slate-600 dark:text-slate-300 bg-slate-800/80 border-slate-700',
-        dot: 'bg-slate-400',
+        badge: 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700',
+        dot: 'bg-slate-500 dark:bg-slate-400',
         color: 'slate',
         name: 'General'
       };
@@ -114,24 +114,24 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
 
     switch (color) {
       case 'blue':
-        return { badge: 'text-blue-700 dark:text-blue-400 bg-blue-500/10 border-blue-500/30', dot: 'bg-blue-400', color: 'blue', name: displayName };
+        return { badge: 'text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800', dot: 'bg-blue-500', color: 'blue', name: displayName };
       case 'emerald':
-        return { badge: 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/30', dot: 'bg-emerald-400', color: 'emerald', name: displayName };
+        return { badge: 'text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800', dot: 'bg-emerald-500', color: 'emerald', name: displayName };
       case 'orange':
-        return { badge: 'text-orange-700 dark:text-orange-400 bg-orange-500/10 border-orange-500/30', dot: 'bg-orange-400', color: 'orange', name: displayName };
+        return { badge: 'text-orange-800 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/50 border-orange-200 dark:border-orange-800', dot: 'bg-orange-500', color: 'orange', name: displayName };
       case 'purple':
-        return { badge: 'text-purple-700 dark:text-purple-400 bg-purple-500/10 border-purple-500/30', dot: 'bg-purple-400', color: 'purple', name: displayName };
+        return { badge: 'text-purple-800 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 border-purple-200 dark:border-purple-800', dot: 'bg-purple-500', color: 'purple', name: displayName };
       case 'rose':
-        return { badge: 'text-rose-700 dark:text-rose-400 bg-rose-500/10 border-rose-500/30', dot: 'bg-rose-400', color: 'rose', name: displayName };
+        return { badge: 'text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800', dot: 'bg-rose-500', color: 'rose', name: displayName };
       case 'cyan':
-        return { badge: 'text-cyan-700 dark:text-cyan-400 bg-cyan-500/10 border-cyan-500/30', dot: 'bg-cyan-400', color: 'cyan', name: displayName };
+        return { badge: 'text-cyan-800 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/50 border-cyan-200 dark:border-cyan-800', dot: 'bg-cyan-500', color: 'cyan', name: displayName };
       case 'indigo':
-        return { badge: 'text-indigo-700 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/30', dot: 'bg-indigo-400', color: 'indigo', name: displayName };
+        return { badge: 'text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 border-indigo-200 dark:border-indigo-800', dot: 'bg-indigo-500', color: 'indigo', name: displayName };
       case 'amber':
-        return { badge: 'text-amber-700 dark:text-amber-400 bg-amber-500/10 border-amber-500/30', dot: 'bg-amber-400', color: 'amber', name: displayName };
+        return { badge: 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800', dot: 'bg-amber-500', color: 'amber', name: displayName };
       case 'slate':
       default:
-        return { badge: 'text-slate-600 dark:text-slate-300 bg-slate-800 border-slate-700', dot: 'bg-slate-400', color: 'slate', name: displayName };
+        return { badge: 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700', dot: 'bg-slate-500 dark:bg-slate-400', color: 'slate', name: displayName };
     }
   };
 
@@ -278,13 +278,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
   if (!isOpen && !embedded) return null;
 
   return (
-    <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150"}>
+    <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150"}>
       <div 
         id="expense-concepts-modal"
-        className={embedded ? "relative w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col" : "relative w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"}
+        className={embedded ? "relative w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col" : "relative w-full max-w-5xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
               <Receipt className="w-5 h-5" />
@@ -294,11 +294,11 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                   Gestión de Gastos y Salidas de Caja
                 </h2>
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                   Panel Administrativo
                 </span>
               </div>
-              <p className="text-xs text-slate-700 dark:text-slate-200">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
                 Administra los conceptos y categorías autorizadas para egresos y compras de caja menor.
               </p>
             </div>
@@ -306,7 +306,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
           <button 
             type="button"
             onClick={onClose}
-            className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -324,13 +324,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
             }}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'concepts'
-                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-500/10 rounded-t-lg'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-900/60 rounded-t-lg'
+                ? 'border-amber-600 dark:border-amber-500 text-amber-950 dark:text-amber-300 bg-amber-500/10 dark:bg-amber-400/10 rounded-t-lg'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800/60 rounded-t-lg'
             }`}
           >
             <Receipt className="w-4 h-4" />
             <span>Conceptos de Gastos</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
               {concepts.length}
             </span>
           </button>
@@ -345,13 +345,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
             }}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'categories'
-                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-500/10 rounded-t-lg'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-900/60 rounded-t-lg'
+                ? 'border-amber-600 dark:border-amber-500 text-amber-950 dark:text-amber-300 bg-amber-500/10 dark:bg-amber-400/10 rounded-t-lg'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800/60 rounded-t-lg'
             }`}
           >
             <FolderTree className="w-4 h-4" />
             <span>Categorías de Gastos</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
               {categories.length}
             </span>
           </button>
@@ -367,27 +367,27 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
             <>
               {/* Concept Creation / Edit Form */}
               {isCreatingConcept && (
-                <form onSubmit={handleSubmitConcept} className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl">
+                <form onSubmit={handleSubmitConcept} className="bg-slate-50 dark:bg-slate-950/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-md">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <FolderPlus className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                       {editingConcept ? 'Editar Concepto de Gasto' : 'Crear Nuevo Concepto de Gasto'}
                     </h3>
-                    <span className="text-xs text-slate-700 dark:text-slate-200">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
                       {editingConcept?.isPreset ? 'Concepto Predeterminado' : 'Concepto Personalizado'}
                     </span>
                   </div>
 
                   {conceptError && (
-                    <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800/80 text-rose-200 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-rose-700 dark:text-rose-400 shrink-0" />
+                    <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                       {conceptError}
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Nombre del Concepto <span className="text-amber-700 dark:text-amber-400">*</span>
                       </label>
                       <input
@@ -396,13 +396,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         placeholder="Ej. Compra de rollos térmicos POS, Refrigerio de turno..."
                         value={formConceptName}
                         onChange={(e) => setFormConceptName(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Categoría de Gasto <span className="text-amber-700 dark:text-amber-400">*</span>
                         </label>
                         {onSaveCategory && (
@@ -427,7 +427,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                           const found = categories.find(c => c.id === catId);
                           if (found) setFormConceptCategoryName(found.name);
                         }}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                       >
                         {categories.map((cat) => (
                           <option key={cat.id} value={cat.id}>
@@ -438,7 +438,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                     </div>
 
                     <div className="col-span-1 md:col-span-2 space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Descripción / Instrucciones para el Cajero (Opcional)
                       </label>
                       <input
@@ -446,7 +446,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         placeholder="Ej. Adjuntar siempre foto legible de la factura o soporte..."
                         value={formConceptDescription}
                         onChange={(e) => setFormConceptDescription(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                       />
                     </div>
 
@@ -458,9 +458,9 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                           onChange={(e) => setFormConceptIsActive(e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        <div className="w-10 h-5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
                       </label>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                         {formConceptIsActive ? 'Concepto Activo (Disponible para cajeros)' : 'Concepto Inactivo (Oculto en caja)'}
                       </span>
                     </div>
@@ -470,13 +470,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelConceptForm}
-                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                     >
                       <Check className="w-4 h-4" />
                       Guardar Concepto
@@ -489,20 +489,20 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto flex-1">
                   <div className="relative flex-1 sm:w-64 min-w-[200px]">
-                    <Search className="w-4 h-4 text-slate-600 dark:text-slate-300 absolute left-3 top-2.5" />
+                    <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
                     <input
                       type="text"
                       placeholder="Buscar conceptos..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                     />
                   </div>
 
                   <select
                     value={selectedCategoryFilter}
                     onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-                    className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 focus:outline-none"
+                    className="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
                   >
                     <option value="all">Todas las Categorías</option>
                     {categories.map((c) => (
@@ -517,7 +517,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleOpenCreateConcept()}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-amber-500/10 cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     Nuevo Concepto de Gasto
@@ -529,9 +529,9 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {filteredConcepts.length === 0 ? (
                   <div className="col-span-1 md:col-span-2 p-8 text-center bg-slate-50 dark:bg-slate-950/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                    <Receipt className="w-8 h-8 text-slate-600 dark:text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">No se encontraron conceptos de gastos</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Crea un nuevo concepto para registrar salidas de caja autorizadas.</p>
+                    <Receipt className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">No se encontraron conceptos de gastos</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Crea un nuevo concepto para registrar salidas de caja autorizadas.</p>
                   </div>
                 ) : (
                   filteredConcepts.map((concept) => {
@@ -541,8 +541,8 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         key={concept.id}
                         className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                           concept.isActive 
-                            ? 'bg-slate-50 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 hover:border-slate-700' 
-                            : 'bg-slate-950/40 border-slate-900 opacity-60'
+                            ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs' 
+                            : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-900 opacity-60'
                         }`}
                       >
                         <div>
@@ -551,13 +551,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                               <div className="flex items-center gap-2">
                                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">{concept.name}</h4>
                                 {!concept.isActive && (
-                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
                                     Inactivo
                                   </span>
                                 )}
                               </div>
                               {concept.description && (
-                                <p className="text-xs text-slate-700 dark:text-slate-200 mt-1">
+                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                                   {concept.description}
                                 </p>
                               )}
@@ -570,21 +570,21 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                               {catInfo.name}
                             </span>
                             {concept.isPreset && (
-                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800">
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                 Predeterminado
                               </span>
                             )}
                           </div>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-slate-900 flex items-center justify-between">
+                        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                           <button
                             type="button"
                             onClick={() => onSaveConcept({ ...concept, isActive: !concept.isActive })}
                             className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                               concept.isActive
-                                ? 'text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20'
-                                : 'text-slate-200 border-slate-800 bg-slate-900 hover:text-white'
+                                ? 'text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20'
+                                : 'text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
                             }`}
                           >
                             {concept.isActive ? '✓ Activo en Caja' : 'Desactivado'}
@@ -594,7 +594,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleOpenEditConcept(concept)}
-                              className="p-1.5 rounded-lg text-slate-300 hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                               title="Editar concepto"
                             >
                               <Edit className="w-3.5 h-3.5" />
@@ -604,7 +604,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => onDeleteConcept(concept.id)}
-                                className="p-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:text-red-700 dark:text-red-400 hover:bg-red-950/40 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition-colors cursor-pointer"
                                 title="Eliminar concepto"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -630,25 +630,25 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                 <form onSubmit={handleSubmitCategory} className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xl">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <FolderTree className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                      <FolderTree className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       {editingCategory ? 'Editar Categoría de Gasto' : 'Crear Nueva Categoría de Gasto'}
                     </h3>
-                    <span className="text-xs text-slate-700 dark:text-slate-200">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                       {editingCategory?.isPreset ? 'Categoría Predeterminada' : 'Categoría Personalizada'}
                     </span>
                   </div>
 
                   {categoryError && (
-                    <div className="p-3 rounded-lg bg-rose-950/60 border border-rose-800/80 text-rose-200 text-xs flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 text-rose-700 dark:text-rose-400 shrink-0" />
+                    <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                       {categoryError}
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                        Nombre de la Categoría <span className="text-amber-700 dark:text-amber-400">*</span>
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        Nombre de la Categoría <span className="text-amber-600 dark:text-amber-400">*</span>
                       </label>
                       <input
                         type="text"
@@ -656,12 +656,12 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         placeholder="Ej. Publicidad y Mercadeo, Seguridad y Vigilancia, Impuestos..."
                         value={formCatName}
                         onChange={(e) => setFormCatName(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Código Corto / Sigla (Opcional)
                       </label>
                       <input
@@ -670,14 +670,14 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         maxLength={8}
                         value={formCatCode}
                         onChange={(e) => setFormCatCode(e.target.value.toUpperCase())}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm font-mono text-slate-900 dark:text-white focus:outline-none uppercase"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none uppercase"
                       />
                     </div>
 
                     {/* Color Picker */}
                     <div className="col-span-1 md:col-span-2 space-y-2">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-                        <Palette className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         Color e Identidad Visual de la Categoría
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
@@ -688,8 +688,8 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                             onClick={() => setFormCatColor(opt.id)}
                             className={`flex items-center gap-2 p-2 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                               formCatColor === opt.id
-                                ? 'border-amber-500 bg-amber-50 text-slate-950 ring-2 ring-amber-400/40 shadow-xs'
-                                : 'border-slate-200 bg-white text-slate-700 hover:text-slate-950 hover:border-slate-300 hover:bg-slate-50'
+                                ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/50 text-slate-950 dark:text-amber-200 ring-2 ring-amber-400/40 shadow-xs'
+                                : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800'
                             }`}
                           >
                             <span className={`w-3.5 h-3.5 rounded-full shrink-0 ${opt.class.split(' ')[0]}`}></span>
@@ -700,7 +700,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                     </div>
 
                     <div className="col-span-1 md:col-span-2 space-y-1.5">
-                      <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Descripción o Alcance (Opcional)
                       </label>
                       <input
@@ -708,7 +708,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         placeholder="Qué tipo de egresos abarca esta categoría..."
                         value={formCatDescription}
                         onChange={(e) => setFormCatDescription(e.target.value)}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white focus:outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                       />
                     </div>
 
@@ -720,9 +720,9 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                           onChange={(e) => setFormCatIsActive(e.target.checked)}
                           className="sr-only peer"
                         />
-                        <div className="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        <div className="w-10 h-5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
                       </label>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                         {formCatIsActive ? 'Categoría Activa' : 'Categoría Inactiva'}
                       </span>
                     </div>
@@ -732,13 +732,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelCategoryForm}
-                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                      className="px-4 py-2 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-4 py-2 rounded-lg text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-400 flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                     >
                       <Check className="w-4 h-4" />
                       Guardar Categoría
@@ -750,13 +750,13 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
               {/* Category Action Toolbar */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="relative flex-1 sm:w-64 min-w-[200px]">
-                  <Search className="w-4 h-4 text-slate-600 dark:text-slate-300 absolute left-3 top-2.5" />
+                  <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-2.5" />
                   <input
                     type="text"
                     placeholder="Buscar categorías..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 focus:border-amber-500 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none"
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                   />
                 </div>
 
@@ -764,7 +764,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                   <button
                     type="button"
                     onClick={handleOpenCreateCategory}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-amber-500/10 cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     Nueva Categoría de Gasto
@@ -775,10 +775,10 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
               {/* Categories Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {filteredCategories.length === 0 ? (
-                  <div className="col-span-1 md:col-span-2 p-8 text-center bg-slate-50 dark:bg-slate-950/50 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                    <FolderTree className="w-8 h-8 text-slate-600 dark:text-slate-300 mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">No se encontraron categorías de gastos</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">Crea una nueva categoría para organizar los conceptos de egreso.</p>
+                  <div className="col-span-1 md:col-span-2 p-8 text-center bg-slate-50 dark:bg-slate-950/50 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl">
+                    <FolderTree className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" />
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">No se encontraron categorías de gastos</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Crea una nueva categoría para organizar los conceptos de egreso.</p>
                   </div>
                 ) : (
                   filteredCategories.map((cat) => {
@@ -790,8 +790,8 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                         key={cat.id}
                         className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                           cat.isActive 
-                            ? 'bg-slate-50 dark:bg-slate-950/80 border-slate-200 dark:border-slate-800 hover:border-slate-700' 
-                            : 'bg-slate-950/40 border-slate-900 opacity-60'
+                            ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700' 
+                            : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 opacity-60'
                         }`}
                       >
                         <div>
@@ -802,12 +802,12 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                                 <div className="flex items-center gap-2">
                                   <h4 className="text-sm font-bold text-slate-900 dark:text-white">{cat.name}</h4>
                                   {cat.code && (
-                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                       {cat.code}
                                     </span>
                                   )}
                                   {!cat.isActive && (
-                                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700">
+                                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                                       Inactiva
                                     </span>
                                   )}
@@ -817,32 +817,32 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                           </div>
 
                           {cat.description && (
-                            <p className="text-xs text-slate-700 dark:text-slate-200 mt-2 pl-6">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 pl-6">
                               {cat.description}
                             </p>
                           )}
 
-                          <div className="mt-3 pl-6 flex items-center gap-2 flex-wrap text-xs text-slate-700 dark:text-slate-200">
-                            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
-                              <Receipt className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+                          <div className="mt-3 pl-6 flex items-center gap-2 flex-wrap text-xs text-slate-600 dark:text-slate-400">
+                            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                              <Receipt className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                               {associatedConcepts.length} concepto(s) asociado(s)
                             </span>
                             {cat.isPreset && (
-                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800">
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                 Predeterminada
                               </span>
                             )}
                           </div>
                         </div>
 
-                        <div className="mt-4 pt-3 border-t border-slate-900 flex items-center justify-between">
+                        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                           <button
                             type="button"
                             onClick={() => onSaveCategory && onSaveCategory({ ...cat, isActive: !cat.isActive })}
                             className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                               cat.isActive
                                 ? 'text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20'
-                                : 'text-slate-200 border-slate-800 bg-slate-900 hover:text-white'
+                                : 'text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                             }`}
                           >
                             {cat.isActive ? '✓ Categoría Activa' : 'Inactiva'}
@@ -852,7 +852,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleOpenEditCategory(cat)}
-                              className="p-1.5 rounded-lg text-slate-300 hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                               title="Editar categoría"
                             >
                               <Edit className="w-3.5 h-3.5" />
@@ -862,7 +862,7 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteCategoryWithCheck(cat.id)}
-                                className="p-1.5 rounded-lg text-slate-700 dark:text-slate-200 hover:text-red-700 dark:text-red-400 hover:bg-red-950/40 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition-colors cursor-pointer"
                                 title="Eliminar categoría"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -881,21 +881,21 @@ export const ExpenseConceptsModal: React.FC<ExpenseConceptsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="text-xs text-slate-700 dark:text-slate-200 flex items-center gap-4 flex-wrap">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-4 flex-wrap">
             <div>
-              Conceptos: <strong className="text-slate-700 dark:text-slate-200">{concepts.length}</strong> (
-              <strong className="text-emerald-700 dark:text-emerald-400">{concepts.filter(c => c.isActive).length} activos</strong>)
+              Conceptos: <strong className="text-slate-900 dark:text-slate-100">{concepts.length}</strong> (
+              <strong className="text-emerald-700 dark:text-emerald-400 font-semibold">{concepts.filter(c => c.isActive).length} activos</strong>)
             </div>
             <div>
-              Categorías: <strong className="text-slate-700 dark:text-slate-200">{categories.length}</strong> (
-              <strong className="text-emerald-700 dark:text-emerald-400">{categories.filter(c => c.isActive).length} activas</strong>)
+              Categorías: <strong className="text-slate-900 dark:text-slate-100">{categories.length}</strong> (
+              <strong className="text-emerald-700 dark:text-emerald-400 font-semibold">{categories.filter(c => c.isActive).length} activas</strong>)
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white transition-colors cursor-pointer"
+            className="px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white transition-colors cursor-pointer shadow-xs"
           >
             Cerrar Panel
           </button>
