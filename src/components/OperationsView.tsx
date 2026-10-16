@@ -1337,7 +1337,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       ) : isPlateFormatValid ? (
                         '✓ Formato legal colombiano (RUNT)'
                       ) : (
-                        'Estándar legal: Carros (ABC123) / Motos (ABC12D)'
+                        'Carros (ABC123) / Motos (ABC12D)'
                       )
                     )}
                   </span>
@@ -1346,6 +1346,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <div className="relative">
                   <input
                     ref={plateInputRef}
+                    id="entryPlateInput"
                     type="text"
                     value={entryPlate}
                     disabled={isCountrySelectionMissing}
@@ -1358,17 +1359,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     }}
                     placeholder={
                       isCountrySelectionMissing
-                        ? "SELECCIONE PRIMERO UN PAÍS..."
-                        : isForeignPlate
-                        ? `DIGITE PLACA (${activeCountryRule?.placeholder || 'INTERNACIONAL'})...`
-                        : entryVehicleType === 'bicycle' || entryVehicleType === 'scooter'
-                        ? "DIGITE IDENTIFICADOR (EJ. BICI01 O 01)..."
-                        : "DIGITE PLACA (EJ. ABC123 O ABC12D)..."
+                        ? "SELECCIONE PAÍS..."
+                        : "DIGITE LA PLACA"
                     }
                     maxLength={activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6)}
                     autoComplete="off"
                     autoFocus
-                    className={`w-full border-2 rounded-xl px-4 py-3 text-2xl font-black font-mono tracking-widest uppercase outline-none transition-all text-center shadow-inner ${
+                    className={`w-full border-2 rounded-xl px-4 py-3 text-2xl font-black font-mono tracking-widest uppercase outline-none transition-all text-center shadow-inner placeholder:font-normal placeholder:tracking-normal placeholder:text-lg placeholder:text-slate-400 dark:placeholder:text-slate-500 ${
                       isCountrySelectionMissing
                         ? 'border-slate-800 bg-slate-900/50 text-slate-300 cursor-not-allowed placeholder:text-slate-400 dark:placeholder:text-slate-500'
                         : isPlateInvalid
