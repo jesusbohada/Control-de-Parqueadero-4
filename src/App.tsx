@@ -3934,7 +3934,7 @@ export default function App() {
                       : 'text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                  <ShieldCheck className="w-4 h-4" />
                   <span>Historial de Auditoría e Integridad</span>
                   <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-950/20 text-current">
                     Logs

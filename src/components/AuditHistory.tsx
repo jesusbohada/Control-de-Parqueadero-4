@@ -394,25 +394,25 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
   };
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-200 text-slate-100">
+    <div className="space-y-5 animate-in fade-in duration-200 text-slate-900 dark:text-slate-100">
       {/* Header Principal de la Vista de Auditoría */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 backdrop-blur-md shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-slate-50/80 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 backdrop-blur-md shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
-              <ShieldCheck className="w-6 h-6 text-amber-400" />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 dark:text-amber-400 shrink-0">
+              <ShieldCheck className="w-6 h-6 text-amber-500 dark:text-amber-400" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white tracking-wide">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-wide">
                   Historial de Auditoría e Integridad
                 </h3>
-                <span className="px-2.5 py-0.5 text-xs font-bold font-mono rounded-full bg-slate-800 text-amber-300 border border-slate-700">
+                <span className="px-2.5 py-0.5 text-xs font-bold font-mono rounded-full bg-slate-200 dark:bg-slate-800 text-amber-800 dark:text-amber-300 border border-slate-300 dark:border-slate-700">
                   {filteredLogs.length} Registros
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Bitácora inmutable de eventos críticos generada automáticamente por <code className="text-amber-300 font-mono">dbAddAuditLog</code> y sellos de estado.
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                Bitácora inmutable de eventos críticos generada automáticamente por <code className="text-amber-700 dark:text-amber-300 font-mono font-bold">dbAddAuditLog</code> y sellos de estado.
               </p>
             </div>
           </div>
@@ -425,12 +425,12 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
               autoRefresh
-                ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300 shadow-sm'
-                : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-800 dark:text-emerald-300 shadow-xs'
+                : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
             }`}
             title="Actualización automática cada 8 segundos"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${autoRefresh ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${autoRefresh ? 'animate-spin text-emerald-600 dark:text-emerald-400' : ''}`} />
             <span>En Vivo {autoRefresh ? 'ON' : 'OFF'}</span>
           </button>
 
@@ -438,10 +438,10 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
             type="button"
             onClick={fetchLogs}
             disabled={loading}
-            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3 py-1.5 bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="Refrescar datos ahora"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-500 dark:text-amber-400' : ''}`} />
             <span>Refrescar</span>
           </button>
 
@@ -449,7 +449,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
             type="button"
             onClick={handleExportCSV}
             disabled={filteredLogs.length === 0}
-            className="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="Descargar tabla en archivo CSV"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -460,10 +460,10 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
             type="button"
             onClick={handleExportJSON}
             disabled={filteredLogs.length === 0}
-            className="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3 py-1.5 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/40 text-cyan-800 dark:text-cyan-300 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             title="Descargar eventos en formato JSON"
           >
-            <Download className="w-3.5 h-3.5 text-cyan-400" />
+            <Download className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
             <span>JSON</span>
           </button>
         </div>
@@ -471,18 +471,18 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
 
       {/* KPI Cards de Resumen */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="bg-slate-900/70 border border-slate-800 rounded-xl p-3 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
+        <div className="bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
+          <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 text-xs font-bold">
             <span>Total Eventos</span>
-            <Layers className="w-4 h-4 text-slate-400" />
+            <Layers className="w-4 h-4 text-slate-500 dark:text-slate-400" />
           </div>
-          <div className="text-xl font-bold font-mono text-white mt-2">
+          <div className="text-xl font-bold font-mono text-slate-950 dark:text-white mt-2">
             {stats.total.toLocaleString()}
           </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">En el rango actual</div>
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">En el rango actual</div>
         </div>
 
-        <div className="bg-blue-500/10 dark:bg-blue-950/30 border border-blue-500/30 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-blue-500/10 dark:bg-blue-950/30 border border-blue-500/30 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between text-blue-800 dark:text-blue-300 text-xs font-bold">
             <span>Ingresos</span>
             <Car className="w-4 h-4 text-blue-700 dark:text-blue-400" />
@@ -493,7 +493,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
           <div className="text-[10px] text-blue-700 dark:text-blue-400/80 mt-0.5">Tickets emitidos</div>
         </div>
 
-        <div className="bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between text-emerald-800 dark:text-emerald-300 text-xs font-bold">
             <span>Salidas / Cobro</span>
             <DollarSign className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
@@ -504,7 +504,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
           <div className="text-[10px] text-emerald-700 dark:text-emerald-400/80 mt-0.5">Pagos procesados</div>
         </div>
 
-        <div className="bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/30 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between text-amber-800 dark:text-amber-300 text-xs font-bold">
             <span>Arqueos Turno</span>
             <Clock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
@@ -515,7 +515,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
           <div className="text-[10px] text-amber-700 dark:text-amber-400/80 mt-0.5">Cierres de caja</div>
         </div>
 
-        <div className="bg-purple-500/10 dark:bg-purple-950/30 border border-purple-500/30 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-purple-500/10 dark:bg-purple-950/30 border border-purple-500/30 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between text-purple-800 dark:text-purple-300 text-xs font-bold">
             <span>Cierre Días</span>
             <Calendar className="w-4 h-4 text-purple-700 dark:text-purple-400" />
@@ -526,7 +526,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
           <div className="text-[10px] text-purple-700 dark:text-purple-400/80 mt-0.5">Días definitivos</div>
         </div>
 
-        <div className="bg-cyan-500/10 dark:bg-cyan-950/30 border border-cyan-500/30 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-cyan-500/10 dark:bg-cyan-950/30 border border-cyan-500/30 rounded-xl p-3 flex flex-col justify-between shadow-2xs">
           <div className="flex items-center justify-between text-cyan-800 dark:text-cyan-300 text-xs font-bold">
             <span>Snapshots Estado</span>
             <ShieldCheck className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
@@ -539,11 +539,11 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
       </div>
 
       {/* Barra de Filtros Multifunción */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+      <div className="bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
         {/* Presets de Fecha Rápida */}
-        <div className="flex items-center gap-1.5 flex-wrap pb-2 border-b border-slate-800 text-xs">
-          <span className="text-slate-400 font-semibold flex items-center gap-1 mr-1">
-            <Calendar className="w-3.5 h-3.5 text-amber-400" /> Rango:
+        <div className="flex items-center gap-1.5 flex-wrap pb-2 border-b border-slate-200 dark:border-slate-800 text-xs">
+          <span className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-1 mr-1">
+            <Calendar className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" /> Rango:
           </span>
           {(['today', 'yesterday', 'week', 'month', 'all'] as const).map(p => {
             const labels = {
@@ -561,8 +561,8 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 onClick={() => handlePresetChange(p)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isSel
-                    ? 'bg-amber-500 text-slate-950 shadow-sm font-bold'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs font-bold'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                 }`}
               >
                 {labels[p]}
@@ -575,7 +575,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Búsqueda Global */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
@@ -584,7 +584,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 setCurrentPage(1);
               }}
               placeholder="Buscar por placa, detalle, ID..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-200 placeholder-slate-500 focus:outline-hidden focus:border-amber-500"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:border-amber-500"
             />
           </div>
 
@@ -596,7 +596,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 setEventTypeFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-hidden focus:border-amber-500 font-medium"
+              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 font-medium cursor-pointer"
             >
               <option value="ALL">📁 Todos los Tipos de Eventos</option>
               <option value="ENTRY">🚗 Ingresos (ENTRY)</option>
@@ -618,7 +618,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 setOperatorFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-hidden focus:border-amber-500 font-medium"
+              className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 font-medium cursor-pointer"
             >
               <option value="ALL">👤 Todos los Operadores</option>
               {operatorsList.map(op => (
@@ -637,9 +637,9 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 setDateRangePreset('custom');
                 setCurrentPage(1);
               }}
-              className="w-1/2 px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-200 focus:outline-hidden focus:border-amber-500 font-mono"
+              className="w-1/2 px-2.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 font-mono"
             />
-            <span className="text-slate-500 text-xs font-bold">a</span>
+            <span className="text-slate-600 dark:text-slate-400 text-xs font-bold">a</span>
             <input
               type="date"
               value={endDate}
@@ -648,17 +648,17 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 setDateRangePreset('custom');
                 setCurrentPage(1);
               }}
-              className="w-1/2 px-2.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-200 focus:outline-hidden focus:border-amber-500 font-mono"
+              className="w-1/2 px-2.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:border-amber-500 font-mono"
             />
           </div>
         </div>
       </div>
 
       {/* Tabla de Registros */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-            <thead className="bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+          <table className="w-full text-left text-xs text-slate-800 dark:text-slate-200">
+            <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-3.5 px-4">Fecha & Hora</th>
                 <th className="py-3.5 px-4">Tipo de Evento</th>
@@ -667,7 +667,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 <th className="py-3.5 px-4 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-sans">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-sans">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center text-slate-600 dark:text-slate-400">
@@ -684,12 +684,12 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                   return (
                     <tr
                       key={log.id}
-                      className="hover:bg-slate-100/80 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer"
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer"
                       onClick={() => setSelectedLog(log)}
                     >
                       {/* Fecha y Hora */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="font-mono font-bold text-slate-900 dark:text-slate-200">
+                        <div className="font-mono font-bold text-slate-900 dark:text-slate-100">
                           {formatIsoDate(log.timestamp)}
                         </div>
                         <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">
@@ -710,7 +710,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
 
                       {/* Operador y Terminal */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-200">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-100">
                           <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                           <span>{log.operator || 'Cajero'}</span>
                         </div>
@@ -724,20 +724,20 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                       <td className="py-3.5 px-4 max-w-md">
                         {parsed.isJson && parsed.data.databaseState ? (
                           <div className="space-y-1">
-                            <div className="font-semibold text-cyan-200 text-xs truncate">
+                            <div className="font-semibold text-cyan-800 dark:text-cyan-300 text-xs truncate">
                               {parsed.data.details?.ticketNumber ? `Ticket: ${parsed.data.details.ticketNumber} [${parsed.data.details.plate}]` : parsed.data.action}
                             </div>
-                            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
-                              <span className="bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+                            <div className="flex items-center gap-2 text-[10px] text-slate-700 dark:text-slate-300 font-mono">
+                              <span className="bg-slate-100 dark:bg-slate-950 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-800">
                                 🚗 Tickets Activos: <strong>{parsed.data.databaseState.activeTicketsCount}</strong>
                               </span>
-                              <span className="bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
+                              <span className="bg-slate-100 dark:bg-slate-950 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-800">
                                 🅿️ Plazas Ocupadas: <strong>{parsed.data.databaseState.occupiedSpotsCount}</strong>
                               </span>
                             </div>
                           </div>
                         ) : (
-                          <div className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                          <div className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2 leading-relaxed">
                             {log.details || 'Sin detalles adicionales'}
                           </div>
                         )}
@@ -752,10 +752,10 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                               e.stopPropagation();
                               handleCopyJson(log);
                             }}
-                            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-all"
+                            className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-lg transition-all cursor-pointer"
                             title="Copiar JSON del registro"
                           >
-                            {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                            {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                           <button
                             type="button"
@@ -763,7 +763,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                               e.stopPropagation();
                               setSelectedLog(log);
                             }}
-                            className="p-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 rounded-lg transition-all"
+                            className="p-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-800 dark:text-amber-300 border border-amber-500/30 rounded-lg transition-all cursor-pointer"
                             title="Ver inspección completa"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -787,7 +787,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
         </div>
 
         {/* Paginación y Resumen */}
-        <div className="bg-slate-950 px-5 py-3.5 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div className="bg-slate-50 dark:bg-slate-950 px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-700 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <span>Mostrando {paginatedLogs.length} de {filteredLogs.length} registros</span>
             <span>•</span>
@@ -797,7 +797,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
                 setRowsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-slate-300 focus:outline-hidden"
+              className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-slate-800 dark:text-slate-200 focus:outline-hidden font-medium cursor-pointer"
             >
               <option value={10}>10 filas</option>
               <option value={25}>25 filas</option>
@@ -811,18 +811,18 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
               type="button"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              className="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="p-1.5 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-mono text-slate-200">
+            <span className="font-mono text-slate-900 dark:text-slate-200 font-bold">
               Página {currentPage} de {totalPages}
             </span>
             <button
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              className="p-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="p-1.5 bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -832,23 +832,23 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
 
       {/* Modal de Detalle Completo del Log Seleccionado */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
             {/* Header */}
-            <div className="bg-slate-950 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+            <div className="bg-slate-50 dark:bg-slate-950 px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 dark:text-amber-400 flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white text-sm">Inspección de Registro de Auditoría</h4>
-                  <p className="text-[11px] font-mono text-slate-400">ID: {selectedLog.id}</p>
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm">Inspección de Registro de Auditoría</h4>
+                  <p className="text-[11px] font-mono text-slate-600 dark:text-slate-400">ID: {selectedLog.id}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedLog(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
               >
                 ✕
               </button>
@@ -857,28 +857,28 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
             {/* Contenido */}
             <div className="p-6 overflow-y-auto space-y-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Acción / Evento</span>
-                  <span className="font-mono font-bold text-amber-300 text-xs mt-1 block">{selectedLog.action}</span>
+                <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold block">Acción / Evento</span>
+                  <span className="font-mono font-bold text-amber-700 dark:text-amber-300 text-xs mt-1 block">{selectedLog.action}</span>
                 </div>
-                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Operador</span>
-                  <span className="font-semibold text-slate-200 text-xs mt-1 block">{selectedLog.operator || 'Cajero'}</span>
+                <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold block">Operador</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100 text-xs mt-1 block">{selectedLog.operator || 'Cajero'}</span>
                 </div>
-                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Terminal</span>
-                  <span className="font-mono font-semibold text-slate-200 text-xs mt-1 block">{selectedLog.terminalId || 'TAQUILLA-01'}</span>
+                <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold block">Terminal</span>
+                  <span className="font-mono font-semibold text-slate-900 dark:text-slate-100 text-xs mt-1 block">{selectedLog.terminalId || 'TAQUILLA-01'}</span>
                 </div>
-                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Marca de Tiempo</span>
-                  <span className="font-mono text-[11px] text-slate-300 mt-1 block">{formatIsoDate(selectedLog.timestamp)}</span>
+                <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-bold block">Marca de Tiempo</span>
+                  <span className="font-mono text-[11px] text-slate-800 dark:text-slate-200 mt-1 block">{formatIsoDate(selectedLog.timestamp)}</span>
                 </div>
               </div>
 
               {/* Detalle o Payload JSON */}
               <div>
-                <label className="text-xs font-bold text-slate-300 mb-1.5 block">Carga Útil / Datos del Evento:</label>
-                <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-200 overflow-x-auto max-h-72">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 block">Carga Útil / Datos del Evento:</label>
+                <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-900 dark:text-slate-200 overflow-x-auto max-h-72">
                   <pre className="whitespace-pre-wrap select-all">
                     {parseDetails(selectedLog.details).isJson
                       ? JSON.stringify(parseDetails(selectedLog.details).data, null, 2)
@@ -889,11 +889,11 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="bg-slate-950 px-6 py-3 border-t border-slate-800 flex items-center justify-between">
+            <div className="bg-slate-50 dark:bg-slate-950 px-6 py-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => handleCopyJson(selectedLog)}
-                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>Copiar Registro Completo</span>
@@ -901,7 +901,7 @@ export const AuditHistory: React.FC<AuditHistoryProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedLog(null)}
-                className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl transition-all"
+                className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-xl transition-all cursor-pointer"
               >
                 Cerrar
               </button>

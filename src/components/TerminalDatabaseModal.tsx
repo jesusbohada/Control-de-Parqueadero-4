@@ -1024,40 +1024,40 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
           {/* Resultado de diagnóstico en vivo */}
           {barcodeTestResult && (
-            <div className="mt-3 p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 animate-in fade-in">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                <span className="font-bold text-xs text-slate-200 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className="mt-3 p-4 rounded-xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-3 animate-in fade-in shadow-xs">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <span className="font-bold text-xs text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Desglose de la Transmisión de Hardware:</span>
                 </span>
-                <span className="text-[10px] font-mono text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-500/30">
+                <span className="text-[10px] font-mono text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/30 font-bold">
                   Velocidad: {barcodeTestResult.speedMs} ms/caracter
                 </span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-500 block">Cadena Cruda:</span>
-                  <span className="font-mono font-bold text-slate-300 truncate block">"{barcodeTestResult.raw}"</span>
+                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 block font-semibold">Cadena Cruda:</span>
+                  <span className="font-mono font-bold text-slate-800 dark:text-slate-300 truncate block">"{barcodeTestResult.raw}"</span>
                 </div>
 
-                <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-500 block">Prefijo Evaluado:</span>
-                  <span className={`font-mono font-bold ${barcodeTestResult.hasValidPrefix ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 block font-semibold">Prefijo Evaluado:</span>
+                  <span className={`font-mono font-bold ${barcodeTestResult.hasValidPrefix ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                     {barcodeTestResult.hasValidPrefix ? '✓ Correcto' : '✗ Inválido'}
                   </span>
                 </div>
 
-                <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-500 block">Código Neto Extraído:</span>
-                  <span className="font-mono font-black text-amber-300 truncate block">
+                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 block font-semibold">Código Neto Extraído:</span>
+                  <span className="font-mono font-black text-amber-700 dark:text-amber-400 truncate block">
                     "{barcodeTestResult.extracted}"
                   </span>
                 </div>
 
-                <div className="p-2 rounded-lg bg-slate-950 border border-slate-800">
-                  <span className="text-[10px] text-slate-500 block">Sufijo Evaluado:</span>
-                  <span className={`font-mono font-bold ${barcodeTestResult.hasValidSuffix ? 'text-emerald-400' : 'text-amber-400'}`}>
+                <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-600 dark:text-slate-400 block font-semibold">Sufijo Evaluado:</span>
+                  <span className={`font-mono font-bold ${barcodeTestResult.hasValidSuffix ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`}>
                     {barcodeTestResult.hasValidSuffix ? '✓ Correcto' : 'Terminador Enter'}
                   </span>
                 </div>
@@ -1066,28 +1066,28 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
               {/* Diagnóstico en Base de Datos */}
               <div className={`p-3 rounded-xl border text-xs ${
                 barcodeTestResult.matchedTicket
-                  ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-300'
-                  : 'bg-rose-950/60 border-rose-500/50 text-rose-200'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-300'
+                  : 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-500/50 text-rose-900 dark:text-rose-200'
               }`}>
                 {barcodeTestResult.matchedTicket ? (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span className="font-medium">
                         Ticket Activo #{barcodeTestResult.matchedTicket.ticketNumber} ({barcodeTestResult.matchedTicket.plate}) en Plaza {barcodeTestResult.matchedTicket.spotCode}
                       </span>
                     </div>
-                    <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase bg-emerald-900/50 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-mono font-bold text-emerald-800 dark:text-emerald-300 uppercase bg-emerald-100 dark:bg-emerald-900/50 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-700">
                       En Patio
                     </span>
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2 font-bold text-rose-300">
-                      <AlertOctagon className="w-4 h-4 text-rose-400 shrink-0" />
+                    <div className="flex items-center gap-2 font-bold text-rose-800 dark:text-rose-300">
+                      <AlertOctagon className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                       <span>Ticket No Encontrado en Base de Datos de Patio</span>
                     </div>
-                    <p className="text-[11px] text-rose-200/90 leading-tight">
+                    <p className="text-[11px] text-rose-800 dark:text-rose-200/90 leading-tight">
                       El código "{barcodeTestResult.extracted}" no coincide con ningún ticket activo en esta terminal. Se activará el indicador visual de advertencia Toast.
                     </p>
                   </div>
@@ -1174,8 +1174,8 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
               key={db.terminalId}
               className={`p-4 rounded-xl border transition-all flex flex-col justify-between gap-3 ${
                 isActive
-                  ? 'bg-slate-900/90 border-emerald-500/40 shadow-xs ring-1 ring-emerald-500/20'
-                  : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-slate-700'
+                  ? 'bg-emerald-500/10 dark:bg-slate-900/90 border-emerald-500/50 shadow-xs ring-1 ring-emerald-500/30'
+                  : 'bg-white dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
               }`}
             >
               <div>
@@ -1183,9 +1183,9 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Database className={`w-4 h-4 shrink-0 ${isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-300'}`} />
                     <div>
-                      <h5 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 flex-wrap">
+                      <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 flex-wrap">
                         <span>{db.terminalName}</span>
-                        <span className="font-mono text-[10px] text-amber-700 dark:text-amber-400 bg-white dark:bg-slate-900 px-1.5 py-0.2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="font-mono text-[10px] text-amber-700 dark:text-amber-400 bg-slate-100 dark:bg-slate-900 px-1.5 py-0.2 rounded border border-slate-300 dark:border-slate-800">
                           {db.terminalId}
                         </span>
                       </h5>
@@ -1196,19 +1196,19 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                   </div>
 
                   {isActive ? (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                       Conectada
                     </span>
                   ) : (
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-slate-850 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shrink-0">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 shrink-0">
                       Disponible
                     </span>
                   )}
                 </div>
 
                 {db.description && (
-                  <p className="text-[11px] text-slate-200 mt-2 bg-slate-50 dark:bg-slate-950/50 p-2 rounded-lg border border-slate-200 dark:border-slate-800/80">
+                  <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-2 bg-slate-50 dark:bg-slate-950/50 p-2 rounded-lg border border-slate-200 dark:border-slate-800/80">
                     {db.description}
                   </p>
                 )}
@@ -1955,7 +1955,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
         {/* Content View: PostgreSQL Administrator OR IndexedDB Workspace */}
         {engineMode === 'postgres' ? (
-          <div className="flex-1 bg-slate-950 p-4 overflow-hidden flex flex-col">
+          <div className="flex-1 bg-slate-50 dark:bg-slate-950 p-4 overflow-hidden flex flex-col">
             <PostgresAdminTab />
           </div>
         ) : (
@@ -2266,7 +2266,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setIsEditingTerminal(!isEditingTerminal)}
-                        className="text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:text-amber-300 font-bold underline bg-slate-850 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="text-xs text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:text-amber-300 font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
                       >
                         {isEditingTerminal ? 'Cancelar' : 'Reasignar ID'}
                       </button>
@@ -2392,7 +2392,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                       Permite iniciar, levantar, actualizar y configurar la base de datos local del parqueadero directamente en Windows con un solo doble clic.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                      <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between">
+                      <div className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between">
                         <div>
                           <span className="font-mono text-xs font-extrabold text-emerald-700 dark:text-emerald-400 block">INICIAR_PARQUEADERO.bat</span>
                           <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-0.5">
@@ -2402,14 +2402,14 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleDownloadBat('INICIAR_PARQUEADERO.bat', `@echo off\ncd /d "%~dp0"\ntitle Sistema de Control de Parqueadero POS\ncolor 0A\ncls\necho =====================================================================\necho           SISTEMA DE CONTROL DE PARQUEADERO POS - LOCAL\necho =====================================================================\necho.\nwhere npm >nul 2>&1\nif %errorlevel% equ 0 goto :node_ok\necho [ERROR] Node.js (npm) no esta instalado en este computador o no esta en el PATH.\necho Para que el sistema funcione localmente, debes instalar Node.js.\necho Descargalo desde: https://nodejs.org/\necho Despues de instalarlo, REINICIA el equipo y vuelve a ejecutar este archivo.\necho.\npause\nexit\n:node_ok\necho [OK] Node.js detectado correctamente.\necho.\nif not exist node_modules (\n    echo [INFO] No se detecto la carpeta node_modules. Instalando dependencias necesarias...\n    echo Esto puede tardar un momento, por favor espera...\n    echo.\n    call npm install\n)\necho.\necho [OK] Dependencias listas.\necho.\nset DEV_PORT=3000\nnetstat -ano | findstr LISTENING | findstr ":3000" >nul 2>&1\nif %errorlevel% neq 0 goto :port_ok\necho =====================================================================\necho [ALERTA] El puerto 3000 ya esta siendo utilizado en tu computadora.\necho =====================================================================\necho Esto sucede comunmente si cerraste la ventana anterior sin detener el\necho servidor, o si otra aplicacion en tu PC esta usando el puerto 3000.\necho.\necho Selecciona una opcion:\necho [1] Liberar el puerto 3000 automaticamente (Recomendado - Cierra el proceso activo)\necho [2] Iniciar el parqueadero en un puerto alternativo (Puerto 3001)\necho [3] Intentar iniciar de todos modos\necho.\nset /p port_opt="Digita el numero de tu opcion (1-3) y presiona Enter: "\nif "%port_opt%"=="1" goto :kill_port\nif "%port_opt%"=="2" goto :change_port\ngoto :port_ok\n:kill_port\necho.\necho Buscando proceso en el puerto 3000...\nfor /f "tokens=5" %%a in ('netstat -aon ^| findstr "LISTENING" ^| findstr ":3000"') do (\n    echo Cerrando proceso con PID %%a...\n    taskkill /F /PID %%a >nul 2>&1\n)\necho Puerto 3000 liberado con exito.\necho.\ngoto :port_ok\n:change_port\nset DEV_PORT=3001\necho.\necho Configurando puerto alternativo: 3001\necho.\n:port_ok\necho.\necho Abriendo aplicacion en el navegador web...\nstart " http://localhost:%DEV_PORT%\necho.\necho Iniciando servidor local en el puerto %DEV_PORT%...\necho (Deja esta ventana abierta para mantener el sistema encendido)\necho.\nset PORT=%DEV_PORT%\ncall npm run dev\nif %errorlevel% neq 0 (\n    echo.\n    echo [ERROR] Hubo un error al iniciar el servidor local con 'npm run dev'.\n    echo Intenta reinstalar las dependencias borrando la carpeta 'node_modules' y ejecutando este script de nuevo.\n    echo.\n    pause\n)`)}
-                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700 transition-colors"
                         >
                           <Download className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                           <span>Descargar script ejecutable</span>
                         </button>
                       </div>
 
-                      <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between">
+                      <div className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between">
                         <div>
                           <span className="font-mono text-xs font-extrabold text-indigo-700 dark:text-indigo-400 block">ACTUALIZAR_SISTEMA.bat</span>
                           <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-0.5">
@@ -2419,14 +2419,14 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                          <button
                           type="button"
                           onClick={() => handleDownloadBat('ACTUALIZAR_SISTEMA.bat', `@echo off\ncd /d "%~dp0"\ntitle Actualizador del Sistema de Control de Parqueadero\ncolor 0B\ncls\necho =====================================================================\necho          ACTUALIZADOR DEL SISTEMA DE CONTROL DE PARQUEADERO\necho =====================================================================\necho.\necho Directorio activo: %CD%\necho.\nwhere npm >nul 2>&1\nif %errorlevel% equ 0 goto :npm_ok\necho [ERROR] Node.js (npm) no esta instalado en este computador o no esta en el PATH.\necho Para que el sistema funcione localmente, debes instalar Node.js.\necho Descargalo desde: https://nodejs.org/\necho.\npause\nexit\n:npm_ok\nwhere git >nul 2>&1\nif %errorlevel% equ 0 goto :git_ok\necho [ADVERTENCIA] Git no esta instalado en este computador.\necho No es posible descargar actualizaciones de codigo de GitHub sin Git.\necho Para actualizar de forma automatica, instala Git desde: https://git-scm.com/\necho o descarga la ultima version ZIP desde la plataforma y descomprimela aqui.\necho.\nset /p re_dep="Deseas reinstalar las dependencias locales con npm install? (S/N): "\nif /i "%re_dep%"=="S" goto :dependencies\ngoto :end_success\n:git_ok\nif exist .git goto :repo_ok\necho [ADVERTENCIA] Esta carpeta no esta vinculada a un repositorio Git (posiblemente descargado como ZIP).\necho No se pueden descargar actualizaciones de codigo de GitHub en esta carpeta.\necho.\necho Opciones:\necho [1] Reinstalar dependencias de Node.js locales (npm install)\necho [2] Vincular esta carpeta a tu repositorio Git de GitHub\necho [3] Salir\necho.\nset /p zip_opt="Selecciona una opcion (1-3): "\nif "%zip_opt%"=="1" goto :dependencies\nif "%zip_opt%"=="2" goto :initialize_git\ngoto :end_success\n:initialize_git\necho.\necho Inicializando repositorio Git...\ngit init\nset /p git_url="Ingresa la URL del repositorio de GitHub: "\nif "%git_url%"==" goto :end_success\ngit remote add origin %git_url%\ngit fetch\ngit checkout -f main\necho Vinculado con exito.\ngoto :update_menu\n:repo_ok\n:update_menu\necho Selecciona el tipo de actualizacion:\necho [1] Actualizacion Estandar (Conserva tus configuraciones locales)\necho [2] Actualizacion Forzada (Sobrescribe cambios de codigo locales - RECOMENDADO)\necho [3] Solo reinstalar dependencias (npm install)\necho [4] Cancelar y Salir\necho.\nset /p opt="Selecciona una opcion (1-4): "\nif "%opt%"=="1" goto :standard_update\nif "%opt%"=="2" goto :forced_update\nif "%opt%"=="3" goto :dependencies\ngoto :end_success\n:standard_update\necho.\necho Ejecutando git pull...\ngit pull origin main\ngoto :dependencies\n:forced_update\necho.\necho [ADVERTENCIA] Esto sobrescribira cualquier modificacion local de codigo.\necho Ejecutando git reset y descarga...\ngit fetch --all\ngit reset --hard origin/main\ngit pull origin main\ngoto :dependencies\n:dependencies\necho.\necho =====================================================================\necho               INSTALANDO DEPENDENCIAS DE NODE.JS\necho =====================================================================\necho.\necho Ejecutando npm install... (Por favor espera, esto puede tomar un momento)\necho.\ncmd /c npm install\nif %errorlevel% neq 0 (\n    echo.\n    echo [ERROR] Hubo un problema al instalar las dependencias con npm.\n    echo Por favor, verifica tu conexion a internet e intenta de nuevo.\n) else (\n    echo.\n    echo Dependencias instaladas con exito.\n)\ngoto :end_success\n:end_success\necho.\necho =====================================================================\necho                   PROCESO DE ACTUALIZACION CONCLUIDO\necho =====================================================================\necho.\necho Ya puedes iniciar el sistema ejecutando: INICIAR_PARQUEADERO.bat\necho.\npause\nexit`)}
-                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700 transition-colors"
                         >
                           <Download className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
                           <span>Descargar script actualización</span>
                         </button>
                       </div>
 
-                      <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between">
+                      <div className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 flex flex-col justify-between">
                         <div>
                           <span className="font-mono text-xs font-extrabold text-amber-700 dark:text-amber-400 block">INSTALAR_SISTEMA_NUEVO.bat</span>
                           <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-0.5">
@@ -2436,7 +2436,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                         <button
                           type="button"
                           onClick={() => handleDownloadBat('INSTALAR_SISTEMA_NUEVO.bat', `@echo off\r\ncd /d "%~dp0"\r\ntitle Asistente de Instalacion y Configuracion de Parqueadero POS\r\ncolor 0E\r\ncls\r\necho =====================================================================\r\necho    ASISTENTE DE INSTALACION PARA EQUIPOS NUEVOS - PARQUEADERO POS\r\necho =====================================================================\r\necho.\r\necho Este asistente instalara y configurara automaticamente todo lo necesario\r\necho para ejecutar la aplicacion de control de parqueadero local en este equipo.\r\necho.\r\necho Se realizaran las siguientes acciones:\r\necho [1] Verificar e instalar Node.js (Entorno de ejecucion)\r\necho [2] Verificar e instalar Git (Para recibir actualizaciones en 1-clic)\r\necho [3] Instalar dependencias del sistema (Modulos Node.js)\r\necho [4] Crear un acceso directo en tu Escritorio de Windows\r\necho.\r\necho =====================================================================\r\necho ADVERTENCIA: Asegurate de tener conexion a internet para las descargas.\r\necho =====================================================================\r\necho.\r\nset /p start_opt="Deseas comenzar con la instalacion automatica? (S/N): "\r\nif /i "%start_opt%" neq "S" goto :cancel\r\ncls\r\ncolor 0B\r\necho =====================================================================\r\necho               PASO 1: VERIFICANDO E INSTALANDO NODE.JS\r\necho =====================================================================\r\necho.\r\nwhere npm >nul 2>&1\r\nif %errorlevel% equ 0 (\r\n    echo [OK] Node.js ya esta instalado en este equipo.\r\n    goto :check_git\r\n)\r\necho [INFO] Node.js no fue detectado. Iniciando instalacion silenciosa...\r\necho Descargando e instalando Node.js LTS via winget de Windows...\r\necho Por favor espera, esto puede tomar de 1 a 2 minutos...\r\necho.\r\nwinget install --id OpenJS.NodeJS.LTS -e --silent --accept-source-agreements --accept-package-agreements\r\nif %errorlevel% neq 0 (\r\n    echo.\r\n    echo [ERROR] No se pudo instalar Node.js de forma automatica via winget.\r\n    echo Por favor, descargalo manualmente desde: https://nodejs.org/\r\n    echo E instalalo marcando la opcion "Add to PATH" antes de continuar.\r\n    echo.\r\n    pause\r\n    exit\r\n)\necho [OK] Node.js instalado con exito.\r\necho.\r\n:check_git\r\necho =====================================================================\r\necho                 PASO 2: VERIFICANDO E INSTALANDO GIT\r\necho =====================================================================\r\necho.\r\nwhere git >nul 2>&1\r\nif %errorlevel% equ 0 (\r\n    echo [OK] Git ya esta instalado en este equipo.\r\n    goto :install_deps\r\n)\r\necho [INFO] Git no fue detectado. Iniciando instalacion silenciosa...\r\necho Descargando e instalando Git via winget de Windows...\r\necho Por favor espera, esto puede tomar 1 minuto...\r\necho.\r\nwinget install --id Git.Git -e --silent --accept-source-agreements --accept-package-agreements\r\nif %errorlevel% neq 0 (\r\n    echo.\r\n    echo [ADVERTENCIA] No se pudo instalar Git automaticamente.\r\n    echo Podras iniciar el sistema local, pero no podras usar el actualizador automatico.\r\n    echo Si deseas habilitar las actualizaciones, instala Git desde: https://git-scm.com/\r\n    echo.\r\n    pause\r\n) else (\r\n    echo [OK] Git instalado con exito.\r\n)\necho.\r\n:install_deps\r\ncls\r\ncolor 0E\r\necho =====================================================================\r\necho               PASO 3: INSTALANDO DEPENDENCIAS DE NODE.JS\r\necho =====================================================================\r\necho.\r\necho Ejecutando npm install...\r\necho (Este proceso descarga los modulos de ejecucion y puede tardar un momento)\r\necho.\r\ncall npm install\r\nif %errorlevel% neq 0 (\r\n    echo.\r\n    echo [ERROR] Ocurrio un error al instalar las dependencias con 'npm install'.\r\n    echo Por favor, verifica tu conexion a internet e intenta ejecutar este script de nuevo.\r\n    echo.\r\n    pause\r\n    exit\r\n)\necho [OK] Dependencias de Node.js instaladas correctamente.\r\necho.\r\n:create_shortcut\r\ncls\r\ncolor 0A\r\necho =====================================================================\r\necho                 PASO 4: CREANDO ACCESO DIRECTO\r\necho =====================================================================\r\necho.\r\necho Creando acceso directo en tu Escritorio de Windows...\r\necho.\r\nset "SCRIPT_PATH=%~dp0INICIAR_PARQUEADERO.bat"\r\nset "SHORTCUT_PATH=%USERPROFILE%\\Desktop\\Parqueadero POS.lnk"\r\npowershell -NoProfile -Command ^\r\n    "$WshShell = New-Object -ComObject WScript.Shell; ^\r\n     $Shortcut = $WshShell.CreateShortcut('%SHORTCUT_PATH%'); ^\r\n     $Shortcut.TargetPath = '%SCRIPT_PATH%'; ^\r\n     $Shortcut.WorkingDirectory = '%~dp0'; ^\r\n     $Shortcut.IconLocation = 'C:\\Windows\\System32\\shell32.dll,23'; ^\r\n     $Shortcut.Description = 'Iniciar el Sistema de Parqueadero POS'; ^\r\n     $Shortcut.Save()"\r\nif %errorlevel% equ 0 (\r\n    echo [OK] Acceso directo \\"Parqueadero POS\\" creado en tu Escritorio con exito.\r\n) else (\r\n    echo [ADVERTENCIA] No se pudo crear el acceso directo de forma automatica.\r\n    echo Sin embargo, la instalacion fue exitosa.\r\n)\necho.\r\ncls\r\ncolor 0A\r\necho =====================================================================\r\necho                 ¡INSTALACION COMPLETADA CON EXITO!\r\necho =====================================================================\r\necho.\r\necho Felicidades, el sistema se ha configurado por completo para este equipo.\r\necho.\r\necho Para empezar a usar la aplicacion:\r\necho 1. Haz doble clic en el icono \\"Parqueadero POS\\" creado en tu Escritorio.\r\necho 2. El sistema se abrira automaticamente en tu navegador web.\r\necho.\r\necho =====================================================================\r\npause\r\nexit\r\n:cancel\r\necho.\r\necho Instalacion cancelada por el usuario.\r\necho.\r\npause\r\nexit`)}
-                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white transition-colors"
+                          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700 transition-colors"
                         >
                           <Download className="w-3.5 h-3.5 text-amber-500" />
                           <span>Descargar instalador</span>
@@ -2446,9 +2446,9 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                   </div>
 
                   {/* Actualizador en Vivo */}
-                  <div className="border border-indigo-900/30 bg-indigo-950/10 rounded-xl p-4 space-y-3">
+                  <div className="border border-indigo-200 dark:border-indigo-900/30 bg-indigo-50/50 dark:bg-indigo-950/10 rounded-xl p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-indigo-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold text-indigo-900 dark:text-indigo-200 uppercase tracking-wider flex items-center gap-1.5">
                         <RefreshCw className={`w-4 h-4 text-indigo-700 dark:text-indigo-400 ${updatingApp || installingGit ? 'animate-spin' : ''}`} />
                         <span>Actualizador en Vivo (Nube)</span>
                       </h4>
@@ -2462,7 +2462,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                     </p>
 
                     {/* Estado del Entorno de Git en la PC */}
-                    <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/60 rounded-lg p-3 border border-slate-200 dark:border-slate-800/80 space-y-2">
+                    <div className="bg-white dark:bg-slate-950/60 rounded-lg p-3 border border-slate-200 dark:border-slate-800/80 space-y-2">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-700 dark:text-slate-200 font-medium">Estado del entorno Git:</span>
                         {checkingGit ? (
@@ -2490,8 +2490,8 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
                       {/* Si Git no está instalado, dar solución automática */}
                       {gitStatus && !gitStatus.installed && (
-                        <div className="bg-amber-950/20 border border-amber-900/30 rounded p-2.5 space-y-2">
-                          <p className="text-[11px] text-amber-200 leading-relaxed">
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded p-2.5 space-y-2">
+                          <p className="text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed">
                             <strong>¿Por qué es necesario Git?</strong> Git es la herramienta que permite descargar automáticamente los últimos archivos del parqueadero de manera segura. Si no está instalado en este equipo, la actualización en vivo no funcionará.
                           </p>
                           {gitStatus.platform === 'win32' ? (
@@ -2522,7 +2522,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                     {gitStatus?.installed && (
                       gitStatus.isRepo ? (
                         <div className="space-y-3">
-                          <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2">
+                          <div className="bg-slate-50 dark:bg-slate-950/40 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2">
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <input
@@ -2541,7 +2541,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => setIsChangingRepo(!isChangingRepo)}
-                                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-indigo-800 dark:text-indigo-300 border border-slate-300 dark:border-slate-700 transition-all cursor-pointer whitespace-nowrap"
+                                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-300 border border-slate-300 dark:border-slate-700 transition-all cursor-pointer whitespace-nowrap"
                                   title="Modificar la URL del repositorio remoto de GitHub"
                                 >
                                   <GitBranch className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
@@ -2580,14 +2580,14 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
                           {/* Panel desplegable para cambiar o modificar el repositorio de GitHub */}
                           {isChangingRepo && (
-                            <div className="border border-indigo-500/40 bg-indigo-950/20 rounded-xl p-3.5 space-y-3 animate-in fade-in duration-150">
+                            <div className="border border-indigo-200 dark:border-indigo-500/40 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-xl p-3.5 space-y-3 animate-in fade-in duration-150">
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-indigo-200 flex items-center gap-1.5 uppercase tracking-wider">
+                                <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5 uppercase tracking-wider">
                                   <GitBranch className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
                                   <span>Cambiar Repositorio Vinculado (GitHub)</span>
                                 </span>
                                 {gitStatus.remoteUrl && (
-                                  <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-2 py-0.5 rounded font-bold">
+                                  <span className="text-[10px] font-mono text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/80 px-2 py-0.5 rounded font-bold">
                                     Origen actual: {gitStatus.remoteUrl}
                                   </span>
                                 )}
@@ -2625,7 +2625,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                           )}
                         </div>
                       ) : (
-                        <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
+                        <div className="bg-slate-50 dark:bg-slate-950/40 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
                           <div className="bg-amber-500/10 border border-amber-500/20 rounded p-2.5">
                             <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed font-semibold">
                               ⚠️ Carpeta local no vinculada a Git (Descargada como ZIP)
@@ -2636,7 +2636,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                           </div>
 
                           {/* OPCIÓN 1: ACTUALIZACIÓN DIRECTA EN 1-CLIC */}
-                          <div className="border border-indigo-500/30 bg-indigo-500/5 rounded-lg p-3 space-y-3">
+                          <div className="border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-500/5 rounded-lg p-3 space-y-3">
                             <span className="text-[10px] text-indigo-800 dark:text-indigo-300 font-extrabold uppercase tracking-wider block">Método 1: Sincronización en 2 Pasos (Recomendado / Seguro)</span>
                             <p className="text-[10px] text-slate-700 dark:text-slate-200 leading-relaxed">
                               Debido a políticas de seguridad y autenticación de la nube, tu servidor local en PC no puede descargar el archivo directamente en segundo plano (provoca error de formato). Sigue estos sencillos pasos para actualizar en 10 segundos de forma 100% segura:
@@ -2648,7 +2648,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                                 <div>
                                   <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold block mb-1">👉 PASO 1: Descargar el Parche</span>
                                   <p className="text-[9px] text-slate-700 dark:text-slate-200 leading-normal">
-                                    Haz clic para descargar el archivo <code className="text-emerald-800 dark:text-emerald-300 bg-emerald-950/40 px-1 py-0.2 rounded font-mono text-[9px]">project_update.zip</code> utilizando tu sesión activa:
+                                    Haz clic para descargar el archivo <code className="text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/40 px-1 py-0.2 rounded font-mono text-[9px]">project_update.zip</code> utilizando tu sesión activa:
                                   </p>
                                 </div>
                                 <button
@@ -2682,7 +2682,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                                   />
                                   <label
                                     htmlFor="zip-uploader-input"
-                                    className="flex items-center justify-center gap-1 w-full py-1.5 mt-2 rounded border border-dashed border-indigo-500/40 hover:border-indigo-500 bg-indigo-950/15 hover:bg-indigo-950/30 text-indigo-800 dark:text-indigo-300 text-[10px] font-bold transition-all cursor-pointer text-center"
+                                    className="flex items-center justify-center gap-1 w-full py-1.5 mt-2 rounded border border-dashed border-indigo-300 dark:border-indigo-500/40 hover:border-indigo-500 bg-indigo-50/50 hover:bg-indigo-100 dark:bg-indigo-950/15 dark:hover:bg-indigo-950/30 text-indigo-800 dark:text-indigo-300 text-[10px] font-bold transition-all cursor-pointer text-center"
                                   >
                                     <Upload className="w-3.5 h-3.5 text-indigo-800 dark:text-indigo-300" />
                                     <span>{updatingApp ? 'Instalando...' : 'Seleccionar Archivo .zip'}</span>
@@ -2882,7 +2882,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                         <span>Eliminar</span>
                       </button>
 
-                      <div className="h-6 w-[1px] bg-slate-850 mx-1 hidden md:block"></div>
+                      <div className="h-6 w-[1px] bg-slate-300 dark:bg-slate-700 mx-1 hidden md:block"></div>
 
                       <button
                         onClick={() => loadTableData(sidebarSelection)}
@@ -3106,7 +3106,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
               {/* TAB GROUP 3: TABLE SCHEMA (TAB: 'structure') */}
               {sidebarSelection !== 'overview' && activeTab === 'structure' && (
                 <div className="space-y-4">
-                  <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1">
+                  <div className="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1">
                     <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                       <Layers className="w-4 h-4 text-amber-500" />
                       <span>Estructura de Campo y Tipado de Datos</span>
@@ -3128,26 +3128,26 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                           <th className="px-4 py-2">Valor de Ejemplo</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-900 text-[11px] text-slate-600 dark:text-slate-300">
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-[11px] text-slate-600 dark:text-slate-300">
                         {selectedTableDef?.columns.map(col => (
-                          <tr key={col.name} className="hover:bg-white dark:bg-slate-900">
-                            <td className="px-4 py-2 text-center border-r border-slate-900 font-bold">
+                          <tr key={col.name} className="hover:bg-white dark:hover:bg-slate-900">
+                            <td className="px-4 py-2 text-center border-r border-slate-200 dark:border-slate-800 font-bold">
                               {col.isKey ? (
                                 <span className="text-amber-700 dark:text-amber-400 cursor-help" title="Llave primaria">*</span>
                               ) : (
                                 <span className="text-slate-600 dark:text-slate-300">-</span>
                               )}
                             </td>
-                            <td className={`px-4 py-2 border-r border-slate-900 font-bold ${col.isKey ? 'text-amber-700 dark:text-amber-400' : 'text-slate-900 dark:text-slate-100'}`}>
+                            <td className={`px-4 py-2 border-r border-slate-200 dark:border-slate-800 font-bold ${col.isKey ? 'text-amber-700 dark:text-amber-400' : 'text-slate-900 dark:text-slate-100'}`}>
                               {col.name}
                             </td>
-                            <td className="px-4 py-2 border-r border-slate-900 font-bold text-indigo-700 dark:text-indigo-400">
+                            <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-800 font-bold text-indigo-700 dark:text-indigo-400">
                               {col.type}
                             </td>
-                            <td className="px-4 py-2 border-r border-slate-900 text-center text-slate-700 dark:text-slate-200">
+                            <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-800 text-center text-slate-700 dark:text-slate-200">
                               {col.isKey ? 'Sí (Primary)' : 'No (Nullable)'}
                             </td>
-                            <td className="px-4 py-2 border-r border-slate-900 text-slate-700 dark:text-slate-200 font-sans">
+                            <td className="px-4 py-2 border-r border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-sans">
                               {col.desc}
                             </td>
                             <td className="px-4 py-2 text-slate-600 dark:text-slate-300 italic">
@@ -3276,7 +3276,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                 <div className="space-y-4 animate-in fade-in-20">
                   
                   {/* HeidiSQL Schema representation */}
-                  <div className="bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1">
+                  <div className="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800 rounded-xl space-y-1">
                     <h4 className="text-xs font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
                       <HelpCircle className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
                       <span>Script Generado DDL (HeidiSQL para Migraciones)</span>
@@ -3314,7 +3314,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
         {/* PRO ROW JSON VIEWER/EDITOR MODAL (HeidiSQL Object Editor) */}
         {viewingRecord && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/70 backdrop-blur-xs">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-xl w-full flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-100">
               
               <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-5 py-3.5 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">
@@ -3397,7 +3397,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
         {/* CONFIRM DELETE MODAL */}
         {recordToDelete && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950/80">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-rose-900/40 shadow-2xl max-w-md w-full p-5 space-y-4">
               <div className="flex items-center gap-3 text-rose-700 dark:text-rose-400">
                 <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20">
@@ -3433,7 +3433,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
         {/* MODAL CREAR NUEVA BASE DE DATOS */}
         {isCreateDbOpen && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-indigo-700/50 shadow-2xl max-w-lg w-full p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
@@ -3490,7 +3490,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                     Plantilla de Inicialización
                   </label>
                   <div className="space-y-2">
-                    <label className="flex items-start gap-2 p-2.5 rounded-xl border border-slate-800 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/60 cursor-pointer hover:border-slate-300 dark:border-slate-700">
+                    <label className="flex items-start gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 cursor-pointer hover:border-slate-300 dark:border-slate-700">
                       <input
                         type="radio"
                         name="seedDefaults"
@@ -3504,7 +3504,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                       </div>
                     </label>
 
-                    <label className="flex items-start gap-2 p-2.5 rounded-xl border border-slate-800 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/60 cursor-pointer hover:border-slate-300 dark:border-slate-700">
+                    <label className="flex items-start gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 cursor-pointer hover:border-slate-300 dark:border-slate-700">
                       <input
                         type="radio"
                         name="seedDefaults"
@@ -3569,7 +3569,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
         {/* MODAL CLONAR BASE DE DATOS */}
         {isCloneDbOpen && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-amber-500/40 shadow-2xl max-w-lg w-full p-5 sm:p-6 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
@@ -3642,7 +3642,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                   <label className="block text-[10px] font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-1.5">
                     Contenido a Replicar
                   </label>
-                  <div className="space-y-2 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <div className="space-y-2 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
@@ -3714,7 +3714,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
 
         {/* MODAL CONFIRMAR ELIMINACIÓN DE BASE DE DATOS */}
         {dbToDelete && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in duration-150">
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-rose-900/40 shadow-2xl max-w-md w-full p-5 space-y-4">
               <div className="flex items-center gap-3 text-rose-700 dark:text-rose-400">
                 <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 shrink-0">

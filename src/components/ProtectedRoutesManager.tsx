@@ -657,7 +657,7 @@ export const ProtectedRoutesManager: React.FC<ProtectedRoutesManagerProps> = ({
       )}
 
       {/* 3. Interactive Routes Configuration Table */}
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-50 dark:bg-slate-950/70">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/70 shadow-xs">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-950 dark:text-slate-200 uppercase font-mono tracking-wider text-[10px]">
