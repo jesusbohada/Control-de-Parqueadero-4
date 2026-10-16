@@ -1100,14 +1100,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               {/* Vehicle Type Selection */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                    Tipo de Vehículo
+                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                    <span>Tipo de Vehículo:</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold normal-case">
+                      {configuredCategories.find(c => c.id === entryVehicleType)?.name || entryVehicleType}
+                    </span>
                   </label>
-                  <span className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">
-                    {configuredCategories.length} categorías
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    {spots.filter(s => s.type === entryVehicleType && s.status === 'available').length} libres
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   {configuredCategories.map((cat) => {
                     const isSelected = entryVehicleType === cat.id;
                     const availableForThis = spots.filter(s => s.type === cat.id && s.status === 'available').length;
@@ -1117,25 +1120,24 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         key={cat.id}
                         type="button"
                         aria-selected={isSelected}
+                        title={`${cat.name} (${availableForThis} disponibles)`}
+                        aria-label={`${cat.name} (${availableForThis} disponibles)`}
                         onClick={() => {
                           setEntryVehicleType(cat.id);
                           playSound('beep', soundEnabled);
                         }}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all text-xs cursor-pointer ${
+                        className={`h-16 sm:h-18 rounded-2xl border-2 flex items-center justify-center transition-all cursor-pointer ${
                           isSelected
-                            ? 'active-option-card bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-hover)] font-bold'
-                            : 'inactive-tab-indicator bg-[var(--bg-input)] text-[var(--text-muted)] border-[var(--border-color)] hover:text-[var(--text-main)]'
+                            ? 'border-indigo-600 dark:border-indigo-500 bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-md ring-2 ring-indigo-500/20'
+                            : 'border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/60 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900'
                         }`}
                       >
-                        {getVehicleIcon(cat.id, isSelected ? 'w-5 h-5 text-indigo-700 dark:text-indigo-400' : 'w-5 h-5 text-slate-700 dark:text-slate-200')}
-                        <span className="font-semibold truncate max-w-full text-[11px]">{cat.name}</span>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <span className={`text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded-full ${
-                            isSelected ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/60 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700 font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                          }`}>
-                            {availableForThis} disp.
-                          </span>
-                        </div>
+                        {getVehicleIcon(
+                          cat.id,
+                          isSelected
+                            ? 'w-8 h-8 sm:w-9 sm:h-9 text-indigo-600 dark:text-indigo-400 transition-transform scale-110'
+                            : 'w-8 h-8 sm:w-9 sm:h-9 transition-transform hover:scale-105'
+                        )}
                       </button>
                     );
                   })}
