@@ -1062,15 +1062,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
           {/* Card Header */}
           <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold">
                 <ArrowDownRight className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Registro de Entrada</h3>
-                <p className="text-[11px] text-slate-700 dark:text-slate-200">Expedición de ticket de ingreso</p>
+                <h3 className="font-display font-black text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
+                  <span>01 // Ingreso Vehicular</span>
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                </h3>
+                <p className="text-[11px] font-mono-tech text-slate-700 dark:text-slate-200">Terminal de Expedición de Tickets</p>
               </div>
             </div>
-            <span className="text-[11px] font-mono font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
+            <span className="text-[11px] font-mono-tech font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 led-beacon-free">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               {spots.filter(s => s.status === 'available').length} Libres
             </span>
           </div>
@@ -1086,7 +1090,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onPrintTicket(lastGeneratedTicket, 'entry')}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-sm shrink-0"
+                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-sm shrink-0 hardware-btn-emerald"
                     title="Ver en pantalla o reimprimir ticket de ingreso"
                   >
                     <Printer className="w-3.5 h-3.5" />
@@ -1097,13 +1101,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             )}
 
             <form onSubmit={handleEntrySubmit} className="space-y-4">
-              {/* Vehicle Type Selection */}
+              {/* Vehicle Type Selection (Hardware Matrix) */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                  <label className="text-xs font-display font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                     Tipo de Vehículo
                   </label>
-                  <span className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">
+                  <span className="text-[10px] text-slate-700 dark:text-slate-300 font-mono-tech">
                     {configuredCategories.length} categorías
                   </span>
                 </div>
@@ -1121,17 +1125,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setEntryVehicleType(cat.id);
                           playSound('beep', soundEnabled);
                         }}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all text-xs cursor-pointer ${
+                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all text-xs cursor-pointer hardware-btn ${
                           isSelected
-                            ? 'active-option-card bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-hover)] font-bold'
-                            : 'inactive-tab-indicator bg-[var(--bg-input)] text-[var(--text-muted)] border-[var(--border-color)] hover:text-[var(--text-main)]'
+                            ? 'border-2 border-amber-500 bg-amber-500/15 text-slate-900 dark:text-amber-300 font-display font-black shadow-[0_3px_0_0_#b45309]'
+                            : 'border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
                       >
-                        {getVehicleIcon(cat.id, isSelected ? 'w-5 h-5 text-indigo-700 dark:text-indigo-400' : 'w-5 h-5 text-slate-700 dark:text-slate-200')}
-                        <span className="font-semibold truncate max-w-full text-[11px]">{cat.name}</span>
+                        {getVehicleIcon(cat.id, isSelected ? 'w-5 h-5 text-amber-500' : 'w-5 h-5 text-slate-500 dark:text-slate-400')}
+                        <span className="font-bold truncate max-w-full text-[11px] uppercase tracking-tight">{cat.name}</span>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <span className={`text-[9px] font-mono font-semibold px-1.5 py-0.2 rounded-full ${
-                            isSelected ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/60 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700 font-bold' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                          <span className={`text-[9px] font-mono-tech font-bold px-1.5 py-0.2 rounded-full ${
+                            isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                           }`}>
                             {availableForThis} disp.
                           </span>
@@ -1343,63 +1347,111 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   </span>
                 </div>
 
+                {/* Stamped Physical Vehicle License Plate Frame (Aero-Kiosk Telemetry) */}
                 <div className="relative">
-                  <input
-                    ref={plateInputRef}
-                    type="text"
-                    value={entryPlate}
-                    disabled={isCountrySelectionMissing}
-                    onChange={(e) => {
-                      const maxL = activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6);
-                      const val = formatPlate(e.target.value).slice(0, maxL);
-                      setEntryPlate(val);
-                      if (entryError) setEntryError(null);
-                      if (entryWarning) setEntryWarning(null);
-                    }}
-                    placeholder={
-                      isCountrySelectionMissing
-                        ? "SELECCIONE PRIMERO UN PAÍS..."
-                        : isForeignPlate
-                        ? `DIGITE PLACA (${activeCountryRule?.placeholder || 'INTERNACIONAL'})...`
-                        : entryVehicleType === 'bicycle' || entryVehicleType === 'scooter'
-                        ? "DIGITE IDENTIFICADOR (EJ. BICI01 O 01)..."
-                        : "DIGITE PLACA (EJ. ABC123 O ABC12D)..."
-                    }
-                    maxLength={activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6)}
-                    autoComplete="off"
-                    autoFocus
-                    className={`w-full border-2 rounded-xl px-4 py-3 text-2xl font-black font-mono tracking-widest uppercase outline-none transition-all text-center shadow-inner ${
-                      isCountrySelectionMissing
-                        ? 'border-slate-800 bg-slate-900/50 text-slate-300 cursor-not-allowed placeholder:text-slate-400 dark:placeholder:text-slate-500'
-                        : isPlateInvalid
-                        ? 'border-rose-500 bg-rose-950/20 text-rose-100 placeholder:text-rose-700/50 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 shadow-rose-950/30'
-                        : duplicateActiveTicket
-                        ? 'border-amber-500 bg-amber-950/20 text-amber-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20'
-                        : isPlateFormatValid
-                        ? (isForeignPlate
-                            ? 'border-sky-500 bg-sky-950/20 text-sky-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20'
-                            : 'border-emerald-500 bg-emerald-950/20 text-emerald-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20')
-                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500'
-                    }`}
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
-                    <span className={`text-[10px] font-bold border px-1.5 py-0.5 rounded font-mono transition-colors ${
-                      isCountrySelectionMissing
-                        ? 'bg-slate-900 text-slate-300 border-slate-800'
-                        : isPlateInvalid
-                        ? 'bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-600/50'
-                        : isPlateFormatValid
-                        ? (isForeignPlate ? 'bg-sky-950 text-sky-800 dark:text-sky-300 border-sky-600/50' : 'bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-600/50')
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-700'
-                    }`}>
-                      {isCountrySelectionMissing
-                        ? 'PAÍS'
-                        : isPlateInvalid
-                        ? `${cleanPlate.length}/${activeCountryRule?.maxLength || 6}`
-                        : isPlateFormatValid
-                        ? (activeCountryRule?.flag || '✓')
-                        : (isForeignPlate ? 'EXT' : 'COL')}
-                    </span>
+                  <div className={`p-2 sm:p-2.5 rounded-2xl border-2 transition-all shadow-md relative overflow-hidden ${
+                    isCountrySelectionMissing
+                      ? 'border-slate-700 bg-slate-900/50'
+                      : isPlateInvalid
+                      ? 'border-rose-500 bg-rose-950/30 shadow-rose-950/40'
+                      : duplicateActiveTicket
+                      ? 'border-amber-500 bg-amber-950/30 shadow-amber-950/40'
+                      : isForeignPlate
+                      ? 'border-sky-500 bg-sky-950/30 shadow-sky-950/40'
+                      : 'border-[#b45309] bg-gradient-to-b from-[#FCD34D] via-[#FBBF24] to-[#F59E0B] shadow-[0_6px_16px_rgba(245,158,11,0.25)]'
+                  }`}>
+                    {/* Simulated Plate Screws & Country Badge */}
+                    <div className="flex items-center justify-between px-3 pt-0.5 pb-1 select-none">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full border flex items-center justify-center ${
+                          !isForeignPlate && !isPlateInvalid && !duplicateActiveTicket && !isCountrySelectionMissing
+                            ? 'border-amber-800/60 bg-amber-700/40'
+                            : 'border-slate-600 bg-slate-800'
+                        }`}>
+                          <span className="w-1 h-0.5 bg-black/40 block"></span>
+                        </span>
+                        <span className={`text-[10px] font-black uppercase tracking-widest font-mono-tech ${
+                          !isForeignPlate && !isPlateInvalid && !duplicateActiveTicket && !isCountrySelectionMissing
+                            ? 'text-slate-950'
+                            : 'text-slate-400'
+                        }`}>
+                          {isForeignPlate ? (activeCountryRule?.name || 'INTERNACIONAL') : 'COLOMBIA'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded font-mono-tech ${
+                          !isForeignPlate && !isPlateInvalid && !duplicateActiveTicket && !isCountrySelectionMissing
+                            ? 'bg-black/15 text-slate-950 border border-black/10'
+                            : 'bg-white/10 text-slate-300 border border-white/10'
+                        }`}>
+                          {isCountrySelectionMissing
+                            ? 'PAÍS'
+                            : isForeignPlate
+                            ? (activeCountryRule?.flag || 'EXT')
+                            : entryVehicleType === 'motorcycle'
+                            ? 'MOTO'
+                            : 'PARTICULAR'}
+                        </span>
+                        <span className={`w-2 h-2 rounded-full border flex items-center justify-center ${
+                          !isForeignPlate && !isPlateInvalid && !duplicateActiveTicket && !isCountrySelectionMissing
+                            ? 'border-amber-800/60 bg-amber-700/40'
+                            : 'border-slate-600 bg-slate-800'
+                        }`}>
+                          <span className="w-1 h-0.5 bg-black/40 block"></span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Stamped Embossed Input */}
+                    <div className="relative py-1">
+                      <input
+                        ref={plateInputRef}
+                        type="text"
+                        value={entryPlate}
+                        disabled={isCountrySelectionMissing}
+                        onChange={(e) => {
+                          const maxL = activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6);
+                          const val = formatPlate(e.target.value).slice(0, maxL);
+                          setEntryPlate(val);
+                          if (entryError) setEntryError(null);
+                          if (entryWarning) setEntryWarning(null);
+                        }}
+                        placeholder={
+                          isCountrySelectionMissing
+                            ? "SELECCIONE PAÍS..."
+                            : isForeignPlate
+                            ? `PLACA (${activeCountryRule?.placeholder || 'EXT'})...`
+                            : entryVehicleType === 'bicycle' || entryVehicleType === 'scooter'
+                            ? "BICI01"
+                            : "ABC-123"
+                        }
+                        maxLength={activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6)}
+                        autoComplete="off"
+                        autoFocus
+                        className={`w-full bg-transparent border-none px-4 py-1 text-3xl sm:text-4xl font-black font-mono-tech tracking-widest uppercase outline-none text-center plate-emboss ${
+                          isCountrySelectionMissing
+                            ? 'text-slate-500 cursor-not-allowed placeholder:text-slate-600'
+                            : isPlateInvalid
+                            ? 'text-rose-300 placeholder:text-rose-700/60'
+                            : duplicateActiveTicket
+                            ? 'text-amber-300 placeholder:text-amber-700/60'
+                            : isForeignPlate
+                            ? 'text-sky-300 placeholder:text-sky-700/60'
+                            : 'text-slate-950 placeholder:text-slate-950/40'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Bottom Plate City / Validation Bar */}
+                    <div className="flex items-center justify-between px-3 pt-0.5 pb-0.5 border-t border-black/10 select-none text-[9px] font-mono-tech font-black tracking-wider">
+                      <span className={!isForeignPlate && !isPlateInvalid && !duplicateActiveTicket && !isCountrySelectionMissing ? 'text-slate-950/80' : 'text-slate-400'}>
+                        {cleanPlate ? `${cleanPlate.length} CARACTERES` : 'TERMINAL POS'}
+                      </span>
+                      <span className={!isForeignPlate && !isPlateInvalid && !duplicateActiveTicket && !isCountrySelectionMissing ? 'text-slate-950/90 uppercase' : 'text-slate-400'}>
+                        {isForeignPlate ? (activeCountryRule?.example || 'OFICIAL') : 'BOGOTÁ D.C.'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -1534,14 +1586,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     type="submit"
                     id="btn-register-entry"
                     disabled={isSubmittingEntry}
-                    className={`w-full py-3.5 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer ${
+                    className={`w-full py-4 px-4 rounded-xl font-display font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer hardware-btn ${
                       isSubmittingEntry
                         ? 'bg-slate-700 text-slate-300 cursor-wait opacity-60'
                         : isForeignPlate
-                        ? 'bg-sky-500 hover:bg-sky-400 text-slate-950 hover:shadow-lg hover:shadow-sky-500/20'
+                        ? 'hardware-btn-sky bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-400 hover:to-sky-500 text-slate-950'
                         : duplicateActiveTicket
-                        ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white hover:shadow-lg hover:shadow-emerald-600/30'
+                        ? 'hardware-btn-amber bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white'
+                        : 'hardware-btn-amber bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950'
                     }`}
                     title={
                       duplicateActiveTicket
@@ -1553,8 +1605,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         : 'Ingresar vehículo y generar ticket'
                     }
                   >
-                    <Printer className={`w-4 h-4 ${isForeignPlate ? 'text-slate-950' : 'text-white'}`} />
-                    <span>{isSubmittingEntry ? 'Registrando ingreso...' : 'Ingresar y Generar Ticket (Enter)'}</span>
+                    <Printer className={`w-4 h-4 ${isForeignPlate ? 'text-slate-950' : 'text-slate-950'}`} />
+                    <span>{isSubmittingEntry ? 'Registrando ingreso...' : 'Ingresar y Expedir Ticket (Enter)'}</span>
                   </button>
                 )}
               </div>
@@ -1569,12 +1621,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
           {/* Card Header */}
           <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 flex items-center justify-center font-bold">
                 <ArrowUpRight className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Cobro y Salida POS</h3>
-                <p className="text-[11px] text-slate-700 dark:text-slate-200">Cálculo de tiempo transcurrido y facturación</p>
+                <h3 className="font-display font-black text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
+                  <span>02 // Cobro y Salida POS</span>
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                </h3>
+                <p className="text-[11px] font-mono-tech text-slate-700 dark:text-slate-200">Telemetría de Tiempo y Facturación</p>
               </div>
             </div>
 
@@ -1699,25 +1754,25 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             {/* If a vehicle is selected, show complete exit workflow */}
             {selectedTicket && liveCalculation ? (
               <form onSubmit={handleExitSubmit} noValidate className="space-y-4 pt-1">
-                {/* Vehicle Banner Summary */}
-                <div className="p-3.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl flex items-center justify-between flex-wrap gap-2">
+                {/* Vehicle Banner Summary (Aero-Kiosk Cockpit Telemetry) */}
+                <div className="p-4 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-2xl flex items-center justify-between flex-wrap gap-3 shadow-md">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/10 rounded-lg text-amber-700 dark:text-amber-400">
+                    <div className="p-2.5 bg-amber-500/15 border border-amber-500/30 rounded-xl text-amber-500 font-bold">
                       {getVehicleIcon(selectedTicket.vehicleType, 'w-6 h-6')}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-black font-mono tracking-wider text-slate-900 dark:text-white">
+                        <span className="text-2xl font-black font-mono-tech tracking-wider text-slate-900 dark:text-white plate-emboss">
                           {selectedTicket.plate}
                         </span>
-                        <span className="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-bold uppercase">
-                          {selectedTicket.ticketNumber}
+                        <span className="text-[10px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded-md font-mono-tech font-black uppercase tracking-wider">
+                          TICKET #{selectedTicket.ticketNumber}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2 mt-0.5">
-                        <span>Puesto: <strong className="text-slate-900 dark:text-white font-mono">{selectedTicket.spotCode}</strong></span>
+                      <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 mt-1">
+                        <span>Bahía: <strong className="text-cyan-600 dark:text-cyan-400 font-mono-tech">{selectedTicket.spotCode}</strong></span>
                         <span>•</span>
-                        <span>Ingreso: <strong className="text-slate-900 dark:text-white font-mono">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
+                        <span>Ingreso: <strong className="text-slate-900 dark:text-white font-mono-tech">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
                       </div>
                       {selectedTicket.notes && (
                         <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5 mt-1 font-medium">
@@ -1727,18 +1782,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-[10px] uppercase font-bold text-slate-700 dark:text-slate-200">Tiempo Transcurrido</div>
-                      <div className="text-sm font-black text-amber-700 dark:text-amber-400 font-mono">
-                        {liveCalculation.formattedDuration}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right p-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 shadow-inner">
+                      <div className="text-[10px] uppercase font-mono-tech font-bold text-slate-500 dark:text-slate-400">Tiempo Transcurrido</div>
+                      <div className="text-base font-black text-cyan-600 dark:text-cyan-400 font-mono-tech tracking-wider flex items-center justify-end gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <span>{liveCalculation.formattedDuration}</span>
                       </div>
                     </div>
 
                     <button
                       type="button"
                       onClick={handleCancelExitProcess}
-                      className="p-2 rounded-lg bg-white/10 hover:bg-rose-600/80 text-white transition-colors cursor-pointer"
+                      className="p-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-600 text-slate-700 dark:text-slate-300 hover:text-white transition-colors cursor-pointer"
                       title="Cancelar y resetear"
                     >
                       <X className="w-4 h-4" />
@@ -3169,10 +3225,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       type="submit"
                       id="btn-complete-exit"
                       disabled={isPaymentBlocked}
-                      className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      className={`w-full py-4 px-4 rounded-xl font-display font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer hardware-btn ${
                         isPaymentBlocked
                           ? 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700 shadow-none'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-98'
+                          : 'hardware-btn-emerald bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 shadow-lg'
                       }`}
                     >
                       {isPaymentBlocked ? (
@@ -3208,7 +3264,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         )
                       ) : (
                         <>
-                          <Check className="w-5 h-5 text-white font-black" />
+                          <Check className="w-5 h-5 text-slate-950 font-black" />
                           <span>Cobrar Salida y Generar Factura ({formatCurrency(finalTotalAmount, rates.currencySymbol)})</span>
                         </>
                       )}
@@ -3222,9 +3278,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800/80 flex items-center justify-center text-slate-700 dark:text-slate-200 mb-3 border border-slate-300 dark:border-slate-700">
                   <Clock className="w-6 h-6 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Esperando vehículo para liquidar</h4>
+                <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-sm uppercase tracking-wide">Esperando vehículo para liquidar</h4>
                 <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mt-1">
-                  Ingrese la placa o seleccione un vehículo de la tabla inferior o el mapa de plazas para calcular el tiempo y facturar.
+                  Ingrese la placa o seleccione un vehículo de la telemetría inferior para calcular el tiempo y expedir la factura.
                 </p>
               </div>
             )}
@@ -3236,12 +3292,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
       {/* BOTTOM: VEHÍCULOS ACTUALMENTE EN EL PARQUEADERO           */}
       {/* ========================================================= */}
       <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
-        {/* Table Header Controls */}
+        {/* Table Header Controls (Aero-Kiosk Radar) */}
         <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-950/70">
           <div className="flex items-center gap-2.5">
-            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
-              <span>Vehículos en Parqueadero</span>
-              <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs px-2 py-0.5 rounded-full font-semibold">
+            <h3 className="font-display font-black text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2 uppercase tracking-wide">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>03 // Radar de Bahías y Flota Activa</span>
+              <span className="bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs px-2.5 py-0.5 rounded-full font-mono-tech font-bold">
                 {activeTickets.length} activos
               </span>
             </h3>
@@ -3251,35 +3308,39 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1 text-xs">
               <button
+                type="button"
                 onClick={() => setTableFilterType('all')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors cursor-pointer ${
-                  tableFilterType === 'all' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                className={`px-3 py-1 rounded font-display font-bold uppercase text-[11px] transition-all cursor-pointer ${
+                  tableFilterType === 'all' ? 'bg-amber-500 text-slate-950 font-black shadow-xs hardware-btn-amber' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 Todos
               </button>
               <button
+                type="button"
                 onClick={() => setTableFilterType('car')}
-                className={`px-2 py-1 rounded flex items-center gap-1 transition-colors cursor-pointer ${
-                  tableFilterType === 'car' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                className={`px-2.5 py-1 rounded flex items-center gap-1 font-display font-bold uppercase text-[11px] transition-all cursor-pointer ${
+                  tableFilterType === 'car' ? 'bg-amber-500 text-slate-950 font-black shadow-xs hardware-btn-amber' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Car className="w-3.5 h-3.5" />
                 <span>Carros</span>
               </button>
               <button
+                type="button"
                 onClick={() => setTableFilterType('motorcycle')}
-                className={`px-2 py-1 rounded flex items-center gap-1 transition-colors cursor-pointer ${
-                  tableFilterType === 'motorcycle' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                className={`px-2.5 py-1 rounded flex items-center gap-1 font-display font-bold uppercase text-[11px] transition-all cursor-pointer ${
+                  tableFilterType === 'motorcycle' ? 'bg-amber-500 text-slate-950 font-black shadow-xs hardware-btn-amber' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Bike className="w-3.5 h-3.5" />
                 <span>Motos</span>
               </button>
               <button
+                type="button"
                 onClick={() => setTableFilterType('suv')}
-                className={`px-2 py-1 rounded flex items-center gap-1 transition-colors cursor-pointer ${
-                  tableFilterType === 'suv' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                className={`px-2.5 py-1 rounded flex items-center gap-1 font-display font-bold uppercase text-[11px] transition-all cursor-pointer ${
+                  tableFilterType === 'suv' ? 'bg-amber-500 text-slate-950 font-black shadow-xs hardware-btn-amber' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Truck className="w-3.5 h-3.5" />
@@ -3292,8 +3353,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 type="text"
                 value={tableSearch}
                 onChange={(e) => setTableSearch(e.target.value)}
-                placeholder="Filtrar por placa..."
-                className="text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 focus:border-indigo-500 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44"
+                placeholder="Filtrar placa..."
+                className="text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 focus:border-amber-500 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44 font-mono-tech"
               />
               <Search className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200 absolute left-2.5 top-1/2 -translate-y-1/2" />
             </div>
@@ -3334,17 +3395,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         isSelected ? 'bg-amber-50/80 dark:bg-slate-800/90 font-medium' : ''
                       }`}
                     >
-                      <td className="py-3 px-4 font-mono font-semibold text-slate-600 dark:text-slate-300">
-                        {ticket.ticketNumber}
+                      <td className="py-3 px-4 font-mono-tech font-bold text-slate-600 dark:text-slate-400">
+                        #{ticket.ticketNumber}
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200">
-                            {getVehicleIcon(ticket.vehicleType, 'w-3.5 h-3.5')}
+                          <div className="p-1.5 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                            {getVehicleIcon(ticket.vehicleType, 'w-4 h-4')}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-mono font-bold text-slate-900 dark:text-white text-sm tracking-wide">
+                              <span className="font-mono-tech font-black text-slate-900 dark:text-amber-300 text-sm tracking-wider plate-emboss px-2 py-0.5 rounded bg-amber-400/20 dark:bg-amber-500/20 border border-amber-500/30">
                                 {ticket.plate}
                               </span>
                               {ticket.isForeignPlate && (
@@ -3353,29 +3414,29 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 </span>
                               )}
                             </div>
-                            <span className="block text-[10px] text-slate-700 dark:text-slate-200 capitalize">
+                            <span className="block text-[10px] text-slate-600 dark:text-slate-400 font-mono-tech uppercase mt-0.5">
                               {getVehicleName(ticket.vehicleType)}
                             </span>
                           </div>
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded font-mono font-semibold">
+                        <span className="bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-cyan-600 dark:text-cyan-400 px-2.5 py-1 rounded-lg font-mono-tech font-black text-xs">
                           {ticket.spotCode}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
+                      <td className="py-3 px-4 font-mono-tech text-slate-600 dark:text-slate-400 text-xs">
                         {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 font-mono text-slate-700 dark:text-slate-200 font-semibold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <div className="flex items-center gap-1.5 font-mono-tech text-slate-700 dark:text-slate-200 font-bold text-xs">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse led-beacon-free"></span>
                           <span>{calc.formattedDuration}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                      <td className="py-3 px-4 font-mono-tech font-black text-sm text-amber-600 dark:text-amber-400">
                         {calc.isWithinGracePeriod ? (
-                          <span className="text-slate-700 dark:text-slate-200 font-normal">Gracia ($0)</span>
+                          <span className="text-slate-500 font-normal text-xs">Gracia ($0)</span>
                         ) : (
                           formatCurrency(calc.totalAmount, rates.currencySymbol)
                         )}
@@ -3383,8 +3444,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       <td className="py-3 px-4 text-right space-x-1.5">
                         {currentUser?.permissions.canReprintTickets !== false && (
                           <button
+                            type="button"
                             onClick={() => onPrintTicket(ticket, 'entry')}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
                             title="Reimprimir Ticket de Ingreso"
                           >
                             <Printer className="w-4 h-4" />
@@ -3392,8 +3454,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         )}
                         {currentUser?.permissions.canRegisterExit !== false ? (
                           <button
+                            type="button"
                             onClick={() => selectVehicleForExit(ticket)}
-                            className="px-3 py-1.5 bg-slate-100 hover:bg-white active:scale-95 text-slate-950 font-semibold rounded-lg transition-all shadow-xs cursor-pointer"
+                            className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-display font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-xs hardware-btn-amber cursor-pointer"
                           >
                             Cobrar Salida
                           </button>
