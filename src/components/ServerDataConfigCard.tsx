@@ -231,11 +231,11 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden animate-in fade-in duration-200">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl overflow-hidden animate-in fade-in duration-200">
       {/* Title Header matching the requested structure */}
-      <div className="px-5 py-4 bg-slate-950 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="px-5 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-700 dark:text-blue-400">
+          <div className="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-blue-700 dark:text-blue-400">
             <Radio className="w-5 h-5" />
           </div>
           <div>
@@ -243,13 +243,13 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
               <span>Servidor de Datos Local y Remoto</span>
               <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold border ${
                 config.connectionStatus === 'connected'
-                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
-                  : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
+                  : 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
               }`}>
                 {config.connectionStatus === 'connected' ? `ONLINE (${config.latencyMs || 18}ms)` : 'DESCONECTADO'}
               </span>
             </h3>
-            <p className="text-xs text-slate-700 dark:text-slate-200">
+            <p className="text-xs text-slate-600 dark:text-slate-400">
               Configuración de enlace de base de datos para sincronización entre sucursales y servidor central.
             </p>
           </div>
@@ -261,7 +261,7 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
             type="button"
             onClick={handleTestConnection}
             disabled={isTesting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
             title="Verificar comunicación y medir latencia con el servidor central"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isTesting ? 'animate-spin' : ''}`} />
@@ -286,23 +286,23 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
       {feedback && (
         <div className={`px-5 py-2.5 text-xs flex items-center justify-between border-b ${
           feedback.type === 'success'
-            ? 'bg-emerald-950/70 border-emerald-800 text-emerald-800 dark:text-emerald-300'
+            ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
             : feedback.type === 'error'
-            ? 'bg-rose-950/70 border-rose-800 text-rose-800 dark:text-rose-300'
-            : 'bg-blue-950/70 border-blue-800 text-blue-800 dark:text-blue-300'
+            ? 'bg-rose-50 dark:bg-rose-950/70 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+            : 'bg-blue-50 dark:bg-blue-950/70 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300'
         }`}>
           <div className="flex items-center gap-2">
             {feedback.type === 'success' ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-700 dark:text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
             )}
             <span className="font-medium">{feedback.message}</span>
           </div>
           <button
             type="button"
             onClick={() => setFeedback(null)}
-            className="text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer text-sm"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white cursor-pointer text-sm"
           >
             ×
           </button>
@@ -310,15 +310,15 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
       )}
 
       {/* Quick Action Toolbar & Help Guide Toggle */}
-      <div className="px-5 py-3 bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="px-5 py-3 bg-slate-50/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={handleApplyParqueaderoDefaults}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-800 dark:text-indigo-300 border border-indigo-500/40 font-bold transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-600/20 dark:hover:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40 font-bold transition-colors cursor-pointer"
             title="Rellena automáticamente las casillas con los nombres reales de esta aplicación"
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
             <span>Autocompletar Estándar</span>
           </button>
 
@@ -335,10 +335,10 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 message: 'Plantilla de Nube Externa (HTTPS/WSS) aplicada. Reemplaza el dominio por el enlace de tu servidor central.'
               });
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-800 dark:text-emerald-300 border border-emerald-500/40 font-bold transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-600/20 dark:hover:bg-emerald-600/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40 font-bold transition-colors cursor-pointer"
             title="Para servidores alojados en la nube o con dominio público HTTPS"
           >
-            <Globe className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+            <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Plantilla Servidor en la Nube</span>
           </button>
 
@@ -355,10 +355,10 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 message: 'Plantilla de Red Privada Segura / VPN (Tailscale/ZeroTier) aplicada. Ingresa la IP de red segura de tu equipo central.'
               });
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-800 dark:text-purple-300 border border-purple-500/40 font-bold transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 dark:bg-purple-600/20 dark:hover:bg-purple-600/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/40 font-bold transition-colors cursor-pointer"
             title="Para conectar sedes en ciudades distintas mediante VPN o red segura sin abrir puertos en el módem"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
             <span>Plantilla Red Privada / VPN</span>
           </button>
         </div>
@@ -366,9 +366,9 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
         <button
           type="button"
           onClick={() => setShowHelpGuide(!showHelpGuide)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium transition-colors cursor-pointer"
         >
-          <HelpCircle className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+          <HelpCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
           <span>{showHelpGuide ? 'Ocultar Guía de Redes' : 'Guía: ¿Cómo conectar sucursales en redes distintas?'}</span>
           {showHelpGuide ? <ChevronUp className="w-3.5 h-3.5 ml-1" /> : <ChevronDown className="w-3.5 h-3.5 ml-1" />}
         </button>
@@ -376,16 +376,16 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
 
       {/* Explanatory Guide Box */}
       {showHelpGuide && (
-        <div className="mx-5 my-4 p-4 rounded-xl bg-slate-950/90 border border-amber-500/25 space-y-3 animate-in fade-in duration-150">
-          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
+        <div className="mx-5 my-4 p-4 rounded-xl bg-amber-50/40 dark:bg-slate-950/90 border border-amber-200 dark:border-amber-500/25 space-y-3 animate-in fade-in duration-150">
+          <div className="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold text-xs">
             <Info className="w-4 h-4 shrink-0" />
             <span>Guía de Configuración: Conexión entre Sucursales y Servidor Central en Redes Separadas</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] leading-relaxed">
             {/* Option 1: Cloud */}
-            <div className="bg-slate-50 dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
-              <span className="font-extrabold text-emerald-600 dark:text-emerald-400 block border-b border-slate-200 dark:border-slate-800 pb-1 uppercase tracking-wide">
+            <div className="bg-white dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5 shadow-xs">
+              <span className="font-extrabold text-emerald-700 dark:text-emerald-400 block border-b border-slate-100 dark:border-slate-800 pb-1 uppercase tracking-wide">
                 1. Servidor en la Nube (Recomendado)
               </span>
               <p className="text-slate-600 dark:text-slate-300">
@@ -399,8 +399,8 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
             </div>
 
             {/* Option 2: VPN / Tailscale */}
-            <div className="bg-slate-50 dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
-              <span className="font-extrabold text-purple-600 dark:text-purple-400 block border-b border-slate-200 dark:border-slate-800 pb-1 uppercase tracking-wide">
+            <div className="bg-white dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5 shadow-xs">
+              <span className="font-extrabold text-purple-700 dark:text-purple-400 block border-b border-slate-100 dark:border-slate-800 pb-1 uppercase tracking-wide">
                 2. Red Privada VPN (PC Físico Central)
               </span>
               <p className="text-slate-600 dark:text-slate-300">
@@ -415,8 +415,8 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
             </div>
 
             {/* Option 3: Public IP & Port Forwarding */}
-            <div className="bg-slate-50 dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5">
-              <span className="font-extrabold text-blue-600 dark:text-blue-400 block border-b border-slate-200 dark:border-slate-800 pb-1 uppercase tracking-wide">
+            <div className="bg-white dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-800 space-y-1.5 shadow-xs">
+              <span className="font-extrabold text-blue-700 dark:text-blue-400 block border-b border-slate-100 dark:border-slate-800 pb-1 uppercase tracking-wide">
                 3. IP Pública Fija / Dominio DDNS
               </span>
               <p className="text-slate-600 dark:text-slate-300">
@@ -436,8 +436,8 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
       <form onSubmit={handleSave} className="p-5 sm:p-6 space-y-6">
         
         {/* PANEL DE AUTODETECCIÓN Y PUBLICACIÓN EN TIEMPO REAL */}
-        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-blue-500/35 rounded-2xl p-5 shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-3">
+        <div className="bg-gradient-to-br from-blue-50/70 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 border border-blue-200 dark:border-blue-500/35 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-3">
             <div className="flex items-center gap-3">
               <div className="relative flex h-3 w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -447,7 +447,7 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
                   🛰️ Enlace de Red Dinámico & Autodetección de IP Pública
                 </h3>
-                <p className="text-[11px] text-slate-700 dark:text-slate-200">
+                <p className="text-[11px] text-slate-600 dark:text-slate-400">
                   Permite que la Central identifique y actualice tu IP automáticamente para ejecutar "Acceso Sistema" y "Soporte VNC".
                 </p>
               </div>
@@ -458,9 +458,9 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 type="button"
                 disabled={isDetectingIp}
                 onClick={detectPublicIp}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-700/80 transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/80 transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <RefreshCw className={`w-3.5 h-3.5 text-blue-700 dark:text-blue-400 ${isDetectingIp ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 text-blue-600 dark:text-blue-400 ${isDetectingIp ? 'animate-spin' : ''}`} />
                 <span>{isDetectingIp ? 'Consultando...' : 'Re-detectar IP'}</span>
               </button>
 
@@ -478,25 +478,25 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
             {/* 1. IP Pública Detectada */}
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-1">
-              <span className="text-[10px] text-slate-600 dark:text-slate-300 block uppercase font-bold">Dirección IP Pública Real (Detectada)</span>
-              <div className="text-sm font-black text-emerald-700 dark:text-emerald-400 tracking-wider">
+            <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-bold">Dirección IP Pública Real (Detectada)</span>
+              <div className="text-sm font-black text-emerald-600 dark:text-emerald-400 tracking-wider">
                 {publicIp}
               </div>
             </div>
 
             {/* 2. Canal WebSocket Configurado */}
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-1">
-              <span className="text-[10px] text-slate-600 dark:text-slate-300 block uppercase font-bold">Canal Telemetría Central (Salida)</span>
-              <div className="text-xs font-bold text-blue-800 dark:text-blue-300 truncate" title={config.remoteWebSocketsUrl || 'wss://central.parqueaderopos.com/ws'}>
+            <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-bold">Canal Telemetría Central (Salida)</span>
+              <div className="text-xs font-bold text-blue-700 dark:text-blue-300 truncate" title={config.remoteWebSocketsUrl || 'wss://central.parqueaderopos.com/ws'}>
                 {config.remoteWebSocketsUrl || 'wss://central.parqueaderopos.com/ws'}
               </div>
             </div>
 
             {/* 3. Ruta WebSocket Inversa */}
-            <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-1">
-              <span className="text-[10px] text-slate-600 dark:text-slate-300 block uppercase font-bold">Túnel Señalización FarmaDesk Pro®</span>
-              <div className="text-xs font-bold text-cyan-800 dark:text-cyan-300 truncate">
+            <div className="bg-white dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-bold">Túnel Señalización FarmaDesk Pro®</span>
+              <div className="text-xs font-bold text-cyan-700 dark:text-cyan-300 truncate">
                 ws://{publicIp}:9050/ws
               </div>
             </div>
@@ -505,8 +505,8 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
           {publishFeedback && (
             <div className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 border animate-in slide-in-from-top-1 duration-200 ${
               publishFeedback.type === 'success' 
-                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' 
-                : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20'
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20' 
+                : 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
             }`}>
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{publishFeedback.message}</span>
@@ -517,69 +517,69 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           
           {/* LEFT COLUMN: Servidor Base de Datos Local */}
-          <div className="space-y-4 bg-slate-950/50 p-4 sm:p-5 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-800 text-slate-700 dark:text-slate-200">
-              <Database className="w-4 h-4 text-blue-700 dark:text-blue-400" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-blue-800 dark:text-blue-300">
+          <div className="space-y-4 bg-slate-50/70 dark:bg-slate-950/50 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
+              <Database className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300">
                 Parámetros Base de Datos Local
               </h4>
             </div>
 
             {/* 1. Servidor Base de Datos Local */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Servidor <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Local</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Servidor <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Local</span>
               </label>
               <input
                 type="text"
                 value={config.localDbHost}
                 onChange={(e) => setConfig({ ...config, localDbHost: e.target.value })}
                 placeholder="localhost ó 127.0.0.1"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Dirección IP o nombre de host de la terminal local (ej. localhost)</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Dirección IP o nombre de host de la terminal local (ej. localhost)</span>
             </div>
 
             {/* 2. Nombre Base de Datos Local */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Nombre <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Local</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Nombre <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Local</span>
               </label>
               <input
                 type="text"
                 value={config.localDbName}
                 onChange={(e) => setConfig({ ...config, localDbName: e.target.value })}
                 placeholder="ParqueaderoPOS_DB_TAQUILLA_01"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Nombre neto de la base de datos de esta estación de cobro</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Nombre neto de la base de datos de esta estación de cobro</span>
             </div>
 
             {/* 3. Usuario Base de Datos Local */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Usuario <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Local</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Usuario <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Local</span>
               </label>
               <input
                 type="text"
                 value={config.localDbUser}
                 onChange={(e) => setConfig({ ...config, localDbUser: e.target.value })}
                 placeholder="admin"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Usuario de inicio de sesión o cajero autorizado (ej. admin)</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Usuario de inicio de sesión o cajero autorizado (ej. admin)</span>
             </div>
 
             {/* 4. Contraseña Base de Datos Local */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                  Contraseña <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Local</span>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Contraseña <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Local</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowPasswordLocal(!showPasswordLocal)}
-                  className="text-[10px] text-blue-700 dark:text-blue-400 hover:text-blue-800 dark:text-blue-300 cursor-pointer"
+                  className="text-[10px] text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-300 cursor-pointer font-bold"
                 >
                   {showPasswordLocal ? 'Ocultar' : 'Ver'}
                 </button>
@@ -589,20 +589,20 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 value={config.localDbPassword}
                 onChange={(e) => setConfig({ ...config, localDbPassword: e.target.value })}
                 placeholder="1234"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">PIN o clave de seguridad del usuario en esta terminal</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">PIN o clave de seguridad del usuario en esta terminal</span>
             </div>
 
             {/* 5. Contraseña Sistema Operativo / Selector de Plataforma */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Contraseña <span className="font-normal text-slate-700 dark:text-slate-200">Sistema Operativo</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Sistema Operativo <span className="font-normal text-slate-600 dark:text-slate-400">de la Estación</span>
               </label>
               <select
                 value={config.localOperatingSystem}
                 onChange={(e) => setConfig({ ...config, localOperatingSystem: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden cursor-pointer"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-hidden cursor-pointer"
               >
                 <option value="Windows 10 / 11 Pro">Windows 10 / 11 Pro</option>
                 <option value="Windows Server 2022">Windows Server 2022</option>
@@ -613,75 +613,75 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 <option value="macOS Sonoma / Sequoia">macOS Sonoma / Sequoia</option>
                 <option value="Docker Container / Cloud Virtual Machine">Docker Container / Cloud Virtual Machine</option>
               </select>
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Plataforma del sistema operativo de la máquina local</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Plataforma del sistema operativo de la máquina local</span>
             </div>
 
           </div>
 
           {/* RIGHT COLUMN: Servidor Base de Datos Remota */}
-          <div className="space-y-4 bg-slate-950/50 p-4 sm:p-5 rounded-2xl border border-slate-800/80">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-800 text-slate-700 dark:text-slate-200">
-              <Globe className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+          <div className="space-y-4 bg-slate-50/70 dark:bg-slate-950/50 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200">
+              <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
                 Parámetros Servidor Remoto / Central
               </h4>
             </div>
 
             {/* 1. Servidor Base de Datos Remota */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Servidor <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Remota</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Servidor <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Remota</span>
               </label>
               <input
                 type="text"
                 value={config.remoteDbHost}
                 onChange={(e) => setConfig({ ...config, remoteDbHost: e.target.value })}
                 placeholder="central.parqueaderopos.com ó 152.200.144.62"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">IP pública, dominio DDNS o URL del Servidor Central</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">IP pública, dominio DDNS o URL del Servidor Central</span>
             </div>
 
             {/* 2. Nombre Base de Datos Remota */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Nombre <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Remota</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Nombre <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Remota</span>
               </label>
               <input
                 type="text"
                 value={config.remoteDbName}
                 onChange={(e) => setConfig({ ...config, remoteDbName: e.target.value })}
                 placeholder="ParqueaderoPOS_CENTRAL_DB"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Base de datos unificada del sistema central</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Base de datos unificada del sistema central</span>
             </div>
 
             {/* 3. Usuario Base de Datos Remota */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Usuario <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Remota</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Usuario <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Remota</span>
               </label>
               <input
                 type="text"
                 value={config.remoteDbUser}
                 onChange={(e) => setConfig({ ...config, remoteDbUser: e.target.value })}
                 placeholder="admin_central"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Usuario de autorización en la Central (ej. admin_central)</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Usuario de autorización en la Central (ej. admin_central)</span>
             </div>
 
             {/* 4. Contraseña Base de Datos Remota */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                  Contraseña <span className="font-normal text-slate-700 dark:text-slate-200">Base de Datos Remota</span>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Contraseña <span className="font-normal text-slate-600 dark:text-slate-400">Base de Datos Remota</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowPasswordRemote(!showPasswordRemote)}
-                  className="text-[10px] text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:text-emerald-300 cursor-pointer"
+                  className="text-[10px] text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:text-emerald-300 cursor-pointer font-bold"
                 >
                   {showPasswordRemote ? 'Ocultar' : 'Ver'}
                 </button>
@@ -691,24 +691,24 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
                 value={config.remoteDbPassword}
                 onChange={(e) => setConfig({ ...config, remoteDbPassword: e.target.value })}
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Clave o token de seguridad del Servidor Central</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Clave o token de seguridad del Servidor Central</span>
             </div>
 
             {/* 5. Ruta Servidor WebSockets */}
             <div className="space-y-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
-                Ruta <span className="font-normal text-slate-700 dark:text-slate-200">Ruta Servidor WebSockets</span>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
+                Ruta <span className="font-normal text-slate-600 dark:text-slate-400">Ruta Servidor WebSockets</span>
               </label>
               <input
                 type="text"
                 value={config.remoteWebSocketsUrl}
                 onChange={(e) => setConfig({ ...config, remoteWebSocketsUrl: e.target.value })}
                 placeholder="wss://central.parqueaderopos.com/ws"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700/80 text-slate-900 dark:text-slate-100 font-mono text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
-              <span className="text-[10px] text-slate-600 dark:text-slate-300">Canal de telemetría y eventos en tiempo real</span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400">Canal de telemetría y eventos en tiempo real</span>
             </div>
 
           </div>
@@ -716,7 +716,7 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
         </div>
 
         {/* Auto Sync & Operational Toggles */}
-        <div className="p-4 bg-slate-950/70 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+        <div className="p-4 bg-slate-50 dark:bg-slate-950/70 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -726,19 +726,19 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
               className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
             <label htmlFor="chk-auto-sync" className="cursor-pointer select-none">
-              <span className="font-bold text-slate-700 dark:text-slate-200 block">Sincronización Periódica Automática en Segundo Plano</span>
-              <span className="text-slate-700 dark:text-slate-200 text-[11px]">
+              <span className="font-bold text-slate-900 dark:text-slate-200 block">Sincronización Periódica Automática en Segundo Plano</span>
+              <span className="text-slate-600 dark:text-slate-400 text-[11px]">
                 Consulta nuevos paquetes y transmite métricas de turno cada {config.autoSyncIntervalMinutes || 5} minutos.
               </span>
             </label>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-slate-700 dark:text-slate-200 text-xs">Frecuencia:</span>
+            <span className="text-slate-700 dark:text-slate-300 text-xs">Frecuencia:</span>
             <select
               value={config.autoSyncIntervalMinutes || 5}
               onChange={(e) => setConfig({ ...config, autoSyncIntervalMinutes: Number(e.target.value) })}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-200 text-xs focus:outline-hidden cursor-pointer"
+              className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-200 text-xs focus:outline-hidden cursor-pointer"
             >
               <option value={1}>Cada 1 minuto (Tiempo real)</option>
               <option value={3}>Cada 3 minutos</option>

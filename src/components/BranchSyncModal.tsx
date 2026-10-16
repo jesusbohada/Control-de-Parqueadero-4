@@ -582,15 +582,15 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
                   Sincronización con Servidor Central
                 </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 font-bold">
                   {currentBranch.code}
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 font-medium">
                   {currentBranch.city}
                 </span>
               </div>
-              <p className="text-xs text-slate-700 dark:text-slate-200">
-                Sucursal: <strong className="text-slate-700 dark:text-slate-200">{currentBranch.name}</strong> • Conexión {serverConfig?.remoteDbHost ? `a ${serverConfig.remoteDbHost}` : 'a Servidor Central'}
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                Sucursal: <strong className="text-slate-800 dark:text-slate-200">{currentBranch.name}</strong> • Conexión {serverConfig?.remoteDbHost ? `a ${serverConfig.remoteDbHost}` : 'a Servidor Central'}
               </p>
             </div>
           </div>
@@ -599,7 +599,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
               title="Volver a la taquilla de Patio POS"
             >
               <Car className="w-3.5 h-3.5" />
@@ -608,7 +608,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               title="Cerrar módulo"
             >
               <X className="w-5 h-5" />
@@ -623,8 +623,8 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             onClick={() => setActiveTab('sync')}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'sync'
-                ? 'border-amber-400 text-amber-700 dark:text-amber-400 bg-amber-400/5'
-                : 'border-transparent text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-400/5'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <ArrowDownUp className="w-3.5 h-3.5" />
@@ -641,13 +641,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             onClick={() => setActiveTab('domains_view')}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'domains_view'
-                ? 'border-indigo-400 text-indigo-700 dark:text-indigo-400 bg-indigo-400/5'
-                : 'border-transparent text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                ? 'border-indigo-500 text-indigo-700 dark:text-indigo-400 bg-indigo-400/5'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Layers className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
+            <Layers className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
             <span>Dominios Sincronizados</span>
-            <span className="text-[10px] font-mono text-indigo-700 dark:text-indigo-400 bg-indigo-950/80 px-1.5 py-0.2 rounded border border-indigo-800">
+            <span className="text-[10px] font-mono text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/80 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800">
               Matriz Central
             </span>
           </button>
@@ -657,13 +657,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             onClick={() => setActiveTab('server_config')}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'server_config'
-                ? 'border-blue-400 text-blue-700 dark:text-blue-400 bg-blue-400/5'
-                : 'border-transparent text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                ? 'border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-400/5'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Database className="w-3.5 h-3.5" />
             <span>Servidor de Datos Local y Remoto</span>
-            <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-800">
+            <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
               IP / Sockets
             </span>
           </button>
@@ -676,13 +676,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             }}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'network_wizard'
-                ? 'border-rose-400 text-rose-700 dark:text-rose-400 bg-rose-400/5'
-                : 'border-transparent text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                ? 'border-rose-500 text-rose-700 dark:text-rose-400 bg-rose-400/5'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Radio className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400 animate-pulse" />
+            <Radio className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 animate-pulse" />
             <span>Asistente de Red y Puertos</span>
-            <span className="text-[10px] font-mono text-rose-700 dark:text-rose-400 bg-rose-950/80 px-1.5 py-0.2 rounded border border-rose-800 font-bold">
+            <span className="text-[10px] font-mono text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/80 px-1.5 py-0.2 rounded border border-rose-200 dark:border-rose-800 font-bold">
               Diagnóstico
             </span>
           </button>
@@ -696,28 +696,28 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'network_alerts'
                 ? linkHealth.tier === 'optimal'
-                  ? 'border-emerald-400 text-emerald-700 dark:text-emerald-400 bg-emerald-400/5'
+                  ? 'border-emerald-500 text-emerald-700 dark:text-emerald-400 bg-emerald-400/5'
                   : linkHealth.tier === 'moderate'
-                  ? 'border-amber-400 text-amber-700 dark:text-amber-400 bg-amber-400/5'
-                  : 'border-rose-400 text-rose-700 dark:text-rose-400 bg-rose-400/5'
-                : 'border-transparent text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                  ? 'border-amber-500 text-amber-700 dark:text-amber-400 bg-amber-400/5'
+                  : 'border-rose-500 text-rose-700 dark:text-rose-400 bg-rose-400/5'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Activity className={`w-3.5 h-3.5 ${
-              linkHealth.tier === 'optimal' ? 'text-emerald-700 dark:text-emerald-400' :
-              linkHealth.tier === 'moderate' ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400 animate-pulse'
+              linkHealth.tier === 'optimal' ? 'text-emerald-600 dark:text-emerald-400' :
+              linkHealth.tier === 'moderate' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400 animate-pulse'
             }`} />
             <span>Alertas Proactivas de Red</span>
             <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border flex items-center gap-1.5 ${
               linkHealth.tier === 'optimal'
-                ? 'bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-800'
+                ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                 : linkHealth.tier === 'moderate'
-                ? 'bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-800'
-                : 'bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-800 animate-pulse'
+                ? 'bg-amber-50 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                : 'bg-rose-50 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800 animate-pulse'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full ${
-                linkHealth.tier === 'optimal' ? 'bg-emerald-400' :
-                linkHealth.tier === 'moderate' ? 'bg-amber-400' : 'bg-rose-400'
+                linkHealth.tier === 'optimal' ? 'bg-emerald-500' :
+                linkHealth.tier === 'moderate' ? 'bg-amber-500' : 'bg-rose-500'
               }`}></span>
               <span>{linkHealth.tierLabel.split('/')[0].trim()}</span>
               {linkHealth.alerts.length > 0 && (
@@ -736,16 +736,16 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             }}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all cursor-pointer ${
               activeTab === 'qos_traffic_control'
-                ? 'border-cyan-400 text-cyan-700 dark:text-cyan-400 bg-cyan-400/5'
-                : 'border-transparent text-slate-700 dark:text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                ? 'border-cyan-500 text-cyan-700 dark:text-cyan-400 bg-cyan-400/5'
+                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />
+            <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
             <span>Calidad de Red (QoS)</span>
             <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded border flex items-center gap-1 ${
               (simulatedHighLatency !== null ? simulatedHighLatency : linkHealth.averageLatencyMs) >= qosConfig.latencyThresholdMs
-                ? 'bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-600 animate-pulse'
-                : 'bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border-cyan-800'
+                ? 'bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-600 animate-pulse'
+                : 'bg-cyan-50 dark:bg-cyan-950/80 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800'
             }`}>
               {(simulatedHighLatency !== null ? simulatedHighLatency : linkHealth.averageLatencyMs) >= qosConfig.latencyThresholdMs ? (
                 <span>Prioridad POS &gt;300ms</span>
@@ -758,7 +758,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
         {/* Connection Status Sub-Header Bar (shown on sync tab) */}
         {activeTab === 'sync' && (
-          <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="p-3.5 sm:p-4 bg-slate-50/80 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 shrink-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 ${
@@ -766,8 +766,8 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                   linkHealth.tier === 'moderate' ? 'bg-amber-400/20' : 'bg-rose-400/20'
                 }`}>
                   <div className={`w-2 h-2 rounded-full ${
-                    linkHealth.tier === 'optimal' ? 'bg-emerald-400 animate-ping' :
-                    linkHealth.tier === 'moderate' ? 'bg-amber-400 animate-pulse' : 'bg-rose-400 animate-ping'
+                    linkHealth.tier === 'optimal' ? 'bg-emerald-500 animate-ping' :
+                    linkHealth.tier === 'moderate' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500 animate-ping'
                   }`}></div>
                 </div>
 
@@ -776,38 +776,38 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     <span>Enlace Central:</span>
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border flex items-center gap-1 ${
                       linkHealth.tier === 'optimal'
-                        ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-950 border-emerald-800'
+                        ? 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800'
                         : linkHealth.tier === 'moderate'
-                        ? 'text-amber-700 dark:text-amber-400 bg-amber-950 border-amber-800'
-                        : 'text-rose-700 dark:text-rose-400 bg-rose-950 border-rose-800'
+                        ? 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800'
+                        : 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950 border-rose-200 dark:border-rose-800'
                     }`}>
                       <Signal className="w-3 h-3" />
                       <span>Salud: {linkHealth.tier === 'optimal' ? 'Verde (Óptimo)' : linkHealth.tier === 'moderate' ? 'Amarillo (Degradado)' : 'Rojo (Crítico)'}</span>
                     </span>
 
-                    <span className="text-[10px] font-mono text-emerald-800 dark:text-emerald-300 font-bold bg-slate-50 dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 font-bold bg-slate-100 dark:bg-slate-950 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
                       Latencia: {linkHealth.latencyMs}ms
                     </span>
 
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                       linkHealth.packetLossRate > 5
-                        ? 'text-rose-700 dark:text-rose-400 bg-rose-950/80 border-rose-800'
-                        : 'text-slate-300 bg-slate-950 border-slate-800'
+                        ? 'text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 border-rose-200 dark:border-rose-800'
+                        : 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
                     }`}>
                       Pérdida: {linkHealth.packetLossRate}%
                     </span>
 
-                    <span className="text-[10px] font-mono text-blue-700 dark:text-blue-400 bg-blue-950 px-2 py-0.5 rounded border border-blue-800 hidden md:inline">
+                    <span className="text-[10px] font-mono text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 hidden md:inline">
                       WS: {serverConfig?.remoteWebSocketsUrl || 'ws://...:8088'}
                     </span>
                   </div>
 
-                  <div className="text-[11px] text-slate-700 dark:text-slate-200 font-mono mt-0.5 flex flex-wrap items-center gap-2">
+                  <div className="text-[11px] text-slate-600 dark:text-slate-300 font-mono mt-0.5 flex flex-wrap items-center gap-2">
                     <span>Servidor Remoto: {serverConfig?.remoteDbHost || '192.168.10.150'} • BD: {serverConfig?.remoteDbName || 'central_db'}</span>
                     <button
                       type="button"
                       onClick={() => setActiveTab('network_alerts')}
-                      className="text-rose-700 dark:text-rose-400 hover:text-rose-800 dark:text-rose-300 underline font-bold cursor-pointer text-[10px]"
+                      className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 underline font-bold cursor-pointer text-[10px]"
                     >
                       {linkHealth.alerts.length > 0 ? `⚠ ${linkHealth.alerts.length} alerta(s) proactiva(s)` : 'Ver panel de salud'}
                     </button>
@@ -833,21 +833,21 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
         {/* Feedback / Step Banner */}
         {syncStep && (
           <div className="px-6 py-2.5 bg-amber-500/10 border-b border-amber-500/30 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2 shrink-0">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0 text-amber-700 dark:text-amber-400" />
+            <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0 text-amber-600 dark:text-amber-400" />
             <span className="font-mono">{syncStep}</span>
           </div>
         )}
 
         {syncSuccessMsg && (
-          <div className="px-6 py-2.5 bg-emerald-950/80 border-b border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between shrink-0">
+          <div className="px-6 py-2.5 bg-emerald-50 dark:bg-emerald-950/80 border-b border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-200 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{syncSuccessMsg}</span>
             </div>
             <button
               type="button"
               onClick={() => setSyncSuccessMsg(null)}
-              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
             >
               ×
             </button>
@@ -855,15 +855,15 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
         )}
 
         {syncErrorMsg && (
-          <div className="px-6 py-2.5 bg-red-950/80 border-b border-red-800 text-xs text-red-800 dark:text-red-300 flex items-center justify-between shrink-0">
+          <div className="px-6 py-2.5 bg-red-50 dark:bg-red-950/80 border-b border-red-200 dark:border-red-800 text-xs text-red-800 dark:text-red-200 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-red-700 dark:text-red-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
               <span>{syncErrorMsg}</span>
             </div>
             <button
               type="button"
               onClick={() => setSyncErrorMsg(null)}
-              className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
             >
               ×
             </button>
@@ -875,10 +875,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
           {/* AVISO DE CONEXIÓN FALLIDA Y RESOLUCIÓN SEGÚN PUERTO BLOQUEADO */}
           {connectionDiagnosticAlert && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-rose-950/60 to-slate-900 border border-rose-500/40 shadow-2xl space-y-4 animate-in fade-in duration-200">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-rose-500/20">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-rose-50/80 via-white to-slate-50 dark:from-rose-950/60 dark:to-slate-900 border border-rose-200 dark:border-rose-500/40 shadow-xl space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-rose-200 dark:border-rose-500/20">
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0 mt-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 mt-0.5">
                     <ShieldAlert className="w-5 h-5 animate-pulse" />
                   </div>
                   <div>
@@ -886,16 +886,16 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       <span className="text-xs font-black uppercase tracking-wider text-rose-700 dark:text-rose-400 font-mono">
                         Fallo de Conexión FarmaDesk Pro®
                       </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30 font-mono">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 font-mono">
                         {connectionDiagnosticAlert.blockedPorts.length > 0
                           ? `PUERTOS BLOQUEADOS: [${connectionDiagnosticAlert.blockedPorts.map(p => `TCP ${p}`).join(', ')}]`
                           : 'RESTRICCIÓN DE RED'}
                       </span>
-                      <span className="text-[10px] font-mono text-slate-700 dark:text-slate-200">
+                      <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
                         Ping Previo: {connectionDiagnosticAlert.latencyMs}ms • {connectionDiagnosticAlert.timestamp}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                       El ping de diagnóstico previo detectó restricciones de red en los puertos de la App POS (LAN 3000 / WAN 3001) o de FarmaDesk Control Remoto (Puerto 9050).
                     </p>
                   </div>
@@ -904,7 +904,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setConnectionDiagnosticAlert(null)}
-                  className="self-start sm:self-center px-2 py-1 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs transition-colors cursor-pointer"
+                  className="self-start sm:self-center px-2 py-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs transition-colors cursor-pointer"
                   title="Ocultar aviso"
                 >
                   <X className="w-4 h-4" />
@@ -916,18 +916,18 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 {/* Puerto 3000 (App POS) */}
                 <div className={`p-3.5 rounded-xl border transition-all ${
                   connectionDiagnosticAlert.ports[3000]?.status === 'open'
-                    ? 'bg-slate-50 dark:bg-slate-950/70 border-emerald-500/30'
-                    : 'bg-rose-950/20 border-rose-500/30'
+                    ? 'bg-white dark:bg-slate-950/70 border-emerald-200 dark:border-emerald-500/30'
+                    : 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-500/30'
                 }`}>
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-2">
-                      <Server className={`w-4 h-4 ${connectionDiagnosticAlert.ports[3000]?.status === 'open' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`} />
+                      <Server className={`w-4 h-4 ${connectionDiagnosticAlert.ports[3000]?.status === 'open' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} />
                       <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">APP POS (LAN 3000 / WAN 3001)</span>
                     </div>
                     <span className={`text-[10px] font-black px-2 py-0.5 rounded font-mono ${
                       connectionDiagnosticAlert.ports[3000]?.status === 'open'
-                        ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
-                        : 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30 animate-pulse'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                        : 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 animate-pulse'
                     }`}>
                       {connectionDiagnosticAlert.ports[3000]?.status === 'open' ? 'ONLINE / OK' : 'BLOQUEADO / INACTIVO'}
                     </span>
@@ -941,7 +941,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                   {connectionDiagnosticAlert.ports[3000]?.status === 'closed' && (
                     <div className="mt-3 space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] text-rose-800 dark:text-rose-300 font-mono font-bold">
+                      <div className="flex items-center justify-between text-[10px] text-rose-700 dark:text-rose-300 font-mono font-bold">
                         <span>Habilitar regla en Firewall de Windows:</span>
                         <button
                           type="button"
@@ -949,13 +949,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                             'netsh advfirewall firewall add rule name="FarmaDesk_POS_3000" dir=in action=allow protocol=TCP localport=3000,3001',
                             'cmd_3000'
                           )}
-                          className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                          className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <Copy className="w-3 h-3" />
                           <span>{copiedKey === 'cmd_3000' ? '¡Copiado!' : 'Copiar'}</span>
                         </button>
                       </div>
-                      <div className="bg-slate-50 dark:bg-slate-950 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-emerald-700 dark:text-emerald-400 break-all select-all">
+                      <div className="bg-slate-100 dark:bg-slate-950 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-emerald-700 dark:text-emerald-400 break-all select-all">
                         netsh advfirewall firewall add rule name="FarmaDesk_POS_3000" dir=in action=allow protocol=TCP localport=3000,3001
                       </div>
                     </div>
@@ -965,18 +965,18 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 {/* Puerto 9050 (FarmaDesk) */}
                 <div className={`p-3.5 rounded-xl border transition-all ${
                   (connectionDiagnosticAlert.ports[9050]?.status || connectionDiagnosticAlert.ports[7777]?.status) === 'open'
-                    ? 'bg-slate-50 dark:bg-slate-950/70 border-emerald-500/30'
-                    : 'bg-rose-950/20 border-rose-500/30'
+                    ? 'bg-white dark:bg-slate-950/70 border-emerald-200 dark:border-emerald-500/30'
+                    : 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-500/30'
                 }`}>
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-2">
-                      <Laptop className={`w-4 h-4 ${(connectionDiagnosticAlert.ports[9050]?.status || connectionDiagnosticAlert.ports[7777]?.status) === 'open' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`} />
+                      <Laptop className={`w-4 h-4 ${(connectionDiagnosticAlert.ports[9050]?.status || connectionDiagnosticAlert.ports[7777]?.status) === 'open' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} />
                       <span className="text-xs font-bold text-slate-900 dark:text-white font-mono">FARMADESK PRO (PUERTO 9050)</span>
                     </div>
                     <span className={`text-[10px] font-black px-2 py-0.5 rounded font-mono ${
                       (connectionDiagnosticAlert.ports[9050]?.status || connectionDiagnosticAlert.ports[7777]?.status) === 'open'
-                        ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
-                        : 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/30 animate-pulse'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30'
+                        : 'bg-rose-50 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 animate-pulse'
                     }`}>
                       {(connectionDiagnosticAlert.ports[9050]?.status || connectionDiagnosticAlert.ports[7777]?.status) === 'open' ? 'ONLINE (60 FPS)' : 'SERVICIO DETENIDO'}
                     </span>
@@ -990,7 +990,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                   {(connectionDiagnosticAlert.ports[9050]?.status === 'closed' || connectionDiagnosticAlert.ports[7777]?.status === 'closed') && (
                     <div className="mt-3 space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] text-rose-800 dark:text-rose-300 font-mono font-bold">
+                      <div className="flex items-center justify-between text-[10px] text-rose-700 dark:text-rose-300 font-mono font-bold">
                         <span>Iniciar FarmaDesk Pro en Windows:</span>
                         <button
                           type="button"
@@ -998,13 +998,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                             'cmd /c Iniciar-FarmaDesk.bat',
                             'cmd_9050'
                           )}
-                          className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                          className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <Copy className="w-3 h-3" />
                           <span>{copiedKey === 'cmd_9050' ? '¡Copiado!' : 'Copiar'}</span>
                         </button>
                       </div>
-                      <div className="bg-slate-50 dark:bg-slate-950 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-blue-700 dark:text-blue-400 break-all select-all">
+                      <div className="bg-slate-100 dark:bg-slate-950 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-blue-700 dark:text-blue-400 break-all select-all">
                         cmd /c Iniciar-FarmaDesk.bat
                       </div>
                     </div>
@@ -1014,12 +1014,12 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
               {/* Sugerencias adicionales */}
               {connectionDiagnosticAlert.suggestions.length > 0 && (
-                <div className="p-3 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1.5">
-                  <div className="text-[11px] font-bold text-rose-800 dark:text-rose-300 font-mono uppercase tracking-wider flex items-center gap-1.5">
-                    <Terminal className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400" />
+                <div className="p-3 bg-white dark:bg-slate-950/80 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <div className="text-[11px] font-bold text-rose-700 dark:text-rose-300 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                    <Terminal className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                     Pasos de Solución Recomendados:
                   </div>
-                  <ul className="space-y-1 text-[11px] text-slate-600 dark:text-slate-300 list-disc list-inside">
+                  <ul className="space-y-1 text-[11px] text-slate-600 dark:text-slate-400 list-disc list-inside">
                     {connectionDiagnosticAlert.suggestions.map((sug, idx) => (
                       <li key={idx} className="leading-relaxed">
                         {sug}
@@ -1030,7 +1030,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               )}
 
               {/* Botones de acción del aviso */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-rose-500/20">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-rose-200 dark:border-rose-500/20">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -1049,7 +1049,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     type="button"
                     onClick={handleScanPorts}
                     disabled={isScanningPorts}
-                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isScanningPorts ? 'animate-spin' : ''}`} />
                     <span>Reintentar Diagnóstico y Ping</span>
@@ -1064,9 +1064,9 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       '\n\nComando FarmaDesk Pro (Puerto 9050):\ncmd /c Iniciar-FarmaDesk.bat';
                     copyToClipboard(allSolutions, 'all_solutions');
                   }}
-                  className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Copy className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
+                  <Copy className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
                   <span>{copiedKey === 'all_solutions' ? '¡Soluciones Copiadas!' : 'Copiar Diagnóstico Completo'}</span>
                 </button>
               </div>
@@ -1077,22 +1077,22 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
           {activeTab === 'sync' && (
             <>
               {/* Card Destacada: Control de Versión de Globales (Tarifas, Precios, Usuarios y Parámetros) */}
-              <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-950 rounded-2xl border border-indigo-500/30 shadow-md space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-indigo-500/20">
+              <div className="p-4 sm:p-5 bg-gradient-to-br from-indigo-50/80 via-white to-slate-50 dark:from-indigo-950/40 dark:via-slate-900 dark:to-slate-950 rounded-2xl border border-indigo-200 dark:border-indigo-500/30 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-indigo-100 dark:border-indigo-500/20">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
                       <Globe className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-sm font-black text-white">
+                        <h3 className="text-sm font-black text-slate-900 dark:text-white">
                           Versión de Globales del Sistema
                         </h3>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 font-bold">
                           Tarifas • Usuarios • Parámetros
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                         Sincronización de reglas de negocio, precios de parqueadero y perfiles configurados en la Central
                       </p>
                     </div>
@@ -1100,13 +1100,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                   <div className="flex items-center gap-2 flex-wrap">
                     {installedGlobalVer === centralGlobalVer ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         Terminal al Día
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/40 animate-pulse">
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         Actualización de Globales Disponible
                       </span>
                     )}
@@ -1115,60 +1115,60 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                 {/* Versión Local vs Versión Central Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Versión Instalada Local:</span>
-                    <span className="text-sm font-black font-mono text-white mt-0.5 block">
+                  <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Versión Instalada Local:</span>
+                    <span className="text-sm font-black font-mono text-slate-900 dark:text-white mt-0.5 block">
                       {installedGlobalVer}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5 block">Terminal activa: {currentBranch.name}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Terminal activa: {currentBranch.name}</span>
                   </div>
 
-                  <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Versión en Servidor Central:</span>
+                  <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Versión en Servidor Central:</span>
                     <div className="flex items-center justify-between mt-0.5">
-                      <span className="text-sm font-black font-mono text-indigo-300">
+                      <span className="text-sm font-black font-mono text-indigo-600 dark:text-indigo-300">
                         {centralGlobalVer}
                       </span>
                       {isLoadingGlobalInfo && (
-                        <RefreshCw className="w-3 h-3 text-indigo-400 animate-spin" />
+                        <RefreshCw className="w-3 h-3 text-indigo-600 dark:text-indigo-400 animate-spin" />
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-500 mt-0.5 block">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
                       {centralGlobalData?.activeVersionData?.description || 'Publicación manual desde la Central'}
                     </span>
                   </div>
 
-                  <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Última Publicación Central:</span>
-                    <span className="text-xs font-bold text-slate-300 mt-0.5 block">
+                  <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Última Publicación Central:</span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-0.5 block">
                       {centralGlobalData?.activeVersionData?.publishedAt 
                         ? new Date(centralGlobalData.activeVersionData.publishedAt).toLocaleString('es-CO')
                         : 'Vigente'}
                     </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5 block">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
                       Autor: {centralGlobalData?.activeVersionData?.author || 'Administrador Central'}
                     </span>
                   </div>
 
-                  <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 flex flex-col justify-between">
-                    <span className="text-[11px] text-slate-400 block font-medium">Acción Requerida:</span>
+                  <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Acción Requerida:</span>
                     {installedGlobalVer !== centralGlobalVer ? (
-                      <span className="text-[11px] font-bold text-amber-400 mt-1">
+                      <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-1">
                         Descargar {centralGlobalVer}
                       </span>
                     ) : (
-                      <span className="text-[11px] font-bold text-emerald-400 mt-1">
+                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                         Sin cambios pendientes
                       </span>
                     )}
-                    <span className="text-[10px] text-slate-500 block">Sincronización manual protegida</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block">Sincronización manual protegida</span>
                   </div>
                 </div>
 
                 {/* Acciones de Actualización de Globales y Envío de Operaciones */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
-                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                    <Info className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <Info className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                     <span>Afecta tarifas por minuto/hora, usuarios autorizados, conceptos de egresos y parámetros generales.</span>
                   </div>
 
@@ -1177,10 +1177,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       type="button"
                       onClick={handlePushOperationsManual}
                       disabled={isPushingOperations || isSyncing}
-                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:text-white flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
                       title="Transmitir arqueos de turnos, recaudos, tiquetes pagados y ocupación de patio a la Central"
                     >
-                      <Send className={`w-3.5 h-3.5 text-amber-400 ${isPushingOperations ? 'animate-bounce' : ''}`} />
+                      <Send className={`w-3.5 h-3.5 text-amber-600 dark:text-amber-400 ${isPushingOperations ? 'animate-bounce' : ''}`} />
                       <span>{isPushingOperations ? 'Transmitiendo...' : 'Transmitir Operación a Central'}</span>
                     </button>
 
@@ -1200,8 +1200,8 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 </div>
 
                 {operationsPushSuccess && (
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in duration-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in duration-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{operationsPushSuccess}</span>
                   </div>
                 )}
@@ -1211,19 +1211,19 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Download className="w-4 h-4 text-sky-700 dark:text-sky-400" />
+                    <Download className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                     Paquetes de Actualización desde Servidor Central
                   </h3>
-                  <span className="text-xs font-mono text-slate-700 dark:text-slate-200">
+                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
                     {pendingPackages.length} pendientes
                   </span>
                 </div>
 
                 {pendingPackages.length === 0 ? (
-                  <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-center space-y-1.5">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-700 dark:text-emerald-400 mx-auto" />
+                  <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-center space-y-1.5">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400 mx-auto" />
                     <div className="text-xs font-bold text-slate-900 dark:text-white">¡Esta terminal está 100% al día con la Matriz!</div>
-                    <p className="text-[11px] text-slate-700 dark:text-slate-200 max-w-md mx-auto">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 max-w-md mx-auto">
                       No hay tarifas, políticas ni paquetes de insumos pendientes por inyectar en esta sucursal.
                     </p>
                   </div>
@@ -1232,43 +1232,43 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     {pendingPackages.map(pkg => (
                       <div
                         key={pkg.id}
-                        className="p-4 bg-slate-50 dark:bg-slate-950 border border-amber-500/40 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
+                        className="p-4 bg-white dark:bg-slate-950 border border-amber-500/40 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs"
                       >
                         <div className="space-y-1.5">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                            <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
                               {pkg.packageNumber}
                             </span>
                             <h4 className="text-xs font-bold text-slate-900 dark:text-white">{pkg.title}</h4>
-                            <span className="text-[10px] bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-mono">
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded font-mono">
                               {pkg.targetScope === 'all' ? 'Para Todas las Sedes' : 'Exclusivo para esta Sede'}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-300">{pkg.description}</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400">{pkg.description}</p>
 
                           {/* Quick Rates Preview inside package card if available */}
                           {pkg.payload?.rates && (
-                            <div className="bg-white dark:bg-slate-900/90 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
+                            <div className="bg-slate-50 dark:bg-slate-900/90 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-[11px] grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono">
                               <div>
-                                <span className="text-slate-600 dark:text-slate-300 block text-[10px]">Tarifa Minuto:</span>
+                                <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Tarifa Minuto:</span>
                                 <span className="font-bold text-amber-700 dark:text-amber-400">${pkg.payload.rates.minuteRate || 60}/min</span>
                               </div>
                               <div>
-                                <span className="text-slate-600 dark:text-slate-300 block text-[10px]">Tarifa Hora:</span>
+                                <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Tarifa Hora:</span>
                                 <span className="font-bold text-amber-700 dark:text-amber-400">${pkg.payload.rates.hourRate || 3600}/hr</span>
                               </div>
                               <div>
-                                <span className="text-slate-600 dark:text-slate-300 block text-[10px]">Tiquete Perdido:</span>
-                                <span className="font-bold text-slate-600 dark:text-slate-300">${pkg.payload.rates.lostTicketFee || 15000}</span>
+                                <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Tiquete Perdido:</span>
+                                <span className="font-bold text-slate-700 dark:text-slate-300">${pkg.payload.rates.lostTicketFee || 15000}</span>
                               </div>
                               <div>
-                                <span className="text-slate-600 dark:text-slate-300 block text-[10px]">Gracia:</span>
+                                <span className="text-slate-500 dark:text-slate-400 block text-[10px]">Gracia:</span>
                                 <span className="font-bold text-emerald-700 dark:text-emerald-400">{pkg.payload.rates.gracePeriodMinutes || 15} min</span>
                               </div>
                             </div>
                           )}
 
-                          <div className="text-[10px] text-slate-600 dark:text-slate-300 font-mono flex items-center gap-2">
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-2">
                             <span>Despachado: {new Date(pkg.createdAt).toLocaleDateString()}</span>
                             <span>•</span>
                             <span>Autor: {pkg.author}</span>
@@ -1291,37 +1291,37 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               </div>
 
               {/* Section 2: Outbound Telemetry Overview */}
-              <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-                <h3 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider font-mono flex items-center gap-2">
-                  <Send className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+              <div className="p-4 sm:p-5 bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3 shadow-xs">
+                <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider font-mono flex items-center gap-2">
+                  <Send className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   Telemetría Local Transmitida al Servidor Central
                 </h3>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-700 dark:text-slate-200 block font-semibold">Recaudo Acumulado Hoy:</span>
-                    <span className="text-xs sm:text-sm font-black text-emerald-700 dark:text-emerald-400 font-mono">
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Recaudo Acumulado Hoy:</span>
+                    <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 font-mono">
                       ${currentBranch.todayRevenue.toLocaleString()} COP
                     </span>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-700 dark:text-slate-200 block font-semibold">Vehículos en Patio:</span>
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Vehículos en Patio:</span>
                     <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-mono">
                       {currentBranch.occupiedSpots} / {currentBranch.totalSpots} plazas
                     </span>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-700 dark:text-slate-200 block font-semibold">Turno Activo:</span>
-                    <span className="text-xs sm:text-sm font-black text-amber-700 dark:text-amber-400 font-mono">
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Turno Activo:</span>
+                    <span className="text-xs sm:text-sm font-black text-amber-600 dark:text-amber-400 font-mono">
                       Turno #{currentBranch.activeShiftNumber}
                     </span>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-700 dark:text-slate-200 block font-semibold">Cajero en Turno:</span>
-                    <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 truncate block">
+                  <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-semibold">Cajero en Turno:</span>
+                    <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate block">
                       {currentBranch.currentCashier}
                     </span>
                   </div>
@@ -1331,7 +1331,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               {/* Section 3: Branch Sync Logs */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5" />
                     Historial de Sincronización de esta Sucursal
                   </h3>
@@ -1339,10 +1339,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     <button
                       type="button"
                       onClick={handleExportCSV}
-                      className="px-2.5 py-1 rounded bg-slate-850 hover:bg-slate-700 hover:text-white border border-slate-300 dark:border-slate-700 text-[11px] text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                      className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 text-[11px] text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
                       title="Exportar auditoría de sincronización a CSV"
                     >
-                      <Download className="w-3 h-3 text-amber-700 dark:text-amber-400" />
+                      <Download className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                       <span>Exportar CSV</span>
                     </button>
                   )}
@@ -1350,17 +1350,17 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                 <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                   {branchLogs.length === 0 ? (
-                    <div className="text-xs text-slate-200 py-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl text-center border border-slate-200 dark:border-slate-800">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 py-3 bg-slate-50 dark:bg-slate-950/40 rounded-xl text-center border border-slate-200 dark:border-slate-800">
                       No hay registros de sincronización recientes. Haz clic en "Sincronizar Todo Ahora" para iniciar la primera transmisión.
                     </div>
                   ) : (
                     branchLogs.map(log => (
                       <div key={log.id} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2.5">
-                          <span className={`w-2 h-2 rounded-full ${log.status === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">{log.summary}</span>
+                          <span className={`w-2 h-2 rounded-full ${log.status === 'success' ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-rose-500 dark:bg-red-400'}`}></span>
+                          <span className="text-slate-700 dark:text-slate-300 font-medium">{log.summary}</span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-700 dark:text-slate-200 shrink-0">
+                        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 shrink-0">
                           {new Date(log.timestamp).toLocaleTimeString()}
                         </span>
                       </div>
@@ -1374,15 +1374,15 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
           {/* TAB 2: Dominios Sincronizados autorizados por Central */}
           {activeTab === 'domains_view' && (
             <div className="space-y-4 py-2">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-700 dark:text-indigo-400 shrink-0">
+              <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
                   <Layers className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                     Directiva de Sincronización Establecida por el Servidor Central
                   </h4>
-                  <p className="text-xs text-slate-700 dark:text-slate-200 mt-1">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                     Esta sucursal ({currentBranch.name}) sincroniza automáticamente los siguientes módulos y entidades autorizadas según las políticas maestras de la empresa.
                   </p>
                 </div>
@@ -1390,24 +1390,24 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {getSyncMasterPolicy().domains.filter(d => d.enabled).map(domain => (
-                  <div key={domain.id} className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col justify-between">
+                  <div key={domain.id} className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl flex flex-col justify-between shadow-xs">
                     <div>
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{domain.name}</span>
-                        <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{domain.name}</span>
+                        <span className="text-[10px] font-mono font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-500/30">
                           ACTIVO
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-indigo-800 dark:text-indigo-300">
+                      <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-300">
                         {domain.code} • Clave: {domain.entityKey}
                       </span>
-                      <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-1 line-clamp-2">
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
                         {domain.description}
                       </p>
                     </div>
 
-                    <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-700 dark:text-slate-200">
-                      <span>Flujo: <strong className="text-slate-700 dark:text-slate-200">{domain.direction === 'central_to_branch' ? 'Central ➔ Sucursal' : domain.direction === 'branch_to_central' ? 'Sucursal ➔ Central' : 'Bidireccional'}</strong></span>
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
+                      <span>Flujo: <strong className="text-slate-700 dark:text-slate-300">{domain.direction === 'central_to_branch' ? 'Central ➔ Sucursal' : domain.direction === 'branch_to_central' ? 'Sucursal ➔ Central' : 'Bidireccional'}</strong></span>
                       <span>v{domain.version}</span>
                     </div>
                   </div>
@@ -1432,22 +1432,22 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
           {activeTab === 'network_wizard' && (
             <div className="space-y-6 py-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
               {/* Header card with quick info */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
+              <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0">
                   <Activity className="w-5 h-5 animate-pulse" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                     Asistente de Enlace de Red y Diagnóstico FarmaDesk Pro®
                   </h4>
-                  <p className="text-xs text-slate-700 dark:text-slate-200 mt-1">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                     Verifica la conectividad de los puertos locales, audita el túnel de WebSockets inverso, y fuerza el reintento de conexión al servidor central.
                   </p>
                 </div>
               </div>
 
               {/* Steps bar */}
-              <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-950 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 gap-1 overflow-x-auto">
+              <div className="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 gap-1 overflow-x-auto">
                 {[
                   { num: 1, name: 'Parámetros' },
                   { num: 2, name: 'Escáner de Puertos' },
@@ -1464,11 +1464,11 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap cursor-pointer ${
                       wizardStep === st.num
                         ? 'bg-rose-600 text-white shadow-md'
-                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-900'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-900'
                     }`}
                   >
                     <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${
-                      wizardStep === st.num ? 'bg-slate-950 text-rose-700 dark:text-rose-400' : 'bg-slate-800 text-slate-200'
+                      wizardStep === st.num ? 'bg-white text-rose-600 shadow-xs' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                     }`}>
                       {st.num}
                     </span>
@@ -1478,60 +1478,60 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               </div>
 
               {/* Wizard Content box */}
-              <div className="bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 min-h-[350px] flex flex-col justify-between gap-6">
+              <div className="bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 min-h-[350px] flex flex-col justify-between gap-6 shadow-xs">
                 
                 {/* STEP 1: PARÁMETROS Y PROTOCOLOS */}
                 {wizardStep === 1 && (
                   <div className="space-y-4 animate-in fade-in duration-150 flex-1 flex flex-col justify-between">
                     <div className="space-y-3">
                       <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                        <h5 className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider font-mono">
+                        <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider font-mono">
                           Paso 1. Configuración de Acceso y Parámetros del Servidor Central
                         </h5>
-                        <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-1">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
                           Asegúrate de que la dirección remota o IP de la central coincide con las políticas asignadas a tu sede.
                         </p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                         <div className="space-y-1">
-                          <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                             Servidor Remoto / IP Central:
                           </label>
                           <input
                             type="text"
                             value={wizardServerHost}
                             onChange={(e) => setWizardServerHost(e.target.value)}
-                            className="w-full px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-mono text-xs focus:ring-2 focus:ring-rose-500 focus:outline-hidden"
+                            className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 font-mono text-xs focus:ring-2 focus:ring-rose-500 focus:outline-hidden"
                             placeholder="central.parqueaderopos.com"
                           />
-                          <span className="text-[10px] text-slate-600 dark:text-slate-300 block">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
                             Dominio o IP del servidor principal de ParqueaderoPOS.
                           </span>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="block text-xs font-bold text-slate-600 dark:text-slate-300">
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                             ID de esta Sede Autodetectado:
                           </label>
-                          <div className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 font-mono text-xs select-none">
+                          <div className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 font-mono text-xs select-none">
                             {currentBranch.id} ({currentBranch.code})
                           </div>
-                          <span className="text-[10px] text-slate-600 dark:text-slate-300 block">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
                             Identificador único persistente para el enlace de sockets.
                           </span>
                         </div>
                       </div>
 
                       {/* Security details box */}
-                      <div className="p-3.5 bg-rose-500/5 border border-rose-500/15 rounded-xl flex items-start gap-3 mt-4">
-                        <ShieldCheck className="w-5 h-5 text-rose-700 dark:text-rose-400 shrink-0 mt-0.5" />
+                      <div className="p-3.5 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl flex items-start gap-3 mt-4">
+                        <ShieldCheck className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                         <div>
-                          <div className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                          <div className="text-xs font-bold text-slate-900 dark:text-slate-200">
                             Encriptación Segura SSL/TLS & Handshake de Túnel Inverso
                           </div>
-                          <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-0.5 leading-relaxed">
-                            PowerShell y Python utilizarán los puertos seguros de la aplicación <strong className="text-rose-700 dark:text-rose-400">LAN 3000 / WAN 3001</strong> y de control remoto FarmaDesk Pro® <strong className="text-rose-700 dark:text-rose-400">LAN 7777 / WAN 7070</strong> bajo encriptación HTTPS/WSS (TLS 1.2 / TLS 1.3), previniendo filtraciones y permitiendo que la terminal de la sucursal sea controlada por VNC de forma fluida.
+                          <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                            PowerShell y Python utilizarán los puertos seguros de la aplicación <strong className="text-rose-600 dark:text-rose-400">LAN 3000 / WAN 3001</strong> y de control remoto FarmaDesk Pro® <strong className="text-rose-600 dark:text-rose-400">LAN 7777 / WAN 7070</strong> bajo encriptación HTTPS/WSS (TLS 1.2 / TLS 1.3), previniendo filtraciones y permitiendo que la terminal de la sucursal sea controlada por VNC de forma fluida.
                           </p>
                         </div>
                       </div>
@@ -1559,10 +1559,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                   <div className="space-y-4 animate-in fade-in duration-150 flex-1 flex flex-col justify-between">
                     <div className="space-y-3">
                       <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                        <h5 className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider font-mono">
+                        <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider font-mono">
                           Paso 2. Escáner Interactivo de Puertos (App: 3000/3001 • FarmaDesk: 7777/7070)
                         </h5>
-                        <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-1">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
                           Audita la disponibilidad de los puertos necesarios en este equipo local y en el servidor remoto para recibir órdenes de control interactivo.
                         </p>
                       </div>
@@ -1571,24 +1571,24 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         {/* 1. Port 3000 Box (App POS LAN) */}
                         <div className={`p-3.5 rounded-xl border transition-all ${
                           port3000Status === 'open' 
-                            ? 'bg-emerald-950/25 border-emerald-800/60' 
+                            ? 'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-800/60' 
                             : port3000Status === 'closed'
-                            ? 'bg-red-950/25 border-red-800/60'
-                            : 'bg-slate-900 border-slate-800'
+                            ? 'bg-rose-50 dark:bg-red-950/25 border-rose-300 dark:border-red-800/60'
+                            : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                         }`}>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold font-mono text-slate-600 dark:text-slate-300">PUERTO 3000 (App LAN)</span>
+                            <span className="text-xs font-bold font-mono text-slate-700 dark:text-slate-300">PUERTO 3000 (App LAN)</span>
                             {port3000Status === 'scanning' ? (
-                              <RefreshCw className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 animate-spin" />
+                              <RefreshCw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-spin" />
                             ) : port3000Status === 'open' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">ONLINE</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">ONLINE</span>
                             ) : port3000Status === 'closed' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30">CERRADO</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-rose-100 dark:bg-red-500/20 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-red-500/30">CERRADO</span>
                             ) : (
-                              <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">SIN VERIFICAR</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">SIN VERIFICAR</span>
                             )}
                           </div>
-                          <p className="text-[10px] text-slate-700 dark:text-slate-200 mt-2 leading-relaxed">
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                             Servidor web local POS y API de caja en http://localhost:3000.
                           </p>
                         </div>
@@ -1596,24 +1596,24 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         {/* 2. Port 3001 Box (App POS WAN) */}
                         <div className={`p-3.5 rounded-xl border transition-all ${
                           port3001Status === 'open' 
-                            ? 'bg-emerald-950/25 border-emerald-800/60' 
+                            ? 'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-800/60' 
                             : port3001Status === 'closed'
-                            ? 'bg-red-950/25 border-red-800/60'
-                            : 'bg-slate-900 border-slate-800'
+                            ? 'bg-rose-50 dark:bg-red-950/25 border-rose-300 dark:border-red-800/60'
+                            : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                         }`}>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold font-mono text-slate-600 dark:text-slate-300">PUERTO 3001 (App WAN)</span>
+                            <span className="text-xs font-bold font-mono text-slate-700 dark:text-slate-300">PUERTO 3001 (App WAN)</span>
                             {port3001Status === 'scanning' ? (
-                              <RefreshCw className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 animate-spin" />
+                              <RefreshCw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-spin" />
                             ) : port3001Status === 'open' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">ONLINE</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">ONLINE</span>
                             ) : port3001Status === 'closed' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30">CERRADO</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-rose-100 dark:bg-red-500/20 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-red-500/30">CERRADO</span>
                             ) : (
-                              <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">SIN VERIFICAR</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">SIN VERIFICAR</span>
                             )}
                           </div>
-                          <p className="text-[10px] text-slate-700 dark:text-slate-200 mt-2 leading-relaxed">
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                             Sincronización remota WAN de tarifas y paquetes centrales.
                           </p>
                         </div>
@@ -1621,24 +1621,24 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         {/* 3. Port 7777 Box (FarmaDesk LAN) */}
                         <div className={`p-3.5 rounded-xl border transition-all ${
                           port7777Status === 'open' 
-                            ? 'bg-emerald-950/25 border-emerald-800/60' 
+                            ? 'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-800/60' 
                             : port7777Status === 'closed'
-                            ? 'bg-red-950/25 border-red-800/60'
-                            : 'bg-slate-900 border-slate-800'
+                            ? 'bg-rose-50 dark:bg-red-950/25 border-rose-300 dark:border-red-800/60'
+                            : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                         }`}>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold font-mono text-slate-600 dark:text-slate-300">PUERTO 7777 (FarmaDesk LAN)</span>
+                            <span className="text-xs font-bold font-mono text-slate-700 dark:text-slate-300">PUERTO 7777 (FarmaDesk LAN)</span>
                             {port7777Status === 'scanning' ? (
-                              <RefreshCw className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 animate-spin" />
+                              <RefreshCw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-spin" />
                             ) : port7777Status === 'open' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">ONLINE</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">ONLINE</span>
                             ) : port7777Status === 'closed' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30 font-bold animate-pulse">CERRADO</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-rose-100 dark:bg-red-500/20 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-red-500/30 font-bold animate-pulse">CERRADO</span>
                             ) : (
-                              <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">SIN VERIFICAR</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">SIN VERIFICAR</span>
                             )}
                           </div>
-                          <p className="text-[10px] text-slate-700 dark:text-slate-200 mt-2 leading-relaxed">
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                             Streaming 20 FPS y control interactivo en la red local.
                           </p>
                         </div>
@@ -1646,24 +1646,24 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         {/* 4. Port 7070 Box (FarmaDesk WAN) */}
                         <div className={`p-3.5 rounded-xl border transition-all ${
                           port7070Status === 'open' 
-                            ? 'bg-emerald-950/25 border-emerald-800/60' 
+                            ? 'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-300 dark:border-emerald-800/60' 
                             : port7070Status === 'closed'
-                            ? 'bg-red-950/25 border-red-800/60'
-                            : 'bg-slate-900 border-slate-800'
+                            ? 'bg-rose-50 dark:bg-red-950/25 border-rose-300 dark:border-red-800/60'
+                            : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                         }`}>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold font-mono text-slate-600 dark:text-slate-300">PUERTO 7070 (FarmaDesk WAN)</span>
+                            <span className="text-xs font-bold font-mono text-slate-700 dark:text-slate-300">PUERTO 7070 (FarmaDesk WAN)</span>
                             {port7070Status === 'scanning' ? (
-                              <RefreshCw className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 animate-spin" />
+                              <RefreshCw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-spin" />
                             ) : port7070Status === 'open' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">ONLINE</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">ONLINE</span>
                             ) : port7070Status === 'closed' ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30 font-bold animate-pulse">CERRADO</span>
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-rose-100 dark:bg-red-500/20 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-red-500/30 font-bold animate-pulse">CERRADO</span>
                             ) : (
-                              <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">SIN VERIFICAR</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">SIN VERIFICAR</span>
                             )}
                           </div>
-                          <p className="text-[10px] text-slate-700 dark:text-slate-200 mt-2 leading-relaxed">
+                          <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
                             Túnel WebSocket seguro por Internet para soporte en remoto.
                           </p>
                         </div>
@@ -1671,14 +1671,14 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                       {/* Instructions for closed port 7777 / 3000 */}
                       {(port7777Status === 'closed' || port3000Status === 'closed') && (
-                        <div className="p-3 bg-red-500/5 border border-red-500/15 rounded-xl space-y-1.5 mt-2">
-                          <div className="text-[11px] font-extrabold text-red-700 dark:text-red-400 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                        <div className="p-3 bg-rose-50 dark:bg-red-500/10 border border-rose-200 dark:border-red-500/20 rounded-xl space-y-1.5 mt-2">
+                          <div className="text-[11px] font-extrabold text-rose-700 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1.5 font-mono">
                             <AlertTriangle className="w-3.5 h-3.5" /> ¡Puerto de Red de Sockets Inoperativo o Bloqueado!
                           </div>
                           <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
                             Si no ejecutas el Agente local FarmaDesk Pro, la central no podrá controlar físicamente la pantalla de esta sucursal. Ejecuta el lanzador de FarmaDesk Pro o introduce este comando en la terminal:
                           </p>
-                          <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-cyan-800 dark:text-cyan-300 break-all select-all">
+                          <div className="bg-slate-100 dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800 text-[10px] font-mono text-cyan-700 dark:text-cyan-300 break-all select-all">
                             cmd /c Iniciar-FarmaDesk.bat
                           </div>
                         </div>
@@ -1690,7 +1690,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         type="button"
                         onClick={handleScanPorts}
                         disabled={isScanningPorts}
-                        className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-850 hover:bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 ${isScanningPorts ? 'animate-spin' : ''}`} />
                         <span>Re-escanear Puertos</span>
@@ -1722,10 +1722,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                   <div className="space-y-4 animate-in fade-in duration-150 flex-1 flex flex-col justify-between">
                     <div className="space-y-3">
                       <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                        <h5 className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider font-mono">
+                        <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider font-mono">
                           Paso 3. Diagnóstico de Red y Ruta de Tránsito (Visual Path Tracer)
                         </h5>
-                        <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-1">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
                           Mapa conceptual interactivo del flujo de datos en tiempo real entre la terminal física y el Servidor Central.
                         </p>
                       </div>
@@ -1736,15 +1736,15 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                           
                           {/* Node 1 */}
                           <div className="flex flex-col items-center text-center space-y-1 z-10">
-                            <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300">
                               <Laptop className="w-5 h-5" />
                             </div>
                             <span className="text-[10px] font-bold text-slate-900 dark:text-white">Este PC</span>
-                            <span className="text-[9px] text-slate-600 dark:text-slate-300 font-mono">{detectedLocalIp}</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono">{detectedLocalIp}</span>
                           </div>
 
                           {/* Line */}
-                          <div className="hidden sm:block flex-1 h-0.5 bg-slate-800 relative">
+                          <div className="hidden sm:block flex-1 h-0.5 bg-slate-300 dark:bg-slate-800 relative">
                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-rose-500 animate-pulse"></div>
                           </div>
 
@@ -1752,43 +1752,43 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                           <div className="flex flex-col items-center text-center space-y-1 z-10">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${
                               port3000Status === 'open' && port7777Status === 'open'
-                                ? 'bg-emerald-950/45 border-emerald-500 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-red-950/45 border-red-500 text-red-700 dark:text-red-400'
+                                ? 'bg-emerald-100 dark:bg-emerald-950/45 border-emerald-500 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-rose-100 dark:bg-red-950/45 border-rose-500 text-rose-700 dark:text-rose-400'
                             }`}>
                               <Cpu className="w-5 h-5" />
                             </div>
                             <span className="text-[10px] font-bold text-slate-900 dark:text-white">Puertos Sede</span>
-                            <span className="text-[9px] text-slate-700 dark:text-slate-200 font-mono text-center">
+                            <span className="text-[9px] text-slate-600 dark:text-slate-400 font-mono text-center">
                               POS: {port3000Status === 'open' ? '3000 ✔' : '3000 ✘'} | WDesk: {port7777Status === 'open' ? '7777 ✔' : '7777 ✘'}
                             </span>
                           </div>
 
                           {/* Line */}
-                          <div className="hidden sm:block flex-1 h-0.5 bg-slate-800 relative">
+                          <div className="hidden sm:block flex-1 h-0.5 bg-slate-300 dark:bg-slate-800 relative">
                             <div className="absolute inset-0 bg-gradient-to-r from-rose-500 to-blue-500 animate-pulse"></div>
                           </div>
 
                           {/* Node 3 */}
                           <div className="flex flex-col items-center text-center space-y-1 z-10">
-                            <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-blue-700 dark:text-blue-400">
+                            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 flex items-center justify-center text-blue-600 dark:text-blue-400">
                               <Wifi className="w-5 h-5" />
                             </div>
                             <span className="text-[10px] font-bold text-slate-900 dark:text-white">Módem ISP</span>
-                            <span className="text-[9px] text-slate-600 dark:text-slate-300 font-mono truncate max-w-[100px]">{detectedPublicIp}</span>
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[100px]">{detectedPublicIp}</span>
                           </div>
 
                           {/* Line */}
-                          <div className="hidden sm:block flex-1 h-0.5 bg-slate-800 relative">
+                          <div className="hidden sm:block flex-1 h-0.5 bg-slate-300 dark:bg-slate-800 relative">
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse"></div>
                           </div>
 
                           {/* Node 4 */}
                           <div className="flex flex-col items-center text-center space-y-1 z-10">
-                            <div className="w-10 h-10 rounded-full bg-indigo-950 border border-indigo-700 flex items-center justify-center text-indigo-700 dark:text-indigo-400">
+                            <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-700 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                               <Server className="w-5 h-5 animate-pulse" />
                             </div>
                             <span className="text-[10px] font-bold text-slate-900 dark:text-white">Servidor Central</span>
-                            <span className="text-[9px] text-slate-700 dark:text-slate-200 font-mono truncate max-w-[140px]">
+                            <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[140px]">
                               {wizardServerHost || '186.180.74.35'}:3001
                             </span>
                           </div>
@@ -1798,8 +1798,8 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                       {/* Monospace Developer console log console */}
                       <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 font-mono uppercase tracking-wider block">Consola de Red en Tiempo Real:</span>
-                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 h-32 overflow-y-auto font-mono text-[10px] text-emerald-700 dark:text-emerald-400 space-y-1 select-text scrollbar-thin">
+                        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 font-mono uppercase tracking-wider block">Consola de Red en Tiempo Real:</span>
+                        <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 h-32 overflow-y-auto font-mono text-[10px] text-emerald-400 space-y-1 select-text scrollbar-thin">
                           {diagnosticLog.map((logLine, i) => (
                             <div key={i} className="leading-relaxed">
                               {logLine}
@@ -1831,55 +1831,55 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                   <div className="space-y-4 animate-in fade-in duration-150 flex-1 flex flex-col justify-between">
                     <div className="space-y-3">
                       <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
-                        <h5 className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider font-mono">
+                        <h5 className="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider font-mono">
                           Paso 4. Enlace Final por WebSocket y Prueba de Handshake Seguro
                         </h5>
-                        <p className="text-[11px] text-slate-700 dark:text-slate-200 mt-1">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-1">
                           Evaluación final de conectividad bidireccional mediante FarmaDesk Socket Client en LAN (3000/7777) y WAN (3001/7070).
                         </p>
                       </div>
 
                       {/* Connection Diagnostic Result Card */}
-                      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center space-y-3">
+                      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center space-y-3 shadow-xs">
                         {wsDiagnosticStatus === 'testing' ? (
                           <>
-                            <RefreshCw className="w-10 h-10 text-amber-700 dark:text-amber-400 animate-spin" />
+                            <RefreshCw className="w-10 h-10 text-amber-500 animate-spin" />
                             <div className="text-xs font-bold text-slate-900 dark:text-white">Estableciendo Handshake de WebSocket...</div>
-                            <p className="text-[11px] text-slate-700 dark:text-slate-200 max-w-sm">
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400 max-w-sm">
                               Enviando firma de sede {currentBranch.id} por WSS TLS 1.2 / TLS 1.3 a {wizardServerHost}. Esperando respuesta del ping...
                             </p>
                           </>
                         ) : wsDiagnosticStatus === 'success' ? (
                           <>
-                            <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+                            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                               <Check className="w-6 h-6 animate-bounce" />
                             </div>
-                            <div className="text-xs font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider font-mono">
+                            <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-mono">
                               ¡CONEXIÓN DE TELEMETRÍA 100% ACTIVA!
                             </div>
                             <div className="text-xs font-bold text-slate-900 dark:text-white">Canal WebSocket Conectado Correctamente</div>
-                            <p className="text-[11px] text-slate-700 dark:text-slate-200 max-w-md leading-relaxed">
-                              La sede remota ya transmite datos y está lista para el <strong className="text-emerald-700 dark:text-emerald-400">Escritorio Remoto FarmaDesk Pro® (LAN 7777 / WAN 7070)</strong>. Latencia: <strong className="font-mono text-white">{wizardLatency || 15}ms</strong> • Protocolo de Seguridad Forzado: TLS 1.2 / TLS 1.3 Seguro.
+                            <p className="text-[11px] text-slate-600 dark:text-slate-300 max-w-md leading-relaxed">
+                              La sede remota ya transmite datos y está lista para el <strong className="text-emerald-600 dark:text-emerald-400">Escritorio Remoto FarmaDesk Pro® (LAN 7777 / WAN 7070)</strong>. Latencia: <strong className="font-mono text-slate-900 dark:text-white">{wizardLatency || 15}ms</strong> • Protocolo de Seguridad Forzado: TLS 1.2 / TLS 1.3 Seguro.
                             </p>
                           </>
                         ) : wsDiagnosticStatus === 'failed' ? (
                           <>
-                            <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-700 dark:text-red-400">
+                            <div className="w-12 h-12 rounded-full bg-rose-50 dark:bg-red-500/10 border border-rose-200 dark:border-red-500/30 flex items-center justify-center text-rose-600 dark:text-rose-400">
                               <AlertTriangle className="w-6 h-6" />
                             </div>
-                            <div className="text-xs font-extrabold text-red-700 dark:text-red-400 uppercase tracking-wider font-mono">
+                            <div className="text-xs font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider font-mono">
                               ENLACE FALLIDO O INTERRUMPIDO
                             </div>
                             <div className="text-xs font-bold text-slate-900 dark:text-white">No se pudo negociar el handshake de socket</div>
-                            <p className="text-[11px] text-slate-700 dark:text-slate-200 max-w-md">
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400 max-w-md">
                               {connectionDiagnosticAlert?.blockedPorts && connectionDiagnosticAlert.blockedPorts.length > 0
                                 ? `El ping de diagnóstico previo detectó que el puerto ${connectionDiagnosticAlert.blockedPorts.map(p => `TCP ${p}`).join(' y ')} se encuentra bloqueado o inactivo en esta terminal.`
                                 : `Verifica que el Servidor Central esté en línea en ${wizardServerHost}. Si el puerto 7777/7070 local dio negativo, ejecuta el Agente de escritorio para abrir el túnel de clicks inversos.`}
                             </p>
 
                             {connectionDiagnosticAlert?.blockedPorts.includes(7777) && (
-                              <div className="w-full text-left bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-red-500/30 space-y-1 mt-2">
-                                <div className="flex items-center justify-between text-[10px] text-rose-800 dark:text-rose-300 font-mono font-bold">
+                              <div className="w-full text-left bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-rose-200 dark:border-red-500/30 space-y-1 mt-2">
+                                <div className="flex items-center justify-between text-[10px] text-rose-700 dark:text-rose-300 font-mono font-bold">
                                   <span>Solución Agente FarmaDesk Pro®:</span>
                                   <button
                                     type="button"
@@ -1887,21 +1887,21 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                                       'cmd /c Iniciar-FarmaDesk.bat',
                                       'step4_cmd_7777'
                                     )}
-                                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                                    className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
                                   >
                                     <Copy className="w-3 h-3" />
                                     <span>{copiedKey === 'step4_cmd_7777' ? '¡Copiado!' : 'Copiar'}</span>
                                   </button>
                                 </div>
-                                <div className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 break-all select-all">
+                                <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 break-all select-all">
                                   cmd /c Iniciar-FarmaDesk.bat
                                 </div>
                               </div>
                             )}
 
                             {connectionDiagnosticAlert?.blockedPorts.includes(3000) && (
-                              <div className="w-full text-left bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-red-500/30 space-y-1 mt-2">
-                                <div className="flex items-center justify-between text-[10px] text-rose-800 dark:text-rose-300 font-mono font-bold">
+                              <div className="w-full text-left bg-slate-50 dark:bg-slate-950 p-2.5 rounded-xl border border-rose-200 dark:border-red-500/30 space-y-1 mt-2">
+                                <div className="flex items-center justify-between text-[10px] text-rose-700 dark:text-rose-300 font-mono font-bold">
                                   <span>Solución Puerto 3000/3001 (Regla Firewall POS):</span>
                                   <button
                                     type="button"
@@ -1909,13 +1909,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                                       'netsh advfirewall firewall add rule name="FarmaDesk_POS_3000" dir=in action=allow protocol=TCP localport=3000,3001',
                                       'step4_cmd_3000'
                                     )}
-                                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                                    className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
                                   >
                                     <Copy className="w-3 h-3" />
                                     <span>{copiedKey === 'step4_cmd_3000' ? '¡Copiado!' : 'Copiar'}</span>
                                   </button>
                                 </div>
-                                <div className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 break-all select-all">
+                                <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 break-all select-all">
                                   netsh advfirewall firewall add rule name="FarmaDesk_POS_3000" dir=in action=allow protocol=TCP localport=3000,3001
                                 </div>
                               </div>
@@ -1923,9 +1923,9 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                           </>
                         ) : (
                           <>
-                            <Zap className="w-10 h-10 text-rose-700 dark:text-rose-400" />
+                            <Zap className="w-10 h-10 text-rose-600 dark:text-rose-400" />
                             <div className="text-xs font-bold text-slate-900 dark:text-white">Prueba de Sockets no iniciada</div>
-                            <p className="text-[11px] text-slate-700 dark:text-slate-200 max-w-sm">
+                            <p className="text-[11px] text-slate-600 dark:text-slate-400 max-w-sm">
                               Haz clic en "Iniciar handshake" para verificar el canal de sockets en vivo con la central remota.
                             </p>
                           </>
@@ -1945,7 +1945,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                           setPort7070Status('unchecked');
                           playSound('success', true);
                         }}
-                        className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold bg-slate-850 hover:bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
                       >
                         Reiniciar Asistente
                       </button>
@@ -1976,12 +1976,12 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Activity className={`w-4 h-4 ${
-                      linkHealth.tier === 'optimal' ? 'text-emerald-700 dark:text-emerald-400' :
-                      linkHealth.tier === 'moderate' ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400 animate-pulse'
+                      linkHealth.tier === 'optimal' ? 'text-emerald-600 dark:text-emerald-400' :
+                      linkHealth.tier === 'moderate' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400 animate-pulse'
                     }`} />
                     Monitoreo en Vivo de Estabilidad de Red y Salud de Enlace
                   </h3>
-                  <p className="text-xs text-slate-700 dark:text-slate-200 mt-0.5">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                     Evaluación continua del canal WebSocket con {wizardServerHost || 'Servidor Central'}. Detección proactiva de micro-cortes y jitter.
                   </p>
                 </div>
@@ -1992,18 +1992,18 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     onClick={() => setIsLiveMonitoring(!isLiveMonitoring)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold border flex items-center gap-1.5 transition-all cursor-pointer ${
                       isLiveMonitoring
-                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-700'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/30'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700'
                     }`}
                   >
                     {isLiveMonitoring ? (
                       <>
-                        <Pause className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                        <Pause className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>Monitoreo Activo (3s)</span>
                       </>
                     ) : (
                       <>
-                        <Play className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
+                        <Play className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
                         <span>Reanudar Monitoreo</span>
                       </>
                     )}
@@ -2015,19 +2015,19 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     disabled={isBurstTesting}
                     className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isBurstTesting ? 'animate-spin text-rose-700 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'}`} />
+                    <RefreshCw className={`w-3.5 h-3.5 ${isBurstTesting ? 'animate-spin text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-300'}`} />
                     <span>{isBurstTesting ? 'Sondeando...' : 'Ráfaga de Calibración'}</span>
                   </button>
                 </div>
               </div>
 
               {/* CARD PRINCIPAL: INDICADOR VISUAL DE 'SALUD DE ENLACE' (VERDE / AMARILLO / ROJO) */}
-              <div className={`p-5 rounded-2xl border transition-all shadow-xl relative overflow-hidden ${
+              <div className={`p-5 rounded-2xl border transition-all shadow-sm relative overflow-hidden ${
                 linkHealth.tier === 'optimal'
-                  ? 'bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-950 border-emerald-500/30'
+                  ? 'bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-950 border-emerald-200 dark:border-emerald-500/30'
                   : linkHealth.tier === 'moderate'
-                  ? 'bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 border-amber-500/30'
-                  : 'bg-gradient-to-br from-rose-950/50 via-slate-900 to-slate-950 border-rose-500/40'
+                  ? 'bg-gradient-to-br from-amber-50/80 via-white to-slate-50 dark:from-amber-950/40 dark:via-slate-900 dark:to-slate-950 border-amber-200 dark:border-amber-500/30'
+                  : 'bg-gradient-to-br from-rose-50/80 via-white to-slate-50 dark:from-rose-950/50 dark:via-slate-900 dark:to-slate-950 border-rose-200 dark:border-rose-500/40'
               }`}>
                 {/* Background glow circle */}
                 <div className={`absolute -right-8 -top-8 w-40 h-40 rounded-full blur-3xl pointer-events-none ${
@@ -2038,12 +2038,12 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
                   <div className="flex items-start gap-4">
                     {/* Glowing status circle icon */}
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border shadow-lg ${
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${
                       linkHealth.tier === 'optimal'
-                        ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40 shadow-emerald-500/10'
+                        ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/40 shadow-emerald-500/10'
                         : linkHealth.tier === 'moderate'
-                        ? 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40 shadow-amber-500/10'
-                        : 'bg-rose-500/25 text-rose-700 dark:text-rose-400 border-rose-500/50 shadow-rose-500/20 animate-pulse'
+                        ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/40 shadow-amber-500/10'
+                        : 'bg-rose-100 dark:bg-rose-500/25 text-rose-700 dark:text-rose-400 border-rose-300 dark:border-rose-500/50 shadow-rose-500/20 animate-pulse'
                     }`}>
                       {linkHealth.tier === 'optimal' ? (
                         <ShieldCheck className="w-8 h-8" />
@@ -2056,21 +2056,21 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[10px] font-mono font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                        <span className="text-[10px] font-mono font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                           Diagnóstico en Tiempo Real
                         </span>
                         <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded border uppercase tracking-wider ${
                           linkHealth.tier === 'optimal'
-                            ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40'
+                            ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40'
                             : linkHealth.tier === 'moderate'
-                            ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40'
-                            : 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-500/40 animate-pulse'
+                            ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40'
+                            : 'bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-500/40 animate-pulse'
                         }`}>
                           {linkHealth.tier === 'optimal' ? '🟢 ENLACE VERDE (ÓPTIMO)' :
                            linkHealth.tier === 'moderate' ? '🟡 ENLACE AMARILLO (DEGRADADO)' :
                            '🔴 ENLACE ROJO (CRÍTICO)'}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300">
+                        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
                           Último ping: {linkHealth.lastPingTimestamp}
                         </span>
                       </div>
@@ -2093,38 +2093,38 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                   </div>
 
                   {/* Indicador de Semáforo / Traffic Light 3-Level Gauge */}
-                  <div className="flex flex-col items-center bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 min-w-[200px] space-y-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-700 dark:text-slate-200 font-bold">
+                  <div className="flex flex-col items-center bg-white dark:bg-slate-950/80 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 min-w-[200px] space-y-2 shadow-xs">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-600 dark:text-slate-300 font-bold">
                       Semáforo de Enlace
                     </span>
                     <div className="flex items-center gap-2">
                       {/* VERDE */}
                       <div className={`flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-all ${
                         linkHealth.tier === 'optimal'
-                          ? 'bg-emerald-500/25 border-emerald-500 text-emerald-700 dark:text-emerald-400 shadow-md shadow-emerald-500/20'
-                          : 'bg-slate-900 border-slate-800 text-slate-600 dark:text-slate-300 opacity-40'
+                          ? 'bg-emerald-100 dark:bg-emerald-500/25 border-emerald-400 dark:border-emerald-500 text-emerald-800 dark:text-emerald-400 shadow-sm'
+                          : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 opacity-60'
                       }`}>
-                        <div className={`w-3.5 h-3.5 rounded-full ${linkHealth.tier === 'optimal' ? 'bg-emerald-400 animate-pulse' : 'bg-slate-700'}`}></div>
+                        <div className={`w-3.5 h-3.5 rounded-full ${linkHealth.tier === 'optimal' ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
                         <span className="text-[9px] font-bold font-mono">VERDE</span>
                       </div>
 
                       {/* AMARILLO */}
                       <div className={`flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-all ${
                         linkHealth.tier === 'moderate'
-                          ? 'bg-amber-500/25 border-amber-500 text-amber-700 dark:text-amber-400 shadow-md shadow-amber-500/20'
-                          : 'bg-slate-900 border-slate-800 text-slate-600 dark:text-slate-300 opacity-40'
+                          ? 'bg-amber-100 dark:bg-amber-500/25 border-amber-400 dark:border-amber-500 text-amber-800 dark:text-amber-400 shadow-sm'
+                          : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 opacity-60'
                       }`}>
-                        <div className={`w-3.5 h-3.5 rounded-full ${linkHealth.tier === 'moderate' ? 'bg-amber-400 animate-pulse' : 'bg-slate-700'}`}></div>
+                        <div className={`w-3.5 h-3.5 rounded-full ${linkHealth.tier === 'moderate' ? 'bg-amber-500 dark:bg-amber-400 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
                         <span className="text-[9px] font-bold font-mono">AMARILLO</span>
                       </div>
 
                       {/* ROJO */}
                       <div className={`flex flex-col items-center gap-1 px-2.5 py-1.5 rounded-lg border transition-all ${
                         linkHealth.tier === 'critical'
-                          ? 'bg-rose-500/25 border-rose-500 text-rose-700 dark:text-rose-400 shadow-md shadow-rose-500/20'
-                          : 'bg-slate-900 border-slate-800 text-slate-600 dark:text-slate-300 opacity-40'
+                          ? 'bg-rose-100 dark:bg-rose-500/25 border-rose-400 dark:border-rose-500 text-rose-800 dark:text-rose-400 shadow-sm'
+                          : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 opacity-60'
                       }`}>
-                        <div className={`w-3.5 h-3.5 rounded-full ${linkHealth.tier === 'critical' ? 'bg-rose-400 animate-pulse' : 'bg-slate-700'}`}></div>
+                        <div className={`w-3.5 h-3.5 rounded-full ${linkHealth.tier === 'critical' ? 'bg-rose-500 dark:bg-rose-400 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
                         <span className="text-[9px] font-bold font-mono">ROJO</span>
                       </div>
                     </div>
@@ -2135,87 +2135,87 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               {/* GRID DE MÉTRICAS EN TIEMPO REAL */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {/* 1. Latencia Actual */}
-                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 uppercase font-mono">Latencia Ping</span>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">Latencia Ping</span>
                     <Gauge className={`w-3.5 h-3.5 ${
-                      linkHealth.latencyMs < 60 ? 'text-emerald-700 dark:text-emerald-400' :
-                      linkHealth.latencyMs < 140 ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400'
+                      linkHealth.latencyMs < 60 ? 'text-emerald-600 dark:text-emerald-400' :
+                      linkHealth.latencyMs < 140 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
                     }`} />
                   </div>
                   <div className="text-xl font-black font-mono text-slate-900 dark:text-white flex items-baseline gap-1">
                     <span>{linkHealth.latencyMs}</span>
-                    <span className="text-xs font-normal text-slate-700 dark:text-slate-200">ms</span>
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400">ms</span>
                   </div>
-                  <div className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                     Prom: {linkHealth.averageLatencyMs}ms • Mín: {linkHealth.minLatencyMs}ms
                   </div>
                 </div>
 
                 {/* 2. Tasa de Pérdida de Paquetes */}
-                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 uppercase font-mono">Pérdida de Paquetes</span>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">Pérdida de Paquetes</span>
                     <Signal className={`w-3.5 h-3.5 ${
-                      linkHealth.packetLossRate <= 2 ? 'text-emerald-700 dark:text-emerald-400' :
-                      linkHealth.packetLossRate <= 10 ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400'
+                      linkHealth.packetLossRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' :
+                      linkHealth.packetLossRate <= 10 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
                     }`} />
                   </div>
                   <div className={`text-xl font-black font-mono flex items-baseline gap-1 ${
-                    linkHealth.packetLossRate <= 2 ? 'text-emerald-700 dark:text-emerald-400' :
-                    linkHealth.packetLossRate <= 10 ? 'text-amber-700 dark:text-amber-400' : 'text-rose-700 dark:text-rose-400'
+                    linkHealth.packetLossRate <= 2 ? 'text-emerald-600 dark:text-emerald-400' :
+                    linkHealth.packetLossRate <= 10 ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400'
                   }`}>
                     <span>{linkHealth.packetLossRate}</span>
-                    <span className="text-xs font-normal text-slate-700 dark:text-slate-200">%</span>
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400">%</span>
                   </div>
-                  <div className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                     {linkHealth.packetsLost} perdidos / {linkHealth.packetsSent} env
                   </div>
                 </div>
 
                 {/* 3. Jitter / Variabilidad */}
-                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 uppercase font-mono">Jitter (Variación)</span>
-                    <Activity className={`w-3.5 h-3.5 ${linkHealth.jitterMs < 20 ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400'}`} />
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">Jitter (Variación)</span>
+                    <Activity className={`w-3.5 h-3.5 ${linkHealth.jitterMs < 20 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`} />
                   </div>
                   <div className="text-xl font-black font-mono text-slate-900 dark:text-white flex items-baseline gap-1">
                     <span>±{linkHealth.jitterMs}</span>
-                    <span className="text-xs font-normal text-slate-700 dark:text-slate-200">ms</span>
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400">ms</span>
                   </div>
-                  <div className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                     {linkHealth.jitterMs < 20 ? 'Señal continua y estable' : 'Fluctuación perceptible'}
                   </div>
                 </div>
 
                 {/* 4. Socket Status */}
-                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 shadow-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 uppercase font-mono">Canal WebSocket</span>
-                    <Wifi className={`w-3.5 h-3.5 ${linkHealth.wsStatus === 'connected' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`} />
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase font-mono">Canal WebSocket</span>
+                    <Wifi className={`w-3.5 h-3.5 ${linkHealth.wsStatus === 'connected' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`} />
                   </div>
                   <div className="text-xs font-black font-mono text-slate-900 dark:text-white truncate">
                     {linkHealth.wsStatus === 'connected' ? 'WSS CONECTADO' :
                      linkHealth.wsStatus === 'connecting' ? 'CONECTANDO...' : 'DESCONECTADO'}
                   </div>
-                  <div className="text-[10px] text-slate-700 dark:text-slate-200 font-mono truncate">
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate">
                     Puertos: LAN 3000/7777 • WAN 3001/7070
                   </div>
                 </div>
               </div>
 
               {/* MINI HISTOGRAMA DE LATENCIA RECIENTE */}
-              <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 shadow-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 font-mono uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 font-mono uppercase tracking-wider">
                     Historial de Sonda de Latencia (Últimas Muestras):
                   </span>
-                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                     Rango: 0ms - 200ms
                   </span>
                 </div>
 
-                <div className="h-16 flex items-end gap-1.5 pt-2 pb-1 border-b border-slate-200 dark:border-slate-800">
+                <div className="h-16 flex items-end gap-1.5 pt-2 pb-1 border-b border-slate-100 dark:border-slate-800">
                   {linkHealth.sampleHistory.map((val, idx) => {
                     const heightPercent = Math.min(100, Math.max(15, (val / 160) * 100));
                     const isGood = val < 60;
@@ -2227,13 +2227,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       >
                         <div
                           style={{ height: `${heightPercent}%` }}
-                          className={`w-full rounded-sm transition-all ${
+                          className={`w-full rounded-xs transition-all ${
                             isGood ? 'bg-emerald-500/80 hover:bg-emerald-400' :
                             isWarn ? 'bg-amber-500/80 hover:bg-amber-400' :
                             'bg-rose-500/80 hover:bg-rose-400'
                           }`}
                         ></div>
-                        <span className="text-[8px] font-mono text-slate-600 dark:text-slate-300 hidden sm:inline">{val}</span>
+                        <span className="text-[8px] font-mono text-slate-500 dark:text-slate-400 hidden sm:inline">{val}</span>
                       </div>
                     );
                   })}
@@ -2244,22 +2244,22 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <ShieldAlert className="w-4 h-4 text-rose-700 dark:text-rose-400" />
+                    <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white font-mono uppercase tracking-wider">
                       Alertas Proactivas de Red ({linkHealth.alerts.length})
                     </h4>
                   </div>
-                  <span className="text-[10px] text-slate-700 dark:text-slate-200">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400">
                     Generadas automáticamente según umbrales de latencia y descarte
                   </span>
                 </div>
 
                 {linkHealth.alerts.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center gap-3 text-emerald-800 dark:text-emerald-300">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                  <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-3 text-emerald-800 dark:text-emerald-300">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <div>
                       <div className="text-xs font-bold text-slate-900 dark:text-white">Sin Alertas Activas en la Red</div>
-                      <div className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
                         El enlace con el Servidor Central se mantiene estable, con 0% de pérdida de paquetes y latencia óptima.
                       </div>
                     </div>
@@ -2271,28 +2271,28 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         key={al.id}
                         className={`p-3.5 rounded-xl border space-y-1.5 transition-all ${
                           al.severity === 'danger'
-                            ? 'bg-rose-950/25 border-rose-500/35'
-                            : 'bg-amber-950/25 border-amber-500/35'
+                            ? 'bg-rose-50 dark:bg-rose-950/25 border-rose-200 dark:border-rose-500/35'
+                            : 'bg-amber-50 dark:bg-amber-950/25 border-amber-200 dark:border-amber-500/35'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             {al.severity === 'danger' ? (
-                              <ShieldAlert className="w-4 h-4 text-rose-700 dark:text-rose-400 shrink-0" />
+                              <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                             ) : (
-                              <AlertTriangle className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
+                              <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                             )}
                             <span className="text-xs font-bold text-slate-900 dark:text-white">{al.title}</span>
                           </div>
-                          <span className="text-[9px] font-mono text-slate-700 dark:text-slate-200">{al.timestamp}</span>
+                          <span className="text-[9px] font-mono text-slate-500 dark:text-slate-400">{al.timestamp}</span>
                         </div>
 
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300 pl-6 leading-relaxed">
+                        <p className="text-[11px] text-slate-700 dark:text-slate-300 pl-6 leading-relaxed">
                           {al.description}
                         </p>
 
-                        <div className="ml-6 mt-1 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] text-slate-700 dark:text-slate-300 font-mono flex items-start gap-2">
-                          <span className="text-rose-700 dark:text-rose-400 font-bold shrink-0">Sugerencia:</span>
+                        <div className="ml-6 mt-1 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] text-slate-700 dark:text-slate-300 font-mono flex items-start gap-2 shadow-xs">
+                          <span className="text-rose-600 dark:text-rose-400 font-bold shrink-0">Sugerencia:</span>
                           <span>{al.recommendation}</span>
                         </div>
                       </div>
@@ -2314,9 +2314,9 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     setLinkHealth(client.getLinkHealth());
                     playSound('success', true);
                   }}
-                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-850 hover:bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <RotateCcw className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
+                  <RotateCcw className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
                   <span>Restablecer Contadores</span>
                 </button>
 
@@ -2356,10 +2356,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <SlidersHorizontal className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
+                    <SlidersHorizontal className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     Panel de Calidad de Red y Priorización de Tráfico (QoS FarmaDesk Pro®)
                   </h3>
-                  <p className="text-xs text-slate-700 dark:text-slate-200 mt-0.5">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                     Garantiza que la emisión de tickets, cobros y arqueos en caja nunca se interrumpan, regulando el escritorio remoto si la latencia supera los 300ms.
                   </p>
                 </div>
@@ -2367,13 +2367,13 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 <div className="flex items-center gap-2">
                   <span className={`px-3 py-1 rounded-xl text-xs font-mono font-bold border flex items-center gap-1.5 ${
                     ((simulatedHighLatency !== null ? simulatedHighLatency : linkHealth.averageLatencyMs) >= qosConfig.latencyThresholdMs) || qosConfig.mode === 'telemetry_first'
-                      ? 'bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-500/40 animate-pulse'
-                      : 'bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-500/40'
+                      ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-500/40 animate-pulse'
+                      : 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/40'
                   }`}>
                     <span className={`w-2 h-2 rounded-full ${
                       ((simulatedHighLatency !== null ? simulatedHighLatency : linkHealth.averageLatencyMs) >= qosConfig.latencyThresholdMs) || qosConfig.mode === 'telemetry_first'
-                        ? 'bg-amber-400 animate-ping'
-                        : 'bg-emerald-400'
+                        ? 'bg-amber-500 animate-ping'
+                        : 'bg-emerald-500'
                     }`} />
                     <span>
                       {((simulatedHighLatency !== null ? simulatedHighLatency : linkHealth.averageLatencyMs) >= qosConfig.latencyThresholdMs) || qosConfig.mode === 'telemetry_first'
@@ -2390,17 +2390,17 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                 const isThrottled = (qosConfig.mode === 'telemetry_first') || (qosConfig.mode === 'auto' && currentLat >= qosConfig.latencyThresholdMs);
                 
                 return (
-                  <div className={`p-5 rounded-2xl border transition-all shadow-xl ${
+                  <div className={`p-5 rounded-2xl border transition-all shadow-sm ${
                     isThrottled
-                      ? 'bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-950 border-amber-500/40'
-                      : 'bg-gradient-to-r from-emerald-950/30 via-slate-900 to-slate-950 border-emerald-500/30'
+                      ? 'bg-gradient-to-r from-amber-50/80 via-white to-slate-50 dark:from-amber-950/40 dark:via-slate-900 dark:to-slate-950 border-amber-200 dark:border-amber-500/40'
+                      : 'bg-gradient-to-r from-emerald-50/80 via-white to-slate-50 dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-950 border-emerald-200 dark:border-emerald-500/30'
                   }`}>
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex items-start gap-3">
                         <div className={`p-3 rounded-2xl border shrink-0 ${
                           isThrottled 
-                            ? 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40' 
-                            : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/40'
+                            ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-500/40' 
+                            : 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/40'
                         }`}>
                           {isThrottled ? <Shield className="w-6 h-6" /> : <Zap className="w-6 h-6" />}
                         </div>
@@ -2411,7 +2411,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                                 ? `Tráfico de Telemetría POS Priorizado (Latencia: ${currentLat}ms >= ${qosConfig.latencyThresholdMs}ms)`
                                 : `Enlace de Red Saludable (Latencia: ${currentLat}ms < ${qosConfig.latencyThresholdMs}ms)`}
                             </h4>
-                            <span className="text-[10px] bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold border border-slate-300 dark:border-slate-700">
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full font-mono font-bold border border-slate-300 dark:border-slate-700">
                               {qosConfig.mode === 'auto' ? 'Modo Auto-Adaptativo' : qosConfig.mode === 'telemetry_first' ? 'Prioridad Forzada' : 'Modo Balanceado'}
                             </span>
                           </div>
@@ -2424,22 +2424,22 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       </div>
 
                       {/* Medidores Rápidos */}
-                      <div className="flex items-center gap-3 shrink-0 bg-slate-50 dark:bg-slate-50 dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-xs">
+                      <div className="flex items-center gap-3 shrink-0 bg-white dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-xs shadow-xs">
                         <div className="text-center px-2">
-                          <div className="text-[10px] text-slate-600 dark:text-slate-300 uppercase">Latencia Actual</div>
-                          <div className={`text-sm font-black ${currentLat > 300 ? 'text-rose-700 dark:text-rose-400' : currentLat > 100 ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Latencia Actual</div>
+                          <div className={`text-sm font-black ${currentLat > 300 ? 'text-rose-600 dark:text-rose-400' : currentLat > 100 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                             {currentLat}ms
                           </div>
                         </div>
-                        <div className="h-6 w-px bg-slate-800" />
+                        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
                         <div className="text-center px-2">
-                          <div className="text-[10px] text-slate-600 dark:text-slate-300 uppercase">Reserva POS</div>
-                          <div className="text-sm font-black text-cyan-800 dark:text-cyan-300">{isThrottled ? '85%' : '50%'}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Reserva POS</div>
+                          <div className="text-sm font-black text-cyan-700 dark:text-cyan-300">{isThrottled ? '85%' : '50%'}</div>
                         </div>
-                        <div className="h-6 w-px bg-slate-800" />
+                        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
                         <div className="text-center px-2">
-                          <div className="text-[10px] text-slate-600 dark:text-slate-300 uppercase">Cap Video</div>
-                          <div className="text-sm font-black text-indigo-800 dark:text-indigo-300">{isThrottled ? '15 FPS' : '60 FPS'}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-semibold">Cap Video</div>
+                          <div className="text-sm font-black text-indigo-700 dark:text-indigo-300">{isThrottled ? '15 FPS' : '60 FPS'}</div>
                         </div>
                       </div>
                     </div>
@@ -2448,9 +2448,9 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               })()}
 
               {/* Matriz Gráfica de Distribución de Ancho de Banda */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4 shadow-lg">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4 shadow-sm">
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                  <PieChart className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
+                  <PieChart className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                   Distribución y Asignación de Tráfico en Tiempo Real
                 </h4>
 
@@ -2463,7 +2463,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                   return (
                     <div className="space-y-3">
                       {/* Barra de Distribución Visual */}
-                      <div className="w-full h-7 bg-slate-50 dark:bg-slate-950 rounded-xl overflow-hidden flex border border-slate-200 dark:border-slate-800 p-0.5">
+                      <div className="w-full h-7 bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden flex border border-slate-200 dark:border-slate-800 p-0.5">
                         <div 
                           style={{ width: `${telemetryPercent}%` }}
                           className="h-full bg-gradient-to-r from-cyan-600 to-blue-600 rounded-l-lg flex items-center justify-center text-[10px] font-black text-white tracking-wide transition-all duration-500"
@@ -2479,22 +2479,22 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
-                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-cyan-500/20 flex items-center justify-between">
+                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-cyan-200 dark:border-cyan-500/20 flex items-center justify-between">
                           <div>
                             <span className="text-cyan-700 dark:text-cyan-400 font-bold block">Canal Telemetría & Datos POS</span>
-                            <span className="text-slate-700 dark:text-slate-200 text-[11px]">Cola de despacho Zero-Drop prioritaria</span>
+                            <span className="text-slate-500 dark:text-slate-400 text-[11px]">Cola de despacho Zero-Drop prioritaria</span>
                           </div>
-                          <span className="text-sm font-black text-cyan-800 dark:text-white bg-cyan-100 dark:bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
+                          <span className="text-sm font-black text-cyan-800 dark:text-white bg-cyan-100 dark:bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-300 dark:border-cyan-800">
                             {telemetryPercent}% Ancho de Banda
                           </span>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-indigo-500/20 flex items-center justify-between">
+                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-indigo-200 dark:border-indigo-500/20 flex items-center justify-between">
                           <div>
                             <span className="text-indigo-700 dark:text-indigo-400 font-bold block">Canal FarmaDesk Pro® Escritorio Remoto</span>
-                            <span className="text-slate-700 dark:text-slate-200 text-[11px]">Compresión adaptativa WebRTC</span>
+                            <span className="text-slate-500 dark:text-slate-400 text-[11px]">Compresión adaptativa WebRTC</span>
                           </div>
-                          <span className="text-sm font-black text-indigo-800 dark:text-white bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800">
+                          <span className="text-sm font-black text-indigo-800 dark:text-white bg-indigo-100 dark:bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-300 dark:border-indigo-800">
                             {videoPercent}% Ancho de Banda
                           </span>
                         </div>
@@ -2508,12 +2508,12 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 
                 {/* Bloque 1: Modo de Priorización */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-3">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-3 shadow-xs">
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                    <Sliders className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
+                    <Sliders className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                     Política de Priorización de Tráfico
                   </h4>
-                  <p className="text-xs text-slate-700 dark:text-slate-200">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     Selecciona cómo debe actuar el motor cuando la conexión experimente lentitud o saturación:
                   </p>
 
@@ -2552,35 +2552,35 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         }}
                         className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex flex-col gap-1 ${
                           qosConfig.mode === modeItem.id
-                            ? 'bg-cyan-950/40 border-cyan-500 text-white shadow-md'
-                            : 'bg-slate-50 dark:bg-slate-950/60 border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-700'
+                            ? 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-500 text-slate-900 dark:text-white shadow-xs'
+                            : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold">{modeItem.title}</span>
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">{modeItem.title}</span>
                           {qosConfig.mode === modeItem.id && (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
                           )}
                         </div>
-                        <span className="text-[11px] text-slate-700 dark:text-slate-200">{modeItem.desc}</span>
+                        <span className="text-[11px] text-slate-600 dark:text-slate-400">{modeItem.desc}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Bloque 2: Umbrales y Opciones Avanzadas */}
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl space-y-4 flex flex-col justify-between shadow-xs">
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                      <Gauge className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
+                      <Gauge className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                       Umbral de Disparo de Latencia (RTT)
                     </h4>
 
                     {/* Slider de Umbral */}
                     <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-600 dark:text-slate-300 font-bold">Umbral de Activación:</span>
-                        <span className="font-mono text-sm font-black text-cyan-700 dark:text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
+                        <span className="text-slate-700 dark:text-slate-300 font-bold">Umbral de Activación:</span>
+                        <span className="font-mono text-sm font-black text-cyan-800 dark:text-cyan-300 bg-cyan-100 dark:bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-300 dark:border-cyan-800">
                           {qosConfig.latencyThresholdMs} ms
                         </span>
                       </div>
@@ -2597,9 +2597,9 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                           const client = new FarmaDeskSocketClient('branch', currentBranch.id);
                           client.updateQosConfig(updated);
                         }}
-                        className="w-full accent-cyan-400 cursor-pointer"
+                        className="w-full accent-cyan-500 cursor-pointer"
                       />
-                      <div className="flex justify-between text-[10px] text-slate-600 dark:text-slate-300 font-mono">
+                      <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                         <span>150ms (Sensible)</span>
                         <span>300ms (Estándar)</span>
                         <span>600ms (Tolerante)</span>
@@ -2608,10 +2608,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                     {/* Opciones Adicionales */}
                     <div className="space-y-2">
-                      <label className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-300 dark:border-slate-700">
+                      <label className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700">
                         <div className="space-y-0.5">
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">Compresión Rápida de Payloads POS</span>
-                          <span className="text-[11px] text-slate-700 dark:text-slate-200">Reduce el tamaño de paquetes JSON de tickets y facturas</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">Compresión Rápida de Payloads POS</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">Reduce el tamaño de paquetes JSON de tickets y facturas</span>
                         </div>
                         <input
                           type="checkbox"
@@ -2623,14 +2623,14 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                             client.updateQosConfig(updated);
                             playSound('beep');
                           }}
-                          className="w-4 h-4 accent-cyan-400 rounded cursor-pointer"
+                          className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
                         />
                       </label>
 
-                      <label className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-300 dark:border-slate-700">
+                      <label className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700">
                         <div className="space-y-0.5">
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">Cap Adaptativo de Video a 15 FPS</span>
-                          <span className="text-[11px] text-slate-700 dark:text-slate-200">Reduce tasa de refresco al saturarse el módem</span>
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">Cap Adaptativo de Video a 15 FPS</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400">Reduce tasa de refresco al saturarse el módem</span>
                         </div>
                         <input
                           type="checkbox"
@@ -2642,7 +2642,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                             client.updateQosConfig(updated);
                             playSound('beep');
                           }}
-                          className="w-4 h-4 accent-cyan-400 rounded cursor-pointer"
+                          className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
                         />
                       </label>
                     </div>
@@ -2650,7 +2650,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                   {/* Simulador de Pruebas de Latencia en Vivo */}
                   <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
-                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
                       🧪 Pruebas de Comportamiento Dinámico:
                     </span>
                     <div className="flex gap-2">
@@ -2663,7 +2663,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                           simulatedHighLatency === 385
                             ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-md'
-                            : 'bg-slate-950 text-amber-800 dark:text-amber-300 border-amber-500/30 hover:bg-amber-950/40'
+                            : 'bg-amber-50 dark:bg-slate-950 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-500/30 hover:bg-amber-100 dark:hover:bg-amber-950/40'
                         }`}
                       >
                         Simular Latencia &gt;300ms (385ms)
@@ -2675,7 +2675,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                           setSimulatedHighLatency(null);
                           playSound('success');
                         }}
-                        className="px-3 py-2 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-300 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 transition-all cursor-pointer"
+                        className="px-3 py-2 bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold border border-slate-300 dark:border-slate-800 transition-all cursor-pointer"
                       >
                         Restaurar Real
                       </button>
@@ -2687,7 +2687,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
               {/* Botón de Guardado y Aplicación a la Sede */}
               <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
-                <span className="text-xs text-slate-700 dark:text-slate-200 font-mono">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                   Configuración QoS guardada localmente y transmitida a sockets de sucursal.
                 </span>
                 <button
@@ -2702,7 +2702,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                     }, 500);
                   }}
                   disabled={isSavingQos}
-                  className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-black rounded-xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+                  className="px-5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-black rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>{isSavingQos ? 'Aplicando Política...' : 'Guardar y Aplicar Política QoS'}</span>
@@ -2715,7 +2715,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 sm:px-6 py-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-800 dark:text-slate-200 shrink-0">
+        <div className="px-5 sm:px-6 py-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400 shrink-0">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             <span>Modo: Terminal de Sucursal Conectada ({currentBranch.code})</span>
@@ -2725,7 +2725,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+              className="px-4 py-1.5 rounded-xl font-bold bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors cursor-pointer"
             >
               Cerrar
             </button>
