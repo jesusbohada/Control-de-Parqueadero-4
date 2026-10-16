@@ -466,20 +466,6 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             <span>{formattedTime}</span>
           </div>
 
-          {/* Sync Button */}
-          {onManualSync && (
-            <button
-              type="button"
-              onClick={onManualSync}
-              disabled={isSyncingGlobal}
-              className="p-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 transition-all cursor-pointer text-xs flex items-center gap-1.5 disabled:opacity-50"
-              title="Sincronizar con servidor"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-sky-500 ${isSyncingGlobal ? 'animate-spin' : ''}`} />
-              <span className="hidden 2xl:inline text-[11px] font-bold">Sincronizar</span>
-            </button>
-          )}
-
           {/* Active alerts icon */}
           {onOpenSyncModal && (
             <button
