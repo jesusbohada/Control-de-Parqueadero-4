@@ -5,7 +5,6 @@
 
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
@@ -183,88 +182,6 @@ html.light {
   border-color: var(--border-focus) !important;
   box-shadow: 0 0 0 2px var(--primary-glow) !important;
 }
-
-/* ========================================================================= */
-/* AERO-KIOSK TELEMETRY & TACTILE HARDWARE DESIGN UTILITIES                  */
-/* ========================================================================= */
-.font-display {
-  font-family: var(--font-display), 'Space Grotesk', system-ui, sans-serif;
-}
-.font-mono-tech {
-  font-family: var(--font-mono), 'JetBrains Mono', monospace;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Stamped Physical License Plate (3D Embossed Relief) */
-.plate-emboss {
-  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.45), -1px -1px 0px rgba(0, 0, 0, 0.45);
-  letter-spacing: 0.16em;
-}
-
-/* Physical Hardware Push Buttons with Real Depth */
-.hardware-btn {
-  box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
-  transition: all 0.12s ease;
-}
-.hardware-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-}
-
-.hardware-btn-amber {
-  box-shadow: 0 4px 0 0 #b45309, inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
-  transition: all 0.12s ease;
-}
-.hardware-btn-amber:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #92400e, inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-}
-
-.hardware-btn-emerald {
-  box-shadow: 0 4px 0 0 #047857, inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
-  transition: all 0.12s ease;
-}
-.hardware-btn-emerald:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #065f46, inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-}
-
-.hardware-btn-sky {
-  box-shadow: 0 4px 0 0 #0369a1, inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
-  transition: all 0.12s ease;
-}
-.hardware-btn-sky:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #075985, inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-}
-
-/* Real-Time LED Spot Sensor Lights */
-.led-beacon-free {
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.75);
-}
-.led-beacon-occupied {
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.75);
-}
-.led-beacon-amber {
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
-}
-
-/* Digital Gasoline-Pump Taximeter Cockpit Screen */
-.taximeter-screen {
-  background: radial-gradient(circle at 50% 30%, #090d16 0%, #030712 100%);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.hardware-btn-zinc {
-  box-shadow: 0 3px 0 0 #334155, inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-  transition: all 0.12s ease;
-}
-.hardware-btn-zinc:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 0 #1e293b, inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-}
-
 
 
 
