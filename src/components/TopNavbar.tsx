@@ -357,19 +357,6 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               <span className="font-mono font-bold text-amber-700 dark:text-amber-300">(T{shiftNum})</span>
             </button>
           </div>
-
-          {/* Botón de acceso rápido a Patio POS cuando se está en un módulo secundario */}
-          {activeView !== 'operations' && (
-            <button
-              type="button"
-              onClick={() => setActiveView('operations', 'operations')}
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-black shadow-xs transition-all cursor-pointer shrink-0"
-              title="Ir a la pantalla principal de Taquilla POS"
-            >
-              <Car className="w-3.5 h-3.5" />
-              <span>Patio POS</span>
-            </button>
-          )}
         </div>
 
         {/* Zone 2: Live Operational Metrics Strip */}
