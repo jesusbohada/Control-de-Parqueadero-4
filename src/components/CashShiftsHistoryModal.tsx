@@ -796,80 +796,80 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50 dark:bg-slate-950/70 backdrop-blur-xs p-3 sm:p-6 animate-fadeIn">
-      <div className="bg-white w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-6 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[92vh] overflow-hidden">
         
         {/* Header */}
         <div className="px-6 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex justify-between items-center shrink-0 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-800 dark:text-indigo-300">
+            <div className="p-2.5 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-300">
               <History className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                 Histórico de Arqueos y Cierres Definitivos
                 <span className="bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 text-xs px-2.5 py-0.5 rounded-full font-mono">
                   {metrics.totalRecords} Registros
                 </span>
               </h2>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
+              <p className="text-xs text-slate-300">
                 Auditoría contable, reimpresión de comprobantes térmicos y recálculo de arqueos
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Top Summary Metrics Cards */}
-        <div className="bg-slate-50 border-b border-slate-200 p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs shrink-0">
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
+        <div className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs shrink-0">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-lg">
               <DollarSign className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-slate-600 dark:text-slate-300 font-medium text-[10px] uppercase tracking-wider">Recaudo Histórico</div>
+              <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase tracking-wider">Recaudo Histórico</div>
               <div className="font-bold text-sm text-slate-900 dark:text-slate-100 font-mono">
                 {formatCurrency(metrics.totalRevenue, currencySymbol)}
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 text-indigo-800 rounded-lg">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
+            <div className="p-2 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 rounded-lg">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-slate-600 dark:text-slate-300 font-medium text-[10px] uppercase tracking-wider">Total a Consignar</div>
-              <div className="font-bold text-sm text-indigo-950 font-mono">
+              <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase tracking-wider">Total a Consignar</div>
+              <div className="font-bold text-sm text-indigo-950 dark:text-indigo-300 font-mono">
                 {formatCurrency(metrics.totalToConsignSum, currencySymbol)}
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
-            <div className="p-2 bg-sky-100 text-sky-800 rounded-lg">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
+            <div className="p-2 bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 rounded-lg">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-slate-600 dark:text-slate-300 font-medium text-[10px] uppercase tracking-wider">Cierres Auditados</div>
-              <div className="font-bold text-sm text-sky-900">
+              <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase tracking-wider">Cierres Auditados</div>
+              <div className="font-bold text-sm text-sky-900 dark:text-sky-300">
                 {metrics.auditedCount} de {metrics.totalRecords}
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
-            <div className="p-2 bg-amber-100 text-amber-800 rounded-lg">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
+            <div className="p-2 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded-lg">
               <RefreshCw className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-slate-600 dark:text-slate-300 font-medium text-[10px] uppercase tracking-wider">Recalculados</div>
-              <div className="font-bold text-sm text-amber-900">
+              <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase tracking-wider">Recalculados</div>
+              <div className="font-bold text-sm text-amber-900 dark:text-amber-300">
                 {metrics.recalculatedCount} Arqueos
               </div>
             </div>
@@ -877,16 +877,16 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
         </div>
 
         {/* Toolbar: Filter Tabs, Search & Date Selector */}
-        <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white shrink-0">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-slate-900 shrink-0">
           
           {/* Tabs */}
           <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === 'all' 
-                  ? 'bg-slate-900 text-white shadow-xs' 
-                  : 'bg-slate-100 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-slate-900 dark:bg-amber-500 text-white dark:text-slate-950 font-bold shadow-xs' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               Todos ({historyList.length})
@@ -894,10 +894,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
             <button
               onClick={() => setActiveTab('shifts')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'shifts' 
-                  ? 'bg-indigo-600 text-white shadow-xs' 
-                  : 'bg-slate-100 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-indigo-600 text-white font-bold shadow-xs' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               <Clock className="w-3.5 h-3.5" />
@@ -906,10 +906,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
             <button
               onClick={() => setActiveTab('days')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'days' 
-                  ? 'bg-emerald-700 text-white shadow-xs' 
-                  : 'bg-slate-100 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-emerald-700 text-white font-bold shadow-xs' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -918,10 +918,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
             <button
               onClick={() => setActiveTab('audited')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'audited' 
-                  ? 'bg-sky-700 text-white shadow-xs' 
-                  : 'bg-slate-100 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-sky-700 text-white font-bold shadow-xs' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -930,10 +930,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
             <button
               onClick={() => setActiveTab('discrepancies')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'discrepancies' 
-                  ? 'bg-rose-600 text-white shadow-xs' 
-                  : 'bg-slate-100 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  ? 'bg-rose-600 text-white font-bold shadow-xs' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -944,16 +944,16 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
           {/* Search and Export */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-700 dark:text-slate-200" />
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400 dark:text-slate-500" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar por cajero, #, nota..."
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-hidden"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 transition-all outline-hidden"
               />
               {searchTerm && (
-                <button onClick={() => setSearchTerm('')} className="absolute right-2.5 top-2.5 text-slate-700 dark:text-slate-200 hover:text-slate-600">
+                <button onClick={() => setSearchTerm('')} className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -962,7 +962,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value as any)}
-              className="bg-slate-50 border border-slate-300 text-slate-700 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 outline-hidden"
+              className="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 outline-hidden cursor-pointer"
             >
               <option value="all">Todas las Fechas</option>
               <option value="today">Solo Hoy</option>
@@ -972,7 +972,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
             <button
               onClick={handleExportCSV}
-              className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-xs"
+              className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               title="Exportar reporte CSV"
             >
               <FileSpreadsheet className="w-4 h-4" />
@@ -982,12 +982,12 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
         </div>
 
         {/* History List Content */}
-        <div className="p-4 overflow-y-auto flex-1 bg-slate-100/60 space-y-3">
+        <div className="p-4 overflow-y-auto flex-1 bg-slate-100/60 dark:bg-slate-950/60 space-y-3">
           {filteredList.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 shadow-xs">
-              <History className="w-12 h-12 mx-auto text-slate-600 dark:text-slate-300 mb-3" />
-              <h3 className="font-bold text-slate-700 dark:text-slate-200 text-sm">No se encontraron registros de cierres</h3>
-              <p className="text-xs text-slate-700 dark:text-slate-200 max-w-sm mx-auto mt-1">
+            <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-xs">
+              <History className="w-12 h-12 mx-auto text-slate-400 dark:text-slate-600 mb-3" />
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm">No se encontraron registros de cierres</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
                 {searchTerm || dateFilter !== 'all' || activeTab !== 'all'
                   ? 'Intenta ajustar los filtros de búsqueda o fecha seleccionados.'
                   : 'Cuando realices arqueos de turno o cierres definitivos de día, aparecerán listados en este panel.'}
@@ -997,7 +997,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
             filteredList.map((item) => (
               <div 
                 key={item.id}
-                className="bg-white rounded-xl border border-slate-200/90 hover:border-slate-300 shadow-xs hover:shadow-md transition-all p-4 relative"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs hover:shadow-md transition-all p-4 relative"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   
@@ -1006,91 +1006,91 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         item.type === 'shift' 
-                          ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' 
-                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          ? 'bg-indigo-100 dark:bg-indigo-950/50 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800' 
+                          : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                       }`}>
                         {item.type === 'shift' ? 'Arqueo de Turno' : 'Cierre Definitivo Día'}
                       </span>
 
-                      <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                      <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                         {item.numberStr}
                       </span>
 
                       {item.consecutiveCode && currentUser?.permissions?.canViewConsecutiveInHistory !== false && (
-                        <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 px-2 py-0.5 rounded border border-slate-300 flex items-center gap-1 shadow-2xs">
-                          Consecutivo No. <strong className="text-slate-950 font-black">{item.consecutiveCode}</strong>
+                        <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 flex items-center gap-1 shadow-2xs">
+                          Consecutivo No. <strong className="text-slate-950 dark:text-white font-black">{item.consecutiveCode}</strong>
                         </span>
                       )}
 
                       {currentUser?.permissions?.canViewOperationalDayInHistory !== false && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs ${
                           item.type === 'shift' 
-                            ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' 
-                            : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800' 
+                            : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                         }`}>
-                          <Calendar className={`w-3.5 h-3.5 ${item.type === 'shift' ? 'text-indigo-600' : 'text-emerald-600'}`} />
-                          Día Operativo: <strong className={`font-semibold ${item.type === 'shift' ? 'text-indigo-950' : 'text-emerald-950'}`}>{item.operationalDayDate}</strong>
+                          <Calendar className={`w-3.5 h-3.5 ${item.type === 'shift' ? 'text-indigo-600 dark:text-indigo-400' : 'text-emerald-600 dark:text-emerald-400'}`} />
+                          Día Operativo: <strong className={`font-semibold ${item.type === 'shift' ? 'text-indigo-950 dark:text-indigo-200' : 'text-emerald-950 dark:text-emerald-200'}`}>{item.operationalDayDate}</strong>
                         </span>
                       )}
 
                       {item.isAudited ? (
-                        <span className="bg-sky-100 text-sky-800 border border-sky-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3 text-sky-700" />
+                        <span className="bg-sky-100 dark:bg-sky-950/50 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3 text-sky-700 dark:text-sky-400" />
                           Auditado
                         </span>
                       ) : (
-                        <span className="bg-slate-100 text-slate-600 dark:text-slate-300 border border-slate-200 text-[10px] font-medium px-2 py-0.5 rounded-full">
+                        <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 text-[10px] font-medium px-2 py-0.5 rounded-full">
                           Pendiente Auditoría
                         </span>
                       )}
 
                       {item.recalculatedAt && (
-                        <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <RefreshCw className="w-3 h-3 text-amber-700 animate-spin-once" />
+                        <span className="bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <RefreshCw className="w-3 h-3 text-amber-700 dark:text-amber-400 animate-spin-once" />
                           Recalculado
                         </span>
                       )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
                       <div className="flex items-center gap-1 font-medium text-slate-800 dark:text-slate-200">
-                        <User className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
+                        <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>Cajero: <strong className="text-slate-900 dark:text-slate-100">{item.operatorName}</strong></span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
+                        <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>Cierre: {new Date(item.closedAt || item.openedAt).toLocaleString('es-CO')}</span>
                       </div>
                     </div>
 
                     {/* Financial Pills Matrix */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 pt-2 border-t border-slate-100 text-[11px] font-mono">
-                      <div className="bg-slate-50 p-1.5 rounded border border-slate-200">
-                        <div className="text-[9px] text-slate-600 dark:text-slate-300 uppercase font-sans">Base Inicial</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] font-mono">
+                      <div className="bg-slate-50 dark:bg-slate-800/70 p-1.5 rounded border border-slate-200 dark:border-slate-700">
+                        <div className="text-[9px] text-slate-600 dark:text-slate-400 uppercase font-sans">Base Inicial</div>
                         <div className="font-bold text-slate-800 dark:text-slate-200">{formatCurrency(item.initialCash, currencySymbol)}</div>
                       </div>
 
-                      <div className="bg-emerald-50/70 p-1.5 rounded border border-emerald-200">
-                        <div className="text-[9px] text-emerald-800 uppercase font-sans">Recaudo Total</div>
-                        <div className="font-bold text-emerald-950">{formatCurrency(item.totalCollected, currencySymbol)}</div>
+                      <div className="bg-emerald-50/70 dark:bg-emerald-950/40 p-1.5 rounded border border-emerald-200 dark:border-emerald-800/60">
+                        <div className="text-[9px] text-emerald-800 dark:text-emerald-400 uppercase font-sans">Recaudo Total</div>
+                        <div className="font-bold text-emerald-950 dark:text-emerald-200">{formatCurrency(item.totalCollected, currencySymbol)}</div>
                       </div>
 
-                      <div className="bg-rose-50/70 p-1.5 rounded border border-rose-200">
-                        <div className="text-[9px] text-rose-800 uppercase font-sans">Gastos (-)</div>
-                        <div className="font-bold text-rose-900">-{formatCurrency(item.totalExpenses, currencySymbol)}</div>
+                      <div className="bg-rose-50/70 dark:bg-rose-950/40 p-1.5 rounded border border-rose-200 dark:border-rose-800/60">
+                        <div className="text-[9px] text-rose-800 dark:text-rose-400 uppercase font-sans">Gastos (-)</div>
+                        <div className="font-bold text-rose-900 dark:text-rose-200">-{formatCurrency(item.totalExpenses, currencySymbol)}</div>
                       </div>
 
-                      <div className="bg-indigo-50/70 p-1.5 rounded border border-indigo-200">
-                        <div className="text-[9px] text-indigo-800 uppercase font-sans">Recogidas (-)</div>
-                        <div className="font-bold text-indigo-900">-{formatCurrency(item.totalPickups, currencySymbol)}</div>
+                      <div className="bg-indigo-50/70 dark:bg-indigo-950/40 p-1.5 rounded border border-indigo-200 dark:border-indigo-800/60">
+                        <div className="text-[9px] text-indigo-800 dark:text-indigo-400 uppercase font-sans">Recogidas (-)</div>
+                        <div className="font-bold text-indigo-900 dark:text-indigo-200">-{formatCurrency(item.totalPickups, currencySymbol)}</div>
                       </div>
 
                       <div className={`p-1.5 rounded border ${
                         item.cashDiff === 0 
-                          ? 'bg-slate-50 border-slate-200 text-slate-800 dark:text-slate-200' 
+                          ? 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200' 
                           : item.cashDiff > 0 
-                          ? 'bg-sky-50 border-sky-300 text-sky-900' 
-                          : 'bg-rose-50 border-rose-300 text-rose-900'
+                          ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-800 text-sky-900 dark:text-sky-300' 
+                          : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-300'
                       }`}>
                         <div className="text-[9px] uppercase font-sans">Cuadre Físico</div>
                         <div className="font-bold">
@@ -1102,23 +1102,23 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                         </div>
                       </div>
 
-                      <div className="bg-emerald-100 p-1.5 rounded border border-emerald-300 text-emerald-950 font-black">
-                        <div className="text-[9px] text-emerald-900 uppercase font-sans">Total Consignar</div>
+                      <div className="bg-emerald-100 dark:bg-emerald-900/40 p-1.5 rounded border border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200 font-black">
+                        <div className="text-[9px] text-emerald-900 dark:text-emerald-300 uppercase font-sans">Total Consignar</div>
                         <div className="text-xs">{formatCurrency(item.totalToConsign, currencySymbol)}</div>
                       </div>
                     </div>
 
                     {/* Notes / Comments if any */}
                     {item.closingNotes && (
-                      <div className="text-[11px] text-slate-600 bg-amber-50/60 border border-amber-200 p-2 rounded-lg flex items-start gap-1.5 mt-2">
-                        <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="text-[11px] text-slate-700 dark:text-slate-300 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 p-2 rounded-lg flex items-start gap-1.5 mt-2">
+                        <Info className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                         <span className="italic">{item.closingNotes}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Actions Right Buttons & Menu Dropdown */}
-                  <div className="flex items-center gap-2 border-t lg:border-t-0 border-slate-100 pt-2 lg:pt-0 shrink-0">
+                  <div className="flex items-center gap-2 border-t lg:border-t-0 border-slate-100 dark:border-slate-800 pt-2 lg:pt-0 shrink-0">
                     
                     {/* Fast Print Voucher Button */}
                     <button
@@ -1127,10 +1127,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                         shift: item.rawShift,
                         day: item.rawDay
                       })}
-                      className="px-3 py-2 bg-slate-900 text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 shadow-xs"
+                      className="px-3 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
                       title="Ver e Imprimir Comprobante Térmico"
                     >
-                      <Printer className="w-4 h-4 text-indigo-800 dark:text-indigo-300" />
+                      <Printer className="w-4 h-4 text-indigo-400" />
                       <span>Ver Tiquete</span>
                     </button>
 
@@ -1141,10 +1141,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                         shift: item.rawShift,
                         day: item.rawDay
                       })}
-                      className="px-3 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5"
+                      className="px-3 py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                       title="Recalcular arqueo contra tiquetes y movimientos"
                     >
-                      <RefreshCw className="w-3.5 h-3.5 text-indigo-600" />
+                      <RefreshCw className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                       <span>Recalcular</span>
                     </button>
 
@@ -1152,21 +1152,21 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     <div className="relative">
                       <button
                         onClick={() => setActiveMenuId(activeMenuId === item.id ? null : item.id)}
-                        className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:text-slate-200 rounded-xl transition-colors"
+                        className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-colors cursor-pointer"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
 
                       {activeMenuId === item.id && (
-                        <div className="absolute right-0 top-10 z-30 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1 text-xs animate-fadeIn">
+                        <div className="absolute right-0 top-10 z-30 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1 text-xs animate-fadeIn">
                           <button
                             onClick={() => {
                               setSelectedRecordForTicket({ type: item.type, shift: item.rawShift, day: item.rawDay });
                               setActiveMenuId(null);
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
                           >
-                            <Printer className="w-4 h-4 text-indigo-600" />
+                            <Printer className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                             <span>Imprimir Comprobante Térmico</span>
                           </button>
 
@@ -1175,9 +1175,9 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                               setRecalculatingItem({ type: item.type, shift: item.rawShift, day: item.rawDay });
                               setActiveMenuId(null);
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
                           >
-                            <RefreshCw className="w-4 h-4 text-amber-600" />
+                            <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                             <span>Recalcular Cierre de Caja</span>
                           </button>
 
@@ -1186,9 +1186,9 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                               setDetailsRecord({ type: item.type, shift: item.rawShift, day: item.rawDay });
                               setActiveMenuId(null);
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
                           >
-                            <FileText className="w-4 h-4 text-sky-600" />
+                            <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                             <span>Ver Auditoría de Movimientos</span>
                           </button>
 
@@ -1198,25 +1198,25 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                               setNotesInput(item.closingNotes || '');
                               setActiveMenuId(null);
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
                           >
-                            <Edit3 className="w-4 h-4 text-emerald-600" />
+                            <Edit3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                             <span>Editar Observaciones / Notas</span>
                           </button>
 
                           <button
                             onClick={() => handleToggleAuditStatus(item)}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100 dark:border-slate-800 cursor-pointer"
                           >
-                            <ShieldCheck className="w-4 h-4 text-purple-600" />
+                            <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                             <span>{item.isAudited ? 'Desmarcar Auditado' : 'Marcar como Auditado OK'}</span>
                           </button>
 
                           <button
                             onClick={() => copyRecordSummary(item)}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100 dark:border-slate-800 cursor-pointer"
                           >
-                            <Copy className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                            <Copy className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                             <span>Copiar Resumen Texto</span>
                           </button>
                         </div>
@@ -1232,15 +1232,15 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0">
-          <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center shrink-0">
+          <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>Sistema Oficial wolfzonepos - Módulo de Auditoría de Cierres</span>
           </div>
 
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="px-5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
           >
             Cerrar Panel
           </button>
@@ -1250,45 +1250,45 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
       {/* --- MODAL 1: RECALCULATION COMPARISON MODAL --- */}
       {recalculatingItem && recalculationData && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full p-6 space-y-4">
-            <div className="flex justify-between items-start border-b border-slate-200 pb-3">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-3xl w-full p-6 space-y-4">
+            <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-amber-100 text-amber-800 rounded-xl">
+                <div className="p-2.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded-xl">
                   <RefreshCw className="w-6 h-6 animate-spin-once" />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">
                     Recálculo Contable de Cierre de Caja
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
                     Comparación lado a lado: Snapshot Original vs Valores Recalculados
                   </p>
                 </div>
               </div>
-              <button onClick={() => setRecalculatingItem(null)} className="text-slate-700 dark:text-slate-200 hover:text-slate-600">
+              <button onClick={() => setRecalculatingItem(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Side by side comparison table */}
             <div className="space-y-3 font-mono text-xs">
-              <div className="overflow-hidden border border-slate-200 rounded-xl">
+              <div className="overflow-hidden border border-slate-200 dark:border-slate-800 rounded-xl">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-sans text-[10px] uppercase">
+                    <tr className="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans text-[10px] uppercase">
                       <th className="p-2.5">CONCEPTO / MEDIO</th>
                       <th className="p-2.5 text-right">SNAPSHOT ORIGINAL</th>
-                      <th className="p-2.5 text-right bg-indigo-950 text-indigo-200">RECALCULADO ACTUAL</th>
+                      <th className="p-2.5 text-right bg-indigo-900 text-indigo-100">RECALCULADO ACTUAL</th>
                       <th className="p-2.5 text-right">VARIACIÓN</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200">
                     <tr>
                       <td className="p-2 font-semibold">Recaudo Efectivo</td>
                       <td className="p-2 text-right">{formatCurrency(recalculationData.originalSnapshot.cash, currencySymbol)}</td>
-                      <td className="p-2 text-right bg-indigo-50/50 font-bold">{formatCurrency(recalculationData.recalculatedValues.cash, currencySymbol)}</td>
-                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-200">
+                      <td className="p-2 text-right bg-indigo-50/50 dark:bg-indigo-950/40 font-bold text-slate-900 dark:text-slate-100">{formatCurrency(recalculationData.recalculatedValues.cash, currencySymbol)}</td>
+                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-300">
                         {formatCurrency(recalculationData.recalculatedValues.cash - recalculationData.originalSnapshot.cash, currencySymbol)}
                       </td>
                     </tr>
@@ -1296,8 +1296,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     <tr>
                       <td className="p-2 font-semibold">Recaudo Tarjetas DB/CR</td>
                       <td className="p-2 text-right">{formatCurrency(recalculationData.originalSnapshot.card, currencySymbol)}</td>
-                      <td className="p-2 text-right bg-indigo-50/50 font-bold">{formatCurrency(recalculationData.recalculatedValues.card, currencySymbol)}</td>
-                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-200">
+                      <td className="p-2 text-right bg-indigo-50/50 dark:bg-indigo-950/40 font-bold text-slate-900 dark:text-slate-100">{formatCurrency(recalculationData.recalculatedValues.card, currencySymbol)}</td>
+                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-300">
                         {formatCurrency(recalculationData.recalculatedValues.card - recalculationData.originalSnapshot.card, currencySymbol)}
                       </td>
                     </tr>
@@ -1305,40 +1305,40 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     <tr>
                       <td className="p-2 font-semibold">Recaudo Billeteras / Digital</td>
                       <td className="p-2 text-right">{formatCurrency(recalculationData.originalSnapshot.wallet + recalculationData.originalSnapshot.qr, currencySymbol)}</td>
-                      <td className="p-2 text-right bg-indigo-50/50 font-bold">{formatCurrency(recalculationData.recalculatedValues.wallet + recalculationData.recalculatedValues.qr, currencySymbol)}</td>
-                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-200">
+                      <td className="p-2 text-right bg-indigo-50/50 dark:bg-indigo-950/40 font-bold text-slate-900 dark:text-slate-100">{formatCurrency(recalculationData.recalculatedValues.wallet + recalculationData.recalculatedValues.qr, currencySymbol)}</td>
+                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-300">
                         {formatCurrency((recalculationData.recalculatedValues.wallet + recalculationData.recalculatedValues.qr) - (recalculationData.originalSnapshot.wallet + recalculationData.originalSnapshot.qr), currencySymbol)}
                       </td>
                     </tr>
 
-                    <tr className="bg-slate-50 font-bold">
+                    <tr className="bg-slate-50 dark:bg-slate-950/80 font-bold text-slate-900 dark:text-slate-100">
                       <td className="p-2">TOTAL RECAUDADO</td>
                       <td className="p-2 text-right">{formatCurrency(recalculationData.originalSnapshot.total, currencySymbol)}</td>
-                      <td className="p-2 text-right bg-indigo-100 text-indigo-950">{formatCurrency(recalculationData.recalculatedValues.total, currencySymbol)}</td>
-                      <td className={`p-2 text-right ${recalculationData.variance !== 0 ? 'text-amber-800 bg-amber-50 font-black' : 'text-slate-600 dark:text-slate-300'}`}>
+                      <td className="p-2 text-right bg-indigo-100 dark:bg-indigo-900/50 text-indigo-950 dark:text-indigo-200">{formatCurrency(recalculationData.recalculatedValues.total, currencySymbol)}</td>
+                      <td className={`p-2 text-right ${recalculationData.variance !== 0 ? 'text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 font-black' : 'text-slate-600 dark:text-slate-400'}`}>
                         {recalculationData.variance >= 0 ? '+' : ''}{formatCurrency(recalculationData.variance, currencySymbol)}
                       </td>
                     </tr>
 
                     <tr>
-                      <td className="p-2 font-semibold text-rose-800">(-) Gastos de Caja</td>
-                      <td className="p-2 text-right text-rose-800">-{formatCurrency(recalculationData.originalSnapshot.expenses, currencySymbol)}</td>
-                      <td className="p-2 text-right bg-indigo-50/50 text-rose-800 font-bold">-{formatCurrency(recalculationData.recalculatedValues.expenses, currencySymbol)}</td>
-                      <td className="p-2 text-right font-bold">$0</td>
+                      <td className="p-2 font-semibold text-rose-800 dark:text-rose-400">(-) Gastos de Caja</td>
+                      <td className="p-2 text-right text-rose-800 dark:text-rose-400">-{formatCurrency(recalculationData.originalSnapshot.expenses, currencySymbol)}</td>
+                      <td className="p-2 text-right bg-indigo-50/50 dark:bg-indigo-950/40 text-rose-800 dark:text-rose-400 font-bold">-{formatCurrency(recalculationData.recalculatedValues.expenses, currencySymbol)}</td>
+                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-300">$0</td>
                     </tr>
 
                     <tr>
-                      <td className="p-2 font-semibold text-indigo-900">(-) Recogidas de Efectivo</td>
-                      <td className="p-2 text-right text-indigo-900">-{formatCurrency(recalculationData.originalSnapshot.pickups, currencySymbol)}</td>
-                      <td className="p-2 text-right bg-indigo-50/50 text-indigo-900 font-bold">-{formatCurrency(recalculationData.recalculatedValues.pickups, currencySymbol)}</td>
-                      <td className="p-2 text-right font-bold">$0</td>
+                      <td className="p-2 font-semibold text-indigo-900 dark:text-indigo-300">(-) Recogidas de Efectivo</td>
+                      <td className="p-2 text-right text-indigo-900 dark:text-indigo-300">-{formatCurrency(recalculationData.originalSnapshot.pickups, currencySymbol)}</td>
+                      <td className="p-2 text-right bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-300 font-bold">-{formatCurrency(recalculationData.recalculatedValues.pickups, currencySymbol)}</td>
+                      <td className="p-2 text-right font-bold text-slate-700 dark:text-slate-300">$0</td>
                     </tr>
 
-                    <tr className="border-t-2 border-slate-200 dark:border-slate-800 bg-emerald-50 font-black">
-                      <td className="p-2 uppercase text-emerald-950">TOTAL A CONSIGNAR</td>
+                    <tr className="border-t-2 border-slate-200 dark:border-slate-800 bg-emerald-50 dark:bg-emerald-950/40 font-black">
+                      <td className="p-2 uppercase text-emerald-950 dark:text-emerald-200">TOTAL A CONSIGNAR</td>
                       <td className="p-2 text-right">{formatCurrency(recalculationData.originalSnapshot.toConsign, currencySymbol)}</td>
-                      <td className="p-2 text-right text-emerald-950 bg-emerald-100">{formatCurrency(recalculationData.recalculatedValues.toConsign, currencySymbol)}</td>
-                      <td className="p-2 text-right text-emerald-900">
+                      <td className="p-2 text-right text-emerald-950 dark:text-emerald-200 bg-emerald-100 dark:bg-emerald-900/40">{formatCurrency(recalculationData.recalculatedValues.toConsign, currencySymbol)}</td>
+                      <td className="p-2 text-right text-emerald-900 dark:text-emerald-300">
                         {formatCurrency(recalculationData.recalculatedValues.toConsign - recalculationData.originalSnapshot.toConsign, currencySymbol)}
                       </td>
                     </tr>
@@ -1348,7 +1348,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
               {/* Justification input */}
               <div className="space-y-1 font-sans">
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                   Motivo o Justificación del Recálculo (Opcional):
                 </label>
                 <input
@@ -1356,22 +1356,22 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                   value={recalcReasonInput}
                   onChange={(e) => setRecalcReasonInput(e.target.value)}
                   placeholder="Ej: Ajuste por corrección de ticket cobrado con medio de pago modificado..."
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-hidden"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-hidden"
                 />
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
               <button
                 onClick={() => setRecalculatingItem(null)}
-                className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-colors"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmRecalculation}
-                className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 shadow-md transition-colors flex items-center gap-1.5"
+                className="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 shadow-md transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 Aplicar Recálculo y Guardar
@@ -1383,8 +1383,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
       {/* --- MODAL 2: THERMAL TICKET PRINT PREVIEW --- */}
       {selectedRecordForTicket && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-white flex justify-between items-center gap-2 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Printer className="w-5 h-5 text-indigo-700 dark:text-indigo-400" />
@@ -1414,14 +1414,14 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     58mm
                   </button>
                 </div>
-                <button onClick={() => setSelectedRecordForTicket(null)} className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-1">
+                <button onClick={() => setSelectedRecordForTicket(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
             {/* Printable Ticket Area */}
-            <div className="p-4 overflow-y-auto flex-1 bg-neutral-100 flex justify-center">
+            <div className="p-4 overflow-y-auto flex-1 bg-neutral-100 dark:bg-slate-950 flex justify-center">
               <div 
                 id="printable-ticket" 
                 data-paper-width={voucherPaperWidth}
@@ -1433,10 +1433,10 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                 {/* Header */}
                 <div className="text-center pb-2 border-b border-dashed border-slate-400 space-y-0.5">
                   <h2 className="font-black text-sm uppercase">{businessInfo?.name || 'Estacionamiento'}</h2>
-                  <p className="text-[10px] text-slate-600 dark:text-slate-300">NIT: {businessInfo?.nit || ''}</p>
-                  <p className="text-[10px] text-slate-600 dark:text-slate-300">{businessInfo?.address || ''}</p>
+                  <p className="text-[10px] text-slate-700">NIT: {businessInfo?.nit || ''}</p>
+                  <p className="text-[10px] text-slate-700">{businessInfo?.address || ''}</p>
 
-                  <div className="mt-2 inline-block bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-0.5 font-bold text-[10px] rounded uppercase">
+                  <div className="mt-2 inline-block bg-slate-900 text-white px-3 py-0.5 font-bold text-[10px] rounded uppercase">
                     {selectedRecordForTicket.type === 'shift' ? '**** ARQUEO DE TURNO ****' : '**** CIERRE DEFINITIVO DÍA ****'}
                   </div>
                 </div>
@@ -1555,8 +1555,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                       <table className="w-full text-[10px] font-mono border-collapse my-1">
                         <tbody className="divide-y divide-slate-200">
                           <tr>
-                            <td className="py-1 font-semibold text-slate-700 dark:text-slate-200">(+) BASE / FONDO INICIAL DE CAJA</td>
-                            <td className="py-1 text-right font-bold text-slate-800 dark:text-slate-200">
+                            <td className="py-1 font-semibold text-slate-700">(+) BASE / FONDO INICIAL DE CAJA</td>
+                            <td className="py-1 text-right font-bold text-slate-800">
                               +{formatCurrency(ticketData.vBase, currencySymbol)}
                             </td>
                           </tr>
@@ -1567,8 +1567,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                             </td>
                           </tr>
                           <tr className="bg-slate-50 font-bold border-t border-slate-300">
-                            <td className="py-1 text-slate-900 dark:text-slate-100">(=) TOTAL EFECTIVO INGRESADO A GAVETA</td>
-                            <td className="py-1 text-right font-black text-slate-900 dark:text-slate-100">
+                            <td className="py-1 text-slate-900">(=) TOTAL EFECTIVO INGRESADO A GAVETA</td>
+                            <td className="py-1 text-right font-black text-slate-900">
                               {formatCurrency(ticketData.totalEfectivoEntrado, currencySymbol)}
                             </td>
                           </tr>
@@ -1629,11 +1629,11 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                       <div className="text-center font-black uppercase text-[10px] tracking-wide text-emerald-950 pb-1 border-b border-emerald-300">
                         LIQUIDACIÓN DE EFECTIVO A CONSIGNAR
                       </div>
-                      <div className="flex justify-between text-slate-800 dark:text-slate-200">
+                      <div className="flex justify-between text-slate-800">
                         <span>Recogidas en Custodia / Bóveda:</span>
                         <span className="font-bold">{formatCurrency(ticketData.totalPickups, currencySymbol)}</span>
                       </div>
-                      <div className="flex justify-between text-slate-800 dark:text-slate-200">
+                      <div className="flex justify-between text-slate-800">
                         <span>(+) Efectivo Disponible en Gaveta (Contado - Base):</span>
                         <span className="font-bold">{formatCurrency(Math.max(0, ticketData.efectivoNetoEnGaveta), currencySymbol)}</span>
                       </div>
@@ -1643,7 +1643,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                       </div>
 
                       {/* Nota aclaratoria sobre recogidas y base */}
-                      <div className="text-[9px] text-slate-700 dark:text-slate-200 bg-white/90 p-1.5 rounded border border-emerald-200 mt-1 space-y-0.5 leading-tight">
+                      <div className="text-[9px] text-slate-700 bg-white/90 p-1.5 rounded border border-emerald-200 mt-1 space-y-0.5 leading-tight">
                         <p className="font-bold text-emerald-900">💡 CONTROL Y CONSIGNACIÓN:</p>
                         <p>• <span className="font-semibold">Base de Caja</span> ({formatCurrency(ticketData.vBase, currencySymbol)}) queda en gaveta como fondo de apertura para el siguiente turno.</p>
                         <p>• Las <span className="font-bold">Recogidas de Efectivo</span> ({formatCurrency(ticketData.totalPickups, currencySymbol)}) son traslados de seguridad a bóveda/custodia; <span className="font-semibold">hacen parte de todo el efectivo generado</span> para consignar al final de la jornada.</p>
@@ -1684,18 +1684,18 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                 )}
 
                 {/* Footer */}
-                <div className="text-center pt-2 text-[9px] text-slate-600 dark:text-slate-300 border-t border-dashed border-slate-300">
-                  <div className="font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 font-mono">wolfzonepos</div>
+                <div className="text-center pt-2 text-[9px] text-slate-700 border-t border-dashed border-slate-300">
+                  <div className="font-bold uppercase tracking-wider text-slate-800 font-mono">wolfzonepos</div>
                   <div>Comprobante Reimpreso Oficial</div>
                 </div>
 
               </div>
             </div>
 
-            <div className="p-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+            <div className="p-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
               <button
                 onClick={() => window.print()}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Printer className="w-4 h-4" />
                 <span>Imprimir Comprobante ({voucherPaperWidth})</span>
@@ -1707,20 +1707,20 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
       {/* --- MODAL 3: EDIT NOTES MODAL --- */}
       {editingNotesRecord && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
               <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
                 <Edit3 className="w-4 h-4 text-emerald-600" />
                 Editar Observaciones de Cierre
               </h3>
-              <button onClick={() => setEditingNotesRecord(null)} className="text-slate-700 dark:text-slate-200 hover:text-slate-600">
+              <button onClick={() => setEditingNotesRecord(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-200">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Notas y Observaciones de Auditoría:
               </label>
               <textarea
@@ -1728,20 +1728,20 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                 value={notesInput}
                 onChange={(e) => setNotesInput(e.target.value)}
                 placeholder="Escribe comentarios, justificaciones de faltantes o aclaraciones para administración..."
-                className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-hidden"
+                className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-emerald-500 outline-hidden"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
               <button
                 onClick={() => setEditingNotesRecord(null)}
-                className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold hover:bg-slate-50"
+                className="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveNotes}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 shadow-xs"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 shadow-xs cursor-pointer"
               >
                 Guardar Observación
               </button>
@@ -1752,14 +1752,14 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
       {/* --- MODAL 4: AUDIT MOVEMENTS DETAILS --- */}
       {detailsRecord && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-50 dark:bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-3 shrink-0">
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 shrink-0">
               <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
                 <FileText className="w-4 h-4 text-sky-600" />
                 Auditoría de Movimientos y Gastos de Caja
               </h3>
-              <button onClick={() => setDetailsRecord(null)} className="text-slate-700 dark:text-slate-200 hover:text-slate-600">
+              <button onClick={() => setDetailsRecord(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -1767,19 +1767,19 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
             <div className="overflow-y-auto flex-1 space-y-3">
               {detailsRecord.type === 'shift' && Array.isArray(detailsRecord.shift?.cashMovements) ? (
                 detailsRecord.shift.cashMovements.length === 0 ? (
-                  <div className="text-center py-8 text-slate-700 dark:text-slate-200 text-xs">No hay movimientos registrados en este turno.</div>
+                  <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-xs">No hay movimientos registrados en este turno.</div>
                 ) : (
                   detailsRecord.shift.cashMovements.map((m) => (
-                    <div key={m.id} className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs">
+                    <div key={m.id} className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl flex justify-between items-center text-xs">
                       <div>
                         <div className="font-bold text-slate-800 dark:text-slate-200">{m.description}</div>
-                        <div className="text-[10px] text-slate-600 dark:text-slate-300">
+                        <div className="text-[10px] text-slate-600 dark:text-slate-400">
                           {new Date(m.timestamp).toLocaleTimeString('es-CO')} • {m.conceptName || m.type.toUpperCase()} • Cajero: {m.operator}
                           {m.voucherNumber ? ` • Doc: ${m.voucherNumber}` : ''}
                         </div>
                       </div>
                       <span className={`font-mono font-bold text-sm ${
-                        m.type === 'income' ? 'text-emerald-700' : m.type === 'expense' ? 'text-rose-700' : 'text-indigo-700'
+                        m.type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : m.type === 'expense' ? 'text-rose-700 dark:text-rose-400' : 'text-indigo-700 dark:text-indigo-400'
                       }`}>
                         {m.type === 'income' ? '+' : '-'}{formatCurrency(m.amount, currencySymbol)}
                       </span>
@@ -1787,16 +1787,16 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                   ))
                 )
               ) : (
-                <div className="text-center py-8 text-slate-600 dark:text-slate-300 text-xs">
+                <div className="text-center py-8 text-slate-600 dark:text-slate-400 text-xs">
                   Cierre de día operativo consolidado. Movimientos integrados en los tiquetes del día.
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-slate-200 shrink-0">
+            <div className="flex justify-end pt-2 border-t border-slate-200 dark:border-slate-800 shrink-0">
               <button
                 onClick={() => setDetailsRecord(null)}
-                className="px-4 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl text-xs font-bold"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer"
               >
                 Cerrar Auditoría
               </button>
@@ -1807,8 +1807,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
       {/* Toast Notification for Copy */}
       {copiedToast && (
-        <div className="fixed bottom-6 right-6 z-70 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl flex items-center gap-2 animate-bounce">
-          <Check className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+        <div className="fixed bottom-6 right-6 z-70 bg-slate-900 dark:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-medium shadow-xl flex items-center gap-2 border border-slate-700 animate-bounce">
+          <Check className="w-4 h-4 text-emerald-400" />
           <span>Resumen de Cierre copiado al portapapeles</span>
         </div>
       )}

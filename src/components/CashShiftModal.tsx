@@ -703,8 +703,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
           <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs shrink-0">
             <button
               onClick={() => setActiveSubTab('arqueo')}
-              className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-                activeSubTab === 'arqueo' ? 'bg-amber-400 text-slate-950 shadow-2xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+              className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer ${
+                activeSubTab === 'arqueo' ? 'bg-amber-500 text-slate-950 dark:bg-amber-400 dark:text-slate-950 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               Arqueo de Turno
@@ -712,8 +712,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             {currentUser?.permissions?.canCloseOperationalDay !== false && (
               <button
                 onClick={() => setActiveSubTab('cierre_dia')}
-                className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-                  activeSubTab === 'cierre_dia' ? 'bg-amber-400 text-slate-950 shadow-2xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+                className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer ${
+                  activeSubTab === 'cierre_dia' ? 'bg-amber-500 text-slate-950 dark:bg-amber-400 dark:text-slate-950 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 Cierre Definitivo Día
@@ -721,8 +721,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             )}
             <button
               onClick={() => setActiveSubTab('movements')}
-              className={`px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
-                activeSubTab === 'movements' ? 'bg-amber-400 text-slate-950 shadow-2xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+              className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer ${
+                activeSubTab === 'movements' ? 'bg-amber-500 text-slate-950 dark:bg-amber-400 dark:text-slate-950 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               Gastos/Movimientos ({currentShift.cashMovements.length})
@@ -732,7 +732,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <div className="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
                 <button
                   onClick={() => setIsHistoryModalOpen(true)}
-                  className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 border border-indigo-500/40"
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-bold transition-all cursor-pointer flex items-center gap-1.5 border border-indigo-500/40 shadow-xs"
                 >
                   <History className="w-3.5 h-3.5 text-indigo-200" />
                   <span>Histórico de Cierres</span>
@@ -750,60 +750,60 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
         <div className="space-y-6">
           {/* Summary Breakdown Grid of Current Shift (Hidden for cashiers if canViewFinancials is false) */}
           {canViewFinancials ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-              <div className="bg-white dark:bg-slate-800/90 py-1.5 px-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs">
-                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase block tracking-wider">Base Apertura</span>
-                <span className="text-sm font-black text-slate-900 dark:text-slate-100 font-mono">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              <div className="bg-white dark:bg-slate-900 py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase block tracking-wider">Base Apertura</span>
+                <span className="text-sm font-black text-slate-950 dark:text-slate-100 font-mono">
                   {formatCurrency(currentShift.initialCash, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-white dark:bg-slate-800/90 py-1.5 px-3 rounded-lg border border-emerald-300 dark:border-emerald-500/40 shadow-2xs">
-                <span className="text-[9px] font-bold text-emerald-800 dark:text-emerald-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="bg-emerald-50/70 dark:bg-emerald-950/40 py-2 px-3 rounded-xl border border-emerald-300 dark:border-emerald-600/40 shadow-2xs">
+                <span className="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 uppercase block tracking-wider flex items-center gap-1">
                   <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Efectivo Turno</span>
                 </span>
-                <span className="text-sm font-black text-emerald-700 dark:text-emerald-300 font-mono">
+                <span className="text-sm font-black text-emerald-800 dark:text-emerald-300 font-mono">
                   {formatCurrency(shiftTotals.cash, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-white dark:bg-slate-800/90 py-1.5 px-3 rounded-lg border border-purple-300 dark:border-purple-500/40 shadow-2xs">
-                <span className="text-[9px] font-bold text-purple-800 dark:text-purple-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="bg-purple-50/70 dark:bg-purple-950/40 py-2 px-3 rounded-xl border border-purple-300 dark:border-purple-600/40 shadow-2xs">
+                <span className="text-[10px] font-bold text-purple-900 dark:text-purple-300 uppercase block tracking-wider flex items-center gap-1">
                   <Smartphone className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                   <span>Billeteras</span>
                 </span>
-                <span className="text-sm font-black text-purple-900 dark:text-purple-300 font-mono">
+                <span className="text-sm font-black text-purple-800 dark:text-purple-300 font-mono">
                   {formatCurrency(shiftTotals.wallet, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-white dark:bg-slate-800/90 py-1.5 px-3 rounded-lg border border-amber-300 dark:border-amber-500/40 shadow-2xs">
-                <span className="text-[9px] font-bold text-amber-800 dark:text-amber-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="bg-amber-50/70 dark:bg-amber-950/40 py-2 px-3 rounded-xl border border-amber-300 dark:border-amber-600/40 shadow-2xs">
+                <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 uppercase block tracking-wider flex items-center gap-1">
                   <QrCode className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>QR Bancario</span>
                 </span>
-                <span className="text-sm font-black text-amber-900 dark:text-amber-300 font-mono">
+                <span className="text-sm font-black text-amber-800 dark:text-amber-300 font-mono">
                   {formatCurrency(shiftTotals.qr, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-white dark:bg-slate-800/90 py-1.5 px-3 rounded-lg border border-teal-300 dark:border-teal-500/40 shadow-2xs">
-                <span className="text-[9px] font-bold text-teal-800 dark:text-teal-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="bg-teal-50/70 dark:bg-teal-950/40 py-2 px-3 rounded-xl border border-teal-300 dark:border-teal-600/40 shadow-2xs">
+                <span className="text-[10px] font-bold text-teal-900 dark:text-teal-300 uppercase block tracking-wider flex items-center gap-1">
                   <Zap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   <span>Llaves Bre-B</span>
                 </span>
-                <span className="text-sm font-black text-teal-900 dark:text-teal-300 font-mono">
+                <span className="text-sm font-black text-teal-800 dark:text-teal-300 font-mono">
                   {formatCurrency(shiftTotals.breB, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-white dark:bg-slate-800/90 py-1.5 px-3 rounded-lg border border-sky-300 dark:border-sky-500/40 shadow-2xs">
-                <span className="text-[9px] font-bold text-sky-800 dark:text-sky-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="bg-sky-50/70 dark:bg-sky-950/40 py-2 px-3 rounded-xl border border-sky-300 dark:border-sky-600/40 shadow-2xs">
+                <span className="text-[10px] font-bold text-sky-900 dark:text-sky-300 uppercase block tracking-wider flex items-center gap-1">
                   <CreditCard className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                   <span>Datáfonos</span>
                 </span>
-                <span className="text-sm font-black text-sky-900 dark:text-sky-300 font-mono">
+                <span className="text-sm font-black text-sky-800 dark:text-sky-300 font-mono">
                   {formatCurrency(shiftTotals.card, currencySymbol)}
                 </span>
               </div>
@@ -870,9 +870,9 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               {/* Expected balance vs counted */}
               <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
                 {!isBlindCount && (
-                  <div className="flex justify-between items-center text-xs p-2 bg-slate-100 dark:bg-slate-900 rounded-lg">
-                    <span className="text-slate-600 dark:text-slate-300">Saldo Teórico Esperado en Gaveta (Efectivo):</span>
-                    <span className="text-sm font-black font-mono text-slate-900 dark:text-slate-100">
+                  <div className="flex justify-between items-center text-xs p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-800">
+                    <span className="font-semibold text-slate-600 dark:text-slate-400">Saldo Teórico Esperado en Gaveta (Efectivo):</span>
+                    <span className="text-sm font-black font-mono text-slate-950 dark:text-white">
                       {formatCurrency(expectedCashInDrawer, currencySymbol)}
                     </span>
                   </div>
@@ -880,13 +880,13 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                       Dinero Físico en Gaveta Contado ($):
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowDenominationCalculator(!showDenominationCalculator)}
-                      className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <Banknote className="w-3.5 h-3.5" />
                       <span>{showDenominationCalculator ? 'Ocultar Desglose' : 'Desglosar Billetes y Monedas'}</span>
@@ -904,15 +904,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     placeholder="Digite el total contado..."
                     value={countedCashInput}
                     onChange={(e) => setCountedCashInput(e.target.value)}
-                    className="w-full text-2xl font-black font-mono bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 rounded-xl px-4 py-2.5 outline-none text-slate-900 dark:text-slate-100 text-center"
+                    className="w-full text-2xl font-black font-mono bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 rounded-xl px-4 py-2.5 outline-none text-slate-950 dark:text-white text-center shadow-xs"
                   />
                 </div>
 
                 {/* Desglose Táctil de Billetes y Monedas */}
                 {showDenominationCalculator && (
-                  <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in duration-200">
+                  <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in duration-200 shadow-sm">
                     <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-slate-100">
                         <Banknote className="w-4 h-4 text-emerald-500" />
                         <span>Calculadora de Billetes y Monedas</span>
                       </div>
@@ -920,14 +920,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         <button
                           type="button"
                           onClick={handleResetDenominations}
-                          className="text-[11px] text-rose-500 hover:text-rose-600 font-bold hover:underline cursor-pointer"
+                          className="text-[11px] text-rose-600 dark:text-rose-400 hover:text-rose-700 font-bold hover:underline cursor-pointer"
                         >
                           Limpiar
                         </button>
                         <button
                           type="button"
                           onClick={handleApplyDenominationsToCount}
-                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold cursor-pointer"
+                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold cursor-pointer shadow-xs"
                         >
                           Copiar al Conteo
                         </button>
@@ -936,15 +936,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
                     {/* Billetes */}
                     <div>
-                      <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                        Billetes (COP) - Subtotal: <strong className="text-emerald-600 font-mono">{formatCurrency(totalBillsAmount, currencySymbol)}</strong>
+                      <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
+                        Billetes (COP) - Subtotal: <strong className="text-emerald-700 dark:text-emerald-400 font-mono">{formatCurrency(totalBillsAmount, currencySymbol)}</strong>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {[100000, 50000, 20000, 10000, 5000, 2000].map((denom) => (
-                          <div key={denom} className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col gap-1">
+                          <div key={denom} className="p-2 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col gap-1">
                             <div className="flex justify-between items-center text-[11px]">
-                              <span className="font-bold font-mono text-slate-800 dark:text-slate-200">${denom.toLocaleString('es-CO')}</span>
-                              <span className="text-[10px] text-slate-500 font-mono">x {billCounts[denom] || 0}</span>
+                              <span className="font-bold font-mono text-slate-900 dark:text-slate-100">${denom.toLocaleString('es-CO')}</span>
+                              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">x {billCounts[denom] || 0}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <input
@@ -952,20 +952,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                                 min="0"
                                 value={billCounts[denom] || ''}
                                 onChange={(e) => setBillCounts({ ...billCounts, [denom]: Math.max(0, parseInt(e.target.value) || 0) })}
-                                className="w-full text-xs font-mono font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-center"
+                                className="w-full text-xs font-mono font-bold bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-center text-slate-900 dark:text-slate-100"
                                 placeholder="0"
                               />
                               <button
                                 type="button"
                                 onClick={() => setBillCounts({ ...billCounts, [denom]: (billCounts[denom] || 0) + 1 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
                               >
                                 +1
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setBillCounts({ ...billCounts, [denom]: (billCounts[denom] || 0) + 5 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
                               >
                                 +5
                               </button>
@@ -977,15 +977,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
                     {/* Monedas */}
                     <div>
-                      <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                        Monedas (COP) - Subtotal: <strong className="text-amber-600 font-mono">{formatCurrency(totalCoinsAmount, currencySymbol)}</strong>
+                      <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
+                        Monedas (COP) - Subtotal: <strong className="text-amber-700 dark:text-amber-400 font-mono">{formatCurrency(totalCoinsAmount, currencySymbol)}</strong>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {[1000, 500, 200, 100, 50].map((denom) => (
-                          <div key={denom} className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col gap-1">
+                          <div key={denom} className="p-2 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col gap-1">
                             <div className="flex justify-between items-center text-[11px]">
-                              <span className="font-bold font-mono text-slate-800 dark:text-slate-200">${denom.toLocaleString('es-CO')}</span>
-                              <span className="text-[10px] text-slate-500 font-mono">x {coinCounts[denom] || 0}</span>
+                              <span className="font-bold font-mono text-slate-900 dark:text-slate-100">${denom.toLocaleString('es-CO')}</span>
+                              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">x {coinCounts[denom] || 0}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <input
@@ -993,20 +993,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                                 min="0"
                                 value={coinCounts[denom] || ''}
                                 onChange={(e) => setCoinCounts({ ...coinCounts, [denom]: Math.max(0, parseInt(e.target.value) || 0) })}
-                                className="w-full text-xs font-mono font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-center"
+                                className="w-full text-xs font-mono font-bold bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-center text-slate-900 dark:text-slate-100"
                                 placeholder="0"
                               />
                               <button
                                 type="button"
                                 onClick={() => setCoinCounts({ ...coinCounts, [denom]: (coinCounts[denom] || 0) + 1 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
                               >
                                 +1
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setCoinCounts({ ...coinCounts, [denom]: (coinCounts[denom] || 0) + 5 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
                               >
                                 +5
                               </button>
@@ -1017,8 +1017,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     </div>
 
                     <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-bold text-xs">
-                      <span>Gran Total Físico Calculado:</span>
-                      <span className="text-sm font-mono text-emerald-600 font-black">
+                      <span className="text-slate-800 dark:text-slate-200">Gran Total Físico Calculado:</span>
+                      <span className="text-sm font-mono text-emerald-700 dark:text-emerald-400 font-black">
                         {formatCurrency(totalDenominationsAmount, currencySymbol)}
                       </span>
                     </div>
@@ -1028,14 +1028,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 {!isBlindCount && countedCashInput && cashDifference !== null && (
                   <div className={`p-3 rounded-xl border flex items-center justify-between text-xs font-mono font-bold ${
                     cashDifference === 0
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-600/50 text-emerald-900 dark:text-emerald-200'
                       : cashDifference > 0
-                      ? 'bg-sky-50 border-sky-300 text-sky-800'
-                      : 'bg-rose-50 border-rose-300 text-rose-800'
+                      ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-600/50 text-sky-900 dark:text-sky-200'
+                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-600/50 text-rose-900 dark:text-rose-200'
                   }`}>
                     <div className="flex items-center gap-2">
                       {cashDifference === 0 ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       ) : (
                         <AlertCircle className="w-4 h-4" />
                       )}
@@ -1055,8 +1055,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               </div>
 
               {/* Next operator parameters */}
-              <div className="p-4 bg-amber-50/50 rounded-xl border border-amber-200 space-y-3">
-                <span className="text-xs font-bold text-amber-950 uppercase block">
+              <div className="p-4 bg-amber-50/70 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-700/50 space-y-3">
+                <span className="text-xs font-bold text-amber-950 dark:text-amber-300 uppercase block">
                   Datos para Apertura del Siguiente Turno (Turno #{currentShift.shiftNumber + 1})
                 </span>
                 
@@ -1070,7 +1070,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       value={nextOperatorName}
                       onChange={(e) => setNextOperatorName(e.target.value)}
                       placeholder="Nombre del cajero..."
-                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 font-bold outline-none"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 font-bold outline-none text-slate-900 dark:text-slate-100 focus:border-amber-500 shadow-xs"
                     />
                   </div>
 
@@ -1083,7 +1083,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       step="any"
                       value={nextBaseCash}
                       onChange={(e) => setNextBaseCash(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 font-mono font-bold outline-none"
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 font-mono font-bold outline-none text-slate-900 dark:text-slate-100 focus:border-amber-500 shadow-xs"
                     />
                   </div>
                 </div>
@@ -1095,7 +1095,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setPrintedVoucherType('arqueo')}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
                   >
                     <Printer className="w-4 h-4" />
                     <span>Ver Comprobante de Arqueo</span>
@@ -1109,7 +1109,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     countedCashInput 
                       ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-95'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700 cursor-not-allowed'
                   }`}
                 >
                   <Lock className="w-4 h-4 text-emerald-100" />
@@ -1119,49 +1119,49 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Right: Operational Details & Breakdown Table */}
-            <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100">
+            <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100 dark:border-slate-800">
                 Detalle Financiero del Turno
               </h3>
 
               {canViewFinancials ? (
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-slate-100">
-                    <span className="text-slate-600 dark:text-slate-300">Base de Apertura:</span>
+                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-600 dark:text-slate-400">Base de Apertura:</span>
                     <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                       {formatCurrency(currentShift.initialCash, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 text-emerald-800 font-semibold">
+                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-emerald-800 dark:text-emerald-400 font-semibold">
                     <span>+ Recaudo Efectivo en Parqueadero:</span>
                     <span className="font-mono font-bold">
                       {formatCurrency(shiftTotals.cash, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 text-purple-800">
+                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-purple-800 dark:text-purple-400 font-semibold">
                     <span>+ Recaudo Billeteras (Nequi/Daviplata):</span>
                     <span className="font-mono font-bold">
                       {formatCurrency(shiftTotals.wallet, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 text-amber-800">
+                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-amber-800 dark:text-amber-400 font-semibold">
                     <span>+ Recaudo Códigos QR:</span>
                     <span className="font-mono font-bold">
                       {formatCurrency(shiftTotals.qr, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 text-teal-800">
+                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-teal-800 dark:text-teal-400 font-semibold">
                     <span>+ Recaudo Llaves Bre-B:</span>
                     <span className="font-mono font-bold">
                       {formatCurrency(shiftTotals.breB, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 text-sky-800">
+                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-sky-800 dark:text-sky-400 font-semibold">
                     <span>+ Recaudo Tarjetas / Datáfonos:</span>
                     <span className="font-mono font-bold">
                       {formatCurrency(shiftTotals.card, currencySymbol)}
@@ -1169,7 +1169,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   </div>
 
                   {totalExpenses > 0 && (
-                    <div className="flex justify-between py-1 border-b border-slate-100 text-rose-700">
+                    <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-rose-700 dark:text-rose-400 font-semibold">
                       <span>- Gastos de Caja Menor:</span>
                       <span className="font-mono font-bold">
                         -{formatCurrency(totalExpenses, currencySymbol)}
@@ -1178,7 +1178,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   )}
 
                   {totalPickups > 0 && (
-                    <div className="flex justify-between py-1 border-b border-slate-100 text-indigo-700 font-semibold">
+                    <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-indigo-700 dark:text-indigo-400 font-semibold">
                       <span>- Recogidas / Liberación de Gaveta:</span>
                       <span className="font-mono font-bold">
                         -{formatCurrency(totalPickups, currencySymbol)}
@@ -1186,15 +1186,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     </div>
                   )}
 
-                  <div className="pt-2 border-t-2 border-slate-200 flex justify-between text-sm font-black text-slate-950">
+                  <div className="pt-2 border-t-2 border-slate-200 dark:border-slate-700 flex justify-between text-sm font-black text-slate-950 dark:text-white">
                     <span>TOTAL OPERADO EN TURNO:</span>
-                    <span className="font-mono text-emerald-700">
+                    <span className="font-mono text-emerald-700 dark:text-emerald-400">
                       {formatCurrency(shiftTotals.totalCollected, currencySymbol)}
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className="p-6 text-center space-y-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <div className="p-6 text-center space-y-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <ShieldCheck className="w-10 h-10 text-slate-700 dark:text-slate-200 mx-auto" />
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                     Desglose en Vivo Restringido para Cajero
@@ -1205,7 +1205,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 </div>
               )}
 
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 dark:text-slate-300">
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] text-slate-600 dark:text-slate-300">
                 * Al realizar el arqueo, se expedirá automáticamente el comprobante impreso para entrega física al supervisor y se iniciará el turno siguiente.
               </div>
             </div>
@@ -1218,14 +1218,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       {/* ========================================================= */}
       {activeSubTab === 'cierre_dia' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-5">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-amber-600" />
+                  <Calendar className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                   <span>Cierre Definitivo de Caja - Día Operativo #{operationalDay.dayNumber || 1} ({operationalDay.formattedDate || operationalDay.date})</span>
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                   Consolidación de todos los turnos trabajados durante este día operativo. Al cerrar, avanzará al siguiente día.
                 </p>
               </div>
@@ -1234,7 +1234,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setPrintedVoucherType('cierre')}
-                  className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                  className="px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Imprimir Cierre Definitivo</span>
@@ -1246,63 +1246,63 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             {canViewFinancials ? (
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 block">Vehículos Totales Día</span>
-                    <span className="text-xl font-black font-mono text-slate-900 dark:text-slate-100">{dayTotals.totalVehicles}</span>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Vehículos Totales Día</span>
+                    <span className="text-xl font-black font-mono text-slate-950 dark:text-white">{dayTotals.totalVehicles}</span>
                   </div>
 
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-emerald-800 block">Efectivo Consolidado</span>
-                    <span className="text-xl font-black font-mono text-emerald-800">
+                  <div className="p-4 bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-300 dark:border-emerald-600/40 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-emerald-900 dark:text-emerald-300 block">Efectivo Consolidado</span>
+                    <span className="text-xl font-black font-mono text-emerald-800 dark:text-emerald-400">
                       {formatCurrency(dayTotals.cash, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="p-4 bg-purple-50 border border-purple-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-purple-800 block">Medios Digitales Día</span>
-                    <span className="text-xl font-black font-mono text-purple-900">
+                  <div className="p-4 bg-purple-50/80 dark:bg-purple-950/30 border border-purple-300 dark:border-purple-600/40 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-purple-900 dark:text-purple-300 block">Medios Digitales Día</span>
+                    <span className="text-xl font-black font-mono text-purple-800 dark:text-purple-400">
                       {formatCurrency(dayTotals.totalElectronic, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-amber-800 block">Gran Total Recaudado</span>
-                    <span className="text-xl font-black font-mono text-amber-900">
+                  <div className="p-4 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-600/40 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-amber-900 dark:text-amber-300 block">Gran Total Recaudado</span>
+                    <span className="text-xl font-black font-mono text-amber-800 dark:text-amber-400">
                       {formatCurrency(dayTotals.totalCollected, currencySymbol)}
                     </span>
                   </div>
                 </div>
 
                 {/* Detailed channels breakdown */}
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-xs">
-                  <span className="font-bold text-slate-800 dark:text-slate-200 uppercase text-[11px] block mb-2">
+                <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 space-y-2 text-xs">
+                  <span className="font-bold text-slate-900 dark:text-slate-100 uppercase text-[11px] block mb-2">
                     Desglose por Todos los Medios de Pago (Día Completo)
                   </span>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="flex justify-between py-1 border-b border-slate-200">
-                      <span>Efectivo Físico:</span>
-                      <span className="font-mono font-bold text-emerald-700">{formatCurrency(dayTotals.cash, currencySymbol)}</span>
+                    <div className="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">Efectivo Físico:</span>
+                      <span className="font-mono font-bold text-emerald-800 dark:text-emerald-400">{formatCurrency(dayTotals.cash, currencySymbol)}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-slate-200">
-                      <span>Billeteras Digitales (Nequi / Daviplata):</span>
-                      <span className="font-mono font-bold text-purple-700">{formatCurrency(dayTotals.wallet, currencySymbol)}</span>
+                    <div className="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">Billeteras Digitales (Nequi / Daviplata):</span>
+                      <span className="font-mono font-bold text-purple-800 dark:text-purple-400">{formatCurrency(dayTotals.wallet, currencySymbol)}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-slate-200">
-                      <span>Códigos QR Bancarios:</span>
-                      <span className="font-mono font-bold text-amber-700">{formatCurrency(dayTotals.qr, currencySymbol)}</span>
+                    <div className="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">Códigos QR Bancarios:</span>
+                      <span className="font-mono font-bold text-amber-800 dark:text-amber-400">{formatCurrency(dayTotals.qr, currencySymbol)}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-slate-200">
-                      <span>Llaves Bre-B (Interoperable):</span>
-                      <span className="font-mono font-bold text-teal-700">{formatCurrency(dayTotals.breB, currencySymbol)}</span>
+                    <div className="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">Llaves Bre-B (Interoperable):</span>
+                      <span className="font-mono font-bold text-teal-800 dark:text-teal-400">{formatCurrency(dayTotals.breB, currencySymbol)}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-slate-200">
-                      <span>Tarjetas / Datáfonos:</span>
-                      <span className="font-mono font-bold text-sky-700">{formatCurrency(dayTotals.card, currencySymbol)}</span>
+                    <div className="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">Tarjetas / Datáfonos:</span>
+                      <span className="font-mono font-bold text-sky-800 dark:text-sky-400">{formatCurrency(dayTotals.card, currencySymbol)}</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-slate-200">
-                      <span>Convenios / Cortesías:</span>
-                      <span className="font-mono font-bold text-indigo-700">{formatCurrency(dayTotals.agreement, currencySymbol)}</span>
+                    <div className="flex justify-between py-1 border-b border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-700 dark:text-slate-300">Convenios / Cortesías:</span>
+                      <span className="font-mono font-bold text-indigo-800 dark:text-indigo-400">{formatCurrency(dayTotals.agreement, currencySymbol)}</span>
                     </div>
                   </div>
                 </div>
@@ -1310,21 +1310,21 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 block">Vehículos Atendidos Día</span>
-                    <span className="text-xl font-black font-mono text-slate-900 dark:text-slate-100">{dayTotals.totalVehicles}</span>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Vehículos Atendidos Día</span>
+                    <span className="text-xl font-black font-mono text-slate-950 dark:text-white">{dayTotals.totalVehicles}</span>
                   </div>
-                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 block">Turnos Trabajados</span>
-                    <span className="text-xl font-black font-mono text-slate-900 dark:text-slate-100">{operationalDay.shiftsCount || 1}</span>
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Turnos Trabajados</span>
+                    <span className="text-xl font-black font-mono text-slate-950 dark:text-white">{operationalDay.shiftsCount || 1}</span>
                   </div>
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                    <span className="text-[10px] uppercase font-bold text-amber-800 block">Estado Día Operativo</span>
-                    <span className="text-sm font-black font-mono text-amber-900 mt-1 block">EN OPERACIÓN</span>
+                  <div className="p-4 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-600/40 rounded-xl">
+                    <span className="text-[10px] uppercase font-bold text-amber-900 dark:text-amber-300 block">Estado Día Operativo</span>
+                    <span className="text-sm font-black font-mono text-amber-800 dark:text-amber-400 mt-1 block">EN OPERACIÓN</span>
                   </div>
                 </div>
 
-                <div className="p-6 text-center space-y-3 bg-slate-50 border border-slate-200 rounded-xl">
+                <div className="p-6 text-center space-y-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <ShieldCheck className="w-10 h-10 text-slate-700 dark:text-slate-200 mx-auto" />
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                     Desglose Financiero y Recaudo del Día Restringido para Cajero
@@ -1346,8 +1346,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   </h4>
                 </div>
                 {!isBlindCount && (
-                  <span className="text-xs font-mono text-slate-600 dark:text-slate-300">
-                    Saldo Teórico Esperado: <strong className="text-amber-700 dark:text-amber-400">{formatCurrency(dayExpectedCashInDrawer, currencySymbol)}</strong>
+                  <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
+                    Saldo Teórico Esperado: <strong className="text-amber-800 dark:text-amber-400">{formatCurrency(dayExpectedCashInDrawer, currencySymbol)}</strong>
                   </span>
                 )}
               </div>
@@ -1355,30 +1355,30 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               {!isBlindCount && (
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px] font-mono bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                   <div>
-                    <span className="text-slate-600 dark:text-slate-300 block text-[10px]">Base Apertura:</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-200">{formatCurrency(dayBaseCash, currencySymbol)}</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[10px]">Base Apertura:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{formatCurrency(dayBaseCash, currencySymbol)}</span>
                   </div>
                   <div>
-                    <span className="text-slate-600 dark:text-slate-300 block text-[10px]">+ Recaudo Efectivo:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[10px]">+ Recaudo Efectivo:</span>
                     <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(dayTotals.cash, currencySymbol)}</span>
                   </div>
                   <div>
-                    <span className="text-slate-600 dark:text-slate-300 block text-[10px]">+ Ingresos Extras:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[10px]">+ Ingresos Extras:</span>
                     <span className="font-bold text-amber-700 dark:text-amber-400">{formatCurrency(totalOtherIncomes, currencySymbol)}</span>
                   </div>
                   <div>
-                    <span className="text-slate-600 dark:text-slate-300 block text-[10px]">- Gastos Caja:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[10px]">- Gastos Caja:</span>
                     <span className="font-bold text-rose-700 dark:text-rose-400">-{formatCurrency(totalExpenses, currencySymbol)}</span>
                   </div>
                   <div>
-                    <span className="text-slate-600 dark:text-slate-300 block text-[10px]">- Recogidas Efectivo:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[10px]">- Recogidas Efectivo:</span>
                     <span className="font-bold text-indigo-700 dark:text-indigo-400">-{formatCurrency(totalPickups, currencySymbol)}</span>
                   </div>
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                   Ingrese el Dinero Físico en Gaveta Contado ($):
                 </label>
                 <input
@@ -1387,21 +1387,21 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   placeholder="Ingrese el monto físico contado en caja al cerrar el día..."
                   value={dayCountedCashInput}
                   onChange={(e) => setDayCountedCashInput(e.target.value)}
-                  className="w-full text-2xl font-black font-mono bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-amber-400 rounded-xl px-4 py-2.5 outline-none text-amber-800 dark:text-amber-300 text-center"
+                  className="w-full text-2xl font-black font-mono bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-amber-500 rounded-xl px-4 py-2.5 outline-none text-slate-950 dark:text-white text-center shadow-xs"
                 />
               </div>
 
               {!isBlindCount && dayCountedCashInput && dayCashDifference !== null && (
                 <div className={`p-3 rounded-xl border flex items-center justify-between text-xs font-mono font-bold ${
                   dayCashDifference === 0
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-600/50 text-emerald-900 dark:text-emerald-200'
                     : dayCashDifference > 0
-                    ? 'bg-sky-500/10 border-sky-500/30 text-sky-800 dark:text-sky-300'
-                    : 'bg-rose-500/10 border-rose-500/30 text-rose-800 dark:text-rose-300'
+                    ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-600/50 text-sky-900 dark:text-sky-200'
+                    : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-600/50 text-rose-900 dark:text-rose-200'
                 }`}>
                   <div className="flex items-center gap-2">
                     {dayCashDifference === 0 ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     ) : (
                       <AlertCircle className="w-4 h-4" />
                     )}
@@ -1421,36 +1421,36 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Detailed Money Movements Log for Operative Day */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                  <Receipt className="w-4 h-4 text-amber-600" />
+            <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Receipt className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <span>Movimientos de Dinero Realizados en el Día Operativo ({currentShift.cashMovements.length})</span>
                 </h4>
-                <span className="text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-300">
+                <span className="text-[11px] font-mono font-semibold text-slate-600 dark:text-slate-400">
                   Ingresos, Gastos y Recogidas de Efectivo
                 </span>
               </div>
 
               {currentShift.cashMovements.length === 0 ? (
-                <div className="p-6 text-center text-xs text-slate-700 dark:text-slate-200 italic">
+                <div className="p-6 text-center text-xs text-slate-600 dark:text-slate-400 italic">
                   No se han registrado movimientos extraordinarios o salidas de dinero durante el día.
                 </div>
               ) : (
-                <div className="divide-y divide-slate-200/80 max-h-64 overflow-y-auto pr-1">
+                <div className="divide-y divide-slate-200/80 dark:divide-slate-800 max-h-64 overflow-y-auto pr-1">
                   {currentShift.cashMovements.map((m) => (
                     <div key={m.id} className="py-2.5 flex items-center justify-between text-xs gap-3">
                       <div className="flex items-center gap-2.5 overflow-hidden">
                         {m.type === 'income' ? (
-                          <span className="p-1 rounded-full bg-emerald-100 text-emerald-800 shrink-0">
+                          <span className="p-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 shrink-0">
                             <ArrowDownCircle className="w-4 h-4" />
                           </span>
                         ) : m.type === 'expense' ? (
-                          <span className="p-1 rounded-full bg-rose-100 text-rose-800 shrink-0">
+                          <span className="p-1 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 shrink-0">
                             <ArrowUpCircle className="w-4 h-4" />
                           </span>
                         ) : (
-                          <span className="p-1 rounded-full bg-indigo-100 text-indigo-800 shrink-0">
+                          <span className="p-1 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 shrink-0">
                             <Wallet className="w-4 h-4" />
                           </span>
                         )}
@@ -1459,17 +1459,17 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-slate-900 dark:text-slate-100 truncate">{m.description}</span>
                             {m.type === 'pickup' && (
-                              <span className="px-2 py-0.2 rounded text-[10px] font-black bg-indigo-100 text-indigo-900 border border-indigo-200">
+                              <span className="px-2 py-0.2 rounded text-[10px] font-black bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800">
                                 RECOGIDA DE DINERO
                               </span>
                             )}
                             {m.conceptName && (
-                              <span className="px-2 py-0.2 rounded text-[10px] font-medium bg-amber-100 text-amber-900 border border-amber-200">
+                              <span className="px-2 py-0.2 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
                                 {m.conceptName}
                               </span>
                             )}
                           </div>
-                          <div className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2 font-mono">
+                          <div className="text-[11px] text-slate-600 dark:text-slate-400 flex items-center gap-2 font-mono">
                             <span>Operador: <strong>{m.operator}</strong></span>
                             <span>•</span>
                             <span>{new Date(m.timestamp).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -1493,15 +1493,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                               voucherNumber: m.voucherNumber,
                               conceptName: m.conceptName
                             })}
-                            className="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-950 rounded text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2 py-1 bg-amber-100 dark:bg-amber-950/60 hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 rounded text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer shadow-xs"
                           >
-                            <Eye className="w-3 h-3 text-amber-800" />
+                            <Eye className="w-3 h-3 text-amber-800 dark:text-amber-300" />
                             <span>Soporte</span>
                           </button>
                         )}
 
                         <span className={`font-mono font-black text-sm ${
-                          m.type === 'income' ? 'text-emerald-700' : m.type === 'expense' ? 'text-rose-700' : 'text-indigo-700'
+                          m.type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : m.type === 'expense' ? 'text-rose-700 dark:text-rose-400' : 'text-indigo-700 dark:text-indigo-400'
                         }`}>
                           {m.type === 'income' ? '+' : '-'}{formatCurrency(m.amount, currencySymbol)}
                         </span>
@@ -1514,7 +1514,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
             {/* Notes & Confirmation */}
             <div className="space-y-3 pt-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
                 Observaciones o Novedades de Cierre del Día Operativo:
               </label>
               <textarea
@@ -1522,12 +1522,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 value={dayClosingNotes}
                 onChange={(e) => setDayClosingNotes(e.target.value)}
                 placeholder="Ej: Operación sin novedades, todos los fondos entregados al tesorero..."
-                className="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs outline-none focus:border-amber-500"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl p-3 text-xs outline-none focus:border-amber-500 shadow-xs"
               />
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <div className="text-xs text-slate-600 dark:text-slate-300">
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="text-xs text-slate-600 dark:text-slate-400">
                 * Al confirmar, se cerrará el Día Operativo #{operationalDay.dayNumber || 1} e iniciará el siguiente día operativo.
               </div>
 
@@ -1549,12 +1549,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       {/* ========================================================= */}
       {activeSubTab === 'movements' && (
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white p-4 rounded-xl border border-slate-200">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
             <div>
-              <span className="text-sm font-bold text-slate-800 dark:text-slate-200 block">
+              <span className="text-sm font-bold text-slate-900 dark:text-slate-100 block">
                 Gastos y Movimientos de Caja (Turno #{currentShift.shiftNumber})
               </span>
-              <span className="text-xs text-slate-700 dark:text-slate-200">
+              <span className="text-xs text-slate-600 dark:text-slate-400">
                 Control independiente de gastos de caja menor y recogidas de efectivo por seguridad
               </span>
             </div>
@@ -1567,7 +1567,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs transition-all ${
                     showAddMovementForm && newMovementType === 'expense'
                       ? 'bg-amber-600 text-white ring-2 ring-amber-400 ring-offset-1'
-                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-white'
+                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700'
                   }`}
                   title="Registrar gasto de caja menor con soporte digital"
                 >
@@ -1599,11 +1599,11 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors ${
                     showAddMovementForm && newMovementType === 'income'
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200'
+                      : 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
                   }`}
                   title="Registrar ingreso extraordinario a caja"
                 >
-                  <ArrowDownCircle className="w-3.5 h-3.5 text-emerald-600" />
+                  <ArrowDownCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span className="hidden sm:inline">Ingreso Extra</span>
                 </button>
               )}
@@ -1612,7 +1612,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <button
                   type="button"
                   onClick={() => exportCashMovementsToCsv(currentShift.cashMovements, businessInfo, `Turno #${currentShift.shiftNumber}`)}
-                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer bg-slate-800 hover:bg-slate-700 text-white shadow-xs transition-colors"
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white border border-slate-700 shadow-xs transition-colors"
                   title="Exportar movimientos de este turno a archivo CSV/Excel"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
@@ -1624,51 +1624,51 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
           {/* Metric summary badges of current shift movements */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-white p-3 rounded-xl border border-rose-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-rose-200 dark:border-rose-900/40 shadow-xs flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center">
                   <Receipt className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 block">Gastos de Caja Menor</span>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 font-medium">
+                  <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Gastos de Caja Menor</span>
+                  <span className="text-xs text-slate-800 dark:text-slate-200 font-medium">
                     {currentShift.cashMovements.filter(m => m.type === 'expense').length} comprobantes
                   </span>
                 </div>
               </div>
-              <span className="text-sm font-black font-mono text-rose-700">
+              <span className="text-sm font-black font-mono text-rose-700 dark:text-rose-400">
                 {formatCurrency(totalExpenses, currencySymbol)}
               </span>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-indigo-200/80 shadow-2xs flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-indigo-200 dark:border-indigo-900/40 shadow-xs flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
                   <Banknote className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 block">Recogidas de Efectivo</span>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 font-medium">
+                  <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Recogidas de Efectivo</span>
+                  <span className="text-xs text-slate-800 dark:text-slate-200 font-medium">
                     {currentShift.cashMovements.filter(m => m.type === 'pickup' || m.type === 'withdrawal').length} retiros a custodia
                   </span>
                 </div>
               </div>
-              <span className="text-sm font-black font-mono text-indigo-700">
+              <span className="text-sm font-black font-mono text-indigo-700 dark:text-indigo-400">
                 {formatCurrency(totalPickups, currencySymbol)}
               </span>
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between">
+            <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-700 dark:text-slate-200 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
                   <ArrowUpCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-300 block">Total Egresos Gaveta</span>
-                  <span className="text-xs text-slate-700 dark:text-slate-200 font-medium">Descontados de gaveta</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-600 dark:text-slate-400 block">Total Egresos Gaveta</span>
+                  <span className="text-xs text-slate-800 dark:text-slate-200 font-medium">Descontados de gaveta</span>
                 </div>
               </div>
-              <span className="text-sm font-black font-mono text-slate-900 dark:text-slate-100">
+              <span className="text-sm font-black font-mono text-slate-950 dark:text-white">
                 {formatCurrency(totalOutflows, currencySymbol)}
               </span>
             </div>
@@ -1678,7 +1678,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
           {showAddMovementForm && (
             <form 
               onSubmit={handleAddMovementSubmit} 
-              className={`bg-white rounded-2xl border-2 p-5 shadow-md space-y-4 animate-in fade-in ${
+              className={`bg-white dark:bg-slate-900 rounded-2xl border-2 p-5 shadow-md space-y-4 animate-in fade-in ${
                 newMovementType === 'pickup' 
                   ? 'border-indigo-500' 
                   : newMovementType === 'income'
@@ -1686,46 +1686,46 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   : 'border-amber-400'
               }`}
             >
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   {newMovementType === 'pickup' ? (
                     <>
-                      <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center">
                         <ArrowUpRight className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-xs uppercase text-indigo-950">
+                        <h3 className="font-bold text-xs uppercase text-indigo-950 dark:text-indigo-200">
                           Registrar Recogida Parcial de Efectivo (Liberación de Gaveta)
                         </h3>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400">
                           Retiro físico de seguridad hacia bóveda / administración para no acumular exceso de efectivo en caja.
                         </p>
                       </div>
                     </>
                   ) : newMovementType === 'income' ? (
                     <>
-                      <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center">
                         <ArrowDownCircle className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-xs uppercase text-emerald-950">
+                        <h3 className="font-bold text-xs uppercase text-emerald-950 dark:text-emerald-200">
                           Registrar Ingreso Extraordinario a Caja
                         </h3>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400">
                           Adición extraordinaria de efectivo en gaveta (no proveniente de parqueadero).
                         </p>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center">
                         <Receipt className="w-4 h-4" />
                       </div>
                       <div>
                         <h3 className="font-bold text-xs uppercase text-slate-900 dark:text-slate-100">
                           Registrar Salida / Gasto en Caja Menor
                         </h3>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400">
                           Salida autorizada bajo conceptos presupuestados para compras o insumos operativos.
                         </p>
                       </div>
@@ -1739,7 +1739,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     setShowAddMovementForm(false);
                     handleRemoveAttachment();
                   }}
-                  className="text-xs text-slate-700 dark:text-slate-200 hover:text-slate-700 font-bold cursor-pointer"
+                  className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -1747,11 +1747,11 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
               {/* Informative explanation banner for Cash Pickup vs Expense */}
               {newMovementType === 'pickup' && (
-                <div className="p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl flex items-start gap-2.5 text-xs text-indigo-900">
-                  <HelpCircle className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div className="p-3 bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl flex items-start gap-2.5 text-xs text-indigo-950 dark:text-indigo-200">
+                  <HelpCircle className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
                   <div>
                     <strong className="block font-bold">Cómo funciona la Recogida de Dinero en el Arqueo:</strong>
-                    <span className="text-[11px] text-indigo-800">
+                    <span className="text-[11px] text-indigo-900 dark:text-indigo-300">
                       Este monto <strong>se descuenta del dinero físico esperado en la gaveta</strong> (evitando faltantes en el cuadre de turno) y <strong>se suma al total a consignar</strong> en el cierre definitivo del día operativo.
                     </span>
                   </div>
@@ -1764,7 +1764,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   <>
                     <div className="sm:col-span-2">
                       <div className="flex items-center justify-between mb-1">
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                        <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
                           Concepto de Gasto Autorizado <span className="text-amber-600">*</span>
                         </label>
                       </div>
@@ -1772,7 +1772,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         value={newMovementConceptId}
                         onChange={(e) => setNewMovementConceptId(e.target.value)}
                         required
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none focus:border-amber-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 shadow-xs"
                       >
                         <option value="">-- Seleccionar concepto de gasto --</option>
                         {activeExpenseConcepts.map((c) => {
@@ -1788,7 +1788,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                         Monto del Gasto ($ COP) <span className="text-amber-600">*</span>
                       </label>
                       <input
@@ -1797,13 +1797,13 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         placeholder="Ej. 25000"
                         value={newMovementAmount}
                         onChange={(e) => setNewMovementAmount(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono font-bold outline-none focus:border-amber-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 shadow-xs"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                         Nº Factura / Comprobante <span className="text-amber-600">*</span>
                       </label>
                       <input
@@ -1812,12 +1812,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         value={newMovementVoucherNumber}
                         onChange={(e) => setNewMovementVoucherNumber(e.target.value)}
                         required
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-amber-500 font-mono"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-amber-500 font-mono text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
 
                     <div className="sm:col-span-2 md:col-span-4">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                         Detalle / Justificación del Gasto <span className="text-amber-600">*</span>
                       </label>
                       <input
@@ -1826,7 +1826,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         value={newMovementDescription}
                         onChange={(e) => setNewMovementDescription(e.target.value)}
                         required
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-amber-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-amber-500 text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
                   </>
@@ -1836,8 +1836,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 {newMovementType === 'pickup' && (
                   <>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Monto a Recoger de la Gaveta ($ COP) <span className="text-indigo-600 font-bold">*</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Monto a Recoger de la Gaveta ($ COP) <span className="text-indigo-600 dark:text-indigo-400 font-bold">*</span>
                       </label>
                       <input
                         type="number"
@@ -1845,14 +1845,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         placeholder="Ej. 300000"
                         value={newMovementAmount}
                         onChange={(e) => setNewMovementAmount(e.target.value)}
-                        className="w-full bg-white border-2 border-indigo-300 focus:border-indigo-600 rounded-lg px-3 py-2 text-sm font-mono font-black outline-none text-indigo-950"
+                        className="w-full bg-white dark:bg-slate-950 border-2 border-indigo-300 dark:border-indigo-600 focus:border-indigo-500 rounded-lg px-3 py-2 text-sm font-mono font-black outline-none text-indigo-950 dark:text-indigo-200 shadow-xs"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Entregado a / Supervisor o Custodio <span className="text-indigo-600">*</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Entregado a / Supervisor o Custodio <span className="text-indigo-600 dark:text-indigo-400">*</span>
                       </label>
                       <input
                         type="text"
@@ -1860,33 +1860,33 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         value={pickupResponsible}
                         onChange={(e) => setPickupResponsible(e.target.value)}
                         required
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-indigo-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Nº Acta / Recibo de Recogida <span className="text-slate-700 dark:text-slate-200 font-normal">(Opcional)</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Nº Acta / Recibo de Recogida <span className="text-slate-600 dark:text-slate-400 font-normal">(Opcional)</span>
                       </label>
                       <input
                         type="text"
                         placeholder="Ej. ACTA-REC-01"
                         value={newMovementVoucherNumber}
                         onChange={(e) => setNewMovementVoucherNumber(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 font-mono"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 font-mono text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
 
                     <div className="sm:col-span-2 md:col-span-4">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Motivo / Observaciones de la Recogida <span className="text-slate-700 dark:text-slate-200 font-normal">(Opcional)</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Motivo / Observaciones de la Recogida <span className="text-slate-600 dark:text-slate-400 font-normal">(Opcional)</span>
                       </label>
                       <input
                         type="text"
                         placeholder="Ej. Liberación preventiva por superar tope de efectivo en gaveta"
                         value={newMovementDescription}
                         onChange={(e) => setNewMovementDescription(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
                   </>
@@ -1896,8 +1896,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 {newMovementType === 'income' && (
                   <>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Monto del Ingreso Extra ($ COP) <span className="text-emerald-600 font-bold">*</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Monto del Ingreso Extra ($ COP) <span className="text-emerald-600 dark:text-emerald-400 font-bold">*</span>
                       </label>
                       <input
                         type="number"
@@ -1905,34 +1905,34 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         placeholder="Ej. 50000"
                         value={newMovementAmount}
                         onChange={(e) => setNewMovementAmount(e.target.value)}
-                        className="w-full bg-white border-2 border-emerald-300 focus:border-emerald-600 rounded-lg px-3 py-2 text-sm font-mono font-black outline-none text-emerald-950"
+                        className="w-full bg-white dark:bg-slate-950 border-2 border-emerald-300 dark:border-emerald-600 focus:border-emerald-500 rounded-lg px-3 py-2 text-sm font-mono font-black outline-none text-emerald-950 dark:text-emerald-200 shadow-xs"
                         required
                       />
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Nº Comprobante / Recibo <span className="text-slate-700 dark:text-slate-200 font-normal">(Opcional)</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Nº Comprobante / Recibo <span className="text-slate-600 dark:text-slate-400 font-normal">(Opcional)</span>
                       </label>
                       <input
                         type="text"
                         placeholder="Ej. REC-EXT-01"
                         value={newMovementVoucherNumber}
                         onChange={(e) => setNewMovementVoucherNumber(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 font-mono"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 font-mono text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
 
                     <div className="sm:col-span-2 md:col-span-4">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                        Concepto / Justificación del Ingreso <span className="text-slate-700 dark:text-slate-200 font-normal">(Opcional)</span>
+                      <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                        Concepto / Justificación del Ingreso <span className="text-slate-600 dark:text-slate-400 font-normal">(Opcional)</span>
                       </label>
                       <input
                         type="text"
                         placeholder="Ej. Ajuste de cambio / Ingreso extraordinario de sencillo"
                         value={newMovementDescription}
                         onChange={(e) => setNewMovementDescription(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500"
+                        className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs outline-none focus:border-emerald-500 text-slate-900 dark:text-slate-100 shadow-xs"
                       />
                     </div>
                   </>
@@ -1941,14 +1941,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 {/* File Upload Zone for Voucher / Soporte Digital */}
                 <div className="sm:col-span-2 md:col-span-4 space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200">
                       Soporte / Comprobante Digital {newMovementType === 'expense' ? (
-                        <span className="text-amber-600 font-extrabold">* Obligatorio para Gastos (PDF o Imagen)</span>
+                        <span className="text-amber-600 dark:text-amber-400 font-extrabold">* Obligatorio para Gastos (PDF o Imagen)</span>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-200 font-normal">(Opcional para Recogidas o Ingresos)</span>
+                        <span className="text-slate-600 dark:text-slate-400 font-normal">(Opcional para Recogidas o Ingresos)</span>
                       )}
                     </label>
-                    <span className="text-[10px] text-slate-700 dark:text-slate-200">Formatos: PDF, JPG, PNG, WEBP (Máx. 15MB)</span>
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400">Formatos: PDF, JPG, PNG, WEBP (Máx. 15MB)</span>
                   </div>
 
                   <input
@@ -1968,22 +1968,22 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       onClick={() => fileInputRef.current?.click()}
                       className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
                         isDraggingFile
-                          ? 'border-indigo-500 bg-indigo-50/70 scale-[0.99]'
+                          ? 'border-indigo-500 bg-indigo-50/70 dark:bg-indigo-950/40 scale-[0.99]'
                           : attachmentError && newMovementType === 'expense'
-                          ? 'border-rose-400 bg-rose-50/50 hover:border-rose-500'
-                          : 'border-slate-300 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-400'
+                          ? 'border-rose-400 bg-rose-50/50 dark:bg-rose-950/30 hover:border-rose-500'
+                          : 'border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-950/40 hover:bg-slate-100 dark:hover:bg-slate-900 hover:border-slate-400 dark:hover:border-slate-600'
                       }`}
                     >
                       <div className="flex flex-col items-center justify-center gap-1.5 py-1">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          newMovementType === 'pickup' ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'
+                          newMovementType === 'pickup' ? 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400'
                         }`}>
                           <Upload className="w-5 h-5" />
                         </div>
-                        <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
                           {isDraggingFile ? 'Suelte el archivo aquí' : 'Haz clic para seleccionar o arrastra aquí el comprobante digital'}
                         </div>
-                        <div className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                        <div className="text-[11px] text-slate-600 dark:text-slate-400 flex items-center gap-2">
                           <span className="flex items-center gap-1"><ImageIcon className="w-3.5 h-3.5" /> Imagen (JPG/PNG)</span>
                           <span>•</span>
                           <span className="flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> Archivo PDF</span>
@@ -1991,14 +1991,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-slate-50 border border-slate-300 rounded-xl p-3 flex items-center justify-between gap-3">
+                    <div className="bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-3 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 overflow-hidden">
                         {attachmentType === 'pdf' ? (
-                          <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200">
+                          <div className="w-10 h-10 rounded-lg bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center shrink-0 border border-rose-200 dark:border-rose-900/60">
                             <FileText className="w-5 h-5" />
                           </div>
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shrink-0 flex items-center justify-center">
                             <img
                               src={attachmentUrl}
                               alt="Miniatura"
@@ -2010,11 +2010,11 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         <div className="truncate">
                           <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                             <span>{attachmentName}</span>
-                            <span className="px-1.5 py-0.2 rounded text-[10px] uppercase font-bold bg-slate-200 text-slate-800 dark:text-slate-200">
+                            <span className="px-1.5 py-0.2 rounded text-[10px] uppercase font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
                               {attachmentType === 'pdf' ? 'PDF' : 'IMAGEN'}
                             </span>
                           </div>
-                          <div className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">
+                          <div className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
                             {attachmentSize ? `${(attachmentSize / 1024).toFixed(1)} KB` : 'Archivo cargado'}
                           </div>
                         </div>
@@ -2031,7 +2031,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                             operator: currentShift.operatorName,
                             date: new Date().toISOString()
                           })}
-                          className="px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-white rounded-lg font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+                          className="px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-lg font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs border border-slate-300 dark:border-slate-700"
                           title="Previsualizar archivo digital"
                         >
                           <Eye className="w-3.5 h-3.5" />
@@ -2040,14 +2040,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="px-2.5 py-1 text-xs bg-white hover:bg-slate-100 text-slate-700 dark:text-slate-200 border border-slate-300 rounded-lg font-semibold cursor-pointer transition-colors"
+                          className="px-2.5 py-1 text-xs bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold cursor-pointer transition-colors"
                         >
                           Cambiar
                         </button>
                         <button
                           type="button"
                           onClick={handleRemoveAttachment}
-                          className="p-1.5 text-xs text-rose-600 hover:bg-rose-100 rounded-lg cursor-pointer transition-colors"
+                          className="p-1.5 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/50 rounded-lg cursor-pointer transition-colors"
                           title="Eliminar archivo"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -2057,8 +2057,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   )}
 
                   {attachmentError && (
-                    <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2 text-rose-700 text-xs animate-shake">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                    <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-lg flex items-center gap-2 text-rose-700 dark:text-rose-400 text-xs animate-shake">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
                       <span className="font-semibold">{attachmentError}</span>
                     </div>
                   )}
@@ -2068,12 +2068,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               <div className="flex justify-end pt-1">
                 <button
                   type="submit"
-                  className={`px-5 py-2.5 text-white rounded-xl text-xs font-bold cursor-pointer shadow-xs flex items-center gap-2 transition-all ${
+                  className={`px-5 py-2.5 text-white rounded-xl text-xs font-bold cursor-pointer shadow-md flex items-center gap-2 transition-all ${
                     newMovementType === 'pickup'
                       ? 'bg-indigo-600 hover:bg-indigo-700'
                       : newMovementType === 'income'
                       ? 'bg-emerald-600 hover:bg-emerald-700'
-                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+                      : 'bg-amber-600 hover:bg-amber-700 text-white'
                   }`}
                 >
                   {newMovementType === 'pickup' ? (
@@ -2098,10 +2098,10 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
           )}
 
           {/* Movements History List with Distinguished Badges */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
-            <div className="divide-y divide-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xs">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {currentShift.cashMovements.length === 0 ? (
-                <div className="p-8 text-center text-xs text-slate-700 dark:text-slate-200">
+                <div className="p-8 text-center text-xs text-slate-600 dark:text-slate-400">
                   No hay movimientos, gastos o recogidas registradas en este turno.
                 </div>
               ) : (
@@ -2111,30 +2111,30 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   const isIncome = m.type === 'income';
 
                   return (
-                    <div key={m.id} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-slate-50 transition-colors gap-3">
+                    <div key={m.id} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between text-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors gap-3">
                       <div className="flex items-start sm:items-center gap-2.5">
                         {isIncome ? (
-                          <ArrowDownCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5 sm:mt-0" />
+                          <ArrowDownCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
                         ) : isPickup ? (
-                          <div className="w-6 h-6 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                          <div className="w-6 h-6 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                             <ArrowUpRight className="w-4 h-4" />
                           </div>
                         ) : (
-                          <ArrowUpCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5 sm:mt-0" />
+                          <ArrowUpCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5 sm:mt-0" />
                         )}
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             {/* Distinct Type Badge */}
                             {isPickup ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-indigo-100 text-indigo-900 border border-indigo-200 uppercase tracking-wider">
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950/80 text-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800 uppercase tracking-wider">
                                 RECOGIDA DE DINERO
                               </span>
                             ) : isExpense ? (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-rose-100 text-rose-900 border border-rose-200 uppercase tracking-wider">
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950/80 text-rose-900 dark:text-rose-200 border border-rose-200 dark:border-rose-800 uppercase tracking-wider">
                                 GASTO CAJA MENOR
                               </span>
                             ) : (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200 uppercase tracking-wider">
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800 uppercase tracking-wider">
                                 INGRESO EXTRA
                               </span>
                             )}
@@ -2142,13 +2142,13 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                             <span className="font-bold text-slate-900 dark:text-slate-100">{m.description}</span>
 
                             {m.conceptName && (
-                              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                              <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
                                 {m.conceptName}
                               </span>
                             )}
 
                             {m.voucherNumber && (
-                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 dark:text-slate-300 border border-slate-200">
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                 Doc: {m.voucherNumber}
                               </span>
                             )}
@@ -2171,22 +2171,22 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                                     conceptName: m.conceptName,
                                   });
                                 }}
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 rounded-lg text-[11px] font-bold cursor-pointer transition-all shadow-xs hover:scale-[1.02] active:scale-[0.98]"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 dark:bg-amber-950/60 hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 rounded-lg text-[11px] font-bold cursor-pointer transition-all shadow-xs hover:scale-[1.02] active:scale-[0.98]"
                                 title="Haga clic para ver el comprobante digital adjunto"
                               >
-                                <Paperclip className="w-3.5 h-3.5 text-amber-700" />
+                                <Paperclip className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                                 <span>{m.attachmentType === 'pdf' ? 'Ver Soporte PDF' : 'Ver Soporte Imagen'}</span>
-                                <Eye className="w-3.5 h-3.5 text-amber-900 ml-0.5" />
+                                <Eye className="w-3.5 h-3.5 text-amber-900 dark:text-amber-300 ml-0.5" />
                               </button>
                             )}
                           </div>
-                          <div className="text-[10px] text-slate-700 dark:text-slate-200 font-mono mt-0.5">
+                          <div className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5">
                             {new Date(m.timestamp).toLocaleTimeString('es-CO')} • Operador: {m.operator}
                           </div>
                         </div>
                       </div>
                       <div className={`font-mono font-bold text-sm sm:text-right shrink-0 ${
-                        isIncome ? 'text-emerald-700' : isPickup ? 'text-indigo-700 font-black' : 'text-rose-700'
+                        isIncome ? 'text-emerald-700 dark:text-emerald-400' : isPickup ? 'text-indigo-700 dark:text-indigo-400 font-black' : 'text-rose-700 dark:text-rose-400'
                       }`}>
                         {isIncome ? '+' : '-'}{formatCurrency(m.amount, currencySymbol)}
                       </div>
@@ -2204,7 +2204,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       {/* ========================================================= */}
       {printedVoucherType && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col border border-slate-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800">
             <div className="print:hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800">
               <h3 className="font-bold text-sm truncate">
                 {printedVoucherType === 'arqueo' ? 'Comprobante de Arqueo de Turno' : 'Comprobante de Cierre Definitivo'}
@@ -2243,7 +2243,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Printable Area */}
-            <div className="p-5 max-h-[70vh] overflow-y-auto flex justify-center bg-neutral-100">
+            <div className="p-5 max-h-[70vh] overflow-y-auto flex justify-center bg-neutral-100 dark:bg-slate-950">
               {(() => {
                 const isArqueoVoucher = printedVoucherType === 'arqueo';
                 const vBase = isArqueoVoucher ? currentShift.initialCash : dayBaseCash;
@@ -2575,23 +2575,23 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="print:hidden p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2">
-              <div className="text-xs font-mono font-bold text-emerald-700 truncate max-w-[180px]">
+            <div className="print:hidden p-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+              <div className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[180px]">
                 {voucherPrintStatus}
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPrintedVoucherType(null)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-800 cursor-pointer"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                 >
                   Cerrar
                 </button>
                 <button
                   onClick={handlePrintVoucher}
                   disabled={isVoucherPrinting}
-                  className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                  className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
                 >
-                  <Printer className="w-3.5 h-3.5 text-emerald-400" />
+                  <Printer className="w-3.5 h-3.5 text-emerald-400 dark:text-slate-950" />
                   <span>{isVoucherPrinting ? 'Imprimiendo...' : `Imprimir (${voucherPaperWidth})`}</span>
                 </button>
               </div>
@@ -2612,7 +2612,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             }
           }}
         >
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col border border-slate-200 max-h-[92vh] animate-in zoom-in-95 duration-150">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 max-h-[92vh] animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
             <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-5 py-3.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 overflow-hidden">
@@ -2641,22 +2641,22 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               {/* Header Actions & Controls */}
               <div className="flex items-center gap-1.5 shrink-0">
                 {!isAttachmentPdf && (
-                  <div className="hidden sm:flex items-center gap-1 bg-slate-800 rounded-lg p-1 mr-2 border border-slate-300 dark:border-slate-700">
+                  <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 mr-2 border border-slate-300 dark:border-slate-700">
                     <button
                       type="button"
                       onClick={() => setViewerZoom(z => Math.max(0.5, z - 0.25))}
-                      className="p-1 hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors"
+                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors"
                       title="Alejar (-25%)"
                     >
                       <ZoomOut className="w-4 h-4" />
                     </button>
-                    <span className="text-[10px] font-mono px-1 text-slate-600 dark:text-slate-300 font-bold min-w-[42px] text-center">
+                    <span className="text-[10px] font-mono px-1 text-slate-800 dark:text-slate-200 font-bold min-w-[42px] text-center">
                       {Math.round(viewerZoom * 100)}%
                     </span>
                     <button
                       type="button"
                       onClick={() => setViewerZoom(z => Math.min(3, z + 0.25))}
-                      className="p-1 hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors"
+                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors"
                       title="Acercar (+25%)"
                     >
                       <ZoomIn className="w-4 h-4" />
@@ -2664,7 +2664,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setViewerRotation(r => (r + 90) % 360)}
-                      className="p-1 hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors ml-1"
+                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors ml-1"
                       title="Girar 90°"
                     >
                       <RotateCw className="w-4 h-4" />
@@ -2673,7 +2673,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       <button
                         type="button"
                         onClick={() => { setViewerZoom(1); setViewerRotation(0); }}
-                        className="p-1 hover:bg-slate-700 text-amber-800 dark:text-amber-300 rounded cursor-pointer transition-colors"
+                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-400 rounded cursor-pointer transition-colors"
                         title="Restablecer vista"
                       >
                         <RotateCcw className="w-4 h-4" />
@@ -2704,15 +2704,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Movement Metadata Bar */}
-            <div className="px-5 py-2.5 bg-amber-50/80 border-b border-amber-200 text-xs flex flex-wrap items-center justify-between gap-2 text-slate-700">
+            <div className="px-5 py-2.5 bg-amber-50/80 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/50 text-xs flex flex-wrap items-center justify-between gap-2 text-slate-700 dark:text-slate-300">
               <div className="flex flex-wrap items-center gap-3">
                 {viewingAttachment.conceptName && (
-                  <span className="font-bold text-amber-950 bg-amber-200/80 px-2 py-0.5 rounded text-[11px] border border-amber-300/60">
+                  <span className="font-bold text-amber-950 dark:text-amber-200 bg-amber-200/80 dark:bg-amber-900/50 px-2 py-0.5 rounded text-[11px] border border-amber-300/60 dark:border-amber-800">
                     {viewingAttachment.conceptName}
                   </span>
                 )}
                 {viewingAttachment.voucherNumber && (
-                  <span className="font-mono text-slate-700 dark:text-slate-200 bg-white border border-slate-300 px-2 py-0.5 rounded text-[11px] font-semibold">
+                  <span className="font-mono text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded text-[11px] font-semibold">
                     Doc: {viewingAttachment.voucherNumber}
                   </span>
                 )}
@@ -2728,20 +2728,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 )}
               </div>
               {viewingAttachment.amount !== undefined && (
-                <div className="font-mono font-black text-rose-700 text-base">
+                <div className="font-mono font-black text-rose-700 dark:text-rose-400 text-base">
                   -{formatCurrency(viewingAttachment.amount, currencySymbol)}
                 </div>
               )}
             </div>
 
             {/* Content Preview Stage */}
-            <div className="p-4 overflow-auto flex-1 bg-slate-100 flex items-center justify-center min-h-[360px] max-h-[65vh]">
+            <div className="p-4 overflow-auto flex-1 bg-slate-100 dark:bg-slate-950 flex items-center justify-center min-h-[360px] max-h-[65vh]">
               {isAttachmentPdf ? (
                 <div className="w-full h-full flex flex-col items-center justify-center min-h-[480px]">
                   <object
                     data={safeAttachmentBlobUrl}
                     type="application/pdf"
-                    className="w-full h-[58vh] rounded-xl border border-slate-300 bg-white shadow-inner"
+                    className="w-full h-[58vh] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-inner"
                   >
                     <embed
                       src={safeAttachmentBlobUrl}
@@ -2749,8 +2749,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       className="w-full h-full rounded-xl"
                     />
                     {/* Fallback if browser PDF plugin is disabled or restricted */}
-                    <div className="p-8 text-center bg-white rounded-xl border border-slate-200 max-w-md shadow-sm">
-                      <div className="w-16 h-16 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center mx-auto mb-3">
+                    <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 max-w-md shadow-sm">
+                      <div className="w-16 h-16 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center mx-auto mb-3">
                         <FileText className="w-8 h-8" />
                       </div>
                       <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Comprobante PDF Cargado</h4>
@@ -2762,7 +2762,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                           href={safeAttachmentBlobUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                           <span>Abrir en Pestaña Nueva</span>
@@ -2782,7 +2782,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     <img
                       src={safeAttachmentBlobUrl || viewingAttachment.url}
                       alt={viewingAttachment.name || 'Comprobante digital'}
-                      className="max-h-[58vh] max-w-full object-contain rounded-xl shadow-md border border-slate-200 bg-white"
+                      className="max-h-[58vh] max-w-full object-contain rounded-xl shadow-md border border-slate-200 dark:border-slate-700 bg-white"
                       referrerPolicy="no-referrer"
                     />
                   </div>
@@ -2791,7 +2791,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="px-5 py-3 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="px-5 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="text-xs text-slate-600 dark:text-slate-300 truncate max-w-sm">
                 <span className="font-bold text-slate-800 dark:text-slate-200">Detalle: </span>
                 {viewingAttachment.description || 'Sin descripción adicional'}
@@ -2800,7 +2800,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <a
                   href={safeAttachmentBlobUrl}
                   download={viewingAttachment.name || `comprobante-${Date.now()}`}
-                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                   <span>Descargar Archivo</span>
@@ -2817,7 +2817,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setViewingAttachment(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
                 >
                   Cerrar
                 </button>
