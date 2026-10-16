@@ -156,7 +156,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Main Navigation Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2.5">
             <Settings className="w-5 h-5 text-amber-500" />
@@ -192,14 +192,14 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
       </div>
 
       {savedSuccess && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl text-xs font-bold text-emerald-800 flex items-center gap-2.5 shadow-xs animate-in fade-in">
-          <Check className="w-4 h-4 text-emerald-600 shrink-0 font-black" />
+        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/80 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2.5 shadow-xs animate-in fade-in">
+          <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 font-black" />
           <span>¡Todos los cambios de tarifas, negocio y facturación se guardaron correctamente en la base de datos!</span>
         </div>
       )}
 
       {/* Main Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-[var(--border-color)] overflow-x-auto pb-1">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-1">
         <button
           type="button"
           aria-selected={activeTab === 'rates'}
@@ -207,7 +207,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'rates'
               ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
-              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-[var(--bg-subcard)]'
+              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
           }`}
         >
           <Coins className="w-4 h-4" />
@@ -221,7 +221,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'electronic_invoice'
               ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
-              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-[var(--bg-subcard)]'
+              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
           }`}
         >
           <FileCheck className="w-4 h-4" />
@@ -235,7 +235,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'payments'
               ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
-              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-[var(--bg-subcard)]'
+              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
           }`}
         >
           <CreditCard className="w-4 h-4" />
@@ -249,7 +249,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'business'
               ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
-              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-[var(--bg-subcard)]'
+              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -263,7 +263,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'printers'
               ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
-              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-[var(--bg-subcard)]'
+              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
           }`}
         >
           <Printer className="w-4 h-4" />
@@ -275,7 +275,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
       {activeTab === 'rates' && (
         <div className="space-y-6">
           {/* Top Rates Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
             <div>
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Coins className="w-4 h-4 text-amber-500" />
@@ -290,7 +290,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
               <button
                 type="button"
                 onClick={handleResetRates}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 transition-colors self-start sm:self-auto cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors self-start sm:self-auto cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Valores por Defecto</span>
@@ -322,15 +322,15 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 <Car className="w-5 h-5 text-blue-600" />;
 
               return (
-                <div key={type} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col justify-between space-y-4">
+                <div key={type} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs flex flex-col justify-between space-y-4">
                   <div>
-                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                         {icon}
                       </div>
                       <div>
                         <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">{title}</h4>
-                        <span className="text-[10px] text-slate-600 dark:text-slate-300 uppercase font-semibold">Tarifa Aplicable</span>
+                        <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase font-semibold">Tarifa Aplicable</span>
                       </div>
                     </div>
 
@@ -340,7 +340,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                           Tarifa por Hora ({localRates.currencySymbol})
                         </label>
                         <div className="relative">
-                          <span className="absolute left-2.5 top-2 text-slate-700 dark:text-slate-200 font-bold">{localRates.currencySymbol}</span>
+                          <span className="absolute left-2.5 top-2 text-slate-500 dark:text-slate-400 font-bold">{localRates.currencySymbol}</span>
                           <input
                             type="number"
                             min="0"
@@ -351,7 +351,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                               handleRateChange(type, 'hourRate', hr);
                               handleRateChange(type, 'minuteRate', Math.round(hr / 60));
                             }}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white rounded-xl pl-7 pr-3 py-2 font-mono text-sm font-bold text-slate-900 dark:text-slate-100 outline-none transition-colors"
+                            className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 focus:border-amber-500 focus:bg-white dark:focus:bg-slate-800 rounded-xl pl-7 pr-3 py-2 font-mono text-sm font-bold text-slate-900 dark:text-slate-100 outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -361,14 +361,14 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                           Tarifa Día Completo / 24h ({localRates.currencySymbol})
                         </label>
                         <div className="relative">
-                          <span className="absolute left-2.5 top-2 text-slate-700 dark:text-slate-200 font-bold">{localRates.currencySymbol}</span>
+                          <span className="absolute left-2.5 top-2 text-slate-500 dark:text-slate-400 font-bold">{localRates.currencySymbol}</span>
                           <input
                             type="number"
                             min="0"
                             step="500"
                             value={currentRate.dayRate}
                             onChange={(e) => handleRateChange(type, 'dayRate', parseInt(e.target.value) || 0)}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white rounded-xl pl-7 pr-3 py-2 font-mono text-sm font-bold text-slate-900 dark:text-slate-100 outline-none transition-colors"
+                            className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 focus:border-amber-500 focus:bg-white dark:focus:bg-slate-800 rounded-xl pl-7 pr-3 py-2 font-mono text-sm font-bold text-slate-900 dark:text-slate-100 outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -384,7 +384,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                             max="60"
                             value={currentRate.gracePeriodMinutes}
                             onChange={(e) => handleRateChange(type, 'gracePeriodMinutes', parseInt(e.target.value) || 0)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-mono text-xs text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-xs text-slate-900 dark:text-slate-100 outline-none"
                           />
                         </div>
                         <div>
@@ -397,7 +397,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                             max="120"
                             value={currentRate.minimumChargeMinutes}
                             onChange={(e) => handleRateChange(type, 'minimumChargeMinutes', parseInt(e.target.value) || 0)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-mono text-xs text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-xs text-slate-900 dark:text-slate-100 outline-none"
                           />
                         </div>
                       </div>
@@ -412,15 +412,15 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                           step="1000"
                           value={currentRate.lostTicketFee || 15000}
                           onChange={(e) => handleRateChange(type, 'lostTicketFee', parseInt(e.target.value) || 0)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 font-mono text-xs text-slate-900 dark:text-slate-100 outline-none"
+                          className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-xs text-slate-900 dark:text-slate-100 outline-none"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
                     <span>Equivalente/minuto:</span>
-                    <strong className="font-mono text-slate-800 dark:text-slate-200">${currentRate.minuteRate}/min</strong>
+                    <strong className="font-mono text-slate-900 dark:text-slate-100">${currentRate.minuteRate}/min</strong>
                   </div>
                 </div>
               );
@@ -428,22 +428,22 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           </div>
 
           {/* Quick Simulation Calculator */}
-          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-              <Calculator className="w-5 h-5 text-amber-700 dark:text-amber-400" />
-              <h4 className="font-bold text-sm">Simulador en Vivo de Liquidación con Nuevas Tarifas</h4>
+          <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl p-5 shadow-xs border border-slate-200 dark:border-slate-800 space-y-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <Calculator className="w-5 h-5 text-amber-500" />
+              <h4 className="font-bold text-sm text-slate-900 dark:text-white">Simulador en Vivo de Liquidación con Nuevas Tarifas</h4>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div>
-                <label className="block text-slate-700 dark:text-slate-200 font-semibold mb-1">Tipo de Vehículo a Evaluar</label>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Tipo de Vehículo a Evaluar</label>
                 <select
                   value={calcVehicle}
                   onChange={(e) => setCalcVehicle(e.target.value as VehicleType)}
-                  className="w-full bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-white font-semibold outline-none cursor-pointer"
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white font-semibold outline-none cursor-pointer"
                 >
                   {categoriesToDisplay.map((cat: any) => (
-                    <option key={cat.id} value={cat.id}>
+                    <option key={cat.id} value={cat.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
                       {cat.name}
                     </option>
                   ))}
@@ -451,7 +451,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-slate-700 dark:text-slate-200 font-semibold mb-1">Tiempo de Permanencia (Minutos)</label>
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Tiempo de Permanencia (Minutos)</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -459,20 +459,20 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     max="1440"
                     value={calcMinutes}
                     onChange={(e) => setCalcMinutes(parseInt(e.target.value) || 0)}
-                    className="w-full bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-white font-mono font-bold outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-slate-900 dark:text-white font-mono font-bold outline-none"
                   />
-                  <span className="text-slate-700 dark:text-slate-200 text-xs shrink-0 font-mono">
+                  <span className="text-slate-600 dark:text-slate-300 text-xs shrink-0 font-mono">
                     ({Math.floor(calcMinutes / 60)}h {calcMinutes % 60}m)
                   </span>
                 </div>
               </div>
 
-              <div className="bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-center">
-                <span className="text-[11px] text-slate-700 dark:text-slate-200 uppercase font-bold">Cobro Calculado al Cliente</span>
-                <span className="text-xl font-bold font-mono text-emerald-700 dark:text-emerald-400">
+              <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-center">
+                <span className="text-[11px] text-slate-600 dark:text-slate-400 uppercase font-bold">Cobro Calculado al Cliente</span>
+                <span className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
                   {localRates.currencySymbol}{simulatedCost.toLocaleString()}
                 </span>
-                <span className="text-[10px] text-slate-700 dark:text-slate-200">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">
                   {calcMinutes <= (localRates[calcVehicle]?.gracePeriodMinutes ?? 15) ? 'Dentro de período de gracia (Gratis)' : 'Tarifado según política'}
                 </span>
               </div>
@@ -484,8 +484,8 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
       {/* ================= TAB 2: ELECTRONIC INVOICING (DIAN) ================= */}
       {activeTab === 'electronic_invoice' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
               <div>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <FileCheck className="w-4 h-4 text-amber-500" />
@@ -496,7 +496,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 </p>
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+              <label className="flex items-center gap-2 cursor-pointer bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
                 <input
                   type="checkbox"
                   checked={localBusinessInfo.electronicInvoicingEnabled ?? true}
@@ -515,7 +515,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   value={localBusinessInfo.dianPrefix || 'FE-'}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianPrefix: e.target.value }))}
                   placeholder="FE-"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -526,7 +526,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   value={localBusinessInfo.dianResolutionNumber || '18764002918234'}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianResolutionNumber: e.target.value }))}
                   placeholder="18764002918234"
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -536,7 +536,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   type="date"
                   value={localBusinessInfo.dianResolutionDate || '2026-01-15'}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianResolutionDate: e.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -546,7 +546,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   type="number"
                   value={localBusinessInfo.dianFromNumber || 1}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianFromNumber: parseInt(e.target.value) || 1 }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -556,7 +556,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   type="number"
                   value={localBusinessInfo.dianToNumber || 50000}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianToNumber: parseInt(e.target.value) || 50000 }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -566,7 +566,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   type="number"
                   value={localBusinessInfo.dianCurrentNumber || 1042}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianCurrentNumber: parseInt(e.target.value) || 1 }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-700 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-600 dark:text-amber-400 outline-none"
                 />
               </div>
 
@@ -575,10 +575,10 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 <select
                   value={localBusinessInfo.dianEnvironment || 'prod'}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianEnvironment: e.target.value as any }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 outline-none"
                 >
-                  <option value="prod">Producción (Válido Fiscalmente)</option>
-                  <option value="hab">Habilitación / Pruebas DIAN</option>
+                  <option value="prod" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Producción (Válido Fiscalmente)</option>
+                  <option value="hab" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Habilitación / Pruebas DIAN</option>
                 </select>
               </div>
 
@@ -588,7 +588,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   type="text"
                   value={localBusinessInfo.dianSoftwareId || 'soft-wz-84920'}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianSoftwareId: e.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
 
@@ -598,16 +598,16 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   type="password"
                   value={localBusinessInfo.dianTechnicalKey || '••••••••••••••••'}
                   onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianTechnicalKey: e.target.value }))}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
             </div>
 
-            <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl text-xs text-blue-950 flex items-start gap-3">
-              <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+            <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-xl text-xs text-blue-950 dark:text-blue-200 flex items-start gap-3">
+              <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold block">Funcionamiento en la Liquidación de Salida:</span>
-                <span className="text-[11px] text-blue-800">
+                <span className="font-bold block text-blue-900 dark:text-blue-200">Funcionamiento en la Liquidación de Salida:</span>
+                <span className="text-[11px] text-blue-800 dark:text-blue-300">
                   Al momento de cobrar un vehículo, el cajero puede activar el interruptor "Generar Factura Electrónica", digitar los datos del cliente (Cédula/NIT, Razón Social, Email) y el sistema generará automáticamente el CUFE oficial, QR fiscal e información para el envío al cliente.
                 </span>
               </div>
@@ -618,7 +618,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
 
       {/* ================= TAB 3: PAYMENT GATEWAY & METHODS ================= */}
       {activeTab === 'payments' && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
           <PaymentMethodsSettings
             config={paymentGatewayConfig}
             onSaveConfig={onSavePaymentGatewayConfig}
@@ -629,8 +629,8 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
       {/* ================= TAB 4: BUSINESS INFO, LOGO & WOLFZONEPOS BRANDING ================= */}
       {activeTab === 'business' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-5">
-            <div className="pb-3 border-b border-slate-100 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-5">
+            <div className="pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-amber-500" />
                 <span>Logotipo Personalizado de la Aplicación POS</span>
@@ -639,8 +639,8 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
 
             {/* Logo Config Area */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-              <div className="flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-200 rounded-2xl text-center">
-                <div className="w-20 h-20 rounded-2xl bg-white border border-slate-300 shadow-sm flex items-center justify-center overflow-hidden mb-3">
+              <div className="flex flex-col items-center justify-center p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-center">
+                <div className="w-20 h-20 rounded-2xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm flex items-center justify-center overflow-hidden mb-3">
                   {localBusinessInfo.logoUrl ? (
                     <img
                       src={localBusinessInfo.logoUrl}
@@ -664,7 +664,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     value={localBusinessInfo.logoUrl || ''}
                     onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, logoUrl: e.target.value }))}
                     placeholder="https://ejemplo.com/logo-parqueadero.png"
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                   />
                 </div>
 
@@ -676,7 +676,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                         key={preset.label}
                         type="button"
                         onClick={() => setLocalBusinessInfo(prev => ({ ...prev, logoUrl: preset.url }))}
-                        className="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[11px] font-semibold text-slate-700 dark:text-slate-200 transition-colors"
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-[11px] font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
                       >
                         {preset.label}
                       </button>
@@ -685,7 +685,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setLocalBusinessInfo(prev => ({ ...prev, logoUrl: '' }))}
-                        className="px-3 py-1.5 rounded-xl text-[11px] text-red-600 hover:bg-red-50 transition-colors font-semibold"
+                        className="px-3 py-1.5 rounded-xl text-[11px] text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 transition-colors font-semibold cursor-pointer"
                       >
                         Quitar Logo
                       </button>
@@ -696,7 +696,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
             </div>
 
             {/* Business Data */}
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
               <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-3">
                 Datos del Establecimiento para el Ticket / Factura
               </h4>
@@ -708,7 +708,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     type="text"
                     value={localBusinessInfo.name}
                     onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 outline-none"
                     required
                   />
                 </div>
@@ -719,7 +719,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     type="text"
                     value={localBusinessInfo.nit}
                     onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, nit: e.target.value }))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                     required
                   />
                 </div>
@@ -730,7 +730,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     type="text"
                     value={localBusinessInfo.address}
                     onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, address: e.target.value }))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none"
                   />
                 </div>
 
@@ -740,7 +740,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     type="text"
                     value={localBusinessInfo.phone}
                     onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none"
                   />
                 </div>
 
@@ -752,7 +752,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                     rows={2}
                     value={localBusinessInfo.ticketFooter}
                     onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, ticketFooter: e.target.value }))}
-                    className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none font-mono"
+                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none font-mono"
                   />
                   <p className="text-[10px] text-slate-600 dark:text-slate-300 mt-1">
                     Todos los comprobantes y tickets incluirán automáticamente al final la firma del software: <strong>wolfzonepos</strong>.
@@ -762,13 +762,13 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
             </div>
 
             {/* Hardware POS Preferences */}
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
               <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-3">
                 Preferencias de Hardware POS
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <label className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer">
+                <label className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={localBusinessInfo.autoPrintOnEntry}
@@ -781,7 +781,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200 cursor-pointer">
+                <label className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={soundEnabled}
@@ -839,14 +839,14 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
             {printers.length === 0 ? (
               <div className="p-8 text-center bg-slate-50 dark:bg-slate-950/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs">
                 <Printer className="w-10 h-10 mx-auto text-slate-400 mb-2 opacity-60" />
-                <p className="font-semibold">No hay impresoras térmicas configuradas</p>
-                <p className="text-[11px] mt-1 text-slate-400">El sistema imprimirá a través del diálogo nativo del navegador (Ctrl+P).</p>
+                <p className="font-semibold text-slate-700 dark:text-slate-300">No hay impresoras térmicas configuradas</p>
+                <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">El sistema imprimirá a través del diálogo nativo del navegador (Ctrl+P).</p>
               </div>
             ) : (
               printers.map((printer) => (
                 <div
                   key={printer.id}
-                  className="p-4 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 font-bold border border-amber-500/20">
@@ -860,7 +860,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                             Predeterminada
                           </span>
                         )}
-                        <span className="text-[9px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">
+                        <span className="text-[9px] font-mono font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded-full">
                           {printer.paperSize}
                         </span>
                       </div>
