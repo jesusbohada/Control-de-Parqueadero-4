@@ -249,6 +249,22 @@ html.light {
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.75);
 }
 
+/* Digital Gasoline-Pump Taximeter Cockpit Screen */
+.taximeter-screen {
+  background: radial-gradient(circle at 50% 30%, #090d16 0%, #030712 100%);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hardware-btn-zinc {
+  box-shadow: 0 3px 0 0 #334155, inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.12s ease;
+}
+.hardware-btn-zinc:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #1e293b, inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
 
 
 

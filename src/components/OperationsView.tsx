@@ -40,7 +40,9 @@ import {
   Copy,
   Globe,
   Maximize2,
-  Camera
+  Camera,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { 
   ParkingSpot, 
@@ -145,6 +147,28 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   const [lastGeneratedTicket, setLastGeneratedTicket] = useState<ParkingTicket | null>(null);
   const [isSubmittingEntry, setIsSubmittingEntry] = useState<boolean>(false);
   const plateInputRef = useRef<HTMLInputElement>(null);
+
+  // --- Station Cockpit Workstation Modes ---
+  const [stationMode, setStationMode] = useState<'dual' | 'entry' | 'exit'>('dual');
+  const [fleetViewStyle, setFleetViewStyle] = useState<'cards' | 'table'>('cards');
+
+  // Keyboard shortcuts listener: F1 = Entry, F2 = Exit, F3 = Dual
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        setStationMode('entry');
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        setStationMode('exit');
+      } else if (e.key === 'F3') {
+        e.preventDefault();
+        setStationMode('dual');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // --- Opción de Placa Extranjera / Internacional y Reglas por País ---
   const [isForeignPlate, setIsForeignPlate] = useState<boolean>(false);
@@ -686,7 +710,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     setApplyLostTicketFee(true);
     setExitPaymentMethod(paymentGatewayConfig?.defaultMethod || 'cash');
     setExitError(null);
+    if (stationMode === 'entry') {
+      setStationMode('dual');
+    }
     playSound('beep', soundEnabled);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // --- Lector de Código de Barras Físico (Pistola USB / Bluetooth / Wedge Láser) ---
@@ -1051,14 +1079,98 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* ========================================================= */}
-      {/* TOP SECTION: TWO CLEAN, SPACIOUS WORK CARDS               */}
+      {/* STATION COCKPIT WORKSTATION CONTROL BAR                  */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] p-3 sm:p-4 shadow-lg backdrop-blur-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Station Mode Switcher Tabs */}
+        <div className="flex items-center gap-1.5 p-1 bg-[var(--bg-surface-3)] rounded-xl border border-[var(--border-subtle)] w-full md:w-auto">
+          <button
+            type="button"
+            onClick={() => {
+              setStationMode('dual');
+              playSound('beep', soundEnabled);
+            }}
+            className={`flex-1 md:flex-none px-3.5 py-2 rounded-lg font-display font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              stationMode === 'dual'
+                ? 'bg-amber-500 text-slate-950 shadow-md hardware-btn-amber'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+            }`}
+            title="Vista Dual POS: Ingreso y Salida lado a lado (F3)"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Dual POS</span>
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-mono-tech bg-black/20 text-slate-950 font-bold border border-black/20">F3</kbd>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setStationMode('entry');
+              playSound('beep', soundEnabled);
+            }}
+            className={`flex-1 md:flex-none px-3.5 py-2 rounded-lg font-display font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              stationMode === 'entry'
+                ? 'bg-amber-500 text-slate-950 shadow-md hardware-btn-amber'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+            }`}
+            title="Terminal Operador: Solo Ingreso Vehicular (F1)"
+          >
+            <ArrowDownRight className="w-3.5 h-3.5" />
+            <span>Solo Ingreso</span>
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-mono-tech bg-black/20 text-slate-950 font-bold border border-black/20">F1</kbd>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setStationMode('exit');
+              playSound('beep', soundEnabled);
+            }}
+            className={`flex-1 md:flex-none px-3.5 py-2 rounded-lg font-display font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              stationMode === 'exit'
+                ? 'bg-cyan-500 text-slate-950 shadow-md hardware-btn-sky'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5'
+            }`}
+            title="Terminal Cajero: Solo Cobro y Salida POS (F2)"
+          >
+            <ArrowUpRight className="w-3.5 h-3.5" />
+            <span>Solo Cobro & Salida</span>
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-mono-tech bg-black/20 text-slate-950 font-bold border border-black/20">F2</kbd>
+          </button>
+        </div>
+
+        {/* Station Telemetry Badges */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-end flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-surface-3)] border border-[var(--border-subtle)] text-xs font-mono-tech">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse led-beacon-free" />
+            <span className="text-slate-500 dark:text-slate-400">ESTACIÓN:</span>
+            <span className="font-bold text-slate-800 dark:text-slate-100 uppercase">ALTO FLUJO ACTIVO</span>
+          </div>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs font-mono-tech">
+            <Car className="w-3.5 h-3.5 text-amber-500" />
+            <span className="text-slate-600 dark:text-slate-300">OCUPACIÓN:</span>
+            <span className="font-black text-amber-700 dark:text-amber-400">
+              {spots.length > 0 ? Math.round(((spots.length - spots.filter(s => s.status === 'available').length) / spots.length) * 100) : 0}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* COCKPIT WORKSTATION WORKSPACE (Dual POS / Ingreso / Salida) */}
+      {/* ========================================================= */}
+      <div className={
+        stationMode === 'dual'
+          ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+          : "max-w-4xl mx-auto w-full"
+      }>
         
         {/* ========================================================= */}
         {/* CARD 1: INGRESO RÁPIDO DE VEHÍCULO                        */}
         {/* ========================================================= */}
-        <div className="lg:col-span-5 bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm">
+        {(stationMode === 'dual' || stationMode === 'entry') && (
+        <div className={`${stationMode === 'dual' ? 'lg:col-span-5' : 'w-full'} bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm`}>
           {/* Card Header */}
           <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
             <div className="flex items-center gap-2.5">
@@ -1613,11 +1725,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             </form>
           </div>
         </div>
+        )}
 
         {/* ========================================================= */}
         {/* CARD 2: LIQUIDACIÓN, MEDIOS DE PAGO Y FACTURACIÓN         */}
         {/* ========================================================= */}
-        <div className="lg:col-span-7 bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm">
+        {(stationMode === 'dual' || stationMode === 'exit') && (
+        <div className={`${stationMode === 'dual' ? 'lg:col-span-7' : 'w-full'} bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm`}>
           {/* Card Header */}
           <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
             <div className="flex items-center gap-2.5">
@@ -1885,54 +1999,92 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   )}
                 </div>
 
-                {/* Rates & Discount summary */}
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                    <span>Subtotal por tiempo ({liveCalculation.billableMinutes} min facturables):</span>
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
-                      {formatCurrency(liveCalculation.totalAmount, rates.currencySymbol)}
-                    </span>
-                  </div>
-
-                  {isNoTicketPresented && applyLostTicketFee && (
-                    <div className="flex justify-between text-amber-800 font-semibold">
-                      <span>Recargo Ticket Extraviado / Sin Ticket:</span>
-                      <span className="font-mono font-bold">
-                        +{formatCurrency(lostTicketFeeAmount, rates.currencySymbol)}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Discount / Exoneration */}
-                  <div className="flex items-center justify-between pt-1.5 border-t border-slate-200">
+                {/* Aero-Kiosk Industrial Taximeter Cockpit Screen */}
+                <div className="taximeter-screen p-4 sm:p-5 rounded-2xl space-y-3.5 text-white">
+                  {/* Taximeter Top Telemetry Strip */}
+                  <div className="flex items-center justify-between flex-wrap gap-2 pb-2.5 border-b border-white/10 text-xs font-mono-tech">
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">Descuento:</span>
-                      {currentUser?.permissions.canWaiveFee && (
-                        <button
-                          type="button"
-                          onClick={() => setDiscountInput((liveCalculation.totalAmount + (isNoTicketPresented && applyLostTicketFee ? lostTicketFeeAmount : 0)).toString())}
-                          className="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold transition-colors cursor-pointer"
-                        >
-                          Cortesía $0
-                        </button>
+                      <span className="flex items-center gap-1.5 text-slate-400">
+                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>TIEMPO:</span>
+                      </span>
+                      <span className="text-white font-black">{liveCalculation.formattedDuration}</span>
+                      <span className="text-slate-400">({liveCalculation.billableMinutes} min fact.)</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white/10 text-slate-200 border border-white/10 font-mono-tech">
+                        {getVehicleName(selectedTicket?.vehicleType || exitVehicleType)}
+                      </span>
+                      {liveCalculation.isWithinGracePeriod && (
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 led-beacon-free font-mono-tech">
+                          GRACIA ($0)
+                        </span>
                       )}
                     </div>
-                    <input
-                      type="number"
-                      min="0"
-                      step="any"
-                      value={discountInput}
-                      onChange={(e) => setDiscountInput(e.target.value)}
-                      placeholder="0"
-                      className="w-24 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold outline-none focus:border-amber-500"
-                    />
                   </div>
 
-                  <div className="pt-2 border-t-2 border-slate-300 flex justify-between items-baseline">
-                    <span className="font-black text-sm text-slate-900 dark:text-slate-100 uppercase">Total a Cobrar:</span>
-                    <span className="text-2xl font-black text-emerald-700 font-mono">
-                      {formatCurrency(finalTotalAmount, rates.currencySymbol)}
-                    </span>
+                  {/* Surcharges & Discount Breakdown */}
+                  <div className="space-y-1.5 text-xs font-mono-tech">
+                    <div className="flex justify-between text-slate-300">
+                      <span>Subtotal por tiempo:</span>
+                      <span className="text-white font-bold">
+                        {formatCurrency(liveCalculation.totalAmount, rates.currencySymbol)}
+                      </span>
+                    </div>
+
+                    {isNoTicketPresented && applyLostTicketFee && (
+                      <div className="flex justify-between text-amber-400 font-semibold">
+                        <span>Recargo Ticket Extraviado:</span>
+                        <span className="font-bold">
+                          +{formatCurrency(lostTicketFeeAmount, rates.currencySymbol)}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Discount Input Row */}
+                    <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-300">Descuento aplicado:</span>
+                        {currentUser?.permissions.canWaiveFee && (
+                          <button
+                            type="button"
+                            onClick={() => setDiscountInput((liveCalculation.totalAmount + (isNoTicketPresented && applyLostTicketFee ? lostTicketFeeAmount : 0)).toString())}
+                            className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded font-bold transition-colors cursor-pointer"
+                          >
+                            Cortesía $0
+                          </button>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="0"
+                          step="any"
+                          value={discountInput}
+                          onChange={(e) => setDiscountInput(e.target.value)}
+                          placeholder="0"
+                          className="w-28 text-right bg-black/60 border border-white/20 rounded-lg px-2.5 py-1 text-xs font-mono-tech font-bold text-amber-300 outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Main Digital Gas-Pump Taximeter Readout */}
+                  <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-end justify-between gap-2 bg-black/40 p-3 rounded-xl border border-white/10">
+                    <div>
+                      <span className="text-[10px] font-mono-tech uppercase tracking-widest text-amber-400/90 font-bold block">
+                        LIQUIDACIÓN // TOTAL A COBRAR
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-mono-tech">
+                        IVA e impuestos vigentes incluidos
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl sm:text-4xl font-black font-mono-tech text-amber-400 tracking-tight drop-shadow-[0_0_16px_rgba(245,158,11,0.35)]">
+                        {formatCurrency(finalTotalAmount, rates.currencySymbol)}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -3286,6 +3438,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* ========================================================= */}
@@ -3304,8 +3457,44 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             </h3>
           </div>
 
-          {/* Filters & Search */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Filters, View Toggle & Search */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {/* View Mode Toggle: Cards vs Table */}
+            <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setFleetViewStyle('cards');
+                  playSound('beep', soundEnabled);
+                }}
+                className={`px-2.5 py-1 rounded flex items-center gap-1.5 font-display font-bold uppercase text-[11px] transition-all cursor-pointer ${
+                  fleetViewStyle === 'cards'
+                    ? 'bg-amber-500 text-slate-950 font-black shadow-xs hardware-btn-amber'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Vista de Tarjetas Táctiles Interactivas"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Tarjetas</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFleetViewStyle('table');
+                  playSound('beep', soundEnabled);
+                }}
+                className={`px-2.5 py-1 rounded flex items-center gap-1.5 font-display font-bold uppercase text-[11px] transition-all cursor-pointer ${
+                  fleetViewStyle === 'table'
+                    ? 'bg-amber-500 text-slate-950 font-black shadow-xs hardware-btn-amber'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                title="Vista de Tabla Radar"
+              >
+                <List className="w-3.5 h-3.5" />
+                <span>Tabla</span>
+              </button>
+            </div>
+
             <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1 text-xs">
               <button
                 type="button"
@@ -3361,92 +3550,97 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
           </div>
         </div>
 
-        {/* Table Content */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-100 dark:bg-slate-950/90 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
-              <tr>
-                <th className="py-3 px-4">Ticket</th>
-                <th className="py-3 px-4">Placa / Vehículo</th>
-                <th className="py-3 px-4">Puesto</th>
-                <th className="py-3 px-4">Hora Entrada</th>
-                <th className="py-3 px-4">Tiempo Transcurrido</th>
-                <th className="py-3 px-4">Tarifa Estimada</th>
-                <th className="py-3 px-4 text-right">Acción de Cobro</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
-              {filteredActiveTickets.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-600 dark:text-slate-300">
-                    No se encontraron vehículos estacionados con los criterios de búsqueda.
-                  </td>
-                </tr>
-              ) : (
-                filteredActiveTickets.map((ticket) => {
+        {/* Fleet Section Content: Tactile Cards Grid or Radar Table */}
+        {fleetViewStyle === 'cards' ? (
+          <div className="p-4 sm:p-5">
+            {filteredActiveTickets.length === 0 ? (
+              <div className="py-12 text-center text-slate-500 dark:text-slate-400">
+                <Car className="w-10 h-10 mx-auto text-slate-400 dark:text-slate-600 mb-2 opacity-50" />
+                <p className="font-display font-bold text-sm text-slate-700 dark:text-slate-300">No se encontraron vehículos estacionados</p>
+                <p className="text-xs font-mono-tech mt-1 text-slate-500">Ajuste los filtros de búsqueda o registre un nuevo ingreso vehicular</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredActiveTickets.map((ticket) => {
                   const nowIso = new Date().toISOString();
                   const calc = calculateParkingFee(ticket.entryTime, nowIso, ticket.vehicleType, rates);
                   const isSelected = selectedTicket?.id === ticket.id;
 
                   return (
-                    <tr
+                    <div
                       key={ticket.id}
-                      className={`hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors ${
-                        isSelected ? 'bg-amber-50/80 dark:bg-slate-800/90 font-medium' : ''
+                      className={`rounded-2xl border-2 transition-all p-3.5 flex flex-col justify-between gap-3 shadow-md hover:shadow-xl relative overflow-hidden backdrop-blur-sm ${
+                        isSelected
+                          ? 'border-amber-500 bg-amber-500/10 ring-2 ring-amber-500/30'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/80 hover:border-amber-500/50'
                       }`}
                     >
-                      <td className="py-3 px-4 font-mono-tech font-bold text-slate-600 dark:text-slate-400">
-                        #{ticket.ticketNumber}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400">
-                            {getVehicleIcon(ticket.vehicleType, 'w-4 h-4')}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono-tech font-black text-slate-900 dark:text-amber-300 text-sm tracking-wider plate-emboss px-2 py-0.5 rounded bg-amber-400/20 dark:bg-amber-500/20 border border-amber-500/30">
-                                {ticket.plate}
-                              </span>
-                              {ticket.isForeignPlate && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 px-1.5 py-0.2 rounded font-sans uppercase" title={`Placa extranjera proveniente de: ${ticket.originCountry || 'Internacional'}`}>
-                                  🌐 {ticket.originCountry || 'Ext'}
-                                </span>
-                              )}
-                            </div>
-                            <span className="block text-[10px] text-slate-600 dark:text-slate-400 font-mono-tech uppercase mt-0.5">
-                              {getVehicleName(ticket.vehicleType)}
-                            </span>
-                          </div>
+                      {/* Top Header: Bay Badge + Ticket # */}
+                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse led-beacon-free" />
+                          <span className="font-mono-tech font-black text-xs text-cyan-700 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/60 px-2 py-0.5 rounded-lg border border-cyan-200 dark:border-cyan-800">
+                            PUESTO {ticket.spotCode}
+                          </span>
                         </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-cyan-600 dark:text-cyan-400 px-2.5 py-1 rounded-lg font-mono-tech font-black text-xs">
-                          {ticket.spotCode}
+                        <span className="text-[10px] font-mono-tech text-slate-500 font-bold">
+                          #{ticket.ticketNumber}
                         </span>
-                      </td>
-                      <td className="py-3 px-4 font-mono-tech text-slate-600 dark:text-slate-400 text-xs">
-                        {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 font-mono-tech text-slate-700 dark:text-slate-200 font-bold text-xs">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse led-beacon-free"></span>
-                          <span>{calc.formattedDuration}</span>
+                      </div>
+
+                      {/* Stamped License Plate Badge */}
+                      <div className="my-0.5">
+                        <div className={`p-2 rounded-xl border text-center transition-all ${
+                          ticket.isForeignPlate
+                            ? 'border-sky-500/50 bg-sky-950/40 text-sky-200'
+                            : 'border-[#b45309] bg-gradient-to-b from-[#FCD34D] via-[#FBBF24] to-[#F59E0B] shadow-[0_4px_12px_rgba(245,158,11,0.25)]'
+                        }`}>
+                          <div className={`flex items-center justify-between px-2 text-[8px] font-mono-tech font-black tracking-widest select-none ${
+                            ticket.isForeignPlate ? 'text-sky-300' : 'text-slate-950'
+                          }`}>
+                            <span>{ticket.isForeignPlate ? (ticket.originCountry || 'INTERNACIONAL') : 'COLOMBIA'}</span>
+                            <span>{ticket.isForeignPlate ? 'EXT' : ticket.vehicleType === 'motorcycle' ? 'MOTO' : 'PARTICULAR'}</span>
+                          </div>
+                          <div className={`font-mono-tech font-black text-xl tracking-wider py-0.5 ${
+                            ticket.isForeignPlate ? 'text-sky-200' : 'text-slate-950 plate-emboss'
+                          }`}>
+                            {ticket.plate}
+                          </div>
                         </div>
-                      </td>
-                      <td className="py-3 px-4 font-mono-tech font-black text-sm text-amber-600 dark:text-amber-400">
-                        {calc.isWithinGracePeriod ? (
-                          <span className="text-slate-500 font-normal text-xs">Gracia ($0)</span>
-                        ) : (
-                          formatCurrency(calc.totalAmount, rates.currencySymbol)
-                        )}
-                      </td>
-                      <td className="py-3 px-4 text-right space-x-1.5">
+
+                        <div className="flex items-center justify-between mt-1 px-0.5 text-[11px] font-mono-tech text-slate-600 dark:text-slate-400">
+                          <span className="flex items-center gap-1 font-semibold">
+                            {getVehicleIcon(ticket.vehicleType, 'w-3 h-3')}
+                            <span>{getVehicleName(ticket.vehicleType)}</span>
+                          </span>
+                          <span>Entrada: {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      </div>
+
+                      {/* Live Telemetry: Duration & Fee */}
+                      <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs font-mono-tech">
+                        <div>
+                          <span className="text-[10px] text-slate-500 uppercase block font-bold">Tiempo:</span>
+                          <span className="font-black text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-amber-500" />
+                            {calc.formattedDuration}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-500 uppercase block font-bold">Total estimado:</span>
+                          <span className="font-black text-base text-amber-600 dark:text-amber-400">
+                            {calc.isWithinGracePeriod ? 'Gracia ($0)' : formatCurrency(calc.totalAmount, rates.currencySymbol)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Actions: Direct Checkout Hardware Push Button */}
+                      <div className="flex items-center gap-1.5 pt-0.5">
                         {currentUser?.permissions.canReprintTickets !== false && (
                           <button
                             type="button"
                             onClick={() => onPrintTicket(ticket, 'entry')}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+                            className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors cursor-pointer"
                             title="Reimprimir Ticket de Ingreso"
                           >
                             <Printer className="w-4 h-4" />
@@ -3455,24 +3649,142 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         {currentUser?.permissions.canRegisterExit !== false ? (
                           <button
                             type="button"
-                            onClick={() => selectVehicleForExit(ticket)}
-                            className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-display font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-xs hardware-btn-amber cursor-pointer"
+                            onClick={() => {
+                              selectVehicleForExit(ticket);
+                              if (stationMode === 'entry') setStationMode('dual');
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="flex-1 py-2 px-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-display font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md hardware-btn-amber cursor-pointer flex items-center justify-center gap-1.5"
                           >
-                            Cobrar Salida
+                            <Zap className="w-3.5 h-3.5 text-slate-950" />
+                            <span>Cobrar Salida</span>
                           </button>
                         ) : (
-                          <span className="text-[11px] text-slate-600 dark:text-slate-300 italic px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">
+                          <span className="flex-1 text-[11px] text-slate-500 italic text-center py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
                             Solo consulta
                           </span>
                         )}
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Table Content */
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+              <thead className="bg-slate-100 dark:bg-slate-950/90 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th className="py-3 px-4">Ticket</th>
+                  <th className="py-3 px-4">Placa / Vehículo</th>
+                  <th className="py-3 px-4">Puesto</th>
+                  <th className="py-3 px-4">Hora Entrada</th>
+                  <th className="py-3 px-4">Tiempo Transcurrido</th>
+                  <th className="py-3 px-4">Tarifa Estimada</th>
+                  <th className="py-3 px-4 text-right">Acción de Cobro</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
+                {filteredActiveTickets.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-600 dark:text-slate-300">
+                      No se encontraron vehículos estacionados con los criterios de búsqueda.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredActiveTickets.map((ticket) => {
+                    const nowIso = new Date().toISOString();
+                    const calc = calculateParkingFee(ticket.entryTime, nowIso, ticket.vehicleType, rates);
+                    const isSelected = selectedTicket?.id === ticket.id;
+
+                    return (
+                      <tr
+                        key={ticket.id}
+                        className={`hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors ${
+                          isSelected ? 'bg-amber-50/80 dark:bg-slate-800/90 font-medium' : ''
+                        }`}
+                      >
+                        <td className="py-3 px-4 font-mono-tech font-bold text-slate-600 dark:text-slate-400">
+                          #{ticket.ticketNumber}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                              {getVehicleIcon(ticket.vehicleType, 'w-4 h-4')}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-mono-tech font-black text-slate-900 dark:text-amber-300 text-sm tracking-wider plate-emboss px-2 py-0.5 rounded bg-amber-400/20 dark:bg-amber-500/20 border border-amber-500/30">
+                                  {ticket.plate}
+                                </span>
+                                {ticket.isForeignPlate && (
+                                  <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 px-1.5 py-0.2 rounded font-sans uppercase" title={`Placa extranjera proveniente de: ${ticket.originCountry || 'Internacional'}`}>
+                                    🌐 {ticket.originCountry || 'Ext'}
+                                  </span>
+                                )}
+                              </div>
+                              <span className="block text-[10px] text-slate-600 dark:text-slate-400 font-mono-tech uppercase mt-0.5">
+                                {getVehicleName(ticket.vehicleType)}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="bg-slate-100 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-cyan-600 dark:text-cyan-400 px-2.5 py-1 rounded-lg font-mono-tech font-black text-xs">
+                            {ticket.spotCode}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-mono-tech text-slate-600 dark:text-slate-400 text-xs">
+                          {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-1.5 font-mono-tech text-slate-700 dark:text-slate-200 font-bold text-xs">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse led-beacon-free"></span>
+                            <span>{calc.formattedDuration}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 font-mono-tech font-black text-sm text-amber-600 dark:text-amber-400">
+                          {calc.isWithinGracePeriod ? (
+                            <span className="text-slate-500 font-normal text-xs">Gracia ($0)</span>
+                          ) : (
+                            formatCurrency(calc.totalAmount, rates.currencySymbol)
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-right space-x-1.5">
+                          {currentUser?.permissions.canReprintTickets !== false && (
+                            <button
+                              type="button"
+                              onClick={() => onPrintTicket(ticket, 'entry')}
+                              className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+                              title="Reimprimir Ticket de Ingreso"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </button>
+                          )}
+                          {currentUser?.permissions.canRegisterExit !== false ? (
+                            <button
+                              type="button"
+                              onClick={() => selectVehicleForExit(ticket)}
+                              className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-display font-black text-xs uppercase tracking-wider rounded-lg transition-all shadow-xs hardware-btn-amber cursor-pointer"
+                            >
+                              Cobrar Salida
+                            </button>
+                          ) : (
+                            <span className="text-[11px] text-slate-600 dark:text-slate-300 italic px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">
+                              Solo consulta
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Payment QR & Details Modal */}
