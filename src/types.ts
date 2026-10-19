@@ -403,6 +403,14 @@ export interface OperationalDay {
   cashDifferenceSnapshot?: number;
   totalToConsignSnapshot?: number;
   consecutiveCode?: string;
+  vehicleStatsSnapshot?: { category: string; count: number; total: number }[];
+  shiftsSummarySnapshot?: { shiftNumber: number; operatorName: string; totalCollected: number; cash: number; electronic: number; status?: string }[];
+  movementsSummarySnapshot?: { type: string; concept?: string; amount: number; description?: string }[];
+  totalTicketsIssuedSnapshot?: number;
+  totalTicketsPaidSnapshot?: number;
+  activeVehiclesRemainingSnapshot?: number;
+  ticketRangeSnapshot?: { startTicket?: string; endTicket?: string };
+  totalDiscountsSnapshot?: number;
 }
 
 export interface CashShift {

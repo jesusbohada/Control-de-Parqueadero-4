@@ -202,22 +202,80 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(center('CIERRE DEFINITIVO DE JORNADA'));
     lines.push(center(`JORNADA #${day.dayNumber || 1} (REPORTE Z)`));
     if (day.consecutiveCode) lines.push(center(`CONSECUTIVO: ${day.consecutiveCode}`));
+    lines.push(center('AUDITORIA FISCAL & CONCILIACION'));
     lines.push(sep);
     lines.push(row('FECHA APERTURA:', new Date(day.openedAt).toLocaleString('es-CO')));
     if (day.closedAt) lines.push(row('FECHA CIERRE:', new Date(day.closedAt).toLocaleString('es-CO')));
-    lines.push(row('TOTAL TURNOS:', String(day.shiftsCount || 1)));
+    lines.push(row('TOTAL TURNOS:', `${day.shiftsCount || 1} Turnos`));
     if (day.closedByOperator) lines.push(row('ADMINISTRADOR:', day.closedByOperator));
+
     lines.push(thinSep);
-    lines.push(row('TOTAL EFECTIVO:', `$ ${(day.cashCollectedSnapshot || 0).toLocaleString('es-CO')}`));
-    const electronicDay = (day.cardCollectedSnapshot || 0) + (day.walletCollectedSnapshot || 0) + (day.qrCollectedSnapshot || 0);
-    lines.push(row('TOTAL TARJETAS/QR:', `$ ${electronicDay.toLocaleString('es-CO')}`));
-    lines.push(row('TOTAL VENTAS:', `$ ${(day.totalCollected || 0).toLocaleString('es-CO')}`));
+    lines.push(center('-- MOVIMIENTO DE VEHICULOS --'));
+    if (day.totalTicketsIssuedSnapshot !== undefined) {
+      lines.push(row('TOTAL EMITIDOS:', String(day.totalTicketsIssuedSnapshot)));
+    }
+    if (day.totalTicketsPaidSnapshot !== undefined) {
+      lines.push(row('TOTAL LIQUIDADOS:', String(day.totalTicketsPaidSnapshot)));
+    }
+    if (day.activeVehiclesRemainingSnapshot !== undefined) {
+      lines.push(row('VEHICULOS EN PATIO:', String(day.activeVehiclesRemainingSnapshot)));
+    }
+    if (day.vehicleStatsSnapshot && day.vehicleStatsSnapshot.length > 0) {
+      lines.push(thinSep);
+      day.vehicleStatsSnapshot.forEach(v => {
+        lines.push(row(`${v.category} (${v.count}):`, `$ ${v.total.toLocaleString('es-CO')}`));
+      });
+    }
+
+    if (day.shiftsSummarySnapshot && day.shiftsSummarySnapshot.length > 0) {
+      lines.push(thinSep);
+      lines.push(center('-- CONSOLIDADO POR TURNOS --'));
+      day.shiftsSummarySnapshot.forEach(s => {
+        lines.push(row(`TURNO #${s.shiftNumber} (${s.operatorName}):`, `$ ${s.totalCollected.toLocaleString('es-CO')}`));
+      });
+    }
+
+    lines.push(thinSep);
+    lines.push(center('-- MEDIOS DE PAGO --'));
+    lines.push(row('EFECTIVO EN CAJA:', `$ ${(day.cashCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(row('TARJETAS (DATAFONO):', `$ ${(day.cardCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(row('BILLETERAS (NEQUI):', `$ ${(day.walletCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(row('QR INTEROPERABLE:', `$ ${(day.qrCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    if (day.breBCollectedSnapshot) {
+      lines.push(row('SISTEMA BRE-B:', `$ ${day.breBCollectedSnapshot.toLocaleString('es-CO')}`));
+    }
+    if (day.agreementCollectedSnapshot) {
+      lines.push(row('CONVENIOS / ABONOS:', `$ ${day.agreementCollectedSnapshot.toLocaleString('es-CO')}`));
+    }
+    lines.push(sep);
+    lines.push(row('GRAN TOTAL VENTAS DIA:', `$ ${(day.totalCollected || 0).toLocaleString('es-CO')}`));
+
+    lines.push(thinSep);
+    lines.push(center('-- CONCILIACION DE CAJA / BOVEDA --'));
+    lines.push(row('(+) BASE INICIAL DIA:', `$ ${(day.initialDayCash || 0).toLocaleString('es-CO')}`));
+    lines.push(row('(+) VENTAS EFECTIVO:', `$ ${(day.cashCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(row('(-) GASTOS OPERATIVOS:', `-$ ${(day.totalExpensesSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(row('(-) RETIROS A BOVEDA:', `-$ ${(day.totalPickupsSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(thinSep);
+    lines.push(row('(=) EFECTIVO ESPERADO:', `$ ${(day.expectedCashSnapshot || 0).toLocaleString('es-CO')}`));
+    lines.push(row('EFECTIVO CONTADO:', `$ ${(day.countedCashSnapshot ?? day.finalDayCash ?? 0).toLocaleString('es-CO')}`));
+    const diff = day.cashDifferenceSnapshot || 0;
+    const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';
+    lines.push(row(diffLabel, `$ ${Math.abs(diff).toLocaleString('es-CO')}`));
     lines.push(sep);
     lines.push(row('LIQUIDACION A DEPOSITAR:', `$ ${(day.totalToConsignSnapshot ?? day.finalDayCash ?? 0).toLocaleString('es-CO')}`));
     lines.push(sep);
+
+    if (day.closingNotes) {
+      lines.push(`OBSERVACIONES:\n${day.closingNotes}\n`);
+    }
+
     lines.push('\n\n');
     lines.push(center('___________________________'));
     lines.push(center('FIRMA ADMINISTRADOR GENERAL'));
+    lines.push('\n');
+    lines.push(center('___________________________'));
+    lines.push(center('FIRMA REVISOR FISCAL / AUDITOR'));
   } else {
     lines.push(center('TEST DE IMPRESION DIRECTA'));
     lines.push(center(new Date().toLocaleString('es-CO')));

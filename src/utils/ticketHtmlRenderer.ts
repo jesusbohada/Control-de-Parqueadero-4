@@ -721,7 +721,10 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       <div class="wolf-brand text-center" style="margin-top:10px;">wolfzonepos</div>
     `;
   } else if (type === 'day_closure' && day) {
-    const electronicDay = (day.cardCollectedSnapshot || 0) + (day.walletCollectedSnapshot || 0) + (day.qrCollectedSnapshot || 0);
+    const electronicDay = (day.cardCollectedSnapshot || 0) + (day.walletCollectedSnapshot || 0) + (day.qrCollectedSnapshot || 0) + (day.breBCollectedSnapshot || 0);
+    const diff = day.cashDifferenceSnapshot || 0;
+    const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';
+    const totalVehiclesCount = day.vehicleStatsSnapshot ? day.vehicleStatsSnapshot.reduce((a, b) => a + b.count, 0) : 0;
 
     bodyContent = `
       <div class="text-center">
@@ -729,7 +732,10 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
         <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
         <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        ${businessInfo.branchName ? `<div class="header-sub">SEDE: ${businessInfo.branchName}</div>` : ''}
         <div><span class="badge-black">**** CIERRE DEFINITIVO (REPORTE Z) ****</span></div>
+        <div style="font-size:9.5px;font-weight:700;margin-top:2px;">AUDITORÍA FISCAL Y CONCILIACIÓN GENERAL</div>
       </div>
 
       <div class="divider"></div>
@@ -739,51 +745,229 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <span class="font-black">#${day.dayNumber || 1}</span>
       </div>
       <div class="row">
-        <span>Apertura:</span>
+        <span>Consecutivo Oficial:</span>
+        <span class="font-black">${day.consecutiveCode || 'Z-0001'}</span>
+      </div>
+      <div class="row">
+        <span>Fecha Apertura:</span>
         <span class="bold">${new Date(day.openedAt).toLocaleString('es-CO')}</span>
       </div>
-      ${day.closedAt ? `
       <div class="row">
-        <span>Cierre:</span>
-        <span class="bold">${new Date(day.closedAt).toLocaleString('es-CO')}</span>
-      </div>` : ''}
-      <div class="row">
-        <span>Total Turnos:</span>
-        <span class="bold">${day.shiftsCount || 1}</span>
+        <span>Fecha / Hora Cierre:</span>
+        <span class="bold">${new Date(day.closedAt || Date.now()).toLocaleString('es-CO')}</span>
       </div>
-      ${day.closedByOperator ? `
       <div class="row">
-        <span>Administrador:</span>
-        <span class="bold">${day.closedByOperator}</span>
+        <span>Total Turnos Operados:</span>
+        <span class="font-black">${day.shiftsCount || 1} Turnos</span>
+      </div>
+      <div class="row">
+        <span>Administrador Responsable:</span>
+        <span class="font-black uppercase">${day.closedByOperator || 'Administrador General'}</span>
+      </div>
+
+      <!-- SECCIÓN 1: MOVIMIENTO GENERAL DE VEHÍCULOS -->
+      <div class="thick-divider"></div>
+      <div class="font-black uppercase text-center" style="font-size:10px;border:1.5px solid #000;padding:2px;margin:4px 0;">
+        1. MOVIMIENTO GENERAL DE VEHÍCULOS
+      </div>
+
+      <div class="row">
+        <span>Total Tickets Emitidos:</span>
+        <span class="font-black">${day.totalTicketsIssuedSnapshot ?? 'N/A'}</span>
+      </div>
+      <div class="row">
+        <span>Vehículos Liquidados / Salidas:</span>
+        <span class="bold">${day.totalTicketsPaidSnapshot ?? totalVehiclesCount}</span>
+      </div>
+      <div class="row">
+        <span>Vehículos en Patio (Amanecidos):</span>
+        <span class="font-black" style="border:1.5px solid #000;padding:0 5px;border-radius:2px;">${day.activeVehiclesRemainingSnapshot ?? 0}</span>
+      </div>
+      ${day.ticketRangeSnapshot ? `
+      <div class="row" style="font-size:${is58 ? '9px' : '10px'};">
+        <span>Rango Tickets Fiscales:</span>
+        <span class="bold">${day.ticketRangeSnapshot.startTicket || 'TKT-001'} al ${day.ticketRangeSnapshot.endTicket || 'TKT-001'}</span>
       </div>` : ''}
 
-      <div class="divider"></div>
+      ${day.vehicleStatsSnapshot && day.vehicleStatsSnapshot.length > 0 ? `
+      <div class="thin-divider"></div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>TIPO VEHÍCULO</th>
+            <th class="text-right">CANT</th>
+            <th class="text-right">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${day.vehicleStatsSnapshot.map(v => `
+            <tr>
+              <td>${v.category}</td>
+              <td class="text-right bold">${v.count}</td>
+              <td class="text-right bold">${formatMoney(v.total, rates.currencySymbol)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>TOTAL VEHÍCULOS</td>
+            <td class="text-right font-black">${totalVehiclesCount}</td>
+            <td class="text-right font-black">${formatMoney(day.totalCollected || 0, rates.currencySymbol)}</td>
+          </tr>
+        </tfoot>
+      </table>
+      ` : ''}
+
+      <!-- SECCIÓN 2: DESGLOSE CONSOLIDADO POR TURNOS -->
+      ${day.shiftsSummarySnapshot && day.shiftsSummarySnapshot.length > 0 ? `
+      <div class="thick-divider"></div>
+      <div class="font-black uppercase text-center" style="font-size:10px;border:1.5px solid #000;padding:2px;margin:4px 0;">
+        2. DESGLOSE POR TURNOS DE CAJA
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>TURNO / CAJERO</th>
+            <th class="text-right">EFECTIVO</th>
+            <th class="text-right">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${day.shiftsSummarySnapshot.map(s => `
+            <tr>
+              <td>T#${s.shiftNumber}: ${s.operatorName.split(' ')[0]}</td>
+              <td class="text-right bold">${formatMoney(s.cash, rates.currencySymbol)}</td>
+              <td class="text-right bold">${formatMoney(s.totalCollected, rates.currencySymbol)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      ` : ''}
+
+      <!-- SECCIÓN 3: DISCRIMINACIÓN EXHAUSTIVA POR MEDIO DE PAGO -->
+      <div class="thick-divider"></div>
+      <div class="font-black uppercase text-center" style="font-size:10px;border:1.5px solid #000;padding:2px;margin:4px 0;">
+        3. DISCRIMINACIÓN POR MEDIOS DE PAGO
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>MEDIO DE PAGO</th>
+            <th class="text-right">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Efectivo en Caja</td>
+            <td class="text-right bold">${formatMoney(day.cashCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+          <tr>
+            <td>Tarjetas Débito / Crédito (POS)</td>
+            <td class="text-right bold">${formatMoney(day.cardCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+          <tr>
+            <td>Billeteras (Nequi / Daviplata)</td>
+            <td class="text-right bold">${formatMoney(day.walletCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+          <tr>
+            <td>Códigos QR (Bancolombia QR)</td>
+            <td class="text-right bold">${formatMoney(day.qrCollectedSnapshot || 0, rates.currencySymbol)}</td>
+          </tr>
+          ${day.breBCollectedSnapshot ? `
+          <tr>
+            <td>Sistema Bre-B</td>
+            <td class="text-right bold">${formatMoney(day.breBCollectedSnapshot, rates.currencySymbol)}</td>
+          </tr>` : ''}
+          ${day.agreementCollectedSnapshot ? `
+          <tr>
+            <td>Convenios / Mensualidades</td>
+            <td class="text-right bold">${formatMoney(day.agreementCollectedSnapshot, rates.currencySymbol)}</td>
+          </tr>` : ''}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>GRAN TOTAL VENTAS DÍA</td>
+            <td class="text-right font-black" style="font-size:${is58 ? '11px' : '13px'};">${formatMoney(day.totalCollected || 0, rates.currencySymbol)}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <!-- SECCIÓN 4: AUDITORÍA Y FLUJO DE EFECTIVO EN BÓVEDA / CAJA -->
+      <div class="thick-divider"></div>
+      <div class="font-black uppercase text-center" style="font-size:10px;border:1.5px solid #000;padding:2px;margin:4px 0;">
+        4. CONCILIACIÓN DE EFECTIVO (BÓVEDA)
+      </div>
 
       <div class="row">
-        <span>Total Efectivo Recaudado:</span>
+        <span>(+) Base Inicial del Día:</span>
+        <span class="bold">${formatMoney(day.initialDayCash || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row">
+        <span>(+) Ventas Efectivo Turnos:</span>
         <span class="bold">${formatMoney(day.cashCollectedSnapshot || 0, rates.currencySymbol)}</span>
       </div>
       <div class="row">
-        <span>Total Tarjetas / Billeteras / QR:</span>
-        <span class="bold">${formatMoney(electronicDay, rates.currencySymbol)}</span>
+        <span>(-) Gastos de Operación:</span>
+        <span class="bold">-${formatMoney(day.totalExpensesSnapshot || 0, rates.currencySymbol)}</span>
       </div>
-      <div class="thick-divider"></div>
-      <div class="row font-black" style="font-size:${is58 ? '13px' : '15.5px'};">
-        <span>GRAN TOTAL VENTAS DEL DÍA:</span>
-        <span>${formatMoney(day.totalCollected || 0, rates.currencySymbol)}</span>
+      <div class="row">
+        <span>(-) Retiros Parciales a Bóveda:</span>
+        <span class="bold">-${formatMoney(day.totalPickupsSnapshot || 0, rates.currencySymbol)}</span>
       </div>
+      <div class="thin-divider"></div>
+      <div class="row font-black">
+        <span>(=) Efectivo Total Esperado:</span>
+        <span>${formatMoney(day.expectedCashSnapshot || 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row font-black">
+        <span>Efectivo Físico Contado:</span>
+        <span>${formatMoney(day.countedCashSnapshot ?? day.finalDayCash ?? 0, rates.currencySymbol)}</span>
+      </div>
+      <div class="row font-black" style="border-top:1.5px solid #000;border-bottom:1.5px solid #000;padding:3px 0;margin:3px 0;">
+        <span>${diffLabel}</span>
+        <span>${formatMoney(Math.abs(diff), rates.currencySymbol)}</span>
+      </div>
+
       <div class="thick-divider"></div>
-      <div class="row font-black" style="font-size:13px;border:1.5px solid #000;padding:3.5px;border-radius:4px;">
+      <div class="row font-black" style="font-size:${is58 ? '11.5px' : '14px'};border:2px solid #000;padding:4px;border-radius:4px;margin:6px 0;background:#f5f5f5;">
         <span>LIQUIDACIÓN A DEPOSITAR:</span>
         <span>${formatMoney(day.totalToConsignSnapshot ?? day.finalDayCash ?? 0, rates.currencySymbol)}</span>
       </div>
 
-      <div style="margin-top:32px;text-align:center;">
-        <div style="border-top:1.5px solid #000;width:75%;margin:0 auto 3px;"></div>
-        <div style="font-size:9px;" class="bold">FIRMA ADMINISTRADOR GENERAL</div>
+      ${day.movementsSummarySnapshot && day.movementsSummarySnapshot.length > 0 ? `
+      <div class="thin-divider"></div>
+      <div class="bold uppercase" style="font-size:9.5px;margin-bottom:2px;">Detalle de Egresos Registrados:</div>
+      ${day.movementsSummarySnapshot.slice(0, 5).map(m => `
+        <div class="row" style="font-size:${is58 ? '8.5px' : '9.5px'};">
+          <span>• ${m.description || m.type}:</span>
+          <span class="bold">-${formatMoney(m.amount, rates.currencySymbol)}</span>
+        </div>
+      `).join('')}
+      ` : ''}
+
+      ${day.closingNotes ? `
+      <div class="notes-box" style="margin-top:6px;">
+        <div class="notes-title">OBSERVACIONES DE CIERRE DE JORNADA:</div>
+        <div class="notes-content">${day.closingNotes}</div>
+      </div>` : ''}
+
+      <div style="margin-top:35px;text-align:center;">
+        <div style="border-top:1.5px solid #000;width:80%;margin:0 auto 3px;"></div>
+        <div style="font-size:9.5px;" class="bold">FIRMA ADMINISTRADOR GENERAL</div>
+        <div style="font-size:8.5px;color:#333;">${day.closedByOperator || 'Administrador'}</div>
       </div>
 
-      <div class="wolf-brand text-center" style="margin-top:12px;">wolfzonepos</div>
+      <div style="margin-top:28px;text-align:center;">
+        <div style="border-top:1.5px solid #000;width:80%;margin:0 auto 3px;"></div>
+        <div style="font-size:9.5px;" class="bold">FIRMA REVISOR FISCAL / AUDITOR</div>
+        <div style="font-size:8.5px;color:#333;">Control Contable & Verificación</div>
+      </div>
+
+      <div class="wolf-brand text-center" style="margin-top:14px;">wolfzonepos</div>
+      <div class="text-center font-mono" style="font-size:8.5px;margin-top:2px;">
+        ID Cierre: ${day.id} • ${new Date().toISOString()}
+      </div>
     `;
   } else {
     // TEST PRINT

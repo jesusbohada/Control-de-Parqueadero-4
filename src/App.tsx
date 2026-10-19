@@ -3053,6 +3053,62 @@ export default function App() {
     const nextDayConsecutive = closedDaysHistory.length + 4310;
     const consecutiveCode = `${nextDayConsecutive.toString().padStart(6, '0')}`;
 
+    // Cálculo detallado de vehículos atendidos por categoría
+    const vehicleStatsMap: Record<string, { count: number; total: number }> = {};
+    let dayTotalDiscounts = 0;
+    paidTickets.forEach(t => {
+      const catKey = t.vehicleType || 'car';
+      if (!vehicleStatsMap[catKey]) vehicleStatsMap[catKey] = { count: 0, total: 0 };
+      vehicleStatsMap[catKey].count++;
+      vehicleStatsMap[catKey].total += (t.totalAmount || 0);
+      dayTotalDiscounts += (t.discountAmount || 0);
+    });
+
+    const vehicleStatsSnapshot = Object.entries(vehicleStatsMap).map(([cat, val]) => {
+      const matchedCat = vehicleCategories.find(vc => vc.id === cat);
+      return {
+        category: matchedCat?.name || cat.toUpperCase(),
+        count: val.count,
+        total: val.total
+      };
+    });
+
+    // Resumen consolidado turno por turno
+    const shiftsSummarySnapshot = dayShifts.map(s => {
+      const sCash = s.cashCollectedSnapshot || 0;
+      const sElec = (s.totalCollectedSnapshot || 0) - sCash;
+      return {
+        shiftNumber: s.shiftNumber || 1,
+        operatorName: s.operatorName || 'Cajero',
+        totalCollected: s.totalCollectedSnapshot || 0,
+        cash: sCash,
+        electronic: Math.max(0, sElec),
+        status: s.status || 'closed'
+      };
+    });
+
+    // Resumen de egresos (gastos y retiros a bóveda)
+    const movementsSummarySnapshot: { type: string; concept?: string; amount: number; description?: string }[] = [];
+    dayShifts.forEach(s => {
+      (s.cashMovements || []).forEach(m => {
+        if (m.type === 'expense' || m.type === 'pickup' || m.type === 'withdrawal') {
+          movementsSummarySnapshot.push({
+            type: m.type,
+            amount: m.amount,
+            description: m.description
+          });
+        }
+      });
+    });
+
+    const totalTicketsPaidSnapshot = paidTickets.length;
+    const activeVehiclesRemainingSnapshot = activeTickets.length;
+    const totalTicketsIssuedSnapshot = totalTicketsPaidSnapshot + activeVehiclesRemainingSnapshot;
+    const ticketRangeSnapshot = {
+      startTicket: paidTickets[paidTickets.length - 1]?.ticketNumber || 'TKT-001',
+      endTicket: (activeTickets[0] || paidTickets[0])?.ticketNumber || 'TKT-001'
+    };
+
     // Push current operational day to history as closed
     const closedDayRecord: OperationalDay = {
       ...operationalDay,
@@ -3075,6 +3131,14 @@ export default function App() {
       countedCashSnapshot: finalCash,
       cashDifferenceSnapshot: finalCash - dayExpectedCashInDrawer,
       totalToConsignSnapshot: dayTotalPickups + Math.max(0, finalCash - dayBaseCash),
+      vehicleStatsSnapshot,
+      shiftsSummarySnapshot,
+      movementsSummarySnapshot,
+      totalTicketsIssuedSnapshot,
+      totalTicketsPaidSnapshot,
+      activeVehiclesRemainingSnapshot,
+      ticketRangeSnapshot,
+      totalDiscountsSnapshot: dayTotalDiscounts,
     };
     setClosedDaysHistory(prev => [closedDayRecord, ...prev]);
 
