@@ -19,17 +19,34 @@ import {
   ShieldCheck,
   CreditCard,
   Building,
-  KeyRound
+  KeyRound,
+  Smartphone,
+  QrCode,
+  Landmark,
+  Banknote
 } from 'lucide-react';
-import { ParkingSubscriber, VehicleType, PaymentMethod, ParkingBusinessInfo, ParkingSpot } from '../types';
+import { 
+  ParkingSubscriber, 
+  VehicleType, 
+  PaymentMethod, 
+  ParkingBusinessInfo, 
+  ParkingSpot,
+  VehicleCategoryConfig,
+  RatesConfig,
+  PaymentGatewayConfig
+} from '../types';
 import { formatCurrency } from '../utils/billing';
 import { printInstantThermal } from '../services/printerService';
+import { DEFAULT_PAYMENT_GATEWAY_CONFIG } from '../utils/paymentUtils';
 
 interface SubscribersModalProps {
   isOpen: boolean;
   onClose: () => void;
   businessInfo: ParkingBusinessInfo;
   spots?: ParkingSpot[];
+  vehicleCategories?: VehicleCategoryConfig[];
+  rates?: RatesConfig;
+  paymentGatewayConfig?: PaymentGatewayConfig;
   onSubscriberUpdated?: () => void;
 }
 
@@ -38,12 +55,202 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   onClose,
   businessInfo,
   spots = [],
+  vehicleCategories = [],
+  rates,
+  paymentGatewayConfig,
   onSubscriberUpdated
 }) => {
   const [subscribers, setSubscribers] = useState<ParkingSubscriber[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expiring_soon' | 'expired'>('all');
+
+  // --- 1. Categorías de vehículos dinámicas (existentes, creadas y futuras) ---
+  const availableCategories = useMemo<VehicleCategoryConfig[]>(() => {
+    let list: VehicleCategoryConfig[] = [];
+    if (vehicleCategories && vehicleCategories.length > 0) {
+      list = vehicleCategories.filter(c => c.enabled !== false && c.isActive !== false);
+    } else {
+      try {
+        const saved = localStorage.getItem('pk_vehicle_categories');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            list = parsed.filter((c: any) => c.enabled !== false && c.isActive !== false);
+          }
+        }
+      } catch {
+        // fallback
+      }
+    }
+
+    if (!list || list.length === 0) {
+      list = [
+        { id: 'car', name: 'Automóvil / Carro', icon: 'Car', defaultHourlyRate: 4000, defaultDailyRate: 25000 },
+        { id: 'motorcycle', name: 'Motocicleta', icon: 'Bike', defaultHourlyRate: 2000, defaultDailyRate: 15000 },
+        { id: 'suv', name: 'Camioneta / SUV', icon: 'Truck', defaultHourlyRate: 5000, defaultDailyRate: 30000 },
+        { id: 'bicycle', name: 'Bicicleta', icon: 'Bike', defaultHourlyRate: 1000, defaultDailyRate: 6000 },
+      ];
+    }
+
+    return list;
+  }, [vehicleCategories]);
+
+  const getCategoryName = (typeId: string) => {
+    const found = availableCategories.find(c => c.id === typeId);
+    if (found) return found.name;
+    if (typeId === 'car') return 'Automóvil / Carro';
+    if (typeId === 'motorcycle') return 'Motocicleta';
+    if (typeId === 'suv') return 'Camioneta / SUV';
+    if (typeId === 'bicycle') return 'Bicicleta';
+    return typeId;
+  };
+
+  const getEstimatedMonthlyRate = (typeId: string): number => {
+    const cat = availableCategories.find(c => c.id === typeId);
+    if (cat) {
+      if ((cat as any).defaultMonthlyRate) return Number((cat as any).defaultMonthlyRate);
+      if (cat.rate?.dayRate) return cat.rate.dayRate * 20;
+      if (cat.defaultDailyRate) return cat.defaultDailyRate * 20;
+    }
+    if (rates && (rates as any)[typeId]?.dayRate) {
+      return (rates as any)[typeId].dayRate * 20;
+    }
+    if (typeId === 'motorcycle') return 60000;
+    if (typeId === 'bicycle') return 30000;
+    if (typeId === 'suv') return 150000;
+    return 120000;
+  };
+
+  // --- 2. Medios de pago dinámicos desde la pasarela de pagos ---
+  interface PaymentOptionItem {
+    id: string;
+    category: string;
+    label: string;
+    methodKey: PaymentMethod;
+  }
+
+  const availablePaymentMethods = useMemo<PaymentOptionItem[]>(() => {
+    let cfg = paymentGatewayConfig;
+    if (!cfg) {
+      try {
+        const saved = localStorage.getItem('pk_payment_gateway_config');
+        if (saved) cfg = JSON.parse(saved);
+      } catch {
+        // fallback
+      }
+    }
+    const finalCfg = cfg || DEFAULT_PAYMENT_GATEWAY_CONFIG;
+    const options: PaymentOptionItem[] = [];
+
+    // Efectivo
+    options.push({
+      id: 'cash',
+      methodKey: 'cash',
+      label: 'Efectivo en Caja',
+      category: 'Efectivo'
+    });
+
+    // Tarjetas y Datáfonos
+    if (finalCfg.terminals && finalCfg.terminals.length > 0) {
+      const activeTerms = finalCfg.terminals.filter(t => t.enabled !== false);
+      if (activeTerms.length > 0) {
+        activeTerms.forEach(t => {
+          options.push({
+            id: `card_${t.id}`,
+            methodKey: 'card',
+            label: `Tarjeta (${t.name}${t.serialNumber ? ` - ${t.serialNumber}` : ''})`,
+            category: 'Tarjetas / Datáfonos'
+          });
+        });
+      } else {
+        options.push({
+          id: 'card',
+          methodKey: 'card',
+          label: 'Tarjeta Débito / Crédito (Datáfono)',
+          category: 'Tarjetas / Datáfonos'
+        });
+      }
+    } else {
+      options.push({
+        id: 'card',
+        methodKey: 'card',
+        label: 'Tarjeta Débito / Crédito',
+        category: 'Tarjetas / Datáfonos'
+      });
+    }
+
+    // Billeteras Digitales
+    if (finalCfg.wallets && finalCfg.wallets.length > 0) {
+      finalCfg.wallets.filter(w => w.enabled !== false).forEach(w => {
+        options.push({
+          id: `wallet_${w.id}`,
+          methodKey: (w.id === 'nequi' ? 'nequi' : w.id === 'daviplata' ? 'daviplata' : 'wallet') as PaymentMethod,
+          label: `${w.name} ${w.phoneNumber ? `(${w.phoneNumber})` : ''} - ${w.holderName || ''}`.trim(),
+          category: 'Billeteras Digitales'
+        });
+      });
+    }
+
+    // Códigos QR
+    if (finalCfg.qrCodes && finalCfg.qrCodes.length > 0) {
+      finalCfg.qrCodes.filter(q => q.enabled !== false).forEach(q => {
+        options.push({
+          id: `qr_${q.id}`,
+          methodKey: 'qr',
+          label: `${q.name} - ${q.bankOrEntity || ''} ${q.accountNumber ? `(${q.accountNumber})` : ''}`.trim(),
+          category: 'Códigos QR'
+        });
+      });
+    }
+
+    // Transferencias Bancarias & PSE
+    if (finalCfg.bankAccounts && finalCfg.bankAccounts.length > 0) {
+      finalCfg.bankAccounts.filter(b => b.enabled !== false).forEach(b => {
+        options.push({
+          id: `bank_${b.id}`,
+          methodKey: 'transfer',
+          label: `Transferencia ${b.bankName} (${b.accountType === 'savings' ? 'Ahorros' : 'Cte'}: ${b.accountNumber})`,
+          category: 'Transferencias Bancarias & PSE'
+        });
+        if (b.enablePse) {
+          options.push({
+            id: `pse_${b.id}`,
+            methodKey: 'transfer',
+            label: `Portal PSE / Web - ${b.bankName}`,
+            category: 'Transferencias Bancarias & PSE'
+          });
+        }
+      });
+    }
+
+    // Sistema Bre-B Interoperable
+    if (finalCfg.breBKeys && finalCfg.breBKeys.length > 0) {
+      finalCfg.breBKeys.filter(k => k.enabled !== false).forEach(k => {
+        options.push({
+          id: `breb_${k.id}`,
+          methodKey: 'bre_b',
+          label: `Bre-B: ${k.registeredEntity} (${k.keyTypeName}: ${k.keyValue})`,
+          category: 'Sistema Bre-B'
+        });
+      });
+    }
+
+    return options;
+  }, [paymentGatewayConfig]);
+
+  const getPaymentMethodDisplay = (methodId: string) => {
+    const found = availablePaymentMethods.find(p => p.id === methodId || p.methodKey === methodId);
+    if (found) return found.label;
+    if (methodId === 'cash') return 'Efectivo en Caja';
+    if (methodId === 'card') return 'Tarjeta Débito/Crédito';
+    if (methodId === 'nequi') return 'Nequi';
+    if (methodId === 'daviplata') return 'Daviplata';
+    if (methodId === 'transfer') return 'Transferencia / PSE';
+    if (methodId === 'qr') return 'Código QR';
+    if (methodId === 'bre_b') return 'Bre-B';
+    return methodId;
+  };
   
   // Form Modal state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -57,13 +264,13 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [plate, setPlate] = useState('');
-  const [vehicleType, setVehicleType] = useState<VehicleType>('car');
+  const [vehicleType, setVehicleType] = useState<string>('car');
   const [monthlyRate, setMonthlyRate] = useState<number>(120000);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [assignedSpotCode, setAssignedSpotCode] = useState('');
   const [notes, setNotes] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<string>('cash');
   const [printReceiptOnSave, setPrintReceiptOnSave] = useState(true);
 
   // Load subscribers from API
@@ -129,21 +336,30 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     const startStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
     const endStr = `${inOneMonth.getFullYear()}-${pad(inOneMonth.getMonth() + 1)}-${pad(inOneMonth.getDate())}`;
 
+    const defaultCat = availableCategories[0]?.id || 'car';
+    const defaultPay = paymentGatewayConfig?.defaultMethod || availablePaymentMethods[0]?.id || 'cash';
+
     setEditingSubscriber(null);
     setFullName('');
     setDocumentId('');
     setPhone('');
     setEmail('');
     setPlate('');
-    setVehicleType('car');
-    setMonthlyRate(120000);
+    setVehicleType(defaultCat);
+    setMonthlyRate(getEstimatedMonthlyRate(defaultCat));
     setStartDate(startStr);
     setEndDate(endStr);
     setAssignedSpotCode('');
     setNotes('');
-    setPaymentMethod('cash');
+    setPaymentMethod(defaultPay);
     setPrintReceiptOnSave(true);
     setIsFormOpen(true);
+  };
+
+  const handleVehicleTypeChange = (newType: string) => {
+    setVehicleType(newType);
+    const suggested = getEstimatedMonthlyRate(newType);
+    setMonthlyRate(suggested);
   };
 
   const openEditForm = (sub: ParkingSubscriber) => {
@@ -153,8 +369,8 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     setPhone(sub.phone || '');
     setEmail(sub.email || '');
     setPlate(sub.plate || '');
-    setVehicleType(sub.vehicleType || 'car');
-    setMonthlyRate(sub.monthlyRate || 120000);
+    setVehicleType(sub.vehicleType || availableCategories[0]?.id || 'car');
+    setMonthlyRate(sub.monthlyRate || getEstimatedMonthlyRate(sub.vehicleType || 'car'));
     setStartDate(sub.startDate || '');
     setEndDate(sub.endDate || '');
     setAssignedSpotCode(sub.assignedSpotCode || '');
@@ -173,6 +389,10 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
 
     setIsSaving(true);
     const cleanPlate = plate.toUpperCase().trim();
+    const selectedPayMeta = availablePaymentMethods.find(p => p.id === paymentMethod);
+    const resolvedMethodKey = (selectedPayMeta?.methodKey || paymentMethod || 'cash') as PaymentMethod;
+    const paymentRef = selectedPayMeta && selectedPayMeta.id !== resolvedMethodKey ? selectedPayMeta.label : undefined;
+
     const subscriberPayload: ParkingSubscriber = {
       id: editingSubscriber ? editingSubscriber.id : `sub_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       fullName: fullName.trim(),
@@ -188,7 +408,8 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
       status: 'active',
       notes: notes.trim(),
       lastPaymentDate: new Date().toISOString(),
-      paymentMethod
+      paymentMethod: resolvedMethodKey,
+      paymentReference: paymentRef
     };
 
     try {
@@ -298,16 +519,19 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         status: 'paid'
       };
 
+      const payDisplay = getPaymentMethodDisplay(sub.paymentMethod);
+      const isCash = sub.paymentMethod === 'cash' || String(sub.paymentMethod).toLowerCase().includes('efectivo');
+
       const result = await printInstantThermal({
         type: 'exit_receipt',
         ticket: dummyTicket,
         businessInfo: {
           ...businessInfo,
-          ticketFooter: `COMPROBANTE DE SUSCRIPCIÓN MENSUAL\nTitular: ${sub.fullName}\nDocumento: ${sub.documentId}\nVigencia: ${sub.startDate} hasta ${sub.endDate}\n¡Gracias por preferirnos!`
+          ticketFooter: `COMPROBANTE DE SUSCRIPCIÓN MENSUAL\nTitular: ${sub.fullName}\nDocumento: ${sub.documentId}\nVehículo: ${getCategoryName(sub.vehicleType)} - Placa: ${sub.plate}\nMedio de Pago: ${payDisplay}\nVigencia: ${sub.startDate} hasta ${sub.endDate}\n¡Gracias por preferirnos!`
         },
         paperWidth: businessInfo.defaultPaperWidth || '80mm',
         autoCut: businessInfo.cutPaperOnPrint ?? true,
-        openDrawer: sub.paymentMethod === 'cash' && (businessInfo.openCashDrawerOnCashPayment ?? true)
+        openDrawer: isCash && (businessInfo.openCashDrawerOnCashPayment ?? true)
       });
 
       if (result.success) {
@@ -521,16 +745,19 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                             <span className="font-mono font-black text-sm px-2.5 py-1 bg-amber-400 text-slate-950 rounded-md border border-slate-800 shadow-xs tracking-wider">
                               {sub.plate}
                             </span>
-                            <span className="text-[11px] text-slate-400 uppercase font-semibold">
-                              {sub.vehicleType === 'car' ? 'Carro' : sub.vehicleType === 'motorcycle' ? 'Moto' : sub.vehicleType === 'suv' ? 'Camioneta' : 'Bici'}
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-semibold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                              {getCategoryName(sub.vehicleType)}
                             </span>
                           </div>
                         </td>
                         <td className="py-3 px-3">
                           <div className="font-bold text-slate-900 dark:text-white">{sub.fullName}</div>
-                          <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                          <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5 flex-wrap">
                             {sub.documentId && <span>CC: {sub.documentId}</span>}
                             {sub.phone && <span className="flex items-center gap-0.5"><Phone className="w-3 h-3 inline" /> {sub.phone}</span>}
+                            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                              {getPaymentMethodDisplay(sub.paymentMethod)}
+                            </span>
                           </div>
                         </td>
                         <td className="py-3 px-3">
@@ -672,13 +899,17 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                   </label>
                   <select
                     value={vehicleType}
-                    onChange={(e) => setVehicleType(e.target.value as any)}
+                    onChange={(e) => handleVehicleTypeChange(e.target.value)}
                     className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
                   >
-                    <option value="car">Automóvil / Carro</option>
-                    <option value="motorcycle">Motocicleta</option>
-                    <option value="suv">Camioneta / SUV</option>
-                    <option value="bicycle">Bicicleta</option>
+                    {vehicleType && !availableCategories.some(c => c.id === vehicleType) && (
+                      <option value={vehicleType}>{vehicleType} (Personalizado)</option>
+                    )}
+                    {availableCategories.map(cat => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name} {cat.code ? `(${cat.code})` : ''}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -772,12 +1003,21 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                   </label>
                   <select
                     value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as any)}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                     className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
                   >
-                    <option value="cash">Efectivo</option>
-                    <option value="transfer">Transferencia / Nequi / Daviplata</option>
-                    <option value="card">Tarjeta Débito/Crédito</option>
+                    {paymentMethod && !availablePaymentMethods.some(p => p.id === paymentMethod) && (
+                      <option value={paymentMethod}>{getPaymentMethodDisplay(paymentMethod)}</option>
+                    )}
+                    {Array.from(new Set(availablePaymentMethods.map(p => p.category))).map(catGroup => (
+                      <optgroup key={catGroup} label={`--- ${catGroup} ---`} className="bg-slate-100 dark:bg-slate-800 font-extrabold text-slate-800 dark:text-slate-200">
+                        {availablePaymentMethods.filter(p => p.category === catGroup).map(opt => (
+                          <option key={opt.id} value={opt.id} className="bg-white dark:bg-slate-900 font-medium text-slate-900 dark:text-slate-100">
+                            {opt.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
                   </select>
                 </div>
               </div>

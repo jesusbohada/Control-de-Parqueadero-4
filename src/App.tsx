@@ -3892,6 +3892,9 @@ export default function App() {
           }}
           businessInfo={effectiveBusinessInfo}
           spots={spots}
+          vehicleCategories={vehicleCategories}
+          rates={rates}
+          paymentGatewayConfig={paymentGatewayConfig}
         />
 
         {activeView === 'work_mode' && (
