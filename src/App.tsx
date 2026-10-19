@@ -100,6 +100,7 @@ import { UsersManagementModal } from './components/UsersManagementModal';
 import { VehicleCategoriesModal } from './components/VehicleCategoriesModal';
 import { ExpenseConceptsModal } from './components/ExpenseConceptsModal';
 import { SpotsManagementModal } from './components/SpotsManagementModal';
+import { SubscribersModal } from './components/SubscribersModal';
 import { CentralHubModal } from './components/CentralHubModal';
 import { BranchSyncModal } from './components/BranchSyncModal';
 import { SoftwareUpdaterModal } from './components/SoftwareUpdaterModal';
@@ -666,6 +667,7 @@ export default function App() {
   };
 
   const [isPrinterModalOpen, setIsPrinterModalOpen] = useState(false);
+  const [isSubscribersModalOpen, setIsSubscribersModalOpen] = useState(false);
   const [printers, setPrinters] = useState<PrinterConfig[]>(() => {
     try {
       const saved = localStorage.getItem('pk_printers');
@@ -2172,6 +2174,9 @@ export default function App() {
       printer_config: { view: 'printer_config', category: 'config' },
       printer: { view: 'printer_config', category: 'config' },
       impresoras: { view: 'printer_config', category: 'config' },
+      subscribers: { view: 'subscribers', category: 'operations' },
+      abonados: { view: 'subscribers', category: 'operations' },
+      mensualidades: { view: 'subscribers', category: 'operations' },
     };
 
     if (requested && viewCategoryMap[requested]) {
@@ -2235,6 +2240,7 @@ export default function App() {
         database: 'config',
         agent_skills: 'config',
         printer_config: 'config',
+        subscribers: 'operations',
       };
       setActiveCategory(catMap[newView] || 'operations');
     }
@@ -3489,6 +3495,7 @@ export default function App() {
           softwareUpdateAvailable={hasSoftwareUpdateAvailable}
           onOpenPrinterModal={() => setIsPrinterModalOpen(true)}
           onOpenCashDrawer={handleOpenCashDrawerDirect}
+          onOpenSubscribersModal={() => setIsSubscribersModalOpen(true)}
         />
 
         {/* Espacio de Trabajo Principal Centrado y Amplio */}
@@ -3872,6 +3879,19 @@ export default function App() {
           onDelete={handleDeletePrinter}
           businessInfo={businessInfo}
           onUpdateBusinessInfo={handleSaveBusinessInfo}
+        />
+
+        {/* Modal de Gestión de Abonados y Mensualidades */}
+        <SubscribersModal
+          isOpen={isSubscribersModalOpen || activeView === 'subscribers'}
+          onClose={() => {
+            setIsSubscribersModalOpen(false);
+            if (activeView === 'subscribers') {
+              handleSwitchView('operations', 'operations');
+            }
+          }}
+          businessInfo={effectiveBusinessInfo}
+          spots={spots}
         />
 
         {activeView === 'work_mode' && (

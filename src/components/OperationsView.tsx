@@ -45,6 +45,7 @@ import {
 import { 
   ParkingSpot, 
   ParkingTicket, 
+  ParkingSubscriber,
   VehicleType, 
   RatesConfig, 
   ParkingBusinessInfo,
@@ -184,9 +185,81 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     );
   }, [cleanPlate, activeTickets]);
 
+  // --- Verificación en tiempo real de Abonados / Mensualidades ---
+  const [subscriberData, setSubscriberData] = useState<{
+    success?: boolean;
+    isSubscriber?: boolean;
+    subscriber?: ParkingSubscriber | null;
+  } | null>(null);
+  const [checkingSubscriber, setCheckingSubscriber] = useState(false);
+
+  useEffect(() => {
+    if (!cleanPlate || cleanPlate.length < 4) {
+      setSubscriberData(null);
+      return;
+    }
+    let isCancelled = false;
+    setCheckingSubscriber(true);
+
+    const timer = setTimeout(() => {
+      fetch(`/api/subscribers/check/${encodeURIComponent(cleanPlate)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!isCancelled) {
+            setSubscriberData(data);
+            if (data?.isSubscriber && data.subscriber?.assignedSpotCode && !entrySpotCode) {
+              setEntrySpotCode(data.subscriber.assignedSpotCode);
+            }
+          }
+        })
+        .catch(err => {
+          console.warn('Error verificando abonado:', err);
+          if (!isCancelled) setSubscriberData(null);
+        })
+        .finally(() => {
+          if (!isCancelled) setCheckingSubscriber(false);
+        });
+    }, 200);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [cleanPlate]);
+
   // --- Exit / Billing State ---
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState<ParkingTicket | null>(null);
+
+  // --- Verificación de Abonado para Salida / Cobro ---
+  const [exitSubscriber, setExitSubscriber] = useState<ParkingSubscriber | null>(null);
+
+  useEffect(() => {
+    if (!selectedTicket?.plate) {
+      setExitSubscriber(null);
+      return;
+    }
+    const cleanExitPlate = formatPlate(selectedTicket.plate);
+    let isCancelled = false;
+
+    fetch(`/api/subscribers/check/${encodeURIComponent(cleanExitPlate)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!isCancelled && data?.isSubscriber && data.subscriber) {
+          setExitSubscriber(data.subscriber);
+        } else if (!isCancelled) {
+          setExitSubscriber(null);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) setExitSubscriber(null);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedTicket?.plate]);
+
   const [barcodeScanFeedback, setBarcodeScanFeedback] = useState<string | null>(null);
   const [exitPaymentMethod, setExitPaymentMethod] = useState<PaymentMethod>(() => paymentGatewayConfig?.defaultMethod || 'cash');
   const [cashReceivedInput, setCashReceivedInput] = useState<string>('');
@@ -1415,6 +1488,75 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   </div>
                 )}
 
+                {/* Alertas de Abonado / Mensualidad en tiempo real */}
+                {subscriberData?.isSubscriber && subscriberData.subscriber && subscriberData.subscriber.status === 'active' && (
+                  <div className="mt-2 p-3 bg-emerald-500/15 border-2 border-emerald-500/50 rounded-xl text-xs text-emerald-950 dark:text-emerald-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                    <div className="flex items-start gap-2.5">
+                      <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-[10px] tracking-wider border border-emerald-500/30">
+                            🚗 VEHÍCULO ABONADO ACTIVO
+                          </span>
+                          {subscriberData.subscriber.assignedSpotCode && (
+                            <span className="text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">
+                              Plaza Reservada: {subscriberData.subscriber.assignedSpotCode}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                          {subscriberData.subscriber.fullName} {subscriberData.subscriber.phone ? `· Tel: ${subscriberData.subscriber.phone}` : ''}
+                        </p>
+                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
+                          Suscripción vigente hasta: <strong>{new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}</strong> · Tarifa: <strong>{formatCurrency(subscriberData.subscriber.monthlyRate, rates.currencySymbol)}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {subscriberData?.isSubscriber && subscriberData.subscriber && subscriberData.subscriber.status === 'expiring_soon' && (
+                  <div className="mt-2 p-3 bg-amber-500/15 border-2 border-amber-500/50 rounded-xl text-xs text-amber-950 dark:text-amber-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/25 text-amber-800 dark:text-amber-300 text-[10px] tracking-wider border border-amber-500/30">
+                            ⚠️ MENSUALIDAD PRÓXIMA A VENCER
+                          </span>
+                        </div>
+                        <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                          {subscriberData.subscriber.fullName} {subscriberData.subscriber.phone ? `· Tel: ${subscriberData.subscriber.phone}` : ''}
+                        </p>
+                        <p className="text-[11px] text-amber-800 dark:text-amber-300/90 mt-0.5">
+                          Vence el: <strong>{new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}</strong>. ¡Recuerde ofrecer la renovación mensual!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {subscriberData?.isSubscriber && subscriberData.subscriber && subscriberData.subscriber.status === 'expired' && (
+                  <div className="mt-2 p-3 bg-rose-500/15 border-2 border-rose-500/50 rounded-xl text-xs text-rose-950 dark:text-rose-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-rose-500/25 text-rose-800 dark:text-rose-300 text-[10px] tracking-wider border border-rose-500/30">
+                            ⛔ ABONADO MENSUAL VENCIDO
+                          </span>
+                        </div>
+                        <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                          {subscriberData.subscriber.fullName} · Venció el: <strong>{new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}</strong>
+                        </p>
+                        <p className="text-[11px] text-rose-800 dark:text-rose-300/90 mt-0.5">
+                          La suscripción ha expirado. Renovar en el módulo de Abonados o cobrar tarifa ordinaria.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Alerta de Advertencia en tiempo real si la placa ya existe en tickets activos */}
                 {duplicateActiveTicket && (
                   <div className="mt-2 p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
@@ -1722,6 +1864,38 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {/* Banner de Abonado Activo en Liquidación de Salida */}
+                {exitSubscriber && exitSubscriber.status === 'active' && (
+                  <div className="p-3 bg-emerald-500/15 border-2 border-emerald-500/50 rounded-xl text-xs text-emerald-950 dark:text-emerald-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                    <div className="flex items-start gap-2.5">
+                      <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-[10px] tracking-wider border border-emerald-500/30">
+                          🚗 VEHÍCULO ABONADO ACTIVO
+                        </span>
+                        <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                          Titular: {exitSubscriber.fullName} · Vigencia: {new Date(exitSubscriber.endDate).toLocaleDateString('es-CO')}
+                        </p>
+                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
+                          Este vehículo cuenta con mensualidad vigente. Puede exonerar el cobro ordinario.
+                        </p>
+                      </div>
+                    </div>
+                    {finalTotalAmount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDiscountInput(liveCalculation.totalAmount.toString());
+                          playSound('success', soundEnabled);
+                        }}
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs shrink-0 cursor-pointer shadow-sm transition-all"
+                      >
+                        Exonerar Cobro
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* ======================================================= */}
                 {/* SALIDA SIN TICKET / TARJETA DE PROPIEDAD                */}

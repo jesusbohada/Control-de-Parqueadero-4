@@ -144,6 +144,28 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(timestamp);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+
+CREATE TABLE IF NOT EXISTS subscribers (
+    id VARCHAR(100) PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    document_id VARCHAR(50) NOT NULL,
+    phone VARCHAR(50),
+    email VARCHAR(100),
+    plate VARCHAR(20) NOT NULL,
+    vehicle_type VARCHAR(50) NOT NULL,
+    monthly_rate NUMERIC(15,2) DEFAULT 0,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    assigned_spot_code VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'active',
+    notes TEXT,
+    last_payment_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    payment_method VARCHAR(50) DEFAULT 'cash',
+    details JSONB DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX IF NOT EXISTS idx_subscribers_plate ON subscribers(plate);
+CREATE INDEX IF NOT EXISTS idx_subscribers_status ON subscribers(status);
 `;
 
 // Memoria intermedia segura para contingencia
@@ -154,6 +176,7 @@ const memoryStore = {
   cashShifts: new Map<string, any>(),
   configs: new Map<string, any>(),
   users: new Map<string, any>(),
+  subscribers: new Map<string, any>(),
   auditLogs: [] as any[]
 };
 

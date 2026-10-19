@@ -23,7 +23,8 @@ import {
   HardDrive,
   Check,
   Laptop,
-  Printer
+  Printer,
+  Users
 } from 'lucide-react';
 import { 
   ParkingBusinessInfo, 
@@ -81,6 +82,7 @@ interface TopNavbarProps {
   softwareUpdateAvailable?: boolean;
   onOpenPrinterModal?: () => void;
   onOpenCashDrawer?: () => void;
+  onOpenSubscribersModal?: () => void;
 }
 
 export const ThemeToggleDropdown: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode }) => {
@@ -151,7 +153,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   pendingCentralUpdatesCount = 0,
   softwareUpdateAvailable = false,
   onOpenPrinterModal,
-  onOpenCashDrawer
+  onOpenCashDrawer,
+  onOpenSubscribersModal
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -407,6 +410,19 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               aria-label="Abrir Cajón Monedero"
             >
               <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
+            </button>
+          )}
+
+          {/* Acceso Directo a Mensualidades y Abonados */}
+          {onOpenSubscribersModal && (
+            <button
+              type="button"
+              onClick={onOpenSubscribersModal}
+              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-500/40 text-slate-800 dark:text-slate-200 transition-all cursor-pointer relative"
+              title="Gestión de Mensualidades y Abonados"
+              aria-label="Mensualidades y Abonados"
+            >
+              <Users className="w-3.5 h-3.5 text-emerald-500" />
             </button>
           )}
 

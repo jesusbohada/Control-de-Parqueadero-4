@@ -290,6 +290,26 @@ export interface ParkingTicket {
   };
 }
 
+export interface ParkingSubscriber {
+  id: string;
+  fullName: string;
+  documentId: string;
+  phone: string;
+  email?: string;
+  plate: string;
+  vehicleType: VehicleType;
+  monthlyRate: number;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  assignedSpotCode?: string;
+  status: 'active' | 'expiring_soon' | 'expired' | 'suspended';
+  notes?: string;
+  lastPaymentDate: string;
+  paymentMethod: PaymentMethod;
+  paymentReference?: string;
+  registeredBy?: string;
+}
+
 export interface ParkingBusinessInfo {
   name: string;
   nit: string;

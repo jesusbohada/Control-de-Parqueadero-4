@@ -569,7 +569,7 @@ async function startServer() {
 
     // 1. Verificar lectura de tablas de PostgreSQL
     if (isPostgresReady()) {
-      const tablesToCheck = ['spots', 'active_tickets', 'paid_tickets', 'cash_shifts', 'users', 'configs', 'audit_logs'];
+      const tablesToCheck = ['spots', 'active_tickets', 'paid_tickets', 'cash_shifts', 'users', 'configs', 'audit_logs', 'subscribers'];
       for (const t of tablesToCheck) {
         try {
           const r = await pool.query(`SELECT count(*)::int as count FROM ${t}`);
@@ -2092,14 +2092,15 @@ async function startServer() {
   app.get('/api/database/backup', async (req, res) => {
     try {
       if (isPostgresReady()) {
-        const [spots, active, paid, shifts, configs, users, audit] = await Promise.all([
+        const [spots, active, paid, shifts, configs, users, audit, subs] = await Promise.all([
           pool.query('SELECT * FROM spots'),
           pool.query('SELECT * FROM active_tickets'),
           pool.query('SELECT * FROM paid_tickets'),
           pool.query('SELECT * FROM cash_shifts'),
           pool.query('SELECT * FROM configs'),
           pool.query('SELECT * FROM users'),
-          pool.query('SELECT * FROM audit_logs')
+          pool.query('SELECT * FROM audit_logs'),
+          pool.query('SELECT * FROM subscribers').catch(() => ({ rows: [] }))
         ]);
         const backup = {
           version: 'wolfzonepos-postgresql-v1',
@@ -2111,7 +2112,8 @@ async function startServer() {
           cashShifts: shifts.rows,
           configs: configs.rows,
           users: users.rows,
-          auditLogs: audit.rows
+          auditLogs: audit.rows,
+          subscribers: subs.rows
         };
         return res.json({ success: true, backup });
       }
@@ -2125,6 +2127,7 @@ async function startServer() {
         cashShifts: Array.from(memoryStoreRef.cashShifts.values()),
         configs: Array.from(memoryStoreRef.configs.entries()).map(([key, value]) => ({ key, value })),
         users: Array.from(memoryStoreRef.users.values()),
+        subscribers: Array.from((memoryStoreRef as any).subscribers?.values() || []),
         auditLogs: memoryStoreRef.auditLogs
       };
       res.json({ success: true, backup });
@@ -2151,6 +2154,320 @@ async function startServer() {
         }
       }
       res.json({ success: true, message: 'Base de datos de operaciones reiniciada exitosamente' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // -------------------------------------------------------------
+  // SISTEMA DE COPIAS DE SEGURIDAD PROGRAMADAS EN SEGUNDO PLANO
+  // -------------------------------------------------------------
+  async function runAutomatedDatabaseBackup() {
+    try {
+      const backupsDir = path.join(process.cwd(), 'backups');
+      if (!fs.existsSync(backupsDir)) {
+        fs.mkdirSync(backupsDir, { recursive: true });
+      }
+
+      let backup: any = null;
+      if (isPostgresReady()) {
+        const [spots, active, paid, shifts, configs, users, audit, subs] = await Promise.all([
+          pool.query('SELECT * FROM spots'),
+          pool.query('SELECT * FROM active_tickets'),
+          pool.query('SELECT * FROM paid_tickets'),
+          pool.query('SELECT * FROM cash_shifts'),
+          pool.query('SELECT * FROM configs'),
+          pool.query('SELECT * FROM users'),
+          pool.query('SELECT * FROM audit_logs'),
+          pool.query('SELECT * FROM subscribers').catch(() => ({ rows: [] }))
+        ]);
+        backup = {
+          version: 'wolfzonepos-postgresql-v1',
+          exportedAt: new Date().toISOString(),
+          databaseEngine: 'PostgreSQL',
+          spots: spots.rows,
+          activeTickets: active.rows,
+          paidTickets: paid.rows,
+          cashShifts: shifts.rows,
+          configs: configs.rows,
+          users: users.rows,
+          auditLogs: audit.rows,
+          subscribers: subs.rows
+        };
+      } else {
+        backup = {
+          version: 'wolfzonepos-memory-v1',
+          exportedAt: new Date().toISOString(),
+          databaseEngine: 'In-Memory',
+          spots: Array.from(memoryStoreRef.spots.values()),
+          activeTickets: Array.from(memoryStoreRef.activeTickets.values()),
+          paidTickets: Array.from(memoryStoreRef.paidTickets.values()),
+          cashShifts: Array.from(memoryStoreRef.cashShifts.values()),
+          configs: Array.from(memoryStoreRef.configs.entries()).map(([key, value]) => ({ key, value })),
+          users: Array.from(memoryStoreRef.users.values()),
+          subscribers: Array.from((memoryStoreRef as any).subscribers?.values() || []),
+          auditLogs: memoryStoreRef.auditLogs
+        };
+      }
+
+      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupPath = path.join(backupsDir, `backup_auto_${safeDate}.json`);
+      fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+      console.log(`[Auto-Backup] Respaldo programado de seguridad generado en: ${backupPath}`);
+
+      // Rotación: purgar copias de más de 30 días
+      const maxAgeMs = 30 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+      const files = fs.readdirSync(backupsDir);
+      let purged = 0;
+      for (const f of files) {
+        if (f.startsWith('backup_auto_') && f.endsWith('.json')) {
+          const filePath = path.join(backupsDir, f);
+          try {
+            const stats = fs.statSync(filePath);
+            if (now - stats.mtimeMs > maxAgeMs) {
+              fs.unlinkSync(filePath);
+              purged++;
+            }
+          } catch {}
+        }
+      }
+      if (purged > 0) {
+        console.log(`[Auto-Backup] Purgadas ${purged} copias de seguridad anteriores a 30 días.`);
+      }
+    } catch (bkErr: any) {
+      console.warn('[Auto-Backup Warning]:', bkErr.message);
+    }
+  }
+
+  // Programar primer respaldo automático a los 15s de arranque y luego cada 6 horas
+  setTimeout(runAutomatedDatabaseBackup, 15000);
+  setInterval(runAutomatedDatabaseBackup, 6 * 60 * 60 * 1000);
+
+  app.post('/api/database/backup/now', async (req, res) => {
+    try {
+      await runAutomatedDatabaseBackup();
+      res.json({ success: true, message: 'Copia de seguridad generada y archivada con éxito en la carpeta /backups/' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // -------------------------------------------------------------
+  // ABONADOS / MENSUALIDADES (SUBSCRIBERS)
+  // -------------------------------------------------------------
+  app.get('/api/subscribers', async (req, res) => {
+    try {
+      if (isPostgresReady()) {
+        const result = await pool.query('SELECT * FROM subscribers ORDER BY end_date ASC');
+        const subscribers = result.rows.map(r => {
+          const endDate = r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0];
+          const startDate = r.start_date instanceof Date ? r.start_date.toISOString().split('T')[0] : String(r.start_date).split('T')[0];
+          
+          let computedStatus = r.status || 'active';
+          if (computedStatus !== 'suspended') {
+            const now = new Date();
+            const exp = new Date(endDate + 'T23:59:59');
+            const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) {
+              computedStatus = 'expired';
+            } else if (diffDays <= 3) {
+              computedStatus = 'expiring_soon';
+            } else {
+              computedStatus = 'active';
+            }
+          }
+
+          return {
+            id: r.id,
+            fullName: r.full_name,
+            documentId: r.document_id,
+            phone: r.phone || '',
+            email: r.email || '',
+            plate: (r.plate || '').toUpperCase().trim(),
+            vehicleType: r.vehicle_type || 'car',
+            monthlyRate: Number(r.monthly_rate) || 0,
+            startDate,
+            endDate,
+            assignedSpotCode: r.assigned_spot_code || '',
+            status: computedStatus,
+            notes: r.notes || '',
+            lastPaymentDate: r.last_payment_date instanceof Date ? r.last_payment_date.toISOString() : String(r.last_payment_date),
+            paymentMethod: r.payment_method || 'cash',
+            paymentReference: r.details?.paymentReference || '',
+            registeredBy: r.details?.registeredBy || ''
+          };
+        });
+        return res.json({ success: true, subscribers });
+      }
+
+      const subscribers = Array.from((memoryStoreRef as any).subscribers?.values() || []);
+      res.json({ success: true, subscribers });
+    } catch (err: any) {
+      console.error('[Get Subscribers Error]', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.get('/api/subscribers/check/:plate', async (req, res) => {
+    try {
+      const cleanPlate = (req.params.plate || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (!cleanPlate) {
+        return res.status(400).json({ success: false, error: 'Placa no especificada' });
+      }
+
+      if (isPostgresReady()) {
+        const query = `
+          SELECT * FROM subscribers 
+          WHERE UPPER(REPLACE(plate, '-', '')) = $1 
+          ORDER BY end_date DESC 
+          LIMIT 1
+        `;
+        const result = await pool.query(query, [cleanPlate]);
+        if (result.rows.length === 0) {
+          return res.json({ success: true, isSubscriber: false, subscriber: null });
+        }
+
+        const r = result.rows[0];
+        const endDate = r.end_date instanceof Date ? r.end_date.toISOString().split('T')[0] : String(r.end_date).split('T')[0];
+        const startDate = r.start_date instanceof Date ? r.start_date.toISOString().split('T')[0] : String(r.start_date).split('T')[0];
+        
+        let computedStatus = r.status || 'active';
+        if (computedStatus !== 'suspended') {
+          const now = new Date();
+          const exp = new Date(endDate + 'T23:59:59');
+          const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays < 0) {
+            computedStatus = 'expired';
+          } else if (diffDays <= 3) {
+            computedStatus = 'expiring_soon';
+          } else {
+            computedStatus = 'active';
+          }
+        }
+
+        const subscriber = {
+          id: r.id,
+          fullName: r.full_name,
+          documentId: r.document_id,
+          phone: r.phone || '',
+          email: r.email || '',
+          plate: r.plate,
+          vehicleType: r.vehicle_type,
+          monthlyRate: Number(r.monthly_rate) || 0,
+          startDate,
+          endDate,
+          assignedSpotCode: r.assigned_spot_code,
+          status: computedStatus,
+          notes: r.notes,
+          lastPaymentDate: r.last_payment_date,
+          paymentMethod: r.payment_method
+        };
+
+        return res.json({
+          success: true,
+          isSubscriber: true,
+          isAuthorized: computedStatus === 'active' || computedStatus === 'expiring_soon',
+          subscriber
+        });
+      }
+
+      const found: any = Array.from((memoryStoreRef as any).subscribers?.values() || []).find((s: any) => 
+        (s.plate || '').toUpperCase().replace(/[^A-Z0-9]/g, '') === cleanPlate
+      );
+      if (!found) {
+        return res.json({ success: true, isSubscriber: false, subscriber: null });
+      }
+      return res.json({
+        success: true,
+        isSubscriber: true,
+        isAuthorized: found.status === 'active' || found.status === 'expiring_soon',
+        subscriber: found
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/subscribers', async (req, res) => {
+    try {
+      const { subscriber } = req.body;
+      if (!subscriber?.plate || !subscriber?.fullName) {
+        return res.status(400).json({ success: false, error: 'La placa y nombre del titular son obligatorios' });
+      }
+
+      const id = subscriber.id || `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const cleanPlate = (subscriber.plate || '').toUpperCase().trim();
+      const monthlyRate = Number(subscriber.monthlyRate) || 0;
+      const startDate = subscriber.startDate || new Date().toISOString().split('T')[0];
+      const endDate = subscriber.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const details = {
+        paymentReference: subscriber.paymentReference || '',
+        registeredBy: subscriber.registeredBy || 'caja'
+      };
+
+      if (isPostgresReady()) {
+        const query = `
+          INSERT INTO subscribers (
+            id, full_name, document_id, phone, email, plate, vehicle_type, 
+            monthly_rate, start_date, end_date, assigned_spot_code, status, 
+            notes, last_payment_date, payment_method, details
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+          ON CONFLICT (id) DO UPDATE SET
+            full_name = EXCLUDED.full_name,
+            document_id = EXCLUDED.document_id,
+            phone = EXCLUDED.phone,
+            email = EXCLUDED.email,
+            plate = EXCLUDED.plate,
+            vehicle_type = EXCLUDED.vehicle_type,
+            monthly_rate = EXCLUDED.monthly_rate,
+            start_date = EXCLUDED.start_date,
+            end_date = EXCLUDED.end_date,
+            assigned_spot_code = EXCLUDED.assigned_spot_code,
+            status = EXCLUDED.status,
+            notes = EXCLUDED.notes,
+            last_payment_date = EXCLUDED.last_payment_date,
+            payment_method = EXCLUDED.payment_method,
+            details = EXCLUDED.details
+        `;
+        await pool.query(query, [
+          id,
+          subscriber.fullName,
+          subscriber.documentId || '',
+          subscriber.phone || '',
+          subscriber.email || '',
+          cleanPlate,
+          subscriber.vehicleType || 'car',
+          monthlyRate,
+          startDate,
+          endDate,
+          subscriber.assignedSpotCode || null,
+          subscriber.status || 'active',
+          subscriber.notes || '',
+          subscriber.lastPaymentDate || new Date().toISOString(),
+          subscriber.paymentMethod || 'cash',
+          JSON.stringify(details)
+        ]);
+      } else {
+        (memoryStoreRef as any).subscribers.set(id, { ...subscriber, id, plate: cleanPlate });
+      }
+
+      res.json({ success: true, subscriber: { ...subscriber, id, plate: cleanPlate } });
+    } catch (err: any) {
+      console.error('[Save Subscriber Error]', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/subscribers/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (isPostgresReady()) {
+        await pool.query('DELETE FROM subscribers WHERE id = $1', [id]);
+      } else {
+        (memoryStoreRef as any).subscribers.delete(id);
+      }
+      res.json({ success: true, message: 'Abonado eliminado correctamente' });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }

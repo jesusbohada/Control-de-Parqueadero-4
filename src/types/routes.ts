@@ -20,7 +20,8 @@ export type ActiveWorkspaceView =
   | 'users'
   | 'printer_config'
   | 'database'
-  | 'agent_skills';
+  | 'agent_skills'
+  | 'subscribers';
 
 export interface ProtectedRouteConfig {
   /** Ruta URL relativa (ej: '/wolfzonepos', '/admin', '/auditoria') */
@@ -69,6 +70,17 @@ export const DEFAULT_PROTECTED_ROUTES: ProtectedRouteConfig[] = [
     defaultView: 'operations',
     defaultCategory: 'operations',
     isDefault: false,
+  },
+  {
+    path: '/abonados',
+    name: 'Gestión de Mensualidades y Abonados',
+    description: 'Control de suscripciones de parqueadero, pagos mensuales y registro de vehículos autorizados.',
+    requiredRole: 'cajero',
+    badge: 'Abonados',
+    badgeColor: 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/30',
+    iconName: 'Car',
+    defaultView: 'subscribers',
+    defaultCategory: 'operations',
   },
   {
     path: '/admin',
