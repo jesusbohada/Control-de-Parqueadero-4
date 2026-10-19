@@ -300,6 +300,8 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
     const formattedTime = entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
     const vehicleRate = rates[ticket.vehicleType] || { hourRate: 4000, gracePeriodMinutes: 15 };
 
+    const isSubEntry = !!(ticket as any).isSubscriber || (ticket.notes && /abonado/i.test(ticket.notes));
+
     bodyContent = `
       <div class="text-center">
         ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
@@ -308,7 +310,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <div class="header-sub">${businessInfo.address || ''}</div>
         <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
         ${businessInfo.branchName ? `<div class="header-sub">SEDE: ${businessInfo.branchName}</div>` : ''}
-        <div><span class="badge-black">*** TICKET DE INGRESO ***</span></div>
+        <div><span class="badge-black">${isSubEntry ? '*** INGRESO VEHÍCULO ABONADO ***' : '*** TICKET DE INGRESO ***'}</span></div>
       </div>
 
       <div class="divider"></div>
@@ -319,9 +321,9 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       </div>
 
       <div class="plate-box">
-        <div class="plate-label">${ticket.isForeignPlate ? `PLACA EXTRANJERA (${ticket.originCountry || 'INTERNACIONAL'})` : 'PLACA / VEHÍCULO'}</div>
+        <div class="plate-label">${ticket.isForeignPlate ? `PLACA EXTRANJERA (${ticket.originCountry || 'INTERNACIONAL'})` : (isSubEntry ? 'PLACA / ABONADO MENSUAL' : 'PLACA / VEHÍCULO')}</div>
         <div class="plate-text">${ticket.plate}</div>
-        <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)} ${ticket.isForeignPlate ? '• INTERNACIONAL' : ''}</div>
+        <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)} ${isSubEntry ? '• PLAN MENSUAL' : (ticket.isForeignPlate ? '• INTERNACIONAL' : '')}</div>
       </div>
 
       ${ticket.notes ? `
@@ -348,6 +350,13 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <span class="bold">${ticket.cashierName}</span>
       </div>` : ''}
 
+      ${isSubEntry ? `
+      <div style="border:1.5px solid #000;background:#fafafa;padding:4px 6px;border-radius:4px;margin:4px 0;">
+        <div class="row"><span class="bold">CONDICIÓN:</span><span class="font-black">ABONO MENSUAL ACTIVO</span></div>
+        <div class="row"><span>TARIFA TIEMPO:</span><span class="bold">$0 COP (PLAN CUBIERTO)</span></div>
+        <div class="row"><span>ACCESO:</span><span class="bold">AUTORIZADO / CONTROL ACTIVO</span></div>
+      </div>
+      ` : `
       <div class="rates-box">
         <div class="bold uppercase" style="font-size:${is58 ? '10px' : '11px'};margin-bottom:3px;border-bottom:1.5px solid #000;padding-bottom:2px;">Tarifas Vigentes:</div>
         <div class="row">
@@ -359,6 +368,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
           <span class="bold">${vehicleRate.gracePeriodMinutes || 0} minutos</span>
         </div>
       </div>
+      `}
 
       <div class="security-seal">
         <span class="bold">FIRMA ANTI-FRAUDE:</span>
@@ -471,6 +481,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       const hours = Math.floor((ticket.totalMinutes || 0) / 60);
       const mins = (ticket.totalMinutes || 0) % 60;
       const isFE = !!ticket.electronicInvoice;
+      const isSubExitReceipt = (ticket.notes && /abonado/i.test(ticket.notes)) || (ticket as any).isSubscriber || (ticket.totalAmount === 0 && (ticket.discountAmount || 0) > 0);
 
       bodyContent = `
       <div class="text-center">
@@ -481,7 +492,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
         <div>
           <span class="badge-black">
-            ${isFE ? '*** FACTURA ELECTRÓNICA DE VENTA ***' : '*** COMPROBANTE DE SALIDA POS ***'}
+            ${isFE ? '*** FACTURA ELECTRÓNICA DE VENTA ***' : (isSubExitReceipt ? '*** SALIDA AUTORIZADA - ABONADO MENSUAL ***' : '*** COMPROBANTE DE SALIDA POS ***')}
           </span>
         </div>
         ${isFE ? `
@@ -544,14 +555,14 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
 
       <div class="row font-black" style="font-size:${is58 ? '14px' : '17px'};padding:2px 0;">
         <span>TOTAL COBRADO:</span>
-        <span>${formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
+        <span>${isSubExitReceipt ? '$ 0 COP (ABONO CUBIERTO)' : formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
       </div>
 
       <div class="thick-divider"></div>
 
       <div class="row">
         <span>Medio de Pago:</span>
-        <span class="font-black uppercase">${ticket.paymentMethod || 'Efectivo'}</span>
+        <span class="font-black uppercase">${isSubExitReceipt ? 'PLAN MENSUAL DE ABONADO' : (ticket.paymentMethod || 'Efectivo')}</span>
       </div>
       ${ticket.cashReceived ? `
       <div class="row">

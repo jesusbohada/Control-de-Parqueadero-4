@@ -566,9 +566,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     const countrySuffix = isForeignPlate 
       ? ` [Placa Extranjera${originCountryValue ? `: ${originCountryValue}` : ''}]` 
       : '';
-    const fullNotes = entryNotes.trim() 
-      ? `${entryNotes.trim()}${countrySuffix}` 
-      : (countrySuffix ? countrySuffix.trim() : undefined);
+    const subNote = subscriberData?.isSubscriber && subscriberData.subscriber
+      ? `[Abonado Mensual: ${subscriberData.subscriber.fullName} - Vigencia: ${new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}]`
+      : '';
+    const fullNotes = [entryNotes.trim(), countrySuffix.trim(), subNote].filter(Boolean).join(' ') || undefined;
 
     try {
       setIsSubmittingEntry(true);
