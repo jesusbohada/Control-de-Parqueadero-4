@@ -461,12 +461,46 @@ export default function App() {
 
   const [activeTickets, setActiveTickets] = useState<ParkingTicket[]>(() => {
     const saved = localStorage.getItem('pk_active_tickets');
-    return saved ? JSON.parse(saved) : INITIAL_ACTIVE_TICKETS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const simActive = INITIAL_ACTIVE_TICKETS.filter(t => t && t.id && t.id.startsWith('tkt-sim-'));
+          const missing = simActive.filter(t => !parsed.some(p => p && p.id === t.id));
+          if (missing.length > 0) {
+            const merged = [...missing, ...parsed];
+            localStorage.setItem('pk_active_tickets', JSON.stringify(merged));
+            return merged;
+          }
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error loading pk_active_tickets:', e);
+      }
+    }
+    return INITIAL_ACTIVE_TICKETS;
   });
 
   const [paidTickets, setPaidTickets] = useState<ParkingTicket[]>(() => {
     const saved = localStorage.getItem('pk_paid_tickets');
-    return saved ? JSON.parse(saved) : INITIAL_PAID_TICKETS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const simPaid = INITIAL_PAID_TICKETS.filter(t => t && t.id && t.id.startsWith('tkt-sim-'));
+          const missing = simPaid.filter(t => !parsed.some(p => p && p.id === t.id));
+          if (missing.length > 0) {
+            const merged = [...missing, ...parsed];
+            localStorage.setItem('pk_paid_tickets', JSON.stringify(merged));
+            return merged;
+          }
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error loading pk_paid_tickets:', e);
+      }
+    }
+    return INITIAL_PAID_TICKETS;
   });
 
   const [rates, setRates] = useState<RatesConfig>(() => {
@@ -615,7 +649,16 @@ export default function App() {
       const saved = localStorage.getItem('pk_closed_shifts_history');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          const simShifts = INITIAL_CLOSED_SHIFTS.filter(s => s && s.id && s.id.startsWith('shift-sim-'));
+          const missing = simShifts.filter(s => !parsed.some(p => p && p.id === s.id));
+          if (missing.length > 0) {
+            const merged = [...missing, ...parsed];
+            localStorage.setItem('pk_closed_shifts_history', JSON.stringify(merged));
+            return merged;
+          }
+          return parsed;
+        }
       }
     } catch (e) {
       console.error('Error loading pk_closed_shifts_history:', e);
@@ -636,7 +679,16 @@ export default function App() {
       const saved = localStorage.getItem('pk_closed_days_history');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          const simDays = INITIAL_CLOSED_DAYS.filter(d => d && d.id && (d.id.startsWith('day-sim-') || d.id === 'day-2026-10-19-1'));
+          const missing = simDays.filter(d => !parsed.some(p => p && p.id === d.id));
+          if (missing.length > 0) {
+            const merged = [...missing, ...parsed];
+            localStorage.setItem('pk_closed_days_history', JSON.stringify(merged));
+            return merged;
+          }
+          return parsed;
+        }
       }
     } catch (e) {
       console.error('Error loading pk_closed_days_history:', e);
