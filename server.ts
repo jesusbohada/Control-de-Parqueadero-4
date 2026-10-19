@@ -2720,11 +2720,12 @@ async function startServer() {
 
           // Renderizado 1:1 exacto para el cabezal térmico (576px para 80mm, 384px para 58mm)
           const renderWidth = paperWidth === '58mm' ? 256 : 384;
-          const renderHeight = 2400; // Altura expandida para capturar el ticket completo con QR, código de barras y pie
+          const renderHeight = 3400; // Altura expandida para capturar el ticket completo con marcos, tablas y firmas
           const renderArgs = [
             '--headless=new',
             '--disable-gpu',
             '--no-sandbox',
+            '--hide-scrollbars',
             '--force-device-scale-factor=1.5',
             `--window-size=${renderWidth},${renderHeight}`,
             `--screenshot=${tempPng}`,

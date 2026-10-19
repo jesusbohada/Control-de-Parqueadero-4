@@ -157,7 +157,7 @@ async function run() {
   const printT1Res = await postJson('/api/print/instant', {
     printerName: 'SAT 22TUS',
     type: 'cash_shift',
-    forceRaw: true,
+    forceRaw: false,
     paperWidth: '80mm',
     autoCut: true,
     openDrawer: false,
@@ -273,7 +273,7 @@ async function run() {
   const printT2Res = await postJson('/api/print/instant', {
     printerName: 'SAT 22TUS',
     type: 'cash_shift',
-    forceRaw: true,
+    forceRaw: false,
     paperWidth: '80mm',
     autoCut: true,
     openDrawer: false,
@@ -375,7 +375,7 @@ async function run() {
   const printDayRes = await postJson('/api/print/instant', {
     printerName: 'SAT 22TUS',
     type: 'day_closure',
-    forceRaw: true,
+    forceRaw: false,
     paperWidth: '80mm',
     autoCut: true,
     openDrawer: false,
