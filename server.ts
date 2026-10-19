@@ -2677,14 +2677,23 @@ async function startServer() {
 
         const tempFile = path.join(os.tmpdir(), `pos_ticket_${Date.now()}_${Math.floor(Math.random() * 10000)}.txt`);
         fs.writeFileSync(tempFile, formattedText, 'utf8');
-        const script = `Get-Content -Path '${tempFile.replace(/'/g, "''")}' | Out-Printer -Name '${targetPrinter.replace(/'/g, "''")}'`;
+        const rawPsScript = path.join(currentDir, 'scripts', 'print_raw_ticket.ps1');
 
-        execFile('powershell.exe', ['-NoProfile', '-Command', script], { timeout: 8000 }, (err) => {
+        const psArgs = [
+          '-ExecutionPolicy', 'Bypass',
+          '-File', rawPsScript,
+          '-TextPath', tempFile,
+          '-PrinterName', targetPrinter
+        ];
+        if (autoCut) psArgs.push('-AutoCut');
+        if (openDrawer) psArgs.push('-OpenDrawer');
+
+        execFile('powershell.exe', psArgs, { timeout: 8000 }, (err) => {
           try { fs.unlinkSync(tempFile); } catch {}
           if (err) {
             return res.status(500).json({ success: false, error: err.message, printer: targetPrinter });
           }
-          return res.json({ success: true, printer: targetPrinter, type, mode: 'plain_fallback' });
+          return res.json({ success: true, printer: targetPrinter, type, mode: 'raw_escpos_fallback' });
         });
       };
 
