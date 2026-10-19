@@ -23,7 +23,10 @@ import {
   Smartphone,
   QrCode,
   Landmark,
-  Banknote
+  Banknote,
+  Receipt,
+  FileText,
+  Hash
 } from 'lucide-react';
 import { 
   ParkingSubscriber, 
@@ -251,7 +254,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     if (methodId === 'bre_b') return 'Bre-B';
     return methodId;
   };
-  
+
   // Form Modal state
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSubscriber, setEditingSubscriber] = useState<ParkingSubscriber | null>(null);
@@ -271,7 +274,77 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   const [assignedSpotCode, setAssignedSpotCode] = useState('');
   const [notes, setNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<string>('cash');
+  const [voucherNumber, setVoucherNumber] = useState<string>('');
   const [printReceiptOnSave, setPrintReceiptOnSave] = useState(true);
+
+  // Determina si el medio de pago actual genera o requiere documento / soporte bancario
+  const isBankingPaymentMethod = useMemo(() => {
+    if (paymentMethod === 'cash') return false;
+    const opt = availablePaymentMethods.find(p => p.id === paymentMethod);
+    if (!opt) return true; // Por defecto cualquier no-efectivo es bancario/electrónico
+    const catLower = (opt.category || '').toLowerCase();
+    return !catLower.includes('efectivo');
+  }, [paymentMethod, availablePaymentMethods]);
+
+  // Metadatos y textos contextuales según el medio bancario/electrónico seleccionado
+  const voucherFieldMeta = useMemo(() => {
+    const opt = availablePaymentMethods.find(p => p.id === paymentMethod);
+    const cat = opt?.category || '';
+    const idLower = paymentMethod.toLowerCase();
+
+    if (cat.includes('Tarjetas') || cat.includes('Datáfonos') || idLower.includes('card') || idLower.includes('terminal')) {
+      return {
+        title: 'N° de Voucher / Aprobación Datáfono',
+        badge: 'Datáfono / Tarjeta',
+        placeholder: 'ej. 004829 ó Recibo: 10482 Lote: 03',
+        helper: 'Ingresa el número de voucher, lote o código de aprobación emitido por el datáfono físico',
+        icon: CreditCard
+      };
+    }
+    if (cat.includes('Billeteras') || idLower.includes('nequi') || idLower.includes('daviplata') || idLower.includes('wallet')) {
+      return {
+        title: 'N° de Aprobación / Referencia Billetera Digital',
+        badge: 'Billetera Digital',
+        placeholder: 'ej. M-491823 ó Ref: 894021',
+        helper: 'Código de comprobante o referencia devuelta por la app (Nequi, Daviplata, Dale!, Movii, etc.)',
+        icon: Smartphone
+      };
+    }
+    if (cat.includes('QR') || idLower.includes('qr')) {
+      return {
+        title: 'N° de Comprobante / Referencia Pago QR',
+        badge: 'Código QR',
+        placeholder: 'ej. QR-7482910 ó Ref: 98124',
+        helper: 'Código de comprobante o referencia bancaria obtenido al pagar con el código QR',
+        icon: QrCode
+      };
+    }
+    if (cat.includes('Transferencias') || idLower.includes('bank') || idLower.includes('pse') || idLower.includes('transfer')) {
+      return {
+        title: 'N° Transacción Bancaria / CUS PSE',
+        badge: 'Transferencia / PSE',
+        placeholder: 'ej. CUS-94819024 ó Ref: 204918',
+        helper: 'Número de aprobación bancaria, referencia de transferencia o código de seguimiento CUS PSE',
+        icon: Landmark
+      };
+    }
+    if (cat.includes('Bre-B') || idLower.includes('breb') || idLower.includes('bre_b')) {
+      return {
+        title: 'ID Transacción / Comprobante Bre-B',
+        badge: 'Sistema Bre-B',
+        placeholder: 'ej. BB-20261019-9482',
+        helper: 'Identificador único de la transacción o comprobante emitido por el sistema interoperable Bre-B',
+        icon: Banknote
+      };
+    }
+    return {
+      title: 'N° de Voucher / Referencia de Transacción Bancaria',
+      badge: 'Documento Bancario',
+      placeholder: 'ej. Aprobación / Voucher / Referencia',
+      helper: 'Número de documento o soporte de la transacción bancaria',
+      icon: Receipt
+    };
+  }, [paymentMethod, availablePaymentMethods]);
 
   // Load subscribers from API
   const fetchSubscribers = async () => {
@@ -321,7 +394,8 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         const matchesName = (sub.fullName || '').toLowerCase().includes(q);
         const matchesDoc = (sub.documentId || '').toLowerCase().includes(q);
         const matchesPhone = (sub.phone || '').toLowerCase().includes(q);
-        return matchesPlate || matchesName || matchesDoc || matchesPhone;
+        const matchesVoucher = (sub.voucherNumber || '').toLowerCase().includes(q);
+        return matchesPlate || matchesName || matchesDoc || matchesPhone || matchesVoucher;
       }
       return true;
     });
@@ -352,6 +426,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     setAssignedSpotCode('');
     setNotes('');
     setPaymentMethod(defaultPay);
+    setVoucherNumber('');
     setPrintReceiptOnSave(true);
     setIsFormOpen(true);
   };
@@ -376,6 +451,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     setAssignedSpotCode(sub.assignedSpotCode || '');
     setNotes(sub.notes || '');
     setPaymentMethod(sub.paymentMethod || 'cash');
+    setVoucherNumber(sub.voucherNumber || (sub as any).details?.voucherNumber || '');
     setPrintReceiptOnSave(false);
     setIsFormOpen(true);
   };
@@ -409,7 +485,8 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
       notes: notes.trim(),
       lastPaymentDate: new Date().toISOString(),
       paymentMethod: resolvedMethodKey,
-      paymentReference: paymentRef
+      paymentReference: paymentRef,
+      voucherNumber: isBankingPaymentMethod ? (voucherNumber.trim() || undefined) : undefined
     };
 
     try {
@@ -521,13 +598,15 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
 
       const payDisplay = getPaymentMethodDisplay(sub.paymentMethod);
       const isCash = sub.paymentMethod === 'cash' || String(sub.paymentMethod).toLowerCase().includes('efectivo');
+      const voucherText = sub.voucherNumber ? `\nDoc. Bancario / Voucher: #${sub.voucherNumber}` : '';
+      const refText = sub.paymentReference ? `\nSoporte: ${sub.paymentReference}` : '';
 
       const result = await printInstantThermal({
         type: 'exit_receipt',
         ticket: dummyTicket,
         businessInfo: {
           ...businessInfo,
-          ticketFooter: `COMPROBANTE DE SUSCRIPCIÓN MENSUAL\nTitular: ${sub.fullName}\nDocumento: ${sub.documentId}\nVehículo: ${getCategoryName(sub.vehicleType)} - Placa: ${sub.plate}\nMedio de Pago: ${payDisplay}\nVigencia: ${sub.startDate} hasta ${sub.endDate}\n¡Gracias por preferirnos!`
+          ticketFooter: `COMPROBANTE DE SUSCRIPCIÓN MENSUAL\nTitular: ${sub.fullName}\nDocumento: ${sub.documentId}\nVehículo: ${getCategoryName(sub.vehicleType)} - Placa: ${sub.plate}\nMedio de Pago: ${payDisplay}${voucherText}${refText}\nVigencia: ${sub.startDate} hasta ${sub.endDate}\n¡Gracias por preferirnos!`
         },
         paperWidth: businessInfo.defaultPaperWidth || '80mm',
         autoCut: businessInfo.cutPaperOnPrint ?? true,
@@ -758,6 +837,11 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                             <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
                               {getPaymentMethodDisplay(sub.paymentMethod)}
                             </span>
+                            {sub.voucherNumber && (
+                              <span className="text-[10px] font-mono font-bold text-sky-700 dark:text-sky-300 bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-500/20 flex items-center gap-1" title="Documento bancario / Voucher de la transacción">
+                                <Receipt className="w-3 h-3 inline text-sky-500" /> #{sub.voucherNumber}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="py-3 px-3">
@@ -1021,6 +1105,34 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                   </select>
                 </div>
               </div>
+
+              {/* Campo para Documento Bancario / Voucher / Referencia cuando se escoge un medio electrónico o bancario */}
+              {isBankingPaymentMethod && (
+                <div className="p-3 bg-sky-500/10 dark:bg-sky-950/30 border border-sky-500/30 rounded-xl space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-sky-900 dark:text-sky-300 text-xs sm:text-sm flex items-center gap-1.5">
+                      <voucherFieldMeta.icon className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+                      <span>{voucherFieldMeta.title} *</span>
+                    </label>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30 uppercase tracking-wide">
+                      {voucherFieldMeta.badge}
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={voucherNumber}
+                      onChange={(e) => setVoucherNumber(e.target.value)}
+                      placeholder={voucherFieldMeta.placeholder}
+                      className="w-full p-2 pl-8 bg-white dark:bg-slate-900 border border-sky-300 dark:border-sky-700/60 rounded-lg text-slate-900 dark:text-white font-mono font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs"
+                    />
+                    <Hash className="w-3.5 h-3.5 text-sky-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                  <p className="text-[11px] text-sky-800/80 dark:text-sky-300/80 flex items-center gap-1">
+                    <span className="font-semibold">Soporte Auditoría:</span> {voucherFieldMeta.helper}
+                  </p>
+                </div>
+              )}
 
               <div className="space-y-1">
                 <label className="font-bold text-slate-700 dark:text-slate-300 block">

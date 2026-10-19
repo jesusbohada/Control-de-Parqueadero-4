@@ -307,6 +307,7 @@ export interface ParkingSubscriber {
   lastPaymentDate: string;
   paymentMethod: PaymentMethod;
   paymentReference?: string;
+  voucherNumber?: string; // N° de voucher, comprobante de datáfono, aprobación billetera, ref bancaria o CUS PSE
   registeredBy?: string;
 }
 

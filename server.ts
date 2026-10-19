@@ -2295,6 +2295,7 @@ async function startServer() {
             lastPaymentDate: r.last_payment_date instanceof Date ? r.last_payment_date.toISOString() : String(r.last_payment_date),
             paymentMethod: r.payment_method || 'cash',
             paymentReference: r.details?.paymentReference || '',
+            voucherNumber: r.details?.voucherNumber || '',
             registeredBy: r.details?.registeredBy || ''
           };
         });
@@ -2361,7 +2362,9 @@ async function startServer() {
           status: computedStatus,
           notes: r.notes,
           lastPaymentDate: r.last_payment_date,
-          paymentMethod: r.payment_method
+          paymentMethod: r.payment_method,
+          paymentReference: r.details?.paymentReference || '',
+          voucherNumber: r.details?.voucherNumber || ''
         };
 
         return res.json({
@@ -2403,6 +2406,7 @@ async function startServer() {
       const endDate = subscriber.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const details = {
         paymentReference: subscriber.paymentReference || '',
+        voucherNumber: subscriber.voucherNumber || '',
         registeredBy: subscriber.registeredBy || 'caja'
       };
 
