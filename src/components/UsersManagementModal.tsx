@@ -769,20 +769,21 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Gestión de Usuarios, Perfiles y Permisos (RBAC)
+                Gestión de Usuarios y Permisos
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40">
                   Panel Maestro
                 </span>
               </h2>
               <p className="text-xs text-slate-600 dark:text-slate-300">
-                Administra los usuarios del sistema, crea perfiles personalizados y configura la matriz de permisos por módulo.
+                Administración de cuentas, perfiles de cajero y permisos de acceso al sistema.
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label="Cerrar modal"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
           >
             <X className="w-5 h-5" />
           </button>
@@ -916,7 +917,18 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                {users.map((user) => {
+                {users.length === 0 ? (
+                  <div className="col-span-full py-12 flex flex-col items-center justify-center text-center p-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-950/60 text-slate-800 dark:text-slate-200">
+                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 mb-3 border border-slate-200 dark:border-slate-700">
+                      <Users className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+                    </div>
+                    <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">No hay usuarios registrados</h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mt-1">
+                      Crea un nuevo usuario para otorgar acceso a la terminal POS o delegar tareas de supervisión y caja.
+                    </p>
+                  </div>
+                ) : (
+                  users.map((user) => {
                   const isSelf = user.id === currentUser.id;
                   const isMaster = user.role === 'master';
                   const activeActions = countActiveActions(user.permissions);
@@ -1049,7 +1061,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
                     </div>
                   );
-                })}
+                })
+              )}
               </div>
             </div>
           )}

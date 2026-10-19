@@ -194,7 +194,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
       {savedSuccess && (
         <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/80 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2.5 shadow-xs animate-in fade-in">
           <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 font-black" />
-          <span>¡Todos los cambios de tarifas, negocio y facturación se guardaron correctamente en la base de datos!</span>
+          <span>Configuración guardada exitosamente.</span>
         </div>
       )}
 

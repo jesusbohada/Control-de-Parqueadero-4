@@ -1910,26 +1910,28 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
           {/* Engine Selector: PostgreSQL vs IndexedDB */}
           <div className="flex items-center bg-slate-200 dark:bg-slate-900 p-1 rounded-xl border border-slate-300 dark:border-slate-800">
             <button
+              type="button"
               onClick={() => setEngineMode('postgres')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 engineMode === 'postgres'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Database className="w-3.5 h-3.5 text-blue-300" />
-              <span>🐘 Servidor SQL: PostgreSQL</span>
+              <span>PostgreSQL (Servidor)</span>
             </button>
             <button
+              type="button"
               onClick={() => setEngineMode('indexeddb')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                 engineMode === 'indexeddb'
                   ? 'bg-amber-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <HardDrive className="w-3.5 h-3.5 text-amber-300" />
-              <span>💻 Terminal: IndexedDB (Local)</span>
+              <span>IndexedDB (Local)</span>
             </button>
           </div>
 
