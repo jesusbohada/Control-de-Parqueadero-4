@@ -124,6 +124,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userToDelete, setUserToDelete] = useState<SystemUser | null>(null);
+  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
 
   if (!isOpen) return null;
 
@@ -1019,8 +1020,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                          Clave: <strong className="text-slate-800 dark:text-slate-200 font-mono font-medium">{user.password}</strong>
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                          <span>Clave:</span>
+                          <strong className="text-slate-800 dark:text-slate-200 font-mono font-medium">
+                            {revealedPasswords[user.id] ? user.password : '••••••••'}
+                          </strong>
+                          {currentUser.role === 'master' && (
+                            <button
+                              type="button"
+                              onClick={() => setRevealedPasswords(prev => ({ ...prev, [user.id]: !prev[user.id] }))}
+                              className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer rounded"
+                              title={revealedPasswords[user.id] ? "Ocultar clave" : "Mostrar clave"}
+                              aria-label={revealedPasswords[user.id] ? "Ocultar clave" : "Mostrar clave"}
+                            >
+                              {revealedPasswords[user.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                            </button>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-1.5">
