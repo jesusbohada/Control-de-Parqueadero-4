@@ -109,6 +109,10 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
 
   // Estilos de Alta Definición Térmica: Negro Puro (#000000), trazo nítido y estilizado sin engrosamiento excesivo
   const baseStyles = `
+    @page {
+      size: ${is58 ? '58mm' : '80mm'} auto;
+      margin: 2mm;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       width: ${widthPx}px;
@@ -120,6 +124,16 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       background: #ffffff;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    @media print {
+      body {
+        width: 100% !important;
+        margin: 0 auto !important;
+        padding: 2px !important;
+        background: #ffffff !important;
+      }
     }
     .text-center { text-align: center; }
     .bold { font-weight: 700; }
@@ -322,8 +336,8 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       background: #ffffff;
     }
     .section-banner {
-      background: #000000;
-      color: #ffffff;
+      background: #000000 !important;
+      color: #ffffff !important;
       font-weight: 800;
       font-size: ${is58 ? '9.5px' : '10.5px'};
       text-transform: uppercase;
@@ -332,6 +346,8 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       border-radius: 3px;
       margin-bottom: 6px;
       letter-spacing: 0.3px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     .cuadre-card {
       border: 2px solid #000000;
@@ -347,20 +363,24 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
     }
     .cuadre-card.exact {
       border: 2.2px solid #000000;
-      background: #f5f5f5;
+      background: #f5f5f5 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     .deposit-card {
       border: 2px solid #000000;
       border-radius: 4px;
       padding: 6px 6px;
       margin: 7px 0;
-      background: #000000;
-      color: #ffffff;
+      background: #000000 !important;
+      color: #ffffff !important;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 800;
       font-size: ${is58 ? '10.5px' : '12.5px'};
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     .deposit-card span {
       color: #ffffff !important;
@@ -403,11 +423,13 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       border: 1.2px solid #000000;
     }
     table.data-table-bordered th {
-      background: #000000;
-      color: #ffffff;
+      background: #000000 !important;
+      color: #ffffff !important;
       padding: 3px 4px;
       font-weight: 700;
       border: 1px solid #000000;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
     table.data-table-bordered td {
       padding: 2.5px 3px;

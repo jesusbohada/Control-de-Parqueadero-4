@@ -2781,6 +2781,88 @@ async function startServer() {
     }
   });
 
+  // GENERACIÓN DE PDF VECTORIAL Y DE ALTA DEFINICIÓN PARA ARQUEOS Y CIERRES HISTÓRICOS
+  app.post('/api/reports/ticket-pdf', async (req, res) => {
+    try {
+      const {
+        type = 'cash_shift',
+        ticket,
+        shift,
+        day,
+        businessInfo = {},
+        rates = {},
+        paperWidth = '80mm',
+      } = req.body || {};
+
+      const browserCandidates = [
+        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+        'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+      ];
+      const browserExe = browserCandidates.find(p => fs.existsSync(p));
+
+      const htmlContent = await generateTicketHtml({
+        type,
+        ticket,
+        shift,
+        day,
+        businessInfo,
+        rates,
+        paperWidth
+      });
+
+      const tempHtml = path.join(os.tmpdir(), `ticket_pdf_${Date.now()}_${Math.floor(Math.random() * 10000)}.html`);
+      const tempPdf = path.join(os.tmpdir(), `ticket_pdf_${Date.now()}_${Math.floor(Math.random() * 10000)}.pdf`);
+      fs.writeFileSync(tempHtml, htmlContent, 'utf8');
+
+      if (browserExe) {
+        const renderArgs = [
+          '--headless=new',
+          '--disable-gpu',
+          '--no-sandbox',
+          '--print-to-pdf-no-header',
+          `--print-to-pdf=${tempPdf}`,
+          `file:///${tempHtml.replace(/\\/g, '/')}`
+        ];
+
+        execFile(browserExe, renderArgs, { timeout: 12000 }, (renderErr) => {
+          try { fs.unlinkSync(tempHtml); } catch {}
+
+          if (renderErr || !fs.existsSync(tempPdf)) {
+            console.error('[Ticket PDF Error] Falló generación con Edge headless:', renderErr?.message);
+            return res.status(500).json({ success: false, error: renderErr?.message || 'Error generando PDF' });
+          }
+
+          const pdfBytes = fs.readFileSync(tempPdf);
+          try { fs.unlinkSync(tempPdf); } catch {}
+
+          let docName = 'Reporte_Oficial';
+          if (type === 'cash_shift') {
+            docName = `Arqueo_Turno_${shift?.shiftNumber || 1}_${shift?.consecutiveCode || 'X'}`;
+          } else if (type === 'day_closure') {
+            docName = `Cierre_Dia_${day?.dayNumber || 1}_${day?.consecutiveCode || 'Z'}`;
+          } else if (type === 'exit_receipt') {
+            docName = `Recibo_Salida_${ticket?.ticketNumber || ticket?.plate || 'TKT'}`;
+          } else if (type === 'entry_ticket') {
+            docName = `Ticket_Ingreso_${ticket?.ticketNumber || ticket?.plate || 'TKT'}`;
+          }
+
+          res.setHeader('Content-Type', 'application/pdf');
+          res.setHeader('Content-Disposition', `attachment; filename="${docName}.pdf"`);
+          res.setHeader('Content-Length', pdfBytes.length);
+          return res.send(pdfBytes);
+        });
+        return;
+      }
+
+      return res.status(500).json({ success: false, error: 'Navegador no disponible para renderizado PDF' });
+    } catch (err: any) {
+      console.error('[Ticket PDF Exception]', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
   // APERTURA DIRECTA DE CAJÓN MONEDERO / GAVETA
   app.post('/api/print/open-drawer', async (req, res) => {
     try {

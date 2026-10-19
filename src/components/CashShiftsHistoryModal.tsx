@@ -1,4 +1,6 @@
 import React, { useState, useMemo, Component, ReactNode } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas-pro';
 import { 
   History, 
   Search, 
@@ -160,6 +162,10 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
   const [copiedToast, setCopiedToast] = useState(false);
   const [voucherPaperWidth, setVoucherPaperWidth] = useState<'80mm' | '58mm'>(() => businessInfo?.defaultPaperWidth || '80mm');
 
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [isPrintingThermalDirect, setIsPrintingThermalDirect] = useState(false);
+  const [directPrintStatus, setDirectPrintStatus] = useState<string | null>(null);
+
   // Ticket-specific computed values for history reprint
   const ticketData = useMemo(() => {
     if (!selectedRecordForTicket) return null;
@@ -171,11 +177,14 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
     const vCard = isShift ? s?.cardCollectedSnapshot ?? 0 : d?.cardCollectedSnapshot ?? 0;
     const vWallet = isShift ? s?.walletCollectedSnapshot ?? 0 : d?.walletCollectedSnapshot ?? 0;
     const vQr = isShift ? s?.qrCollectedSnapshot ?? 0 : d?.qrCollectedSnapshot ?? 0;
+    const vTransfer = isShift ? s?.transferCollectedSnapshot ?? 0 : d?.transferCollectedSnapshot ?? 0;
     const vBreB = isShift ? s?.breBCollectedSnapshot ?? 0 : d?.breBCollectedSnapshot ?? 0;
+    const vMixed = isShift ? s?.mixedCollectedSnapshot ?? 0 : d?.mixedCollectedSnapshot ?? 0;
     const vAgreement = isShift ? s?.agreementCollectedSnapshot ?? 0 : d?.agreementCollectedSnapshot ?? 0;
 
     const totalExpenses = isShift ? s?.totalExpensesSnapshot ?? 0 : d?.totalExpensesSnapshot ?? 0;
     const totalPickups = isShift ? s?.totalPickupsSnapshot ?? 0 : d?.totalPickupsSnapshot ?? 0;
+    const totalIncomes = isShift ? s?.totalIncomesSnapshot ?? 0 : d?.totalIncomesSnapshot ?? 0;
     const vBase = isShift ? s?.initialCash ?? 0 : d?.initialDayCash ?? 0;
 
     const vExpectedCash = isShift ? s?.expectedCashSnapshot ?? 0 : d?.expectedCashSnapshot ?? 0;
@@ -187,7 +196,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
       : (d?.cashDifferenceSnapshot ?? (vCountedCash - vExpectedCash));
 
     const totalVentasFacturadas = isShift ? s?.totalCollectedSnapshot ?? 0 : d?.totalCollected ?? 0;
-    const totalEfectivoEntrado = vBase + vCash;
+    const totalEfectivoEntrado = vBase + vCash + totalIncomes;
     const totalEgresosReales = totalExpenses;
 
     const dineroFaltante = (cashDifference < 0) ? Math.abs(cashDifference) : 0;
@@ -202,14 +211,19 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
 
     return {
       isShift,
+      shift: s,
+      day: d,
       vCash,
       vCard,
       vWallet,
       vQr,
+      vTransfer,
       vBreB,
+      vMixed,
       vAgreement,
       totalExpenses,
       totalPickups,
+      totalIncomes,
       vBase,
       vExpectedCash,
       vCountedCash,
@@ -225,6 +239,105 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
       pickupsList,
     };
   }, [selectedRecordForTicket]);
+
+  const handleDownloadRecordPdf = async (item: { type: 'shift' | 'day', shift?: CashShift, day?: OperationalDay }) => {
+    setIsDownloadingPdf(true);
+    setDirectPrintStatus('Generando documento PDF oficial...');
+    try {
+      const isShift = item.type === 'shift';
+      const s = item.shift;
+      const d = item.day;
+
+      const response = await fetch('/api/reports/ticket-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: isShift ? 'cash_shift' : 'day_closure',
+          shift: s,
+          day: d,
+          businessInfo,
+          paperWidth: voucherPaperWidth
+        })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const fileName = isShift 
+          ? `Arqueo_Turno_${s?.shiftNumber || 1}_${s?.consecutiveCode || 'X'}.pdf`
+          : `Cierre_Dia_${d?.dayNumber || 1}_${d?.consecutiveCode || 'Z'}.pdf`;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        setDirectPrintStatus('✓ PDF descargado exitosamente');
+        setTimeout(() => setDirectPrintStatus(null), 3000);
+        return;
+      }
+
+      // Fallback con html2canvas y jsPDF
+      const el = document.getElementById('printable-ticket');
+      if (el) {
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const pWidth = voucherPaperWidth === '58mm' ? 58 : 80;
+        const pHeight = (canvas.height * pWidth) / canvas.width;
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: [pWidth, pHeight]
+        });
+        pdf.addImage(imgData, 'PNG', 0, 0, pWidth, pHeight);
+        pdf.save(isShift ? `Arqueo_Turno_${s?.shiftNumber || 1}.pdf` : `Cierre_Dia_${d?.dayNumber || 1}.pdf`);
+        setDirectPrintStatus('✓ PDF generado en navegador');
+        setTimeout(() => setDirectPrintStatus(null), 3000);
+      }
+    } catch (err: any) {
+      console.error('Error generando PDF:', err);
+      setDirectPrintStatus('Error al generar PDF');
+      setTimeout(() => setDirectPrintStatus(null), 3000);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleDirectThermalPrint = async () => {
+    if (!selectedRecordForTicket) return;
+    setIsPrintingThermalDirect(true);
+    setDirectPrintStatus('Enviando a impresora física SAT 22TUS...');
+    try {
+      const isShift = selectedRecordForTicket.type === 'shift';
+      const res = await fetch('/api/print/instant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          printerName: 'SAT 22TUS',
+          type: isShift ? 'cash_shift' : 'day_closure',
+          forceRaw: false,
+          paperWidth: voucherPaperWidth,
+          autoCut: true,
+          openDrawer: false,
+          shift: selectedRecordForTicket.shift,
+          day: selectedRecordForTicket.day,
+          businessInfo
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDirectPrintStatus('✓ Reimpreso con éxito en SAT 22TUS');
+      } else {
+        setDirectPrintStatus(`Error: ${data.error || 'Fallo de impresión'}`);
+      }
+    } catch (err: any) {
+      setDirectPrintStatus(`Error: ${err.message}`);
+    } finally {
+      setIsPrintingThermalDirect(false);
+      setTimeout(() => setDirectPrintStatus(null), 3500);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -1172,6 +1285,17 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
 
                           <button
                             onClick={() => {
+                              handleDownloadRecordPdf({ type: item.type, shift: item.rawShift, day: item.rawDay });
+                              setActiveMenuId(null);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
+                          >
+                            <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span>Descargar PDF Oficial</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
                               setRecalculatingItem({ type: item.type, shift: item.rawShift, day: item.rawDay });
                               setActiveMenuId(null);
                             }}
@@ -1426,280 +1550,594 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                 id="printable-ticket" 
                 data-paper-width={voucherPaperWidth}
                 className={`w-full bg-white ${
-                  voucherPaperWidth === '58mm' ? 'max-w-[245px] text-[10px] p-3 paper-58mm' : 'max-w-[340px] text-xs p-4 paper-80mm'
-                } border border-dashed border-slate-300 font-mono text-slate-950 space-y-3 rounded shadow-xs force-light transition-all`}
+                  voucherPaperWidth === '58mm' ? 'max-w-[245px] text-[10px] p-2 paper-58mm' : 'max-w-[360px] text-xs p-3 paper-80mm'
+                } font-mono text-slate-950 space-y-2 rounded-lg shadow-sm force-light transition-all`}
               >
-                
-                {/* Header */}
-                <div className="text-center pb-2 border-b border-dashed border-slate-400 space-y-0.5">
-                  <h2 className="font-black text-sm uppercase">{businessInfo?.name || 'Estacionamiento'}</h2>
-                  <p className="text-[10px] text-slate-700">NIT: {businessInfo?.nit || ''}</p>
-                  <p className="text-[10px] text-slate-700">{businessInfo?.address || ''}</p>
-
-                  <div className="mt-2 inline-block bg-slate-900 text-white px-3 py-0.5 font-bold text-[10px] rounded uppercase">
-                    {selectedRecordForTicket.type === 'shift' ? '**** ARQUEO DE TURNO ****' : '**** CIERRE DEFINITIVO DÍA ****'}
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="py-1 border-b border-dashed border-slate-400 text-[10px] space-y-1">
-                  {currentUser?.permissions?.canViewConsecutiveInHistory !== false && ((selectedRecordForTicket.type === 'shift' 
-                    ? selectedRecordForTicket.shift?.consecutiveCode 
-                    : selectedRecordForTicket.day?.consecutiveCode)) && (
-                    <div className="flex justify-between">
-                      <span>CONSECUTIVO NO:</span>
-                      <span className="font-bold">
-                        {selectedRecordForTicket.type === 'shift' 
-                          ? selectedRecordForTicket.shift?.consecutiveCode 
-                          : selectedRecordForTicket.day?.consecutiveCode}
-                      </span>
-                    </div>
-                  )}
-                  {currentUser?.permissions?.canViewOperationalDayInHistory !== false && (
-                    <div className="flex justify-between">
-                      <span>DÍA OPERATIVO:</span>
-                      <span className="font-bold uppercase">
-                        {selectedRecordForTicket.type === 'shift' 
-                          ? `Día #${selectedRecordForTicket.shift?.operationalDayNumber}` 
-                          : (selectedRecordForTicket.day?.date ? new Date(selectedRecordForTicket.day.date + 'T12:00:00').toLocaleDateString('es-CO') : `Día #${selectedRecordForTicket.day?.dayNumber}`)}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span>DOCUMENTO:</span>
-                    <span className="font-bold">
-                      {selectedRecordForTicket.type === 'shift' 
-                        ? `#TURNO-${selectedRecordForTicket.shift?.shiftNumber}` 
-                        : `#CIERRE-DÍA-${selectedRecordForTicket.day?.dayNumber}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>RESPONSABLE:</span>
-                    <span className="font-bold uppercase">
-                      {selectedRecordForTicket.type === 'shift'
-                        ? selectedRecordForTicket.shift?.operatorName
-                        : selectedRecordForTicket.day?.closedByOperator || 'Administrador'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>FECHA Y HORA:</span>
-                    <span>
-                      {new Date(
-                        (selectedRecordForTicket.type === 'shift' 
-                          ? selectedRecordForTicket.shift?.endTime 
-                          : selectedRecordForTicket.day?.closedAt) || Date.now()
-                      ).toLocaleString('es-CO')}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Totals */}
-                {ticketData && (
-                  <>
-                    {/* SECCIÓN 1: DISCRIMINACIÓN DE VENTAS / RECAUDO POR MEDIO DE PAGO */}
-                    <div>
-                      <div className="text-center font-bold uppercase text-[10px] tracking-wider py-1 bg-slate-100 border border-slate-300">
-                        DISCRIMINACIÓN DE VENTAS / RECAUDO
+                {/* --- TEMPLATE 1: ARQUEO DE TURNO (X) --- */}
+                {selectedRecordForTicket.type === 'shift' && ticketData && (
+                  <div className="ticket-frame">
+                    {/* Header Card */}
+                    <div className="header-card">
+                      {businessInfo?.logoUrl && (
+                        <img 
+                          src={businessInfo.logoUrl} 
+                          alt="Logo" 
+                          className="max-h-12 max-w-[150px] mx-auto mb-1.5 object-contain"
+                        />
+                      )}
+                      <div className="font-extrabold text-sm uppercase tracking-wide">{businessInfo?.name || 'SISTEMA DE PARQUEADERO'}</div>
+                      <div className="text-[10px] text-slate-700">NIT: {businessInfo?.nit || 'N/A'}</div>
+                      {businessInfo?.address && <div className="text-[10px] text-slate-700">{businessInfo.address}</div>}
+                      {businessInfo?.phone && <div className="text-[10px] text-slate-700">TEL: {businessInfo.phone}</div>}
+                      {businessInfo?.branchName && <div className="text-[10px] font-semibold text-slate-800">SEDE: {businessInfo.branchName}</div>}
+                      <div className="mt-1">
+                        <span className="inline-block bg-black text-white px-2.5 py-0.5 font-black text-[10px] rounded uppercase tracking-wider">
+                          **** ARQUEO DE TURNO (X) ****
+                        </span>
                       </div>
-                      <table className="w-full text-[10px] font-mono border-collapse my-1">
+                    </div>
+
+                    {/* Info Card */}
+                    <div className="info-card text-[10.5px] space-y-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold">TURNO N°:</span>
+                        <span className="font-black text-sm">#{selectedRecordForTicket.shift?.shiftNumber || 1}</span>
+                      </div>
+                      {selectedRecordForTicket.shift?.consecutiveCode && (
+                        <div className="flex justify-between">
+                          <span>Consecutivo Oficial:</span>
+                          <span className="font-black">{selectedRecordForTicket.shift.consecutiveCode}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span>Cajero / Operador:</span>
+                        <span className="font-black uppercase">{selectedRecordForTicket.shift?.operatorName || 'Cajero'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Apertura de Turno:</span>
+                        <span className="font-bold">{new Date(selectedRecordForTicket.shift?.startTime || Date.now()).toLocaleString('es-CO')}</span>
+                      </div>
+                      {selectedRecordForTicket.shift?.endTime && (
+                        <div className="flex justify-between">
+                          <span>Cierre de Turno:</span>
+                          <span className="font-bold">{new Date(selectedRecordForTicket.shift.endTime).toLocaleString('es-CO')}</span>
+                        </div>
+                      )}
+                      {selectedRecordForTicket.shift?.operationalDayNumber && (
+                        <div className="flex justify-between">
+                          <span>Día Operativo:</span>
+                          <span className="font-bold">Día #{selectedRecordForTicket.shift.operationalDayNumber}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Section Card: Ventas / Recaudo por Medios de Pago */}
+                    <div className="section-card">
+                      <div className="section-banner">DISCRIMINACIÓN DE VENTAS / RECAUDO</div>
+                      <table className="data-table-bordered">
                         <thead>
-                          <tr className="border-b border-slate-400 text-left uppercase text-[9px] font-bold">
-                            <th className="py-1">MEDIO DE PAGO</th>
-                            <th className="py-1 text-right">TOTAL RECAUDO</th>
+                          <tr>
+                            <th className="text-left">MEDIO DE PAGO</th>
+                            <th className="text-right">TOTAL</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-200">
+                        <tbody>
                           <tr>
-                            <td className="py-1 font-semibold">EFECTIVO</td>
-                            <td className="py-1 text-right font-bold text-emerald-800">
-                              {formatCurrency(ticketData.vCash, currencySymbol)}
-                            </td>
+                            <td>Efectivo Recaudado</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vCash, currencySymbol)}</td>
                           </tr>
                           <tr>
-                            <td className="py-1 font-semibold">TARJETAS DÉB/CRÉD</td>
-                            <td className="py-1 text-right">{formatCurrency(ticketData.vCard, currencySymbol)}</td>
+                            <td>Tarjetas Débito / Crédito (POS)</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vCard, currencySymbol)}</td>
                           </tr>
                           <tr>
-                            <td className="py-1 font-semibold">BILLETERAS DIGITALES</td>
-                            <td className="py-1 text-right">{formatCurrency(ticketData.vWallet, currencySymbol)}</td>
+                            <td>Billeteras (Nequi / Daviplata)</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vWallet, currencySymbol)}</td>
                           </tr>
                           <tr>
-                            <td className="py-1 font-semibold">CÓDIGOS QR / PSE / TRANSF</td>
-                            <td className="py-1 text-right">{formatCurrency(ticketData.vQr, currencySymbol)}</td>
+                            <td>Códigos QR / Bancos</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vQr, currencySymbol)}</td>
                           </tr>
-                          <tr>
-                            <td className="py-1 font-semibold">LLAVES BRE-B</td>
-                            <td className="py-1 text-right">{formatCurrency(ticketData.vBreB, currencySymbol)}</td>
-                          </tr>
-                          <tr>
-                            <td className="py-1 font-semibold">CONVENIOS / CRÉDITOS</td>
-                            <td className="py-1 text-right">{formatCurrency(ticketData.vAgreement, currencySymbol)}</td>
-                          </tr>
+                          {ticketData.vTransfer > 0 && (
+                            <tr>
+                              <td>Transferencia / PSE</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vTransfer, currencySymbol)}</td>
+                            </tr>
+                          )}
+                          {ticketData.vBreB > 0 && (
+                            <tr>
+                              <td>Sistema Bre-B</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vBreB, currencySymbol)}</td>
+                            </tr>
+                          )}
+                          {ticketData.vMixed > 0 && (
+                            <tr>
+                              <td>Pagos Mixtos</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vMixed, currencySymbol)}</td>
+                            </tr>
+                          )}
+                          {ticketData.vAgreement > 0 && (
+                            <tr>
+                              <td>Convenios / Créditos</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vAgreement, currencySymbol)}</td>
+                            </tr>
+                          )}
                         </tbody>
                         <tfoot>
-                          <tr className="border-t-2 border-b-2 border-slate-200 dark:border-slate-800 font-bold text-[10px]">
-                            <td className="py-1.5 uppercase">TOTAL VENTAS FACTURADAS</td>
-                            <td className="py-1.5 text-right font-black text-slate-950">
-                              {formatCurrency(ticketData.totalVentasFacturadas, currencySymbol)}
-                            </td>
+                          <tr>
+                            <td>TOTAL VENTAS</td>
+                            <td className="text-right font-black">{formatCurrency(ticketData.totalVentasFacturadas, currencySymbol)}</td>
                           </tr>
                         </tfoot>
                       </table>
                     </div>
 
-                    {/* SECCIÓN 2: CONTROL Y ARQUEO FÍSICO DE GAVETA (FLUJO DE EFECTIVO) */}
-                    <div>
-                      <div className="text-center font-bold uppercase text-[10px] tracking-wider py-1 bg-amber-50 border border-amber-300 text-amber-950">
-                        ARQUEO Y FLUJO DE EFECTIVO EN GAVETA
-                      </div>
-                      <table className="w-full text-[10px] font-mono border-collapse my-1">
-                        <tbody className="divide-y divide-slate-200">
-                          <tr>
-                            <td className="py-1 font-semibold text-slate-700">(+) BASE / FONDO INICIAL DE CAJA</td>
-                            <td className="py-1 text-right font-bold text-slate-800">
-                              +{formatCurrency(ticketData.vBase, currencySymbol)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td className="py-1 font-semibold text-emerald-800">(+) VENTAS EN EFECTIVO RECAUDADAS</td>
-                            <td className="py-1 text-right font-bold text-emerald-800">
-                              +{formatCurrency(ticketData.vCash, currencySymbol)}
-                            </td>
-                          </tr>
-                          <tr className="bg-slate-50 font-bold border-t border-slate-300">
-                            <td className="py-1 text-slate-900">(=) TOTAL EFECTIVO INGRESADO A GAVETA</td>
-                            <td className="py-1 text-right font-black text-slate-900">
-                              {formatCurrency(ticketData.totalEfectivoEntrado, currencySymbol)}
-                            </td>
-                          </tr>
-                          {ticketData.totalExpenses > 0 && (
-                            <tr>
-                              <td className="py-1 font-semibold text-rose-800">(-) GASTOS DE CAJA MENOR (EGRESOS)</td>
-                              <td className="py-1 text-right font-bold text-rose-700">
-                                -{formatCurrency(ticketData.totalExpenses, currencySymbol)}
-                              </td>
-                            </tr>
-                          )}
-                          {ticketData.totalPickups > 0 && (
-                            <tr>
-                              <td className="py-1 font-semibold text-indigo-900">(-) RECOGIDAS DE EFECTIVO (A BÓVEDA)</td>
-                              <td className="py-1 text-right font-bold text-indigo-700">
-                                -{formatCurrency(ticketData.totalPickups, currencySymbol)}
-                              </td>
-                            </tr>
-                          )}
-                          <tr className="border-t-2 border-slate-200 dark:border-slate-800 font-bold bg-slate-100">
-                            <td className="py-1.5 text-slate-950 uppercase">(=) EFECTIVO ESPERADO EN GAVETA</td>
-                            <td className="py-1.5 text-right font-black text-slate-950">
-                              {formatCurrency(ticketData.vExpectedCash, currencySymbol)}
-                            </td>
-                          </tr>
-                          <tr className="font-bold bg-amber-100/50">
-                            <td className="py-1 text-slate-950 uppercase">(FÍSICO) EFECTIVO CONTADO EN CAJA</td>
-                            <td className="py-1 text-right font-black text-slate-950">
-                              {formatCurrency(ticketData.vCountedCash, currencySymbol)}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-
-                      {/* DIFERENCIA (SOBRANTE / FALTANTE) */}
-                      <div className={`p-2 rounded border font-mono text-[10px] space-y-0.5 my-1.5 ${
-                        ticketData.cashDifference === 0 
-                          ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
-                          : ticketData.cashDifference > 0 
-                          ? 'bg-sky-50 border-sky-300 text-sky-950' 
-                          : 'bg-rose-50 border-rose-300 text-rose-950'
-                      }`}>
-                        <div className="flex justify-between font-bold">
-                          <span>RESULTADO CUADRE GAVETA:</span>
-                          <span className="font-black">
-                            {ticketData.cashDifference === 0 
-                              ? '¡CAJA CUADRADA EXACTA! ($0)' 
-                              : ticketData.cashDifference > 0 
-                              ? `DINERO SOBRANTE: +${formatCurrency(ticketData.dineroSobrante, currencySymbol)}` 
-                              : `DINERO FALTANTE: -${formatCurrency(ticketData.dineroFaltante, currencySymbol)}`}
-                          </span>
+                    {/* Section Card: Flujo de Efectivo en Gaveta */}
+                    <div className="section-card">
+                      <div className="section-banner">FLUJO DE EFECTIVO EN GAVETA</div>
+                      <div className="space-y-1 text-[10.5px]">
+                        <div className="flex justify-between">
+                          <span>(+) Base Inicial:</span>
+                          <span className="font-bold">{formatCurrency(ticketData.vBase, currencySymbol)}</span>
                         </div>
+                        <div className="flex justify-between">
+                          <span>(+) Ventas Efectivo:</span>
+                          <span className="font-bold">{formatCurrency(ticketData.vCash, currencySymbol)}</span>
+                        </div>
+                        {ticketData.totalIncomes > 0 && (
+                          <div className="flex justify-between">
+                            <span>(+) Otros Ingresos Caja:</span>
+                            <span className="font-bold">+{formatCurrency(ticketData.totalIncomes, currencySymbol)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span>(-) Gastos de Caja:</span>
+                          <span className="font-bold">-{formatCurrency(ticketData.totalExpenses, currencySymbol)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>(-) Retiros Parciales a Bóveda:</span>
+                          <span className="font-bold">-{formatCurrency(ticketData.totalPickups, currencySymbol)}</span>
+                        </div>
+                        <div className="border-t border-dashed border-black pt-1 flex justify-between font-black">
+                          <span>(=) Efectivo Esperado:</span>
+                          <span>{formatCurrency(ticketData.vExpectedCash, currencySymbol)}</span>
+                        </div>
+                        <div className="flex justify-between font-black text-xs">
+                          <span>Efectivo Físico Contado:</span>
+                          <span>{formatCurrency(ticketData.vCountedCash, currencySymbol)}</span>
+                        </div>
+                      </div>
+
+                      {/* Cuadre Card */}
+                      <div className="cuadre-card exact">
+                        <span>
+                          {ticketData.cashDifference === 0 
+                            ? 'CUADRE EXACTO:' 
+                            : ticketData.cashDifference > 0 
+                            ? 'SOBRANTE (+):' 
+                            : 'FALTANTE (-):'}
+                        </span>
+                        <span>{formatCurrency(Math.abs(ticketData.cashDifference), currencySymbol)}</span>
+                      </div>
+
+                      {/* Deposit Card */}
+                      <div className="deposit-card">
+                        <span>TOTAL A CONSIGNAR:</span>
+                        <span>{formatCurrency(ticketData.totalAConsignar, currencySymbol)}</span>
+                      </div>
+
+                      {/* Detalle Gastos */}
+                      {ticketData.expensesList && ticketData.expensesList.length > 0 && (
+                        <div className="mt-2 pt-1 border-t border-dashed border-slate-300 space-y-0.5 text-[9.5px]">
+                          <div className="font-bold uppercase text-[9px] flex justify-between">
+                            <span>Gastos ({ticketData.expensesList.length}):</span>
+                            <span className="font-bold">-{formatCurrency(ticketData.totalExpenses, currencySymbol)}</span>
+                          </div>
+                          {ticketData.expensesList.slice(0, 4).map((m: any) => (
+                            <div key={m.id} className="flex justify-between text-slate-700">
+                              <span className="truncate pr-1">• {m.description || m.conceptName || 'Gasto'}</span>
+                              <span className="font-semibold shrink-0">-{formatCurrency(m.amount, currencySymbol)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Detalle Recogidas */}
+                      {ticketData.pickupsList && ticketData.pickupsList.length > 0 && (
+                        <div className="mt-1.5 pt-1 border-t border-dashed border-slate-300 space-y-0.5 text-[9.5px]">
+                          <div className="font-bold uppercase text-[9px] flex justify-between">
+                            <span>Recogidas a Bóveda ({ticketData.pickupsList.length}):</span>
+                            <span className="font-bold">{formatCurrency(ticketData.totalPickups, currencySymbol)}</span>
+                          </div>
+                          {ticketData.pickupsList.slice(0, 4).map((m: any) => (
+                            <div key={m.id} className="flex justify-between text-slate-700">
+                              <span className="truncate pr-1">• {m.description || 'Traslado'}</span>
+                              <span className="font-semibold shrink-0">{formatCurrency(m.amount, currencySymbol)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Signatures */}
+                    <div className="signature-grid">
+                      <div className="signature-box">
+                        <div className="signature-line"></div>
+                        <div className="signature-title">FIRMA CAJERO RESPONSABLE</div>
+                        <div className="signature-sub">{selectedRecordForTicket.shift?.operatorName || 'Cajero'} • C.C. ________________</div>
+                      </div>
+                      <div className="signature-box">
+                        <div className="signature-line"></div>
+                        <div className="signature-title">FIRMA SUPERVISOR / AUDITOR</div>
+                        <div className="signature-sub">Revisión y Conformidad • C.C. ________________</div>
                       </div>
                     </div>
 
-                    {/* SECCIÓN 3: LIQUIDACIÓN Y CONSIGNACIÓN TOTAL DEL EFECTIVO */}
-                    <div className="border-y-2 border-slate-200 dark:border-slate-800 py-2 space-y-1.5 my-2 bg-emerald-50/70 p-2 font-mono text-[10px] border">
-                      <div className="text-center font-black uppercase text-[10px] tracking-wide text-emerald-950 pb-1 border-b border-emerald-300">
-                        LIQUIDACIÓN DE EFECTIVO A CONSIGNAR
-                      </div>
-                      <div className="flex justify-between text-slate-800">
-                        <span>Recogidas en Custodia / Bóveda:</span>
-                        <span className="font-bold">{formatCurrency(ticketData.totalPickups, currencySymbol)}</span>
-                      </div>
-                      <div className="flex justify-between text-slate-800">
-                        <span>(+) Efectivo Disponible en Gaveta (Contado - Base):</span>
-                        <span className="font-bold">{formatCurrency(Math.max(0, ticketData.efectivoNetoEnGaveta), currencySymbol)}</span>
-                      </div>
-                      <div className="flex justify-between font-black text-xs text-emerald-950 border-t-2 border-emerald-800 pt-1.5 bg-emerald-200/80 p-1.5 rounded">
-                        <span>TOTAL EFECTIVO A CONSIGNAR :</span>
-                        <span className="text-sm font-black text-emerald-950">{formatCurrency(ticketData.totalAConsignar, currencySymbol)}</span>
-                      </div>
-
-                      {/* Nota aclaratoria sobre recogidas y base */}
-                      <div className="text-[9px] text-slate-700 bg-white/90 p-1.5 rounded border border-emerald-200 mt-1 space-y-0.5 leading-tight">
-                        <p className="font-bold text-emerald-900">💡 CONTROL Y CONSIGNACIÓN:</p>
-                        <p>• <span className="font-semibold">Base de Caja</span> ({formatCurrency(ticketData.vBase, currencySymbol)}) queda en gaveta como fondo de apertura para el siguiente turno.</p>
-                        <p>• Las <span className="font-bold">Recogidas de Efectivo</span> ({formatCurrency(ticketData.totalPickups, currencySymbol)}) son traslados de seguridad a bóveda/custodia; <span className="font-semibold">hacen parte de todo el efectivo generado</span> para consignar al final de la jornada.</p>
-                      </div>
+                    {/* Wolf brand footer */}
+                    <div className="text-center pt-2 mt-2 border-t border-dashed border-slate-400 text-[9.5px]">
+                      <div className="font-black tracking-widest uppercase text-slate-900">WOLFZONE POS</div>
+                      <div className="text-[8.5px] text-slate-600">Comprobante Reimpreso Oficial</div>
                     </div>
-
-                    {/* DETALLE DE GASTOS Y RECOGIDAS ÍTEM POR ÍTEM */}
-                    {ticketData.expensesList && ticketData.expensesList.length > 0 && (
-                      <div className="space-y-1 pt-1 border-t border-dashed border-slate-300">
-                        <div className="font-bold uppercase text-[10px] border-b border-slate-300 pb-0.5 flex justify-between">
-                          <span>DETALLE DE GASTOS DE CAJA ({ticketData.expensesList.length})</span>
-                          <span className="text-rose-700 font-bold">Total: -{formatCurrency(ticketData.totalExpenses, currencySymbol)}</span>
-                        </div>
-                        {ticketData.expensesList.map((m) => (
-                          <div key={m.id} className="flex justify-between text-[9px]">
-                            <span className="truncate pr-1">{m.description} ({m.conceptName || 'Gasto'})</span>
-                            <span className="font-bold text-rose-700 shrink-0">-{formatCurrency(m.amount, currencySymbol)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {ticketData.pickupsList && ticketData.pickupsList.length > 0 && (
-                      <div className="space-y-1 pt-1 border-t border-dashed border-slate-300">
-                        <div className="font-bold uppercase text-[10px] border-b border-slate-300 pb-0.5 flex justify-between">
-                          <span>DETALLE DE RECOGIDAS DE EFECTIVO ({ticketData.pickupsList.length})</span>
-                          <span className="text-indigo-800 font-bold">Total: {formatCurrency(ticketData.totalPickups, currencySymbol)}</span>
-                        </div>
-                        {ticketData.pickupsList.map((m) => (
-                          <div key={m.id} className="flex justify-between text-[9px]">
-                            <span className="truncate pr-1">{m.description} ({new Date(m.timestamp).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })})</span>
-                            <span className="font-bold text-indigo-700 shrink-0">{formatCurrency(m.amount, currencySymbol)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
+                  </div>
                 )}
 
-                {/* Footer */}
-                <div className="text-center pt-2 text-[9px] text-slate-700 border-t border-dashed border-slate-300">
-                  <div className="font-bold uppercase tracking-wider text-slate-800 font-mono">wolfzonepos</div>
-                  <div>Comprobante Reimpreso Oficial</div>
-                </div>
+                {/* --- TEMPLATE 2: CIERRE DEFINITIVO DE JORNADA (REPORTE Z) --- */}
+                {selectedRecordForTicket.type === 'day' && ticketData && (
+                  <div className="ticket-frame">
+                    {/* Header Card */}
+                    <div className="header-card">
+                      {businessInfo?.logoUrl && (
+                        <img 
+                          src={businessInfo.logoUrl} 
+                          alt="Logo" 
+                          className="max-h-12 max-w-[150px] mx-auto mb-1.5 object-contain"
+                        />
+                      )}
+                      <div className="font-extrabold text-sm uppercase tracking-wide">{businessInfo?.name || 'SISTEMA DE PARQUEADERO'}</div>
+                      <div className="text-[10px] text-slate-700">NIT: {businessInfo?.nit || 'N/A'}</div>
+                      {businessInfo?.address && <div className="text-[10px] text-slate-700">{businessInfo.address}</div>}
+                      {businessInfo?.phone && <div className="text-[10px] text-slate-700">TEL: {businessInfo.phone}</div>}
+                      {businessInfo?.branchName && <div className="text-[10px] font-semibold text-slate-800">SEDE: {businessInfo.branchName}</div>}
+                      <div className="mt-1">
+                        <span className="inline-block bg-black text-white px-2.5 py-0.5 font-black text-[10px] rounded uppercase tracking-wider">
+                          **** CIERRE DEFINITIVO (REPORTE Z) ****
+                        </span>
+                      </div>
+                      <div className="text-[9px] font-bold text-slate-800 mt-0.5">AUDITORÍA FISCAL Y CONCILIACIÓN GENERAL</div>
+                    </div>
 
+                    {/* Info Card */}
+                    <div className="info-card text-[10.5px] space-y-1">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold">JORNADA N°:</span>
+                        <span className="font-black text-sm">#{selectedRecordForTicket.day?.dayNumber || 1}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Consecutivo Oficial:</span>
+                        <span className="font-black">{selectedRecordForTicket.day?.consecutiveCode || 'Z-0001'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fecha Apertura:</span>
+                        <span className="font-bold">{new Date(selectedRecordForTicket.day?.openedAt || Date.now()).toLocaleString('es-CO')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Fecha / Hora Cierre:</span>
+                        <span className="font-bold">{new Date(selectedRecordForTicket.day?.closedAt || Date.now()).toLocaleString('es-CO')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total Turnos Operados:</span>
+                        <span className="font-black">{selectedRecordForTicket.day?.shiftsCount || 1} Turnos</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Administrador Responsable:</span>
+                        <span className="font-black uppercase">{selectedRecordForTicket.day?.closedByOperator || 'Administrador General'}</span>
+                      </div>
+                    </div>
+
+                    {/* SECCIÓN 1: MOVIMIENTO GENERAL DE VEHÍCULOS */}
+                    <div className="section-card">
+                      <div className="section-banner">1. MOVIMIENTO GENERAL DE VEHÍCULOS</div>
+                      <div className="space-y-1 text-[10.5px]">
+                        <div className="flex justify-between">
+                          <span>Total Tickets Emitidos:</span>
+                          <span className="font-black">{selectedRecordForTicket.day?.totalTicketsIssuedSnapshot ?? 'N/A'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Vehículos Liquidados / Salidas:</span>
+                          <span className="font-bold">
+                            {selectedRecordForTicket.day?.totalTicketsPaidSnapshot ?? 
+                              (selectedRecordForTicket.day?.vehicleStatsSnapshot ? selectedRecordForTicket.day.vehicleStatsSnapshot.reduce((a, b) => a + b.count, 0) : 0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Vehículos en Patio (Amanecidos):</span>
+                          <span className="font-black border border-black px-1.5 py-0.5 rounded bg-slate-100 text-[11px]">
+                            {selectedRecordForTicket.day?.activeVehiclesRemainingSnapshot ?? 0}
+                          </span>
+                        </div>
+                        {selectedRecordForTicket.day?.ticketRangeSnapshot && (
+                          <div className="flex justify-between text-[9px] text-slate-700 pt-0.5">
+                            <span>Rango Tickets Fiscales:</span>
+                            <span className="font-bold">
+                              {selectedRecordForTicket.day.ticketRangeSnapshot.startTicket || 'TKT-001'} al {selectedRecordForTicket.day.ticketRangeSnapshot.endTicket || 'TKT-001'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {selectedRecordForTicket.day?.vehicleStatsSnapshot && selectedRecordForTicket.day.vehicleStatsSnapshot.length > 0 && (
+                        <div className="mt-2">
+                          <table className="data-table-bordered">
+                            <thead>
+                              <tr>
+                                <th className="text-left">TIPO VEHÍCULO</th>
+                                <th className="text-right">CANT</th>
+                                <th className="text-right">TOTAL</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {selectedRecordForTicket.day.vehicleStatsSnapshot.map((v, i) => (
+                                <tr key={i}>
+                                  <td>{v.category}</td>
+                                  <td className="text-right font-bold">{v.count}</td>
+                                  <td className="text-right font-bold">{formatCurrency(v.total, currencySymbol)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <td>TOTAL VEHÍCULOS</td>
+                                <td className="text-right font-black">
+                                  {selectedRecordForTicket.day.vehicleStatsSnapshot.reduce((a, b) => a + b.count, 0)}
+                                </td>
+                                <td className="text-right font-black">{formatCurrency(selectedRecordForTicket.day?.totalCollected || 0, currencySymbol)}</td>
+                              </tr>
+                            </tfoot>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* SECCIÓN 2: DESGLOSE CONSOLIDADO POR TURNOS */}
+                    {selectedRecordForTicket.day?.shiftsSummarySnapshot && selectedRecordForTicket.day.shiftsSummarySnapshot.length > 0 && (
+                      <div className="section-card">
+                        <div className="section-banner">2. DESGLOSE POR TURNOS DE CAJA</div>
+                        <table className="data-table-bordered">
+                          <thead>
+                            <tr>
+                              <th className="text-left">TURNO / CAJERO</th>
+                              <th className="text-right">EFECTIVO</th>
+                              <th className="text-right">TOTAL</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {selectedRecordForTicket.day.shiftsSummarySnapshot.map((s, i) => (
+                              <tr key={i}>
+                                <td>T#{s.shiftNumber}: {s.operatorName.split(' ')[0]}</td>
+                                <td className="text-right font-bold">{formatCurrency(s.cash, currencySymbol)}</td>
+                                <td className="text-right font-bold">{formatCurrency(s.totalCollected, currencySymbol)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* SECCIÓN 3: DISCRIMINACIÓN EXHAUSTIVA POR MEDIO DE PAGO */}
+                    <div className="section-card">
+                      <div className="section-banner">3. DISCRIMINACIÓN POR MEDIOS DE PAGO</div>
+                      <table className="data-table-bordered">
+                        <thead>
+                          <tr>
+                            <th className="text-left">MEDIO DE PAGO</th>
+                            <th className="text-right">TOTAL</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Efectivo en Caja</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vCash, currencySymbol)}</td>
+                          </tr>
+                          <tr>
+                            <td>Tarjetas Débito / Crédito (POS)</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vCard, currencySymbol)}</td>
+                          </tr>
+                          <tr>
+                            <td>Billeteras (Nequi / Daviplata)</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vWallet, currencySymbol)}</td>
+                          </tr>
+                          <tr>
+                            <td>Códigos QR (Bancolombia QR)</td>
+                            <td className="text-right font-bold">{formatCurrency(ticketData.vQr, currencySymbol)}</td>
+                          </tr>
+                          {ticketData.vTransfer > 0 && (
+                            <tr>
+                              <td>Transferencia / PSE</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vTransfer, currencySymbol)}</td>
+                            </tr>
+                          )}
+                          {ticketData.vBreB > 0 && (
+                            <tr>
+                              <td>Sistema Bre-B</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vBreB, currencySymbol)}</td>
+                            </tr>
+                          )}
+                          {ticketData.vMixed > 0 && (
+                            <tr>
+                              <td>Pagos Mixtos</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vMixed, currencySymbol)}</td>
+                            </tr>
+                          )}
+                          {ticketData.vAgreement > 0 && (
+                            <tr>
+                              <td>Convenios / Mensualidades</td>
+                              <td className="text-right font-bold">{formatCurrency(ticketData.vAgreement, currencySymbol)}</td>
+                            </tr>
+                          )}
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td>GRAN TOTAL VENTAS DÍA</td>
+                            <td className="text-right font-black">{formatCurrency(selectedRecordForTicket.day?.totalCollected || ticketData.totalVentasFacturadas, currencySymbol)}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    {/* SECCIÓN 4: AUDITORÍA Y FLUJO DE EFECTIVO EN BÓVEDA / CAJA */}
+                    <div className="section-card">
+                      <div className="section-banner">4. CONCILIACIÓN DE EFECTIVO (BÓVEDA)</div>
+                      <div className="space-y-1 text-[10.5px]">
+                        <div className="flex justify-between">
+                          <span>(+) Base Inicial del Día:</span>
+                          <span className="font-bold">{formatCurrency(ticketData.vBase, currencySymbol)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>(+) Ventas Efectivo Turnos:</span>
+                          <span className="font-bold">{formatCurrency(ticketData.vCash, currencySymbol)}</span>
+                        </div>
+                        {ticketData.totalIncomes > 0 && (
+                          <div className="flex justify-between">
+                            <span>(+) Otros Ingresos de Caja:</span>
+                            <span className="font-bold">+{formatCurrency(ticketData.totalIncomes, currencySymbol)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span>(-) Gastos de Operación:</span>
+                          <span className="font-bold">-{formatCurrency(ticketData.totalExpenses, currencySymbol)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>(-) Retiros Parciales a Bóveda:</span>
+                          <span className="font-bold">-{formatCurrency(ticketData.totalPickups, currencySymbol)}</span>
+                        </div>
+                        <div className="border-t border-dashed border-black pt-1 flex justify-between font-black">
+                          <span>(=) Efectivo Total Esperado:</span>
+                          <span>{formatCurrency(ticketData.vExpectedCash, currencySymbol)}</span>
+                        </div>
+                        <div className="flex justify-between font-black text-xs">
+                          <span>Efectivo Físico Contado:</span>
+                          <span>{formatCurrency(ticketData.vCountedCash, currencySymbol)}</span>
+                        </div>
+                      </div>
+
+                      {/* Cuadre Card */}
+                      <div className="cuadre-card exact">
+                        <span>
+                          {ticketData.cashDifference === 0 
+                            ? 'CUADRE EXACTO:' 
+                            : ticketData.cashDifference > 0 
+                            ? 'SOBRANTE (+):' 
+                            : 'FALTANTE (-):'}
+                        </span>
+                        <span>{formatCurrency(Math.abs(ticketData.cashDifference), currencySymbol)}</span>
+                      </div>
+
+                      {/* Deposit Card */}
+                      <div className="deposit-card">
+                        <span>LIQUIDACIÓN A DEPOSITAR:</span>
+                        <span>{formatCurrency(ticketData.totalAConsignar, currencySymbol)}</span>
+                      </div>
+
+                      {/* Detalle Egresos */}
+                      {selectedRecordForTicket.day?.movementsSummarySnapshot && selectedRecordForTicket.day.movementsSummarySnapshot.length > 0 && (
+                        <div className="mt-2 pt-1 border-t border-dashed border-slate-300 space-y-0.5 text-[9px]">
+                          <div className="font-bold uppercase text-[9px]">Detalle de Egresos Registrados:</div>
+                          {selectedRecordForTicket.day.movementsSummarySnapshot.slice(0, 5).map((m, i) => (
+                            <div key={i} className="flex justify-between text-slate-700">
+                              <span className="truncate pr-1">• {m.description || m.type}</span>
+                              <span className="font-bold shrink-0">-{formatCurrency(m.amount, currencySymbol)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Observaciones */}
+                      {(selectedRecordForTicket.day?.closingNotes || selectedRecordForTicket.day?.summaryNotes) && (
+                        <div className="mt-2 p-2 border border-dashed border-black rounded text-[9.5px] bg-slate-50">
+                          <div className="font-bold uppercase mb-0.5">OBSERVACIONES DE CIERRE:</div>
+                          <div className="italic text-slate-800">{selectedRecordForTicket.day.closingNotes || selectedRecordForTicket.day.summaryNotes}</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Signatures */}
+                    <div className="signature-grid">
+                      <div className="signature-box">
+                        <div className="signature-line"></div>
+                        <div className="signature-title">FIRMA ADMINISTRADOR GENERAL</div>
+                        <div className="signature-sub">{selectedRecordForTicket.day?.closedByOperator || 'Administrador'} • C.C. ________________</div>
+                      </div>
+                      <div className="signature-box">
+                        <div className="signature-line"></div>
+                        <div className="signature-title">FIRMA AUDITOR / REVISOR FISCAL</div>
+                        <div className="signature-sub">Revisión y Conformidad • C.C. ________________</div>
+                      </div>
+                    </div>
+
+                    {/* Wolf brand footer */}
+                    <div className="text-center pt-2 mt-2 border-t border-dashed border-slate-400 text-[9.5px]">
+                      <div className="font-black tracking-widest uppercase text-slate-900">WOLFZONE POS</div>
+                      <div className="text-[8.5px] text-slate-600">Comprobante Reimpreso Oficial</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
-              <button
-                onClick={() => window.print()}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <Printer className="w-4 h-4" />
-                <span>Imprimir Comprobante ({voucherPaperWidth})</span>
-              </button>
+            {/* Modal Actions Footer */}
+            <div className="p-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+              {/* Feedback status message */}
+              {directPrintStatus ? (
+                <div className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 animate-fadeIn">
+                  {directPrintStatus}
+                </div>
+              ) : (
+                <div className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+                  Formato: Rollo continuo térmico ({voucherPaperWidth})
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 ml-auto">
+                {/* Botón Descargar PDF Oficial Vectorial */}
+                <button
+                  onClick={() => handleDownloadRecordPdf(selectedRecordForTicket)}
+                  disabled={isDownloadingPdf}
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  title="Descargar documento PDF oficial idéntico al tiquete térmico"
+                >
+                  {isDownloadingPdf ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span>{isDownloadingPdf ? 'Generando PDF...' : 'Descargar PDF Oficial'}</span>
+                </button>
+
+                {/* Botón Reimpresión Directa Térmica SAT 22TUS */}
+                <button
+                  onClick={handleDirectThermalPrint}
+                  disabled={isPrintingThermalDirect}
+                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  title="Imprimir directamente en la impresora térmica SAT 22TUS"
+                >
+                  {isPrintingThermalDirect ? (
+                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                  ) : (
+                    <Printer className="w-4 h-4 text-indigo-200" />
+                  )}
+                  <span>{isPrintingThermalDirect ? 'Enviando...' : 'Imprimir en SAT 22TUS'}</span>
+                </button>
+
+                {/* Botón Navegador Fallback */}
+                <button
+                  onClick={() => window.print()}
+                  className="px-3 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  title="Imprimir usando el diálogo nativo del navegador"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Navegador</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

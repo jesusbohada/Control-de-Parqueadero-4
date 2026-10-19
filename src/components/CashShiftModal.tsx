@@ -212,6 +212,51 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
     window.print();
   };
 
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+
+  const handleDownloadVoucherPdf = async () => {
+    setIsDownloadingPdf(true);
+    setVoucherPrintStatus('📄 Generando PDF oficial...');
+    try {
+      const isArqueo = printedVoucherType === 'arqueo';
+      const response = await fetch('/api/reports/ticket-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: isArqueo ? 'cash_shift' : 'day_closure',
+          shift: currentShift,
+          day: operationalDay,
+          businessInfo,
+          paperWidth: voucherPaperWidth
+        })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const fileName = isArqueo 
+          ? `Arqueo_Turno_${currentShift.shiftNumber || 1}_${currentShift.consecutiveCode || 'X'}.pdf`
+          : `Cierre_Dia_${operationalDay.dayNumber || 1}_${operationalDay.consecutiveCode || 'Z'}.pdf`;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        setVoucherPrintStatus('✅ PDF descargado exitosamente');
+        setTimeout(() => setVoucherPrintStatus(null), 3000);
+        return;
+      }
+    } catch (err: any) {
+      console.error('Error descargando PDF:', err);
+      setVoucherPrintStatus('Error al generar PDF');
+      setTimeout(() => setVoucherPrintStatus(null), 3000);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   // New movement form
   const [showAddMovementForm, setShowAddMovementForm] = useState(false);
   const [newMovementType, setNewMovementType] = useState<'income' | 'expense' | 'withdrawal' | 'pickup'>('expense');
@@ -2585,6 +2630,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
                 >
                   Cerrar
+                </button>
+                <button
+                  onClick={handleDownloadVoucherPdf}
+                  disabled={isDownloadingPdf}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                  title="Descargar PDF Oficial"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>{isDownloadingPdf ? 'Generando...' : 'Descargar PDF'}</span>
                 </button>
                 <button
                   onClick={handlePrintVoucher}
