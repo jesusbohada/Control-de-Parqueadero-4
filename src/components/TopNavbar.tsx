@@ -80,6 +80,7 @@ interface TopNavbarProps {
   pendingCentralUpdatesCount?: number;
   softwareUpdateAvailable?: boolean;
   onOpenPrinterModal?: () => void;
+  onOpenCashDrawer?: () => void;
 }
 
 export const ThemeToggleDropdown: React.FC<{ isDarkMode?: boolean }> = ({ isDarkMode }) => {
@@ -149,7 +150,8 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   diskSpaceInfo,
   pendingCentralUpdatesCount = 0,
   softwareUpdateAvailable = false,
-  onOpenPrinterModal
+  onOpenPrinterModal,
+  onOpenCashDrawer
 }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -392,6 +394,19 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               aria-label="Configuración de Impresora"
             >
               <Printer className="w-3.5 h-3.5 text-amber-500" />
+            </button>
+          )}
+
+          {/* Acceso Directo a Apertura de Cajón Monedero / Gaveta */}
+          {onOpenCashDrawer && (currentUser.permissions?.canOpenCashDrawerWithoutSale ?? (currentUser.role === 'master' || currentUser.role === 'supervisor')) && (
+            <button
+              type="button"
+              onClick={onOpenCashDrawer}
+              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:border-emerald-500/40 text-slate-800 dark:text-slate-200 transition-all cursor-pointer relative"
+              title="Abrir Cajón Monedero / Gaveta (Pulso directo a impresora)"
+              aria-label="Abrir Cajón Monedero"
+            >
+              <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
             </button>
           )}
 

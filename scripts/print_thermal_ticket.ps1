@@ -170,10 +170,12 @@ if (-not (Test-Path $ImagePath)) {
     exit 1
 }
 
-# 3. Apertura de gaveta si se solicitó
+# 3. Apertura de gaveta si se solicitó (pre-impresión)
 if ($OpenDrawer) {
     try {
-        [RawPrinterHelper]::SendBytesToPrinter($PrinterName, [byte[]](0x1B, 0x70, 0x00, 0x19, 0xFA)) | Out-Null
+        # Secuencia multi-pin para compatibilidad total: Pin 2 (0x1B,0x70,0x00...), Pin 5 (0x1B,0x70,0x01...), DLE DC4 real-time (0x10,0x14...), Star BEL (0x07)
+        $drawerKickBytes = [byte[]](0x1B, 0x70, 0x00, 0x19, 0xFA, 0x1B, 0x70, 0x01, 0x19, 0xFA, 0x10, 0x14, 0x01, 0x00, 0x05, 0x07)
+        [RawPrinterHelper]::SendBytesToPrinter($PrinterName, $drawerKickBytes) | Out-Null
     } catch {}
 }
 
@@ -253,6 +255,15 @@ if ($AutoCut) {
     Start-Sleep -Milliseconds 250
     try {
         [RawPrinterHelper]::SendBytesToPrinter($PrinterName, [byte[]](0x0A, 0x0A, 0x0A, 0x1D, 0x56, 0x00)) | Out-Null
+    } catch {}
+}
+
+# 7. Pulso post-impresión de apertura de gaveta (garantiza apertura al finalizar el ticket y corte)
+if ($OpenDrawer) {
+    Start-Sleep -Milliseconds 150
+    try {
+        $drawerKickBytes = [byte[]](0x1B, 0x70, 0x00, 0x19, 0xFA, 0x1B, 0x70, 0x01, 0x19, 0xFA, 0x10, 0x14, 0x01, 0x00, 0x05, 0x07)
+        [RawPrinterHelper]::SendBytesToPrinter($PrinterName, $drawerKickBytes) | Out-Null
     } catch {}
 }
 

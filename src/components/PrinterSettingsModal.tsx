@@ -24,7 +24,7 @@ import { PrinterConfig, ParkingBusinessInfo } from '../types';
 import { DynamicBarcode } from './DynamicBarcode';
 import { DynamicQrCode } from './DynamicQrCode';
 import html2canvas from 'html2canvas-pro';
-import { fetchSystemPrinters, printInstantThermal, SystemPrinterInfo } from '../services/printerService';
+import { fetchSystemPrinters, printInstantThermal, openCashDrawer, SystemPrinterInfo } from '../services/printerService';
 
 interface PrinterSettingsModalProps {
   isOpen: boolean;
@@ -58,6 +58,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
   const [testTicketType, setTestTicketType] = useState<'entry' | 'exit' | 'arqueo'>('entry');
   const [isTestPrinting, setIsTestPrinting] = useState<boolean>(false);
   const [isDirectSpoolPrinting, setIsDirectSpoolPrinting] = useState<boolean>(false);
+  const [isTestingDrawer, setIsTestingDrawer] = useState<boolean>(false);
 
   // Local automation states
   const [localSilentBackgroundPrint, setLocalSilentBackgroundPrint] = useState<boolean>(() => businessInfo?.silentBackgroundPrint ?? true);
@@ -267,6 +268,26 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
       alert(`Excepción al enviar orden de impresión: ${e?.message}`);
     } finally {
       setIsDirectSpoolPrinting(false);
+      setTimeout(() => setSaveSuccessMsg(null), 4000);
+    }
+  };
+
+  const handleTriggerOpenDrawerTest = async () => {
+    setIsTestingDrawer(true);
+    const activePrinter = printers.find(p => p.isDefault) || printers[0];
+    const printerName = activePrinter?.printerName || activePrinter?.name || 'POS-80';
+
+    try {
+      const res = await openCashDrawer(printerName);
+      if (res.success) {
+        setSaveSuccessMsg(`¡Pulso de apertura enviado con éxito al cajón de '${res.printerName || printerName}'!`);
+      } else {
+        alert(`No se pudo abrir el cajón en '${printerName}': ${res.error || 'Verifique el cable RJ11 a la impresora'}`);
+      }
+    } catch (err: any) {
+      alert(`Error al enviar orden de apertura de cajón: ${err?.message}`);
+    } finally {
+      setIsTestingDrawer(false);
       setTimeout(() => setSaveSuccessMsg(null), 4000);
     }
   };
@@ -804,22 +825,37 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   </label>
 
                   {/* Open cash drawer */}
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
-                    <div className="space-y-0.5">
-                      <span className="font-bold text-slate-900 dark:text-white block">
-                        Apertura Automática de Cajón Monedero
-                      </span>
-                      <span className="text-[11px] text-slate-500">
-                        Envía el pulso eléctrico (ESC p) a la gaveta de dinero en cada cobro en efectivo
-                      </span>
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 hover:border-amber-500/40 transition-colors">
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <div className="space-y-0.5">
+                        <span className="font-bold text-slate-900 dark:text-white block">
+                          Apertura Automática de Cajón Monedero
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Envía el pulso eléctrico (ESC p / RJ11) a la gaveta de dinero en cada cobro en efectivo
+                        </span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={localOpenDrawer}
+                        onChange={(e) => setLocalOpenDrawer(e.target.checked)}
+                        className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                      />
+                    </label>
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-500">Pulso físico multi-pin (Pin 2 / Pin 5 / DLE DC4)</span>
+                      <button
+                        type="button"
+                        onClick={handleTriggerOpenDrawerTest}
+                        disabled={isTestingDrawer}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                        title="Envía el pulso de apertura a la gaveta a través de la impresora para probar el solenoide"
+                      >
+                        <DollarSign className={`w-3.5 h-3.5 ${isTestingDrawer ? 'animate-bounce' : ''}`} />
+                        <span>{isTestingDrawer ? 'Abriendo gaveta...' : 'Probar Apertura de Gaveta'}</span>
+                      </button>
                     </div>
-                    <input
-                      type="checkbox"
-                      checked={localOpenDrawer}
-                      onChange={(e) => setLocalOpenDrawer(e.target.checked)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
-                    />
-                  </label>
+                  </div>
 
                   {/* Auto cut paper */}
                   <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
@@ -936,6 +972,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleTriggerOpenDrawerTest}
+                      disabled={isTestingDrawer}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      title="Envía únicamente el pulso eléctrico para abrir el cajón monedero conectado a la impresora"
+                    >
+                      <DollarSign className={`w-3.5 h-3.5 ${isTestingDrawer ? 'animate-bounce' : ''}`} />
+                      <span>{isTestingDrawer ? 'Abriendo...' : 'Abrir Gaveta'}</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={handleTriggerInstantSpoolerTest}

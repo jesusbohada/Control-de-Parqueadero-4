@@ -99,7 +99,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({
           imageBase64,
           paperWidth,
           autoCut: businessInfo.cutPaperOnPrint ?? true,
-          openDrawer: mode === 'exit' && ticket.paymentMethod === 'cash' && (businessInfo.openCashDrawerOnCashPayment ?? true)
+          openDrawer: mode === 'exit' && (ticket.paymentMethod === 'cash' || ticket.paymentMethod === 'mixed' || !ticket.paymentMethod) && (businessInfo.openCashDrawerOnCashPayment ?? true)
         });
 
         if (res.success) {

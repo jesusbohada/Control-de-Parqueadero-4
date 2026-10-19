@@ -27,7 +27,7 @@ import {
   RemoteExecutionOrder,
   PrinterConfig
 } from './types';
-import { printInstantThermal } from './services/printerService';
+import { printInstantThermal, openCashDrawer } from './services/printerService';
 import { PrinterSettingsModal } from './components/PrinterSettingsModal';
 import { 
   DEFAULT_RATES, 
@@ -2393,7 +2393,11 @@ export default function App() {
         targetPrinterName: targetPrinter,
         paperWidth: activePrinter?.paperSize || businessInfo.defaultPaperWidth || '80mm',
         autoCut: options.autoCut ?? businessInfo.cutPaperOnPrint ?? true,
-        openDrawer: options.openDrawer ?? (options.ticket?.paymentMethod === 'cash' && businessInfo.openCashDrawerOnCashPayment),
+        openDrawer: options.openDrawer ?? (
+          (options.type === 'exit_receipt' || !!options.ticket)
+            ? ((options.ticket?.paymentMethod === 'cash' || options.ticket?.paymentMethod === 'mixed' || !options.ticket?.paymentMethod) && (businessInfo.openCashDrawerOnCashPayment ?? true))
+            : false
+        ),
       });
 
       if (result.success) {
@@ -2413,6 +2417,25 @@ export default function App() {
       if (options.ticket) {
         handleOpenPrintModal(options.ticket, options.type === 'entry_ticket' ? 'entry' : 'exit');
       }
+    }
+  };
+
+  const handleOpenCashDrawerDirect = async () => {
+    const activePrinter = printers.find(p => p.isDefault) || printers[0];
+    const targetPrinter = businessInfo.defaultPrinterName || activePrinter?.printerName || activePrinter?.name || 'POS-80';
+    try {
+      const res = await openCashDrawer(targetPrinter);
+      if (res.success) {
+        setPrintToast({
+          type: 'success',
+          message: `🪙 Cajón monedero abierto en '${res.printerName || targetPrinter}'`
+        });
+        setTimeout(() => setPrintToast(null), 3000);
+      } else {
+        alert(`No se pudo abrir el cajón monedero en '${targetPrinter}': ${res.error || 'Verifique la conexión de la impresora'}`);
+      }
+    } catch (err: any) {
+      alert(`Error al abrir gaveta: ${err?.message}`);
     }
   };
 
@@ -3465,6 +3488,7 @@ export default function App() {
           pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
           softwareUpdateAvailable={hasSoftwareUpdateAvailable}
           onOpenPrinterModal={() => setIsPrinterModalOpen(true)}
+          onOpenCashDrawer={handleOpenCashDrawerDirect}
         />
 
         {/* Espacio de Trabajo Principal Centrado y Amplio */}

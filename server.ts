@@ -2401,6 +2401,50 @@ async function startServer() {
     }
   });
 
+  // APERTURA DIRECTA DE CAJÓN MONEDERO / GAVETA
+  app.post('/api/print/open-drawer', async (req, res) => {
+    try {
+      const { printerName } = req.body || {};
+      const targetPrinter = (printerName || 'POS-80').trim();
+      const psScript = path.join(currentDir, 'scripts', 'open_cash_drawer.ps1');
+
+      if (!fs.existsSync(psScript)) {
+        return res.status(500).json({
+          success: false,
+          error: `Script no encontrado: ${psScript}`,
+          printer: targetPrinter
+        });
+      }
+
+      const psArgs = [
+        '-ExecutionPolicy', 'Bypass',
+        '-File', psScript,
+        '-PrinterName', targetPrinter
+      ];
+
+      execFile('powershell.exe', psArgs, { timeout: 8000 }, (err, stdout, stderr) => {
+        if (err) {
+          console.error(`[Open Drawer Error] Falló al enviar pulso a '${targetPrinter}':`, err.message);
+          return res.status(500).json({
+            success: false,
+            error: err.message,
+            printer: targetPrinter
+          });
+        }
+        console.log(`[Open Drawer Success] Pulso de apertura enviado exitosamente a '${targetPrinter}'`);
+        return res.json({
+          success: true,
+          printer: targetPrinter,
+          message: `Pulso de apertura enviado exitosamente a '${targetPrinter}'`,
+          timestamp: new Date().toISOString()
+        });
+      });
+    } catch (err: any) {
+      console.error('[Open Drawer Exception]', err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
   // FARMADESK PRO AGENT DOWNLOADS & SCRIPT GENERATOR
   app.get('/api/farmadesk/script/agent.bat', (req, res) => {
     const branchId = (req.query.branchId as string) || 'suc-001';

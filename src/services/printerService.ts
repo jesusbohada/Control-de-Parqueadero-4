@@ -138,3 +138,40 @@ export async function printInstantThermal(options: {
     };
   }
 }
+
+/**
+ * Envía un pulso de bajo nivel (ESC/POS multi-pin) para abrir la gaveta/cajón monedero
+ */
+export async function openCashDrawer(printerName?: string): Promise<{ success: boolean; printerName?: string; message?: string; error?: string }> {
+  try {
+    const response = await fetch('/api/print/open-drawer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ printerName: printerName || 'POS-80' }),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      console.log(`[PrinterService] Gaveta abierta exitosamente en '${result.printer}'`);
+      return {
+        success: true,
+        printerName: result.printer,
+        message: result.message || 'Cajón monedero abierto exitosamente'
+      };
+    } else {
+      console.warn(`[PrinterService] Error al abrir gaveta en '${printerName}':`, result.error);
+      return {
+        success: false,
+        printerName,
+        error: result.error || 'No se pudo abrir el cajón monedero'
+      };
+    }
+  } catch (err: any) {
+    console.error('[PrinterService] Excepción de conexión al abrir gaveta:', err);
+    return {
+      success: false,
+      printerName,
+      error: err?.message || 'Error de comunicación con el servicio de impresión'
+    };
+  }
+}

@@ -51,9 +51,9 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
   const lines: string[] = [];
 
   // Comandos ESC/POS iniciales
-  // Si openDrawer es true, enviamos el comando estándar de pulso de gaveta (ESC p 0 25 250)
+  // Si openDrawer es true, enviamos secuencia de pulso multi-pin (Pin 2, Pin 5, DLE DC4, BEL)
   if (openDrawer) {
-    lines.push('\x1bp\x00\x19\xfa');
+    lines.push('\x1bp\x00\x19\xfa\x1bp\x01\x19\xfa\x10\x14\x01\x00\x05\x07');
   }
 
   // Encabezado del Negocio
@@ -187,6 +187,11 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
   // Comando de corte de papel (GS V 0)
   if (autoCut) {
     lines.push('\x1dV\x00');
+  }
+
+  // Pulso de gaveta post-corte si se solicitó
+  if (openDrawer) {
+    lines.push('\x1bp\x00\x19\xfa\x1bp\x01\x19\xfa\x10\x14\x01\x00\x05\x07');
   }
 
   return lines.join('\r\n');
