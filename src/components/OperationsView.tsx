@@ -1138,8 +1138,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       </span>
                       <span className="text-[10px] text-slate-600 dark:text-slate-400 block">
                         {isForeignPlate
-                          ? 'Debe seleccionar el país de procedencia y validar su formato oficial'
-                          : 'Formato estándar nacional (6 caracteres alfanuméricos)'}
+                          ? 'Selecciona el país de origen de la matrícula'
+                          : 'Formato estándar nacional (6 caracteres)'}
                       </span>
                     </div>
                   </div>
@@ -1421,7 +1421,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700 dark:text-amber-400 mt-0.5" />
                     <div>
                       <span className="font-bold text-amber-900 dark:text-amber-300 block">
-                        ⚠️ Alerta de Advertencia: Placa ya registrada en tickets activos
+                        Vehículo ya registrado en patio
                       </span>
                       <p className="mt-0.5 text-[11px] text-amber-900 dark:text-amber-200/90 leading-relaxed">
                         El vehículo con placa <strong className="font-mono text-amber-950 dark:text-white underline">{formatPlate(entryPlate)}</strong> ya se encuentra actualmente en el parqueadero en el puesto <strong className="font-mono text-amber-950 dark:text-white">{duplicateActiveTicket.spotCode}</strong> con ticket activo <strong className="font-mono text-amber-950 dark:text-white">#{duplicateActiveTicket.ticketNumber}</strong> (Ingresó a las {new Date(duplicateActiveTicket.entryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}).
@@ -1470,23 +1470,23 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               {/* Optional Notes */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
-                  Observaciones / Cascos / Rayones (Opcional)
+                  Observaciones (Opcional)
                 </label>
                 <input
                   type="text"
                   value={entryNotes}
                   onChange={(e) => setEntryNotes(e.target.value)}
                   placeholder="Ej: Casco negro en manillar, rayón en puerta..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500"
                 />
               </div>
 
-              {/* Alerta de Advertencia */}
+              {/* Advertencia */}
               {entryWarning && (
                 <div className="p-3 bg-amber-500/20 border border-amber-500/40 rounded-xl text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700 dark:text-amber-400 mt-0.5" />
                   <div>
-                    <span className="font-bold text-amber-800 dark:text-amber-300 block">Alerta de Advertencia:</span>
+                    <span className="font-bold text-amber-800 dark:text-amber-300 block">Atención:</span>
                     <span>{entryWarning}</span>
                   </div>
                 </div>
@@ -1641,8 +1641,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       processScannedBarcode(searchQuery);
                     }
                   }}
-                  placeholder="DIGITE PLACA O ESCANEE CÓDIGO DE BARRAS DEL TICKET..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none uppercase transition-colors"
+                  placeholder="Digite placa o escanee código del ticket..."
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none uppercase transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500"
                 />
                 <Search className="w-4 h-4 text-slate-700 dark:text-slate-200 absolute left-3.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -3226,42 +3226,47 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
           {/* Filters & Search */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-1 text-xs">
+            <div className="flex items-center gap-1 bg-slate-100/90 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs">
               <button
+                type="button"
                 onClick={() => setTableFilterType('all')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors cursor-pointer ${
-                  tableFilterType === 'all' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                  tableFilterType === 'all'
+                    ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                Todos
+                Todos ({activeTickets.length})
               </button>
-              <button
-                onClick={() => setTableFilterType('car')}
-                className={`px-2 py-1 rounded flex items-center gap-1 transition-colors cursor-pointer ${
-                  tableFilterType === 'car' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <Car className="w-3.5 h-3.5" />
-                <span>Carros</span>
-              </button>
-              <button
-                onClick={() => setTableFilterType('motorcycle')}
-                className={`px-2 py-1 rounded flex items-center gap-1 transition-colors cursor-pointer ${
-                  tableFilterType === 'motorcycle' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <Bike className="w-3.5 h-3.5" />
-                <span>Motos</span>
-              </button>
-              <button
-                onClick={() => setTableFilterType('suv')}
-                className={`px-2 py-1 rounded flex items-center gap-1 transition-colors cursor-pointer ${
-                  tableFilterType === 'suv' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <Truck className="w-3.5 h-3.5" />
-                <span>SUVs</span>
-              </button>
+              {configuredCategories.map((cat) => {
+                const count = activeTickets.filter(t => t.vehicleType === cat.id).length;
+                const isSelected = tableFilterType === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setTableFilterType(cat.id)}
+                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                      isSelected
+                        ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    }`}
+                    title={`${cat.name}: ${count} en parqueadero`}
+                  >
+                    {getVehicleIcon(cat.icon || cat.id, 'w-3.5 h-3.5')}
+                    <span>{cat.name}</span>
+                    {count > 0 && (
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                        isSelected
+                          ? 'bg-indigo-700 text-indigo-100'
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="relative">
@@ -3360,8 +3365,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       <td className="py-3 px-4 text-right space-x-1.5">
                         {currentUser?.permissions.canReprintTickets !== false && (
                           <button
+                            type="button"
                             onClick={() => onPrintTicket(ticket, 'entry')}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                             title="Reimprimir Ticket de Ingreso"
                           >
                             <Printer className="w-4 h-4" />
@@ -3369,8 +3375,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         )}
                         {currentUser?.permissions.canRegisterExit !== false ? (
                           <button
+                            type="button"
                             onClick={() => selectVehicleForExit(ticket)}
-                            className="px-3 py-1.5 bg-slate-100 hover:bg-white active:scale-95 text-slate-950 font-semibold rounded-lg transition-all shadow-xs cursor-pointer"
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-lg transition-all shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-xs"
                           >
                             Cobrar Salida
                           </button>
