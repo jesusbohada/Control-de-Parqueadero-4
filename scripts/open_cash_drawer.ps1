@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$false)]
-    [string]$PrinterName = "POS-80"
+    [string]$PrinterName = "SAT 22TUS"
 )
 
 $ErrorActionPreference = "Stop"

@@ -162,7 +162,7 @@ export const DEFAULT_BUSINESS_INFO: ParkingBusinessInfo = {
   autoPrintOnShiftClose: true,
   autoPrintOnDayClose: true,
   silentBackgroundPrint: true,
-  defaultPrinterName: 'POS-80',
+  defaultPrinterName: 'SAT 22TUS',
   defaultPaperWidth: '80mm',
   openCashDrawerOnCashPayment: true,
   cutPaperOnPrint: true,

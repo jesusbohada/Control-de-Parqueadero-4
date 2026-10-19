@@ -3,7 +3,7 @@ param(
     [string]$ImagePath,
 
     [Parameter(Mandatory=$false)]
-    [string]$PrinterName = "POS-80",
+    [string]$PrinterName = "SAT 22TUS",
 
     [Parameter(Mandatory=$false)]
     [string]$PaperWidth = "80mm",

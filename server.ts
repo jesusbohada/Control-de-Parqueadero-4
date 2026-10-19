@@ -2557,6 +2557,50 @@ async function startServer() {
     }
   });
 
+  // Resuelve dinámicamente la impresora térmica física conectada al sistema
+  const resolveActiveThermalPrinter = async (requested?: string): Promise<string> => {
+    const req = (requested || '').trim();
+    return new Promise((resolve) => {
+      const script = `Get-CimInstance Win32_Printer | Select-Object -Property Name, PortName, DriverName, Default | ConvertTo-Json`;
+      execFile('powershell.exe', ['-NoProfile', '-Command', script], { timeout: 3500 }, (err, stdout) => {
+        if (err || !stdout) {
+          return resolve(req && req !== 'POS-80' ? req : 'SAT 22TUS');
+        }
+        try {
+          const parsed = JSON.parse(stdout);
+          const list = Array.isArray(parsed) ? parsed : [parsed];
+          const names = list.map((p: any) => String(p.Name || '').trim());
+
+          // 1. Si se pidió una impresora específica instalada y NO es la genérica/inactiva 'POS-80'
+          if (req && req !== 'POS-80' && names.includes(req)) {
+            return resolve(req);
+          }
+
+          // 2. Si el sistema tiene 'SAT 22TUS' (impresora física USB conectada), priorizarla
+          if (names.includes('SAT 22TUS')) {
+            return resolve('SAT 22TUS');
+          }
+
+          // 3. Si se pidió una existente exacta
+          if (req && names.includes(req)) {
+            return resolve(req);
+          }
+
+          // 4. Buscar cualquier impresora con nombre térmico en el sistema
+          const thermal = names.find((n: string) => /sat.*22tu|pos-?80|xprinter|thermal|ticket|receipt/i.test(n));
+          if (thermal) {
+            return resolve(thermal);
+          }
+
+          // 5. Fallback por defecto
+          return resolve(req || 'SAT 22TUS');
+        } catch {
+          return resolve(req || 'SAT 22TUS');
+        }
+      });
+    });
+  };
+
   // IMPRESIÓN INSTANTÁNEA GRÁFICA DIRECTA AL SPOOLER DE WINDOWS (ALTA FIDELIDAD / TAL CUAL EN PANTALLA)
   app.post('/api/print/instant', async (req, res) => {
     try {
@@ -2575,7 +2619,7 @@ async function startServer() {
         openDrawer = false,
       } = req.body || {};
 
-      const targetPrinter = (printerName || 'POS-80').trim();
+      const targetPrinter = await resolveActiveThermalPrinter(printerName);
       const targetThreshold = Number(req.body?.threshold) || 168;
       const psScript = path.join(currentDir, 'scripts', 'print_thermal_ticket.ps1');
 
@@ -2726,7 +2770,7 @@ async function startServer() {
   app.post('/api/print/open-drawer', async (req, res) => {
     try {
       const { printerName } = req.body || {};
-      const targetPrinter = (printerName || 'POS-80').trim();
+      const targetPrinter = await resolveActiveThermalPrinter(printerName);
       const psScript = path.join(currentDir, 'scripts', 'open_cash_drawer.ps1');
 
       if (!fs.existsSync(psScript)) {

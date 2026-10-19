@@ -613,11 +613,17 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         }
       };
 
+      const targetPrinter = businessInfo.defaultPrinterName && businessInfo.defaultPrinterName !== 'POS-80'
+        ? businessInfo.defaultPrinterName
+        : 'SAT 22TUS';
+
       const result = await printInstantThermal({
         type: 'exit_receipt',
         ticket: dummyTicket,
+        targetPrinterName: targetPrinter,
         businessInfo: {
           ...businessInfo,
+          defaultPrinterName: targetPrinter,
           ticketFooter: `COMPROBANTE DE SUSCRIPCIÓN MENSUAL\nTitular: ${sub.fullName}\nDocumento: ${sub.documentId}\nVehículo: ${getCategoryName(sub.vehicleType)} - Placa: ${sub.plate}\nMedio de Pago: ${payDisplay}${voucherText}${refText}\nVigencia: ${sub.startDate} hasta ${sub.endDate}\n¡Gracias por preferirnos!`
         },
         paperWidth: businessInfo.defaultPaperWidth || '80mm',
@@ -628,9 +634,14 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
       if (result.success) {
         setSaveToast(`¡Comprobante de ${sub.plate} impreso en '${result.printerName}'!`);
         setTimeout(() => setSaveToast(null), 3500);
+      } else {
+        setSaveToast(`⚠️ No se pudo imprimir en '${result.printerName || targetPrinter}': ${result.error || 'Verifica la impresora'}`);
+        setTimeout(() => setSaveToast(null), 5000);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('Error imprimiendo comprobante de abonado:', err);
+      setSaveToast(`⚠️ Error al imprimir comprobante: ${err?.message || err}`);
+      setTimeout(() => setSaveToast(null), 5000);
     }
   };
 

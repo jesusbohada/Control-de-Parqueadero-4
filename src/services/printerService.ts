@@ -74,7 +74,7 @@ export async function printInstantThermal(options: {
     openDrawer = businessInfo.openCashDrawerOnCashPayment ?? false,
   } = options;
 
-  const printerName = targetPrinterName || businessInfo.defaultPrinterName || 'POS-80';
+  const printerName = targetPrinterName || (businessInfo.defaultPrinterName && businessInfo.defaultPrinterName !== 'POS-80' ? businessInfo.defaultPrinterName : 'SAT 22TUS');
 
   // Generar texto térmico formateado como respaldo
   const rawText = formatReceiptText({
@@ -147,7 +147,7 @@ export async function openCashDrawer(printerName?: string): Promise<{ success: b
     const response = await fetch('/api/print/open-drawer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ printerName: printerName || 'POS-80' }),
+      body: JSON.stringify({ printerName: printerName || 'SAT 22TUS' }),
     });
 
     const result = await response.json();
