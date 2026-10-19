@@ -579,6 +579,11 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   // Impresión térmica de comprobante de mensualidad
   const handlePrintReceipt = async (sub: ParkingSubscriber) => {
     try {
+      const payDisplay = getPaymentMethodDisplay(sub.paymentMethod);
+      const isCash = sub.paymentMethod === 'cash' || String(sub.paymentMethod).toLowerCase().includes('efectivo');
+      const voucherText = sub.voucherNumber ? `\nDoc. Bancario / Voucher: #${sub.voucherNumber}` : '';
+      const refText = sub.paymentReference ? `\nSoporte: ${sub.paymentReference}` : '';
+
       const dummyTicket: any = {
         id: `tkt_sub_${sub.id}`,
         ticketNumber: `SUB-${sub.plate}`,
@@ -593,13 +598,20 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         paymentMethod: sub.paymentMethod || 'cash',
         cashReceived: sub.monthlyRate,
         changeGiven: 0,
-        status: 'paid'
+        status: 'paid',
+        subscriberInfo: {
+          fullName: sub.fullName,
+          documentId: sub.documentId,
+          phone: sub.phone,
+          startDate: sub.startDate,
+          endDate: sub.endDate,
+          vehicleCategoryName: getCategoryName(sub.vehicleType),
+          paymentMethodDisplay: payDisplay,
+          voucherNumber: sub.voucherNumber,
+          paymentReference: sub.paymentReference,
+          assignedSpotCode: sub.assignedSpotCode
+        }
       };
-
-      const payDisplay = getPaymentMethodDisplay(sub.paymentMethod);
-      const isCash = sub.paymentMethod === 'cash' || String(sub.paymentMethod).toLowerCase().includes('efectivo');
-      const voucherText = sub.voucherNumber ? `\nDoc. Bancario / Voucher: #${sub.voucherNumber}` : '';
-      const refText = sub.paymentReference ? `\nSoporte: ${sub.paymentReference}` : '';
 
       const result = await printInstantThermal({
         type: 'exit_receipt',

@@ -250,7 +250,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       background: #ffffff;
     }
     
-    .footer { font-size: ${is58 ? '9px' : '10px'}; font-weight: 600; color: #000000; text-align: center; margin-top: 7px; line-height: 1.3; }
+    .footer { font-size: ${is58 ? '9px' : '10px'}; font-weight: 600; color: #000000; text-align: center; margin-top: 7px; line-height: 1.3; white-space: pre-line; }
     .wolf-brand {
       border-top: 1.5px dashed #000000;
       margin-top: 7px;
@@ -380,13 +380,99 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       </div>
     `;
   } else if (type === 'exit_receipt' && ticket) {
-    const entryDate = new Date(ticket.entryTime);
-    const exitDate = new Date(ticket.exitTime || Date.now());
-    const hours = Math.floor((ticket.totalMinutes || 0) / 60);
-    const mins = (ticket.totalMinutes || 0) % 60;
-    const isFE = !!ticket.electronicInvoice;
+    const isSub = !!(ticket as any).subscriberInfo || ticket.ticketNumber?.startsWith('SUB-');
+    const subInfo = (ticket as any).subscriberInfo || {};
 
-    bodyContent = `
+    if (isSub) {
+      bodyContent = `
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        <div>
+          <span class="badge-black">
+            *** COMPROBANTE DE SUSCRIPCIÓN MENSUAL ***
+          </span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">N° ABONO:</span>
+        <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
+      </div>
+
+      <div class="plate-box">
+        <div class="plate-label">PLACA / VEHÍCULO</div>
+        <div class="plate-text">${ticket.plate}</div>
+        <div class="plate-type">${subInfo.vehicleCategoryName || getVehicleLabel(ticket.vehicleType, vehicleCategories)}</div>
+      </div>
+
+      <div style="border:1.5px solid #000;padding:4px 6px;border-radius:4px;margin:4px 0;background:#fafafa;">
+        <div class="row"><span class="bold">TITULAR:</span><span class="font-black">${subInfo.fullName || 'Titular Registrado'}</span></div>
+        ${subInfo.documentId ? `<div class="row"><span>DOCUMENTO:</span><span class="bold">CC: ${subInfo.documentId}</span></div>` : ''}
+        ${subInfo.phone ? `<div class="row"><span>TELÉFONO:</span><span class="bold">${subInfo.phone}</span></div>` : ''}
+        <div class="row"><span>PLAZA ASIGNADA:</span><span class="font-black">${subInfo.assignedSpotCode || ticket.spotCode || 'FLOTANTE EN PATIO'}</span></div>
+      </div>
+
+      <div style="border:1.5px dashed #000;padding:4px 6px;border-radius:4px;margin:4px 0;text-align:center;">
+        <div style="font-size:${is58 ? '9px' : '10px'};font-weight:700;text-transform:uppercase;">PERÍODO DE COBERTURA (30 DÍAS)</div>
+        <div style="font-size:${is58 ? '11px' : '12px'};font-weight:800;margin-top:2px;">
+          ${subInfo.startDate || ticket.entryTime} AL ${subInfo.endDate || ticket.exitTime}
+        </div>
+      </div>
+
+      <div class="thick-divider"></div>
+
+      <div class="row font-black" style="font-size:${is58 ? '13px' : '16px'};padding:2px 0;">
+        <span>VALOR MENSUALIDAD:</span>
+        <span>${formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
+      </div>
+
+      <div class="thick-divider"></div>
+
+      <div class="row">
+        <span>Medio de Pago:</span>
+        <span class="font-black uppercase">${subInfo.paymentMethodDisplay || ticket.paymentMethod || 'Efectivo'}</span>
+      </div>
+      ${subInfo.voucherNumber ? `
+      <div class="row font-black" style="background:#000;color:#fff;padding:2px 5px;border-radius:3px;margin:3px 0;">
+        <span>DOC. BANCARIO / VOUCHER:</span>
+        <span>#${subInfo.voucherNumber}</span>
+      </div>` : ''}
+      ${subInfo.paymentReference ? `
+      <div class="row" style="font-size:${is58 ? '9px' : '10.5px'};">
+        <span>Soporte / Pasarela:</span>
+        <span class="bold">${subInfo.paymentReference}</span>
+      </div>` : ''}
+
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
+
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
+
+      <div class="footer">
+        <div style="white-space:pre-line;font-weight:600;line-height:1.4;">${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU PREFERENCIA!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+        <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
+      </div>
+    `;
+    } else {
+      const entryDate = new Date(ticket.entryTime);
+      const exitDate = new Date(ticket.exitTime || Date.now());
+      const hours = Math.floor((ticket.totalMinutes || 0) / 60);
+      const mins = (ticket.totalMinutes || 0) % 60;
+      const isFE = !!ticket.electronicInvoice;
+
+      bodyContent = `
       <div class="text-center">
         ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
         <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
@@ -497,12 +583,13 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       </div>
 
       <div class="footer">
-        <div>${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
+        <div style="white-space:pre-line;font-weight:600;line-height:1.4;">${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
         <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
         <div class="wolf-brand">wolfzonepos</div>
         <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
       </div>
     `;
+    }
   } else if (type === 'cash_shift' && shift) {
     const diff = shift.cashDifference || 0;
     const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';

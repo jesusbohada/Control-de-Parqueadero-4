@@ -44,7 +44,12 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     const l = String(label).trim();
     const v = String(val).trim();
     const space = width - l.length - v.length;
-    if (space <= 0) return `${l} ${v}`.substring(0, width);
+    if (space <= 0) {
+      if (l && v) {
+        return `${l}\n${' '.repeat(Math.max(0, width - v.length))}${v}`;
+      }
+      return `${l} ${v}`.substring(0, width);
+    }
     return l + ' '.repeat(space) + v;
   };
 
@@ -88,37 +93,77 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(thinSep);
     lines.push(center(businessInfo.ticketFooter || 'Conserve este ticket para retirar su vehiculo.'));
   } else if (type === 'exit_receipt' && ticket) {
-    lines.push(center('COMPROBANTE DE SALIDA / FACTURA POS'));
-    lines.push(center(`TICKET NRO: ${ticket.ticketNumber || 'N/A'}`));
-    if (ticket.electronicInvoice?.invoiceNumber) {
-      lines.push(center(`FACTURA ELECTRONICA: ${ticket.electronicInvoice.prefix}-${ticket.electronicInvoice.invoiceNumber}`));
-      if (ticket.electronicInvoice.resolutionNumber) {
-        lines.push(center(`RES. DIAN: ${ticket.electronicInvoice.resolutionNumber}`));
+    const isSub = !!(ticket as any).subscriberInfo || ticket.ticketNumber?.startsWith('SUB-');
+    const sub = (ticket as any).subscriberInfo || {};
+
+    if (isSub) {
+      lines.push(center('COMPROBANTE DE MENSUALIDAD'));
+      lines.push(center('SUSCRIPCION DE ABONADO'));
+      lines.push(center(`NRO ABONO: ${ticket.ticketNumber || 'N/A'}`));
+      lines.push(sep);
+      lines.push(center(`PLACA: [ ${ticket.plate} ]`));
+      if (sub.vehicleCategoryName || ticket.vehicleType) {
+        lines.push(row('CATEGORIA:', (sub.vehicleCategoryName || ticket.vehicleType).toUpperCase()));
       }
-    }
-    lines.push(sep);
-    lines.push(center(`PLACA: [ ${ticket.plate} ]`));
-    lines.push(thinSep);
-    lines.push(row('INGRESO:', new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
-    lines.push(row('SALIDA:', new Date(ticket.exitTime || Date.now()).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
-    lines.push(row('TIEMPO TOTAL:', `${ticket.totalMinutes || 0} min`));
-    lines.push(thinSep);
-    lines.push(row('SUBTOTAL:', `$ ${(ticket.baseAmount || 0).toLocaleString('es-CO')}`));
-    if (ticket.taxAmount) lines.push(row('IVA / IMPUESTO:', `$ ${ticket.taxAmount.toLocaleString('es-CO')}`));
-    if (ticket.discountAmount) lines.push(row('DESCUENTO:', `-$ ${ticket.discountAmount.toLocaleString('es-CO')}`));
-    lines.push(sep);
-    lines.push(row('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
-    lines.push(sep);
-    lines.push(row('MEDIO DE PAGO:', (ticket.paymentMethod || 'Efectivo').toUpperCase()));
-    if (ticket.cashReceived) lines.push(row('EFECTIVO RECIBIDO:', `$ ${ticket.cashReceived.toLocaleString('es-CO')}`));
-    if (ticket.changeGiven) lines.push(row('CAMBIO DEVUELTO:', `$ ${ticket.changeGiven.toLocaleString('es-CO')}`));
-    if (ticket.electronicInvoice?.cufe) {
+      lines.push(row('TITULAR:', (sub.fullName || 'Abonado').toUpperCase()));
+      if (sub.documentId) lines.push(row('DOCUMENTO:', sub.documentId));
+      if (sub.phone) lines.push(row('TELEFONO:', sub.phone));
+      lines.push(row('PLAZA ASIGNADA:', sub.assignedSpotCode || ticket.spotCode || 'PATIO GENERAL'));
       lines.push(thinSep);
-      lines.push(center('CUFE DIAN:'));
-      lines.push(center(ticket.electronicInvoice.cufe.substring(0, 32) + '...'));
+      lines.push(center('PERIODO DE COBERTURA (30 DIAS):'));
+      lines.push(center(`${sub.startDate || ticket.entryTime} AL ${sub.endDate || ticket.exitTime}`));
+      lines.push(sep);
+      lines.push(row('VALOR MENSUAL:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
+      lines.push(row('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
+      lines.push(sep);
+      lines.push(row('MEDIO DE PAGO:', (sub.paymentMethodDisplay || ticket.paymentMethod || 'Efectivo').toUpperCase()));
+      if (sub.voucherNumber) {
+        lines.push(row('DOC / VOUCHER:', `#${sub.voucherNumber}`));
+      }
+      if (sub.paymentReference) {
+        lines.push(row('SOPORTE:', sub.paymentReference));
+      }
+      lines.push(thinSep);
+      if (businessInfo.ticketFooter) {
+        businessInfo.ticketFooter.split('\n').forEach((line: string) => {
+          if (line.trim()) lines.push(center(line.trim()));
+        });
+        lines.push(thinSep);
+      }
+      lines.push(center('¡GRACIAS POR SU PREFERENCIA!'));
+    } else {
+      lines.push(center('COMPROBANTE DE SALIDA / FACTURA POS'));
+      lines.push(center(`TICKET NRO: ${ticket.ticketNumber || 'N/A'}`));
+      if (ticket.electronicInvoice?.invoiceNumber) {
+        lines.push(center(`FACTURA ELECTRONICA: ${ticket.electronicInvoice.prefix}-${ticket.electronicInvoice.invoiceNumber}`));
+        if (ticket.electronicInvoice.resolutionNumber) {
+          lines.push(center(`RES. DIAN: ${ticket.electronicInvoice.resolutionNumber}`));
+        }
+      }
+      lines.push(sep);
+      lines.push(center(`PLACA: [ ${ticket.plate} ]`));
+      lines.push(thinSep);
+      lines.push(row('INGRESO:', new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
+      lines.push(row('SALIDA:', new Date(ticket.exitTime || Date.now()).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
+      lines.push(row('TIEMPO TOTAL:', `${ticket.totalMinutes || 0} min`));
+      lines.push(thinSep);
+      lines.push(row('SUBTOTAL:', `$ ${(ticket.baseAmount || 0).toLocaleString('es-CO')}`));
+      if (ticket.taxAmount) lines.push(row('IVA / IMPUESTO:', `$ ${ticket.taxAmount.toLocaleString('es-CO')}`));
+      if (ticket.discountAmount) lines.push(row('DESCUENTO:', `-$ ${ticket.discountAmount.toLocaleString('es-CO')}`));
+      lines.push(sep);
+      lines.push(row('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
+      lines.push(sep);
+      lines.push(row('MEDIO DE PAGO:', (ticket.paymentMethod || 'Efectivo').toUpperCase()));
+      if (ticket.cashReceived) lines.push(row('EFECTIVO RECIBIDO:', `$ ${ticket.cashReceived.toLocaleString('es-CO')}`));
+      if (ticket.changeGiven) lines.push(row('CAMBIO DEVUELTO:', `$ ${ticket.changeGiven.toLocaleString('es-CO')}`));
+      if (ticket.electronicInvoice?.cufe) {
+        lines.push(thinSep);
+        lines.push(center('CUFE DIAN:'));
+        lines.push(center(ticket.electronicInvoice.cufe.substring(0, 32) + '...'));
+      }
+      lines.push(thinSep);
+      lines.push(center('¡GRACIAS POR SU VISITA!'));
     }
-    lines.push(thinSep);
-    lines.push(center('¡GRACIAS POR SU VISITA!'));
   } else if (type === 'cash_shift' && shift) {
     lines.push(center('COMPROBANTE DE ARQUEO DE CAJA'));
     lines.push(center(`TURNO #${shift.shiftNumber || 1}`));

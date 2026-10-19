@@ -2294,9 +2294,9 @@ async function startServer() {
             notes: r.notes || '',
             lastPaymentDate: r.last_payment_date instanceof Date ? r.last_payment_date.toISOString() : String(r.last_payment_date),
             paymentMethod: r.payment_method || 'cash',
-            paymentReference: r.details?.paymentReference || '',
-            voucherNumber: r.details?.voucherNumber || '',
-            registeredBy: r.details?.registeredBy || ''
+            paymentReference: (typeof r.details === 'string' ? JSON.parse(r.details || '{}') : (r.details || {})).paymentReference || '',
+            voucherNumber: (typeof r.details === 'string' ? JSON.parse(r.details || '{}') : (r.details || {})).voucherNumber || '',
+            registeredBy: (typeof r.details === 'string' ? JSON.parse(r.details || '{}') : (r.details || {})).registeredBy || ''
           };
         });
         return res.json({ success: true, subscribers });
@@ -2321,7 +2321,7 @@ async function startServer() {
         const query = `
           SELECT * FROM subscribers 
           WHERE UPPER(REPLACE(plate, '-', '')) = $1 
-          ORDER BY end_date DESC 
+          ORDER BY end_date DESC, last_payment_date DESC 
           LIMIT 1
         `;
         const result = await pool.query(query, [cleanPlate]);
@@ -2363,8 +2363,8 @@ async function startServer() {
           notes: r.notes,
           lastPaymentDate: r.last_payment_date,
           paymentMethod: r.payment_method,
-          paymentReference: r.details?.paymentReference || '',
-          voucherNumber: r.details?.voucherNumber || ''
+          paymentReference: (typeof r.details === 'string' ? JSON.parse(r.details || '{}') : (r.details || {})).paymentReference || '',
+          voucherNumber: (typeof r.details === 'string' ? JSON.parse(r.details || '{}') : (r.details || {})).voucherNumber || ''
         };
 
         return res.json({
