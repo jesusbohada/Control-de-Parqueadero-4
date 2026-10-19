@@ -680,6 +680,11 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <span>(+) Ventas Efectivo:</span>
         <span class="bold">${formatMoney(shift.cashCollectedSnapshot || 0, rates.currencySymbol)}</span>
       </div>
+      ${shift.totalIncomesSnapshot ? `
+      <div class="row">
+        <span>(+) Otros Ingresos de Caja:</span>
+        <span class="bold">${formatMoney(shift.totalIncomesSnapshot, rates.currencySymbol)}</span>
+      </div>` : ''}
       <div class="row">
         <span>(-) Gastos de Caja:</span>
         <span class="bold">-${formatMoney(shift.totalExpensesSnapshot || 0, rates.currencySymbol)}</span>
@@ -874,10 +879,20 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
             <td>Códigos QR (Bancolombia QR)</td>
             <td class="text-right bold">${formatMoney(day.qrCollectedSnapshot || 0, rates.currencySymbol)}</td>
           </tr>
+          ${day.transferCollectedSnapshot ? `
+          <tr>
+            <td>Transferencia / PSE</td>
+            <td class="text-right bold">${formatMoney(day.transferCollectedSnapshot, rates.currencySymbol)}</td>
+          </tr>` : ''}
           ${day.breBCollectedSnapshot ? `
           <tr>
             <td>Sistema Bre-B</td>
             <td class="text-right bold">${formatMoney(day.breBCollectedSnapshot, rates.currencySymbol)}</td>
+          </tr>` : ''}
+          ${day.mixedCollectedSnapshot ? `
+          <tr>
+            <td>Pagos Mixtos</td>
+            <td class="text-right bold">${formatMoney(day.mixedCollectedSnapshot, rates.currencySymbol)}</td>
           </tr>` : ''}
           ${day.agreementCollectedSnapshot ? `
           <tr>
@@ -907,6 +922,11 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <span>(+) Ventas Efectivo Turnos:</span>
         <span class="bold">${formatMoney(day.cashCollectedSnapshot || 0, rates.currencySymbol)}</span>
       </div>
+      ${day.totalIncomesSnapshot ? `
+      <div class="row">
+        <span>(+) Otros Ingresos de Caja:</span>
+        <span class="bold">${formatMoney(day.totalIncomesSnapshot, rates.currencySymbol)}</span>
+      </div>` : ''}
       <div class="row">
         <span>(-) Gastos de Operación:</span>
         <span class="bold">-${formatMoney(day.totalExpensesSnapshot || 0, rates.currencySymbol)}</span>

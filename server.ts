@@ -2617,6 +2617,7 @@ async function startServer() {
         paperWidth = '80mm',
         autoCut = true,
         openDrawer = false,
+        forceRaw = false,
       } = req.body || {};
 
       const targetPrinter = await resolveActiveThermalPrinter(printerName);
@@ -2696,6 +2697,10 @@ async function startServer() {
           return res.json({ success: true, printer: targetPrinter, type, mode: 'raw_escpos_fallback' });
         });
       };
+
+      if (forceRaw || rawText) {
+        return fallbackPrintText();
+      }
 
       if (browserExe) {
         try {

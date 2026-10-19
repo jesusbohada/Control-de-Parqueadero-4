@@ -84,12 +84,9 @@ if ($OpenDrawer) {
     $bytes.AddRange([byte[]](0x1B, 0x70, 0x01, 0x19, 0xFA)) # Drawer kick pin 5
 }
 
-# Normalizar texto reemplazando caracteres especiales a ASCII legible
-$cleanText = $content.Replace("á","a").Replace("é","e").Replace("í","i").Replace("ó","o").Replace("ú","u")
-$cleanText = $cleanText.Replace("Á","A").Replace("É","E").Replace("Í","I").Replace("Ó","O").Replace("Ú","U")
-$cleanText = $cleanText.Replace("ñ","n").Replace("Ñ","N").Replace("°","o")
-
-$bytes.AddRange([System.Text.Encoding]::ASCII.GetBytes($cleanText))
+# Normalizar texto reemplazando caracteres no-ASCII de manera segura
+$normalizedBytes = [System.Text.Encoding]::Convert([System.Text.Encoding]::UTF8, [System.Text.Encoding]::GetEncoding("ISO-8859-1"), [System.Text.Encoding]::UTF8.GetBytes($content))
+$bytes.AddRange($normalizedBytes)
 $bytes.AddRange([byte[]](0x0A, 0x0A, 0x0A, 0x0A)) # Feed 4 lines
 
 if ($AutoCut) {

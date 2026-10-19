@@ -3125,6 +3125,7 @@ export default function App() {
       breBCollectedSnapshot: dayBreB,
       agreementCollectedSnapshot: dayAgreement,
       totalCollected: dayTotalCollected,
+      totalIncomesSnapshot: dayTotalOtherIncomes,
       totalExpensesSnapshot: dayTotalExpenses,
       totalPickupsSnapshot: dayTotalPickups,
       expectedCashSnapshot: dayExpectedCashInDrawer,

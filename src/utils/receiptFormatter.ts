@@ -176,6 +176,9 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(center('-- CONCILIACION DEL CAJON --'));
     lines.push(row('BASE INICIAL:', `$ ${(shift.initialCash || 0).toLocaleString('es-CO')}`));
     lines.push(row('VENTAS EFECTIVO:', `$ ${(shift.cashCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    if (shift.totalIncomesSnapshot) {
+      lines.push(row('OTROS INGRESOS CAJA:', `$ ${shift.totalIncomesSnapshot.toLocaleString('es-CO')}`));
+    }
     lines.push(row('GASTOS DE CAJA:', `-$ ${(shift.totalExpensesSnapshot || 0).toLocaleString('es-CO')}`));
     lines.push(row('RETIROS PARCIALES:', `-$ ${(shift.totalPickupsSnapshot || 0).toLocaleString('es-CO')}`));
     lines.push(thinSep);
@@ -185,7 +188,7 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';
     lines.push(row(diffLabel, `$ ${Math.abs(diff).toLocaleString('es-CO')}`));
     lines.push(sep);
-    const electronic = (shift.cardCollectedSnapshot || 0) + (shift.walletCollectedSnapshot || 0) + (shift.qrCollectedSnapshot || 0);
+    const electronic = (shift.cardCollectedSnapshot || 0) + (shift.walletCollectedSnapshot || 0) + (shift.qrCollectedSnapshot || 0) + (shift.breBCollectedSnapshot || 0) + (shift.transferCollectedSnapshot || 0);
     lines.push(row('VENTAS ELECTRONICAS:', `$ ${electronic.toLocaleString('es-CO')}`));
     lines.push(row('GRAN TOTAL VENTAS:', `$ ${(shift.totalCollectedSnapshot || 0).toLocaleString('es-CO')}`));
     if (shift.totalToConsignSnapshot) {
@@ -220,6 +223,9 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     if (day.activeVehiclesRemainingSnapshot !== undefined) {
       lines.push(row('VEHICULOS EN PATIO:', String(day.activeVehiclesRemainingSnapshot)));
     }
+    if (day.ticketRangeSnapshot) {
+      lines.push(row('RANGO TICKETS:', `${day.ticketRangeSnapshot.startTicket || 'TKT-001'} al ${day.ticketRangeSnapshot.endTicket || 'TKT-001'}`));
+    }
     if (day.vehicleStatsSnapshot && day.vehicleStatsSnapshot.length > 0) {
       lines.push(thinSep);
       day.vehicleStatsSnapshot.forEach(v => {
@@ -241,8 +247,14 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(row('TARJETAS (DATAFONO):', `$ ${(day.cardCollectedSnapshot || 0).toLocaleString('es-CO')}`));
     lines.push(row('BILLETERAS (NEQUI):', `$ ${(day.walletCollectedSnapshot || 0).toLocaleString('es-CO')}`));
     lines.push(row('QR INTEROPERABLE:', `$ ${(day.qrCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    if (day.transferCollectedSnapshot) {
+      lines.push(row('TRANSFERENCIA / PSE:', `$ ${day.transferCollectedSnapshot.toLocaleString('es-CO')}`));
+    }
     if (day.breBCollectedSnapshot) {
       lines.push(row('SISTEMA BRE-B:', `$ ${day.breBCollectedSnapshot.toLocaleString('es-CO')}`));
+    }
+    if (day.mixedCollectedSnapshot) {
+      lines.push(row('PAGOS MIXTOS:', `$ ${day.mixedCollectedSnapshot.toLocaleString('es-CO')}`));
     }
     if (day.agreementCollectedSnapshot) {
       lines.push(row('CONVENIOS / ABONOS:', `$ ${day.agreementCollectedSnapshot.toLocaleString('es-CO')}`));
@@ -254,6 +266,9 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(center('-- CONCILIACION DE CAJA / BOVEDA --'));
     lines.push(row('(+) BASE INICIAL DIA:', `$ ${(day.initialDayCash || 0).toLocaleString('es-CO')}`));
     lines.push(row('(+) VENTAS EFECTIVO:', `$ ${(day.cashCollectedSnapshot || 0).toLocaleString('es-CO')}`));
+    if (day.totalIncomesSnapshot) {
+      lines.push(row('(+) OTROS INGRESOS CAJA:', `$ ${day.totalIncomesSnapshot.toLocaleString('es-CO')}`));
+    }
     lines.push(row('(-) GASTOS OPERATIVOS:', `-$ ${(day.totalExpensesSnapshot || 0).toLocaleString('es-CO')}`));
     lines.push(row('(-) RETIROS A BOVEDA:', `-$ ${(day.totalPickupsSnapshot || 0).toLocaleString('es-CO')}`));
     lines.push(thinSep);

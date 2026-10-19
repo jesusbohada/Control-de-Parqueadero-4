@@ -396,6 +396,9 @@ export interface OperationalDay {
   qrCollectedSnapshot?: number;
   breBCollectedSnapshot?: number;
   agreementCollectedSnapshot?: number;
+  transferCollectedSnapshot?: number;
+  mixedCollectedSnapshot?: number;
+  totalIncomesSnapshot?: number;
   totalExpensesSnapshot?: number;
   totalPickupsSnapshot?: number;
   expectedCashSnapshot?: number;
@@ -443,6 +446,9 @@ export interface CashShift {
   qrCollectedSnapshot?: number;
   breBCollectedSnapshot?: number;
   agreementCollectedSnapshot?: number;
+  transferCollectedSnapshot?: number;
+  mixedCollectedSnapshot?: number;
+  totalIncomesSnapshot?: number;
   totalExpensesSnapshot?: number;
   totalPickupsSnapshot?: number;
   expectedCashSnapshot?: number;
