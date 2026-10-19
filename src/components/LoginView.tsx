@@ -87,13 +87,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
       return;
     }
 
-    // Check password: match against stored password or initial defaults
-    const isPasswordMatch = 
-      foundUser.password === cleanPass ||
-      cleanPass === '123456' ||
-      (cleanUser === 'admin' && (cleanPass === 'admin123' || cleanPass === 'admin')) ||
-      (cleanUser === 'supervisor' && (cleanPass === 'super123' || cleanPass === 'super')) ||
-      ((cleanUser === 'cajero' || cleanUser === 'caja') && (cleanPass === 'caja123' || cleanPass === 'caja'));
+    // Check password: match strictly against stored user password/pin
+    const isPasswordMatch = foundUser.password === cleanPass;
 
     if (!isPasswordMatch) {
       setError('Contraseña incorrecta. Verifica e intenta nuevamente.');
