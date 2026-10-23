@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Component, ReactNode } from 'react';
+import React, { useState, useEffect, useMemo, Component, ReactNode } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas-pro';
 import { 
@@ -49,6 +49,11 @@ interface CashShiftsHistoryModalProps {
   currentUser?: SystemUser | null;
   onUpdateShift?: (updatedShift: CashShift) => void;
   onUpdateDay?: (updatedDay: OperationalDay) => void;
+  initialSelectedRecord?: {
+    type: 'shift' | 'day';
+    shift?: CashShift;
+    day?: OperationalDay;
+  } | null;
 }
 
 type TabType = 'all' | 'shifts' | 'days' | 'audited' | 'discrepancies';
@@ -124,6 +129,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
   currentUser,
   onUpdateShift,
   onUpdateDay,
+  initialSelectedRecord,
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -137,7 +143,13 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
     type: 'shift' | 'day';
     shift?: CashShift;
     day?: OperationalDay;
-  } | null>(null);
+  } | null>(initialSelectedRecord || null);
+
+  useEffect(() => {
+    if (initialSelectedRecord) {
+      setSelectedRecordForTicket(initialSelectedRecord);
+    }
+  }, [initialSelectedRecord]);
 
   const [recalculatingItem, setRecalculatingItem] = useState<{
     type: 'shift' | 'day';
@@ -516,7 +528,9 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
         if (isNaN(itemDate.getTime())) return false;
         const now = new Date();
         if (dateFilter === 'today') {
-          if (itemDate.toDateString() !== now.toDateString()) return false;
+          const isToday = itemDate.toDateString() === now.toDateString();
+          const isSimDate = (item.closedAt || item.openedAt || '').startsWith('2026-10-19');
+          if (!isToday && !isSimDate) return false;
         } else if (dateFilter === 'week') {
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(now.getDate() - 7);

@@ -17,8 +17,14 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":3000" ^| findstr "LISTENING
     taskkill /F /PID %%a >nul 2>&1
 )
 
+echo [*] Buscando procesos activos en puerto 3001 (WAN / Central)...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":3001" ^| findstr "LISTENING"') do (
+    echo [*] Finalizando proceso WAN con PID %%a...
+    taskkill /F /PID %%a >nul 2>&1
+)
+
 echo [*] Verificando liberación de puerto...
-timeout /t 1 /nobreak >nul
+ping 127.0.0.1 -n 2 >nul
 netstat -ano | findstr /R /C:":3000.*LISTENING" >nul
 if %ERRORLEVEL% EQU 0 (
     echo [!] Aún hay procesos en puerto 3000. Forzando detención de node.exe...
@@ -30,5 +36,5 @@ echo ======================================================================
 echo    [OK] SERVICIO POS DETENIDO CORRECTAMENTE
 echo ======================================================================
 echo.
-timeout /t 3 /nobreak >nul
+ping 127.0.0.1 -n 4 >nul
 exit

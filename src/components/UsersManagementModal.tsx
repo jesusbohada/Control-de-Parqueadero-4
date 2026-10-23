@@ -50,7 +50,11 @@ import {
 import {
   dbGetUserTemplates,
   dbSaveUserTemplate,
-  dbDeleteUserTemplate
+  dbDeleteUserTemplate,
+  dbSaveUserTemplates,
+  dbGetRoleMatrix,
+  dbSaveRoleMatrix,
+  dbAddAuditLog
 } from '../db/terminalDatabase';
 
 interface UsersManagementModalProps {
@@ -81,14 +85,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   // Role Matrix Management State
   const [selectedMatrixProfileId, setSelectedMatrixProfileId] = useState<string>('supervisor');
   const [roleMatrix, setRoleMatrix] = useState<Record<UserRole, { permissions: UserPermissions; uiVisibility: UserUIVisibility }>>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('farmadesk_role_matrix_config');
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (_e) {}
-      }
-    }
+    const saved = dbGetRoleMatrix();
+    if (saved) return saved;
     return {
       master: { permissions: { ...DEFAULT_MASTER_PERMISSIONS }, uiVisibility: { ...DEFAULT_MASTER_UI_VISIBILITY } },
       supervisor: { permissions: { ...DEFAULT_SUPERVISOR_PERMISSIONS }, uiVisibility: { ...DEFAULT_SUPERVISOR_UI_VISIBILITY } },
@@ -127,6 +125,32 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
 
   if (!isOpen) return null;
+
+  // Control de Seguridad: Solo usuarios con permiso canManageUsers o rol 'master' pueden acceder
+  if (!currentUser?.permissions?.canManageUsers && currentUser?.role !== 'master') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="bg-white dark:bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
+          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mx-auto">
+            <Lock className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-base text-slate-900 dark:text-white">Acceso Restringido</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Tu usuario (<strong>{currentUser?.name || 'Operador'}</strong>) con rol <strong>{currentUser?.role || 'cajero'}</strong> no cuenta con permisos administrativos para gestionar usuarios o modificar matrices de seguridad.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold text-xs cursor-pointer transition-colors"
+          >
+            Regresar a Operaciones
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   React.useEffect(() => {
     console.log('🔍 [LOG DETALLADO - USERS MANAGEMENT MODAL] Componente activo:', {
@@ -192,9 +216,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
         [role]: { permissions: newPerms, uiVisibility: newVis }
       };
       setRoleMatrix(updatedMatrix);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('farmadesk_role_matrix_config', JSON.stringify(updatedMatrix));
-      }
+      dbSaveRoleMatrix(updatedMatrix).catch(console.error);
     } else {
       const tmpl = templates.find(t => t.id === selectedMatrixProfileId);
       if (tmpl) {
@@ -203,8 +225,9 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
           permissions: newPerms,
           uiVisibility: newVis
         };
-        dbSaveUserTemplate(updatedTmpl);
-        setTemplates(dbGetUserTemplates());
+        dbSaveUserTemplate(updatedTmpl).then(() => {
+          setTemplates(dbGetUserTemplates());
+        }).catch(console.error);
       }
     }
   };
@@ -344,13 +367,19 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     }
   };
 
-  const handleSaveRoleMatrixToStorage = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('farmadesk_role_matrix_config', JSON.stringify(roleMatrix));
-      localStorage.setItem('pk_user_templates', JSON.stringify(templates));
+  const handleSaveRoleMatrixToStorage = async () => {
+    setIsSubmitting(true);
+    try {
+      await dbSaveRoleMatrix(roleMatrix);
+      await dbSaveUserTemplates(templates);
+      dbAddAuditLog('USER_UPDATE', 'Matriz de roles y políticas de seguridad guardada en PostgreSQL', currentUser?.name || 'Maestro').catch(console.error);
+      setSuccessMessage('¡Matriz de Roles y Permisos guardada exitosamente en PostgreSQL!');
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err: any) {
+      setErrorMessage(`Error guardando matriz de roles: ${err.message || 'Error desconocido'}`);
+    } finally {
+      setIsSubmitting(false);
     }
-    setSuccessMessage('¡Matriz de Roles y Permisos guardada exitosamente en las políticas de seguridad!');
-    setTimeout(() => setSuccessMessage(null), 3500);
   };
 
   const openCreateForm = () => {
@@ -662,7 +691,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
       permissionsCount: Object.keys(newTmpl.permissions).length
     });
 
-    dbSaveUserTemplate(newTmpl);
+    dbSaveUserTemplate(newTmpl).catch(console.error);
+    dbAddAuditLog('USER_UPDATE', `Perfil de permisos creado: ${newTmpl.name}`, currentUser?.name || 'Maestro').catch(console.error);
     refreshTemplates();
     setSelectedTemplateId(newTmpl.id);
     setSelectedMatrixProfileId(newTmpl.id);
@@ -674,8 +704,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   };
 
   const handleDeleteCustomTemplate = (templateId: string) => {
-    dbDeleteUserTemplate(templateId);
+    const tmpl = templates.find(t => t.id === templateId);
+    dbDeleteUserTemplate(templateId).catch(console.error);
     refreshTemplates();
+    if (tmpl) {
+      dbAddAuditLog('USER_UPDATE', `Perfil de permisos eliminado: ${tmpl.name}`, currentUser?.name || 'Maestro').catch(console.error);
+    }
   };
 
   const handleConfirmDelete = async () => {

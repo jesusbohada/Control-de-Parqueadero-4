@@ -56,6 +56,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
   const [formMinuteRate, setFormMinuteRate] = useState<number>(75);
   const [formDailyRate, setFormDailyRate] = useState<number>(28000);
   const [formGracePeriodMinutes, setFormGracePeriodMinutes] = useState<number>(15);
+  const [formLostTicketFee, setFormLostTicketFee] = useState<number>(15000);
   const [formDescription, setFormDescription] = useState('');
   const [formIsActive, setFormIsActive] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -89,6 +90,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
     setFormMinuteRate(75);
     setFormDailyRate(28000);
     setFormGracePeriodMinutes(15);
+    setFormLostTicketFee(15000);
     setFormDescription('');
     setFormIsActive(true);
     setErrorMessage(null);
@@ -108,6 +110,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
     setFormMinuteRate(mr);
     setFormDailyRate(dr);
     setFormGracePeriodMinutes(cat.gracePeriodMinutes ?? cat.rate?.gracePeriodMinutes ?? 15);
+    setFormLostTicketFee(cat.rate?.lostTicketFee ?? 15000);
     setFormDescription(cat.description || '');
     setFormIsActive(cat.isActive !== false && cat.enabled !== false);
     setErrorMessage(null);
@@ -135,6 +138,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
     const mr = Number(formMinuteRate) || 0;
     const dr = Number(formDailyRate) || 0;
     const gp = Number(formGracePeriodMinutes) || 15;
+    const lostFee = Number(formLostTicketFee) || 15000;
 
     const updatedCategory: VehicleCategoryConfig = {
       id: catId,
@@ -150,6 +154,7 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
         dayRate: dr,
         gracePeriodMinutes: gp,
         minimumChargeMinutes: gp,
+        lostTicketFee: lostFee,
       },
       enabled: formIsActive,
       description: formDescription.trim(),
@@ -440,6 +445,20 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                   />
                 </div>
 
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Multa Ticket Perdido ($ COP)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={formLostTicketFee}
+                    onChange={(e) => setFormLostTicketFee(Number(e.target.value))}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none transition-colors font-mono"
+                  />
+                </div>
+
                 <div className="col-span-1 md:col-span-2 space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Descripción / Observaciones
@@ -548,16 +567,22 @@ export const VehicleCategoriesModal: React.FC<VehicleCategoriesModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2 text-xs">
+                  <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-2 text-xs">
                     <div className="bg-slate-50 dark:bg-slate-800/70 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80">
-                      <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Día completo:</span>
-                      <span className="text-slate-900 dark:text-slate-100 font-mono font-bold">
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Día 24h:</span>
+                      <span className="text-slate-900 dark:text-slate-100 font-mono font-bold text-[11px]">
                         ${(cat.defaultDailyRate ?? cat.rate?.dayRate ?? 0).toLocaleString()}
                       </span>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800/70 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80">
-                      <span className="text-slate-500 dark:text-slate-400 text-[11px] block">Gracia gratuita:</span>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{cat.gracePeriodMinutes ?? cat.rate?.gracePeriodMinutes ?? 15} min</span>
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Gracia:</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[11px]">{cat.gracePeriodMinutes ?? cat.rate?.gracePeriodMinutes ?? 15} min</span>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800/70 p-2 rounded-lg border border-slate-200 dark:border-slate-700/80">
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] block">Multa Tkt:</span>
+                      <span className="text-rose-600 dark:text-rose-400 font-mono font-bold text-[11px]">
+                        ${(cat.rate?.lostTicketFee ?? 15000).toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </div>

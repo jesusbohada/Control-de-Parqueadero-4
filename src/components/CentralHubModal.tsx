@@ -95,6 +95,8 @@ interface CentralHubModalProps {
   onSwitchBranch?: (branchId: string) => void;
   onSaveNewBranch: (branch: any) => Promise<void>;
   embedded?: boolean;
+  initialTab?: 'branches' | 'telemetry_dashboard' | 'global_version' | 'ota_releases' | 'sync_domains' | 'analytics' | 'network_logs' | 'server_config';
+  onOpenWorkModeConfig?: () => void;
 }
 
 export const CentralHubModal: React.FC<CentralHubModalProps> = ({
@@ -117,9 +119,17 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
   onForceSyncAllBranches,
   onSwitchBranch,
   onSaveNewBranch,
-  embedded = false
+  embedded = false,
+  initialTab = 'branches',
+  onOpenWorkModeConfig
 }) => {
-  const [activeTab, setActiveTab] = useState<'branches' | 'telemetry_dashboard' | 'global_version' | 'ota_releases' | 'sync_domains' | 'analytics' | 'network_logs' | 'server_config'>('branches');
+  const [activeTab, setActiveTab] = useState<'branches' | 'telemetry_dashboard' | 'global_version' | 'ota_releases' | 'sync_domains' | 'analytics' | 'network_logs' | 'server_config'>(initialTab);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCityFilter, setSelectedCityFilter] = useState<string>('all');
   const [selectedBranchForDetail, setSelectedBranchForDetail] = useState<BranchLocation | null>(null);
@@ -2400,8 +2410,29 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
           {/* TAB 5: SERVIDOR DE DATOS LOCAL Y REMOTO */}
           {/* ========================================================================= */}
           {activeTab === 'server_config' && (
-            <div className="py-2">
+            <div className="py-2 space-y-4">
               <ServerDataConfigCard />
+
+              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-indigo-500" />
+                    Modo de Trabajo & Rol de Servidor de este Nodo
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                    Configure si esta máquina física opera como Servidor Central Matriz, Servidor Intermedio de Sucursal, o Taquilla POS Satélite.
+                  </p>
+                </div>
+                {onOpenWorkModeConfig && (
+                  <button
+                    type="button"
+                    onClick={onOpenWorkModeConfig}
+                    className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-sm transition-all cursor-pointer whitespace-nowrap self-start sm:self-auto"
+                  >
+                    Abrir Modo de Trabajo & Nodo
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

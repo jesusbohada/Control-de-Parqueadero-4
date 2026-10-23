@@ -40,6 +40,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginMode, setLoginMode] = useState<'standard' | 'operator_pin'>('standard');
+  const [selectedOperatorId, setSelectedOperatorId] = useState<string>('');
 
   const performLogin = (userToLogin: SystemUser) => {
     if (onLogin) {
@@ -53,20 +55,42 @@ export const LoginView: React.FC<LoginViewProps> = ({
     e.preventDefault();
     setError(null);
 
-    const cleanUser = username.trim().toLowerCase();
+    const cleanUser = loginMode === 'operator_pin' 
+      ? (users.find(u => u.id === selectedOperatorId)?.username || '').trim().toLowerCase()
+      : username.trim().toLowerCase();
     const cleanPass = password.trim();
 
     if (!cleanUser || !cleanPass) {
-      setError('Por favor ingresa tu usuario y contraseña.');
+      setError(loginMode === 'operator_pin' ? 'Por favor selecciona tu operador e ingresa tu PIN.' : 'Por favor ingresa tu usuario y contraseña.');
       return;
     }
 
     setIsLoggingIn(true);
 
-    // Simulate short network delay for premium feel & transition
-    await new Promise(r => setTimeout(r, 800));
+    try {
+      // 1. Intentar autenticación directa en backend contra PostgreSQL
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: cleanUser, password: cleanPass })
+      });
+      const data = await res.json();
 
-    // Match username directly or support cajero / caja aliases
+      if (data.success && data.user) {
+        performLogin(data.user);
+        return;
+      }
+
+      if (res.status === 401 || res.status === 403) {
+        setError(data.error || 'Credenciales inválidas.');
+        setIsLoggingIn(false);
+        return;
+      }
+    } catch {
+      // Fallback a contingencia local si la red está inaccesible
+    }
+
+    // Fallback local con lista de usuarios en memoria
     const foundUser = users.find(u => {
       const uName = u.username.toLowerCase();
       if (uName === cleanUser) return true;
@@ -81,22 +105,20 @@ export const LoginView: React.FC<LoginViewProps> = ({
       return;
     }
 
-    if (!foundUser.isActive) {
+    if (foundUser.isActive === false) {
       setError('Este usuario se encuentra desactivado. Consulta con el Administrador Maestro.');
       setIsLoggingIn(false);
       return;
     }
 
-    // Check password: match strictly against stored user password/pin
     const isPasswordMatch = foundUser.password === cleanPass;
 
     if (!isPasswordMatch) {
-      setError('Contraseña incorrecta. Verifica e intenta nuevamente.');
+      setError('Contraseña o PIN incorrecto. Verifica e intenta nuevamente.');
       setIsLoggingIn(false);
       return;
     }
 
-    // Login successful
     performLogin(foundUser);
   };
 
@@ -182,35 +204,118 @@ export const LoginView: React.FC<LoginViewProps> = ({
               )}
             </AnimatePresence>
 
+            {/* Selector de Modo de Acceso: Estándar vs PIN Rápido */}
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-4 text-xs font-bold font-mono">
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMode('standard');
+                  setError(null);
+                }}
+                className={`py-1.5 px-3 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  loginMode === 'standard'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>Usuario & Clave</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLoginMode('operator_pin');
+                  setError(null);
+                  if (!selectedOperatorId && users.length > 0) {
+                    const firstActive = users.find(u => u.isActive !== false) || users[0];
+                    setSelectedOperatorId(firstActive.id);
+                  }
+                }}
+                className={`py-1.5 px-3 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                  loginMode === 'operator_pin'
+                    ? 'bg-amber-500 text-slate-950 shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Cajero / PIN</span>
+              </button>
+            </div>
+
             {/* Formulario con z-index superior para interacción óptima */}
             <form onSubmit={handleFormSubmit} className="space-y-4 relative z-10">
-              {/* Username Input */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-                  Usuario de Terminal
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                    <User className="w-4 h-4" />
+              {loginMode === 'standard' ? (
+                /* Username Input */
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                    Usuario de Terminal
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition-colors">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="ej. admin, supervisor, caja"
+                      disabled={isLoggingIn}
+                      autoFocus
+                      required
+                      className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all font-mono"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="ej. admin, supervisor, caja"
-                    disabled={isLoggingIn}
-                    autoFocus
-                    required
-                    className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all font-mono"
-                  />
                 </div>
-              </div>
+              ) : (
+                /* Quick Operator Selector for Touchscreen POS */
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
+                    Selecciona tu Operador
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {users.map(u => {
+                      const isSelected = u.id === selectedOperatorId;
+                      const isDisabled = u.isActive === false;
+                      return (
+                        <button
+                          key={u.id}
+                          type="button"
+                          disabled={isDisabled || isLoggingIn}
+                          onClick={() => {
+                            setSelectedOperatorId(u.id);
+                            setError(null);
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer ${
+                            isDisabled
+                              ? 'opacity-40 border-slate-800 bg-slate-950 cursor-not-allowed'
+                              : isSelected
+                              ? 'bg-amber-500/15 border-amber-500 text-white shadow-xs'
+                              : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 text-slate-300'
+                          }`}
+                        >
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                            isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'
+                          }`}>
+                            {u.role === 'master' ? <Crown className="w-4 h-4" /> : u.role === 'supervisor' ? <ShieldCheck className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
+                          </div>
+                          <div className="truncate flex-1 min-w-0">
+                            <span className="text-xs font-bold truncate block">{u.name}</span>
+                            <span className="text-[10px] text-slate-400 font-mono block">
+                              {isDisabled ? 'DESACTIVADO' : u.role.toUpperCase()}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Password Input */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-                    Contraseña / PIN de Caja
+                    {loginMode === 'operator_pin' ? 'PIN del Operador Seleccionado' : 'Contraseña / PIN de Caja'}
                   </label>
                 </div>
                 <div className="relative group">
@@ -221,8 +326,9 @@ export const LoginView: React.FC<LoginViewProps> = ({
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder={loginMode === 'operator_pin' ? 'Ingresa tu PIN (ej. 123456)' : '••••••••'}
                     disabled={isLoggingIn}
+                    autoFocus={loginMode === 'operator_pin'}
                     required
                     className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all font-mono"
                   />

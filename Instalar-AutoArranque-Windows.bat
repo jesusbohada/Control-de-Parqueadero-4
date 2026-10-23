@@ -14,9 +14,10 @@ cd /d "%~dp0"
 set "TARGET_DIR=%~dp0"
 set "LAUNCHER_VBS=%TARGET_DIR%Iniciar-Parqueadero-Silencioso.vbs"
 set "LAUNCHER_BAT=%TARGET_DIR%Iniciar-Parqueadero.bat"
+set "RESTART_BAT=%TARGET_DIR%Reiniciar-Parqueadero.bat"
 set "ICON_PATH=%TARGET_DIR%public\favicon.ico"
 
-echo [*] Creando acceso directo en el ESCRITORIO...
+echo [*] Creando acceso directo de INICIO en el ESCRITORIO...
 powershell -NoProfile -Command ^
   "$ws = New-Object -ComObject WScript.Shell; " ^
   "$s = $ws.CreateShortcut([System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), 'WolfZone POS Parqueadero.lnk')); " ^
@@ -26,7 +27,17 @@ powershell -NoProfile -Command ^
   "if (Test-Path '%ICON_PATH%') { $s.IconLocation = '%ICON_PATH%,0'; }; " ^
   "$s.Save();"
 
-echo [OK] Acceso directo creado en el Escritorio.
+echo [*] Creando acceso directo de REINICIO en el ESCRITORIO...
+powershell -NoProfile -Command ^
+  "$ws = New-Object -ComObject WScript.Shell; " ^
+  "$s = $ws.CreateShortcut([System.IO.Path]::Combine([System.Environment]::GetFolderPath('Desktop'), 'Reiniciar WolfZone POS.lnk')); " ^
+  "$s.TargetPath = '%RESTART_BAT%'; " ^
+  "$s.WorkingDirectory = '%TARGET_DIR%'; " ^
+  "$s.Description = 'Reiniciar Servicio de Parqueadero WolfZone POS'; " ^
+  "if (Test-Path '%ICON_PATH%') { $s.IconLocation = '%ICON_PATH%,0'; }; " ^
+  "$s.Save();"
+
+echo [OK] Accesos directos creados en el Escritorio.
 
 echo [*] Configurando arranque automtico al encender el computador (Carpeta Inicio)...
 powershell -NoProfile -Command ^

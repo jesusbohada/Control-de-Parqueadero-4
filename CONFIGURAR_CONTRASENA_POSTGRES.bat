@@ -16,16 +16,16 @@ echo.
 set "PG_HOST=localhost"
 set "PG_USER=postgres"
 set "PG_DB=wolfzonepos_db"
-set "PG_PORT=5433"
+set "PG_PORT=5432"
 
-:: Detectar puerto activo (5433 o 5432)
-netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
+:: Detectar puerto activo (5432 o 5433)
+netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1
 if %errorlevel% equ 0 (
-    set "PG_PORT=5433"
+    set "PG_PORT=5432"
 ) else (
-    netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1
+    netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
     if !errorlevel! equ 0 (
-        set "PG_PORT=5432"
+        set "PG_PORT=5433"
     )
 )
 
@@ -47,12 +47,8 @@ if "!USER_PASS!"=="" (
     exit /b
 )
 
-:: Guardar en .env
-(
-    echo PORT=3000
-    echo DATABASE_URL=postgresql://%PG_USER%:!USER_PASS!@localhost:!PG_PORT!/%PG_DB%
-    echo DISABLE_HMR=true
-) > .env
+:: Guardar en .env preservando variables existentes como GEMINI_API_KEY
+node -e "const fs = require('fs'); const path = '.env'; let c = fs.existsSync(path) ? fs.readFileSync(path, 'utf8') : ''; const newDb = 'DATABASE_URL=postgresql://%PG_USER%:' + process.argv[1] + '@localhost:' + process.argv[2] + '/%PG_DB%'; if (c.includes('DATABASE_URL=')) { c = c.replace(/DATABASE_URL=.*/g, newDb); } else { c += (c.endsWith('\n') || !c ? '' : '\n') + newDb + '\n'; } if (!c.includes('PORT=')) c = 'PORT=3000\n' + c; fs.writeFileSync(path, c, 'utf8');" "!USER_PASS!" "!PG_PORT!"
 
 echo.
 echo [OK] Archivo .env actualizado con exito:

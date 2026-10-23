@@ -414,22 +414,9 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
     { id: '10493', time: '10:04 AM', desc: `Cierre Parcial - Caja ${city}`, status: 'Impreso OK' }
   ]);
 
-  // Telemetría interactiva con interval
+  // Telemetría: solo se actualiza cuando el agente o la sucursal remota reporta datos reales
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCpuLoad(prev => {
-        const change = Math.floor(Math.random() * 11) - 5; // -5 to +5
-        const next = prev + change;
-        return Math.max(8, Math.min(85, next));
-      });
-      setRamLoad(prev => {
-        const change = (Math.random() * 0.2) - 0.1;
-        const next = prev + change;
-        return parseFloat(Math.max(3.2, Math.min(6.8, next)).toFixed(2));
-      });
-    }, 3000);
-
-    return () => clearInterval(timer);
+    // Escucha activa limpia sin simulación de números aleatorios
   }, []);
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -449,27 +436,10 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
     if (socketRef.current && wsStatus === 'connected') {
       socketRef.current.sendChatMessage('admin', userMsg);
     } else {
-      // Offline fallback: Automated response simulation
-      setTimeout(() => {
-        let responseText = 'Excelente, ya veo que estás haciendo las pruebas. Quedo atento.';
-        
-        if (userMsg.toLowerCase().includes('impresora') || userMsg.toLowerCase().includes('papel') || userMsg.toLowerCase().includes('vnc')) {
-          responseText = '¡Sí! Acabo de ver que limpiaste la cola de impresión y ya se destrabó la cuchilla térmica. ¡Muchas gracias!';
-          setPrinterError(false);
-          setPrintJobs(prev => prev.map(job => ({ ...job, status: 'Impreso OK' })));
-        } else if (userMsg.toLowerCase().includes('reiniciar') || userMsg.toLowerCase().includes('equipo')) {
-          responseText = 'De acuerdo, por favor avísame antes de forzar el reinicio para guardar la sesión.';
-          triggerPCReboot();
-        } else if (userMsg.toLowerCase().includes('hola') || userMsg.toLowerCase().includes('saludos')) {
-          responseText = 'Hola soporte central, gracias por conectarse. Estoy operando con normalidad.';
-        }
-
-        setChatMessages(prev => [
-          ...prev,
-          { sender: 'cashier', text: responseText, time: currentTime }
-        ]);
-        playSound('beep');
-      }, 1500);
+      setChatMessages(prev => [
+        ...prev,
+        { sender: 'cashier', text: '[Aviso]: El cajero de la sucursal no se encuentra conectado actualmente al canal de chat.', time: currentTime }
+      ]);
     }
   };
 
@@ -985,7 +955,7 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
     ? branch.vncPassword.trim() 
     : generateFarmadeskPassword(branchName || branchId);
 
-  const ps1Command = `powershell -ExecutionPolicy Bypass -Command "iwr '${window.location.protocol}//${window.location.host}/api/farmadesk/download/farmadesk.exe' -OutFile 'farmadesk.exe'; start .\\farmadesk.exe"`;
+  const ps1Command = `powershell -ExecutionPolicy Bypass -Command "irm '${window.location.protocol}//${window.location.host}/api/farmadesk/script/agent.ps1?branchId=${branchId}' | iex"`;
 
   return (
     <div className="fixed inset-0 z-[9999] bg-slate-950 flex flex-col select-none overflow-hidden text-slate-100">
@@ -2123,16 +2093,16 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
 
                         <div className="space-y-2">
                           <a
-                            href={`/api/farmadesk/download/Iniciar-FarmaDesk.bat?branchId=${branchId}`}
-                            download={`Iniciar-FarmaDesk-${branchId}.bat`}
+                            href={`/api/farmadesk/script/agent.bat?branchId=${branchId}`}
+                            download={`Iniciar-Agente-Remoto-${branchId}.bat`}
                             onClick={() => {
                               playSound('success');
-                              setOperatingFeedbackToast('Descargando archivo Iniciar-FarmaDesk.bat...');
+                              setOperatingFeedbackToast('Descargando archivo Iniciar-Agente-Remoto.bat...');
                             }}
                             className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs text-center transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 active:scale-95"
                           >
                             <Download className="w-4 h-4" />
-                            <span>Descargar Iniciar-FarmaDesk.bat</span>
+                            <span>Descargar Agente de Pantalla (1-Clic)</span>
                           </a>
 
                           <div className="bg-black/80 border border-slate-800 rounded p-2 text-[10px] font-mono text-emerald-700 dark:text-emerald-400 flex items-center justify-between">
@@ -3354,24 +3324,24 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
             <div className="space-y-2 pt-2 border-t border-slate-800">
               <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-indigo-400" />
-                Opción 2: Scripts y Fuentes en la subcarpeta <code className="text-indigo-800 dark:text-indigo-300">farmadesk-agent/</code>
+                Opción 2: Descarga de Scripts para el PC de la Sucursal
               </span>
               <div className="grid grid-cols-2 gap-3">
                 <a
-                  href={`/api/farmadesk/download/Iniciar-FarmaDesk.bat?branchId=${branchId}`}
-                  download={`farmadesk-agent-${branchId}.ps1`}
+                  href={`/api/farmadesk/script/agent.bat?branchId=${branchId}`}
+                  download={`Iniciar-Agente-Remoto-${branchId}.bat`}
                   className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-700 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />
-                  <span>Descargar .ps1 (Windows)</span>
+                  <span>Descargar Agente .bat (1-Clic)</span>
                 </a>
                 <a
-                  href={`/api/farmadesk/download/farmadesk.exe`}
-                  download={`farmadesk-agent-${branchId}.py`}
+                  href={`/api/farmadesk/script/agent.ps1?branchId=${branchId}`}
+                  download={`farmadesk-agent-${branchId}.ps1`}
                   className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-700 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
-                  <span>Descargar .py (Python)</span>
+                  <span>Descargar Script .ps1</span>
                 </a>
               </div>
             </div>

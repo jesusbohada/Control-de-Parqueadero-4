@@ -36,7 +36,8 @@ import {
   ParkingSpot,
   VehicleCategoryConfig,
   RatesConfig,
-  PaymentGatewayConfig
+  PaymentGatewayConfig,
+  SystemUser
 } from '../types';
 import { formatCurrency } from '../utils/billing';
 import { printInstantThermal } from '../services/printerService';
@@ -50,7 +51,22 @@ interface SubscribersModalProps {
   vehicleCategories?: VehicleCategoryConfig[];
   rates?: RatesConfig;
   paymentGatewayConfig?: PaymentGatewayConfig;
+  currentUser?: SystemUser | null;
   onSubscriberUpdated?: () => void;
+  onAddMovement?: (
+    type: 'income' | 'expense' | 'withdrawal' | 'pickup',
+    amount: number,
+    description: string,
+    conceptId?: string,
+    conceptName?: string,
+    voucherNumber?: string,
+    attachmentUrl?: string,
+    attachmentName?: string,
+    attachmentType?: 'image' | 'pdf' | 'document',
+    attachmentSize?: number,
+    paymentMethod?: PaymentMethod | string,
+    paymentReference?: string
+  ) => void;
 }
 
 export const SubscribersModal: React.FC<SubscribersModalProps> = ({
@@ -61,7 +77,9 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   vehicleCategories = [],
   rates,
   paymentGatewayConfig,
-  onSubscriberUpdated
+  currentUser,
+  onSubscriberUpdated,
+  onAddMovement
 }) => {
   const [subscribers, setSubscribers] = useState<ParkingSubscriber[]>([]);
   const [loading, setLoading] = useState(false);
@@ -276,6 +294,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<string>('cash');
   const [voucherNumber, setVoucherNumber] = useState<string>('');
   const [printReceiptOnSave, setPrintReceiptOnSave] = useState(true);
+  const [registerPaymentInShift, setRegisterPaymentInShift] = useState(true);
 
   // Determina si el medio de pago actual genera o requiere documento / soporte bancario
   const isBankingPaymentMethod = useMemo(() => {
@@ -428,6 +447,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     setPaymentMethod(defaultPay);
     setVoucherNumber('');
     setPrintReceiptOnSave(true);
+    setRegisterPaymentInShift(true);
     setIsFormOpen(true);
   };
 
@@ -453,6 +473,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
     setPaymentMethod(sub.paymentMethod || 'cash');
     setVoucherNumber(sub.voucherNumber || (sub as any).details?.voucherNumber || '');
     setPrintReceiptOnSave(false);
+    setRegisterPaymentInShift(false);
     setIsFormOpen(true);
   };
 
@@ -503,6 +524,25 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         fetchSubscribers();
         if (onSubscriberUpdated) onSubscriberUpdated();
 
+        // Registrar ingreso extraordinario en el turno de caja activo (si aplica)
+        if (onAddMovement && Number(monthlyRate) > 0 && registerPaymentInShift) {
+          const methodLabel = getPaymentMethodDisplay(subscriberPayload.paymentMethod);
+          onAddMovement(
+            'income',
+            Number(monthlyRate),
+            `Pago mensualidad abonado - Placa: ${cleanPlate} (${fullName.trim()}) - Método: ${methodLabel}`,
+            'subscription',
+            'Mensualidad / Abonado',
+            subscriberPayload.voucherNumber,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            subscriberPayload.paymentMethod,
+            subscriberPayload.paymentReference
+          );
+        }
+
         // Si se seleccionó imprimir comprobante de pago de mensualidad
         if (printReceiptOnSave) {
           handlePrintReceipt(subscriberPayload);
@@ -550,6 +590,26 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         setTimeout(() => setSaveToast(null), 3500);
         fetchSubscribers();
         if (onSubscriberUpdated) onSubscriberUpdated();
+
+        // Registrar ingreso de renovación en el turno de caja activo
+        if (onAddMovement && Number(sub.monthlyRate) > 0) {
+          const methodLabel = getPaymentMethodDisplay(sub.paymentMethod);
+          onAddMovement(
+            'income',
+            Number(sub.monthlyRate),
+            `Renovación 30 días suscripción abonado - Placa: ${sub.plate} (${sub.fullName}) - Método: ${methodLabel}`,
+            'subscription',
+            'Mensualidad / Abonado',
+            sub.voucherNumber,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            sub.paymentMethod || 'cash',
+            sub.paymentReference
+          );
+        }
+
         handlePrintReceipt(updatedSub);
       }
     } catch (err) {
@@ -1174,6 +1234,25 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                   ))}
                 </select>
               </div>
+
+              {/* Registrar ingreso en turno activo */}
+              <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={registerPaymentInShift}
+                  onChange={(e) => setRegisterPaymentInShift(e.target.checked)}
+                  className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                />
+                <div className="text-[11px] leading-tight">
+                  <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    Registrar cobro en el turno de caja actual
+                  </span>
+                  <span className="text-slate-400">
+                    Suma {formatCurrency(monthlyRate)} al arqueo y reporte del turno activo ({currentUser?.name || 'Cajero'})
+                  </span>
+                </div>
+              </label>
 
               {/* Print Receipt Toggle */}
               <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer">

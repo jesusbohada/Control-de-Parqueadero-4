@@ -21,7 +21,9 @@ import {
   Compass, 
   Bus,
   Sparkles,
-  Info
+  Info,
+  RefreshCw,
+  AlertTriangle
 } from 'lucide-react';
 import { ParkingSpot, VehicleType, VehicleCategoryConfig, ParkingTicket } from '../types';
 import { renderVehicleIcon } from '../utils/vehicleIcons';
@@ -38,6 +40,8 @@ interface SpotsManagementModalProps {
   onDeleteMultipleSpots: (spotIds: string[]) => void;
   onUpdateSpotStatus: (spotId: string, status: 'available' | 'reserved' | 'maintenance') => void;
   onUpdateMultipleSpotStatus: (spotIds: string[], status: 'available' | 'reserved' | 'maintenance') => void;
+  onReconcileSpots?: () => Promise<{ success: boolean; freedCount?: number; activeCount?: number }>;
+  onGoToExitTicket?: (ticket: ParkingTicket) => void;
   embedded?: boolean;
 }
 
@@ -53,6 +57,8 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
   onDeleteMultipleSpots,
   onUpdateSpotStatus,
   onUpdateMultipleSpotStatus,
+  onReconcileSpots,
+  onGoToExitTicket,
   embedded = false
 }) => {
   if (!isOpen && !embedded) return null;
@@ -67,6 +73,9 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
 
   // Selection for bulk operations
   const [selectedSpotIds, setSelectedSpotIds] = useState<string[]>([]);
+
+  // Reconciliation Loading state
+  const [isReconciling, setIsReconciling] = useState(false);
 
   // Single Edit / Create Form State
   const [editingSpotId, setEditingSpotId] = useState<string | null>(null);
@@ -91,6 +100,50 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
   const showSuccess = (msg: string) => {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(null), 3500);
+  };
+
+  // Spot validation helpers against active patio tickets
+  const isSpotReallyOccupied = (s: ParkingSpot) => {
+    return activeTickets.some(t => t.spotCode === s.code || t.id === s.currentTicketId);
+  };
+
+  const getSpotActiveTicket = (s: ParkingSpot) => {
+    return activeTickets.find(t => t.spotCode === s.code || t.id === s.currentTicketId);
+  };
+
+  // Reconciled counts
+  const availableCount = useMemo(() => spots.filter(s => s.status === 'available').length, [spots]);
+  const realOccupiedCount = useMemo(() => spots.filter(s => s.status === 'occupied' && isSpotReallyOccupied(s)).length, [spots, activeTickets]);
+  const orphanOccupiedCount = useMemo(() => spots.filter(s => s.status === 'occupied' && !isSpotReallyOccupied(s)).length, [spots, activeTickets]);
+  const maintenanceOrReservedCount = useMemo(() => spots.filter(s => s.status === 'maintenance' || s.status === 'reserved').length, [spots]);
+
+  // Handler for one-click synchronization
+  const handleReconcile = async () => {
+    if (isReconciling) return;
+    setIsReconciling(true);
+    try {
+      if (onReconcileSpots) {
+        const res = await onReconcileSpots();
+        if (res.freedCount && res.freedCount > 0) {
+          showSuccess(`¡Sincronización exitosa! Se liberaron ${res.freedCount} plaza(s) huérfana(s).`);
+        } else {
+          showSuccess(`¡Plazas sincronizadas con el patio real! (${res.activeCount ?? activeTickets.length} vehículos activos).`);
+        }
+      } else {
+        const orphans = spots.filter(s => s.status === 'occupied' && !isSpotReallyOccupied(s));
+        if (orphans.length > 0) {
+          onUpdateMultipleSpotStatus(orphans.map(o => o.id), 'available');
+          showSuccess(`Se corrigieron y liberaron ${orphans.length} plazas huérfanas.`);
+        } else {
+          showSuccess('Todas las plazas ya coinciden con los vehículos en patio.');
+        }
+      }
+    } catch (e: any) {
+      console.warn('[SpotsManagementModal] Error al sincronizar:', e);
+      alert(`Error al sincronizar plazas: ${e?.message || 'Error desconocido'}`);
+    } finally {
+      setIsReconciling(false);
+    }
   };
 
   // Helper for vehicle category names & icons
@@ -123,18 +176,34 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
     }
   };
 
-  // Filtered spots list
+  // Filtered spots list with smart plate / ticket / code search and orphan support
   const filteredSpots = useMemo(() => {
     return spots.filter(s => {
       const matchesType = selectedTypeFilter === 'all' || s.type === selectedTypeFilter;
-      const matchesStatus = selectedStatusFilter === 'all' || s.status === selectedStatusFilter;
-      const matchesSearch = !searchQuery.trim() || 
-        s.code.toUpperCase().includes(searchQuery.trim().toUpperCase()) ||
-        (s.zoneName && s.zoneName.toUpperCase().includes(searchQuery.trim().toUpperCase())) ||
-        (s.notes && s.notes.toUpperCase().includes(searchQuery.trim().toUpperCase()));
+      
+      let matchesStatus = true;
+      if (selectedStatusFilter === 'all') {
+        matchesStatus = true;
+      } else if (selectedStatusFilter === 'orphan') {
+        matchesStatus = s.status === 'occupied' && !isSpotReallyOccupied(s);
+      } else if (selectedStatusFilter === 'occupied') {
+        matchesStatus = s.status === 'occupied' && isSpotReallyOccupied(s);
+      } else {
+        matchesStatus = s.status === selectedStatusFilter;
+      }
+
+      const activeTicket = getSpotActiveTicket(s);
+      const q = searchQuery.trim().toUpperCase();
+      const matchesSearch = !q || 
+        s.code.toUpperCase().includes(q) ||
+        (s.zoneName && s.zoneName.toUpperCase().includes(q)) ||
+        (s.notes && s.notes.toUpperCase().includes(q)) ||
+        (activeTicket?.plate && activeTicket.plate.toUpperCase().includes(q)) ||
+        (activeTicket?.ticketNumber && activeTicket.ticketNumber.toUpperCase().includes(q));
+
       return matchesType && matchesStatus && matchesSearch;
     });
-  }, [spots, selectedTypeFilter, selectedStatusFilter, searchQuery]);
+  }, [spots, selectedTypeFilter, selectedStatusFilter, searchQuery, activeTickets]);
 
   // Handle single create / edit submission
   const handleOpenCreateSingle = () => {
@@ -257,11 +326,13 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
   const handleDeleteSelected = () => {
     const deletableIds = selectedSpotIds.filter(id => {
       const spot = spots.find(s => s.id === id);
-      return spot && spot.status !== 'occupied';
+      if (!spot) return false;
+      const hasRealVehicle = activeTickets.some(t => t.spotCode === spot.code || t.id === spot.currentTicketId);
+      return !hasRealVehicle;
     });
 
     if (deletableIds.length === 0) {
-      alert('No se pueden eliminar plazas que se encuentren ocupadas actualmente por un vehículo.');
+      alert('No se pueden eliminar plazas que tengan un vehículo activo en patio.');
       return;
     }
 
@@ -275,17 +346,38 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
   const handleSetStatusForSelected = (status: 'available' | 'reserved' | 'maintenance') => {
     const changeableIds = selectedSpotIds.filter(id => {
       const spot = spots.find(s => s.id === id);
-      return spot && spot.status !== 'occupied';
+      if (!spot) return false;
+      const hasRealVehicle = activeTickets.some(t => t.spotCode === spot.code || t.id === spot.currentTicketId);
+      if (hasRealVehicle && status !== 'available') return false;
+      return true;
     });
 
     if (changeableIds.length === 0) {
-      alert('Las plazas seleccionadas están ocupadas y no pueden cambiar de estado.');
+      alert('Las plazas seleccionadas tienen vehículos activos en patio y no pueden cambiar de estado.');
       return;
     }
 
     onUpdateMultipleSpotStatus(changeableIds, status);
     setSelectedSpotIds([]);
     showSuccess(`Estado actualizado para ${changeableIds.length} plaza(s).`);
+  };
+
+  const handleLiberateSelectedOrphans = () => {
+    const orphanIds = selectedSpotIds.filter(id => {
+      const spot = spots.find(s => s.id === id);
+      if (!spot) return false;
+      const hasRealVehicle = activeTickets.some(t => t.spotCode === spot.code || t.id === spot.currentTicketId);
+      return spot.status === 'occupied' && !hasRealVehicle;
+    });
+
+    if (orphanIds.length === 0) {
+      alert('No hay plazas desincronizadas en la selección.');
+      return;
+    }
+
+    onUpdateMultipleSpotStatus(orphanIds, 'available');
+    setSelectedSpotIds([]);
+    showSuccess(`${orphanIds.length} plaza(s) huérfana(s) liberada(s) correctamente.`);
   };
 
   return (
@@ -373,20 +465,43 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
             </button>
           </div>
 
-          {/* Quick Metrics */}
-          <div className="flex items-center gap-2 text-xs">
+          {/* Quick Metrics & Reconcile Button */}
+          <div className="flex items-center gap-2 text-xs flex-wrap">
             <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold rounded-lg flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              {spots.filter(s => s.status === 'available').length} Libres
+              {availableCount} Libres
             </span>
-            <span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 font-bold rounded-lg flex items-center gap-1.5">
+            <span className="px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 font-bold rounded-lg flex items-center gap-1.5" title={`${realOccupiedCount} con vehículo activo en patio`}>
               <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-              {spots.filter(s => s.status === 'occupied').length} Ocupadas
+              {realOccupiedCount} Ocupadas
             </span>
             <span className="px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 font-bold rounded-lg flex items-center gap-1.5">
               <Wrench className="w-3 h-3 text-amber-600" />
-              {spots.filter(s => s.status === 'maintenance' || s.status === 'reserved').length} Mant. / Res.
+              {maintenanceOrReservedCount} Mant. / Res.
             </span>
+
+            {orphanOccupiedCount > 0 && (
+              <button
+                type="button"
+                onClick={handleReconcile}
+                className="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/70 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 font-bold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer animate-pulse"
+                title="Plazas marcadas como ocupadas pero sin ticket en patio. Clic para corregir."
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>{orphanOccupiedCount} Huérfana{orphanOccupiedCount > 1 ? 's' : ''} (Clic para liberar)</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleReconcile}
+              disabled={isReconciling}
+              className="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50 ml-auto"
+              title="Sincronizar el estado de las plazas con los tickets activos reales en patio"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isReconciling ? 'animate-spin text-indigo-500' : 'text-indigo-600 dark:text-indigo-400'}`} />
+              <span>{isReconciling ? 'Sincronizando...' : 'Sincronizar con Patio'}</span>
+            </button>
           </div>
         </div>
 
@@ -401,11 +516,11 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
               <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
                 
                 {/* Search input */}
-                <div className="relative w-full md:w-72">
+                <div className="relative w-full md:w-80">
                   <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="text"
-                    placeholder="Buscar código, zona o notas..."
+                    placeholder="Buscar código, placa, ticket o zona..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-900 focus:border-amber-500 rounded-xl pl-9 pr-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition-colors"
@@ -435,8 +550,13 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                       className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer pr-1"
                     >
                       <option value="all" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Estado: Todos</option>
-                      <option value="available" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Solo Libres</option>
-                      <option value="occupied" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Solo Ocupadas</option>
+                      <option value="available" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Solo Libres ({availableCount})</option>
+                      <option value="occupied" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Solo Ocupadas ({realOccupiedCount})</option>
+                      {orphanOccupiedCount > 0 && (
+                        <option value="orphan" className="bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold">
+                          ⚠️ Huérfanas / Desinc. ({orphanOccupiedCount})
+                        </option>
+                      )}
                       <option value="maintenance" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Mantenimiento</option>
                       <option value="reserved" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Reservadas</option>
                     </select>
@@ -484,6 +604,17 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                     >
                       Marcar Reservadas
                     </button>
+                    {orphanOccupiedCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleLiberateSelectedOrphans}
+                        className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl transition-colors cursor-pointer flex items-center gap-1"
+                        title="Liberar solo las plazas de la selección que están marcadas ocupadas pero no tienen vehículo en patio"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        <span>Liberar Huérfanas</span>
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={handleDeleteSelected}
@@ -511,8 +642,9 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {filteredSpots.map((spot) => {
                     const isSelected = selectedSpotIds.includes(spot.id);
-                    const isOccupied = spot.status === 'occupied';
-                    const activeTicket = activeTickets.find(t => t.spotCode === spot.code || t.id === spot.currentTicketId);
+                    const activeTicket = getSpotActiveTicket(spot);
+                    const hasRealVehicle = !!activeTicket;
+                    const isOrphanOccupied = spot.status === 'occupied' && !hasRealVehicle;
 
                     return (
                       <div
@@ -520,6 +652,8 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                         className={`relative bg-white dark:bg-slate-900 rounded-2xl border transition-all p-3.5 flex flex-col justify-between space-y-2.5 ${
                           isSelected
                             ? 'border-amber-500 ring-2 ring-amber-500/20 bg-amber-50/20 dark:bg-amber-950/20'
+                            : isOrphanOccupied
+                            ? 'border-amber-300 dark:border-amber-700/80 bg-amber-50/30 dark:bg-amber-950/20 shadow-xs'
                             : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                         }`}
                       >
@@ -538,7 +672,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                           </div>
 
                           <div className="flex items-center gap-1">
-                            {!isOccupied && (
+                            {!hasRealVehicle && (
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(spot)}
@@ -548,7 +682,7 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
                                 <Edit3 className="w-3.5 h-3.5" />
                               </button>
                             )}
-                            {!isOccupied && (
+                            {!hasRealVehicle && (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -582,11 +716,47 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
 
                         {/* Status Badge & Actions */}
                         <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                          {isOccupied ? (
-                            <div className="w-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-1.5 rounded-xl text-center">
-                              <span className="text-[10px] font-black uppercase text-rose-700 dark:text-rose-300 block truncate">
-                                Ocupada ({activeTicket?.plate || 'En Uso'})
+                          {hasRealVehicle ? (
+                            <div className="w-full bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 p-2 rounded-xl space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[11px] font-black uppercase text-rose-700 dark:text-rose-300 flex items-center gap-1">
+                                  <Car className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                                  <span className="truncate">{activeTicket.plate}</span>
+                                </span>
+                                <span className="text-[10px] font-mono font-bold text-rose-600/90 dark:text-rose-400/90 shrink-0">
+                                  {activeTicket.ticketNumber}
+                                </span>
+                              </div>
+                              {onGoToExitTicket ? (
+                                <button
+                                  type="button"
+                                  onClick={() => onGoToExitTicket(activeTicket)}
+                                  className="w-full text-center text-[10px] font-black text-rose-700 dark:text-rose-200 hover:text-white bg-rose-100/80 hover:bg-rose-600 dark:bg-rose-900/40 dark:hover:bg-rose-700 border border-rose-300 dark:border-rose-800 rounded-lg py-1 transition-all cursor-pointer flex items-center justify-center gap-1 shadow-xs"
+                                  title="Ir a registrar salida / cobrar este vehículo en el Patio POS"
+                                >
+                                  <span>Cobrar / Salida</span>
+                                  <span>→</span>
+                                </button>
+                              ) : (
+                                <span className="text-[9px] font-semibold text-rose-600 dark:text-rose-400 block text-center">
+                                  Vehículo en patio
+                                </span>
+                              )}
+                            </div>
+                          ) : isOrphanOccupied ? (
+                            <div className="w-full bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700/80 p-2 rounded-xl space-y-1.5 text-center">
+                              <span className="text-[9px] font-black uppercase text-amber-800 dark:text-amber-300 flex items-center justify-center gap-1">
+                                <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                                <span className="truncate">Sin Ticket / Desinc.</span>
                               </span>
+                              <button
+                                type="button"
+                                onClick={() => onUpdateSpotStatus(spot.id, 'available')}
+                                className="w-full text-[10px] font-black text-white bg-amber-600 hover:bg-amber-700 active:scale-95 rounded-lg py-1 transition-all cursor-pointer shadow-xs"
+                                title="Liberar plaza y corregir estado a disponible"
+                              >
+                                Liberar Plaza
+                              </button>
                             </div>
                           ) : spot.status === 'maintenance' ? (
                             <div className="w-full flex items-center justify-between gap-1">

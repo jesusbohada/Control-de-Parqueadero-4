@@ -30,7 +30,10 @@ import {
   CircleDot,
   Eye,
   ExternalLink,
-  Printer
+  Printer,
+  History,
+  Handshake,
+  Network
 } from 'lucide-react';
 import { 
   ParkingBusinessInfo, 
@@ -85,6 +88,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   businessInfo,
   currentBranch,
+  systemNodeConfig,
+  activeRemoteSession,
   activeCategory,
   activeView,
   setActiveView,
@@ -140,6 +145,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           requiredPermission: currentUser.permissions.canManageCashShift,
         },
         {
+          id: 'cash_history',
+          category: 'finance',
+          label: 'Histórico de Cierres',
+          shortLabel: 'Histórico',
+          icon: History,
+          requiredPermission: true,
+        },
+        {
           id: 'expense_concepts',
           category: 'finance',
           label: 'Conceptos Gasto',
@@ -168,6 +181,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: Sliders,
           requiredPermission: currentUser.permissions.canEditRates,
         },
+        ...(businessInfo?.enableCommercialAgreements ? [
+          {
+            id: 'agreements' as const,
+            category: 'config' as const,
+            label: 'Convenios & Alianzas',
+            shortLabel: 'Convenios',
+            icon: Handshake,
+            requiredPermission: currentUser.permissions.canManageAgreements ?? currentUser.permissions.canEditRates,
+          }
+        ] : []),
         {
           id: 'vehicle_categories',
           category: 'config',
@@ -205,11 +228,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
       title: 'Red & Mantenimiento',
       items: [
         {
+          id: 'central_hub',
+          category: 'central',
+          label: 'Servidor Central / Hub Matriz',
+          shortLabel: 'Hub Matriz',
+          icon: Server,
+          badge: 'Consolidado',
+          badgeColor: 'bg-sky-500/20 text-sky-800 dark:text-sky-300 font-mono font-bold',
+        },
+        {
           id: 'branches',
           category: 'central',
-          label: 'Red de Sedes & FarmaDesk',
+          label: 'Red de Sedes & Sucursales',
           shortLabel: 'Sedes',
           icon: Building2,
+        },
+        {
+          id: 'vnc_remote',
+          category: 'central',
+          label: 'FarmaDesk & Escritorio Remoto',
+          shortLabel: 'FarmaDesk',
+          icon: Monitor,
+          badge: activeRemoteSession ? 'Conectado' : 'Live',
+          badgeColor: activeRemoteSession
+            ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 font-mono font-bold animate-pulse'
+            : 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 font-mono font-bold',
+          requiredPermission: currentUser.permissions.canSyncWithCentralServer ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
+        },
+        {
+          id: 'work_mode',
+          category: 'central',
+          label: 'Modo de Trabajo & Servidores',
+          shortLabel: 'Modo Nodo',
+          icon: Network,
+          badge: systemNodeConfig?.workMode === 'server' ? 'Servidor' : 'Punto POS',
+          badgeColor: systemNodeConfig?.workMode === 'server'
+            ? 'bg-sky-500/20 text-sky-800 dark:text-sky-300 font-mono font-bold'
+            : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-mono font-bold',
+          requiredPermission: currentUser.permissions.canSyncWithCentralServer ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
         },
         {
           id: 'branch_sync',
@@ -416,6 +472,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           );
         })}
       </nav>
+
+      {/* Sesión Activa de Control Remoto FarmaDesk */}
+      {activeRemoteSession && (
+        <div className="mx-3 mb-2 p-2.5 rounded-xl bg-indigo-950/80 border border-indigo-500/50 shadow-sm text-xs select-none">
+          <div className="flex items-center justify-between font-bold text-indigo-300">
+            <span className="flex items-center gap-1.5">
+              <Monitor className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+              {!isCollapsed && <span>Sesión FarmaDesk</span>}
+            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          </div>
+          {!isCollapsed && (
+            <div className="mt-1 text-[11px] text-slate-300 truncate">
+              {activeRemoteSession.branchName} · {activeRemoteSession.city}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setActiveView('vnc_remote', 'central')}
+            className="mt-2 w-full py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] text-center transition-colors cursor-pointer"
+          >
+            {isCollapsed ? 'Ver' : 'Abrir Pantalla Remota'}
+          </button>
+        </div>
+      )}
 
       {/* 3. Footer / User & Control Area */}
       <div className="p-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-2 shrink-0 bg-slate-50/50 dark:bg-slate-900/40">

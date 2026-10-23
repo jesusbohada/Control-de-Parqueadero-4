@@ -6,6 +6,7 @@ export type ActiveWorkspaceView =
   | 'spots'
   | 'anpr_camera'
   | 'cash'
+  | 'cash_history'
   | 'expense_concepts'
   | 'reports'
   | 'branches'
@@ -21,7 +22,8 @@ export type ActiveWorkspaceView =
   | 'printer_config'
   | 'database'
   | 'agent_skills'
-  | 'subscribers';
+  | 'subscribers'
+  | 'agreements';
 
 export interface ProtectedRouteConfig {
   /** Ruta URL relativa (ej: '/wolfzonepos', '/admin', '/auditoria') */

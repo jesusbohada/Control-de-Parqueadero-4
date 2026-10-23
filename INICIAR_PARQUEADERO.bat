@@ -110,7 +110,7 @@ if %errorlevel% equ 0 (
         for /f "tokens=5" %%a in ('netstat -aon ^| findstr "LISTENING" ^| findstr ":3000"') do (
             taskkill /F /PID %%a >nul 2>&1
         )
-        timeout /t 1 /nobreak >nul 2>&1
+        ping 127.0.0.1 -n 2 >nul 2>&1
         echo [OK] Puerto 3000 liberado.
     )
     if "!port_opt!"=="2" (

@@ -12,12 +12,12 @@ echo.
 cd /d "%~dp0"
 
 :: 1. Verificar servicio de PostgreSQL
-echo [*] Verificando base de datos PostgreSQL 16...
-sc query postgresql-x64-16 | find "STATE" | find "RUNNING" >nul
+echo [*] Verificando base de datos PostgreSQL...
+netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1 || netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [!] Servicio de PostgreSQL detenido. Iniciando base de datos...
-    net start postgresql-x64-16 >nul 2>&1
-    timeout /t 2 /nobreak >nul
+    net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
+    ping 127.0.0.1 -n 3 >nul
 )
 echo [OK] Base de datos PostgreSQL activa.
 
@@ -32,7 +32,7 @@ if %ERRORLEVEL% EQU 0 (
 :: 3. Iniciar servidor Node.js en segundo plano
 echo [*] Iniciando servidor POS WolfZone en segundo plano...
 if not exist "logs" mkdir "logs"
-start /b cmd /c "npm run dev > logs\server_runtime.log 2>&1"
+start "" /min cmd /c "npm run dev > logs\server_runtime.log 2>&1"
 
 :: 4. Esperar a que el servidor responda
 echo [*] Esperando disponibilidad del sistema...
@@ -46,7 +46,7 @@ if %retries% GEQ 20 (
     echo [!] El servidor tard ms de lo esperado, abriendo interfaz de todas formas...
     goto launch_browser
 )
-timeout /t 1 /nobreak >nul
+ping 127.0.0.1 -n 2 >nul
 goto wait_loop
 
 :server_ready
@@ -79,5 +79,5 @@ echo.
 echo ======================================================================
 echo    PARQUEADERO OPERATIVO - PUEDES CERRAR ESTA VENTANA SI DESEAS
 echo ======================================================================
-timeout /t 3 /nobreak >nul
+ping 127.0.0.1 -n 4 >nul
 exit

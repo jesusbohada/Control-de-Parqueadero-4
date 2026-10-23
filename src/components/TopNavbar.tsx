@@ -24,7 +24,8 @@ import {
   Check,
   Laptop,
   Printer,
-  Users
+  Users,
+  Server
 } from 'lucide-react';
 import { 
   ParkingBusinessInfo, 
@@ -140,6 +141,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
   onLockTerminal,
   currentUser,
   currentBranch,
+  systemNodeConfig,
   onManualSync,
   isSyncingGlobal = false,
   isDarkMode,
@@ -210,6 +212,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
       case 'branch_sync': return 'Sincronización';
       case 'vnc_remote': return 'Acceso Remoto';
       case 'rates': return 'Tarifas';
+      case 'agreements': return 'Convenios';
       case 'vehicle_categories': return 'Categorías';
       case 'users': return 'Usuarios';
       case 'database': return 'Base de Datos';
@@ -283,6 +286,24 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               <Calendar className="w-3 h-3 text-amber-500 shrink-0" />
               <span>{operationalDateStr}</span>
               <span className="font-mono font-bold text-amber-700 dark:text-amber-300">(T{shiftNum})</span>
+            </button>
+            <span className="text-slate-400 dark:text-slate-600">·</span>
+            <button
+              type="button"
+              onClick={() => handleSwitchView('work_mode')}
+              className={`flex items-center gap-1 font-bold px-2 py-0.5 rounded-lg border text-[10px] transition-all cursor-pointer ${
+                systemNodeConfig?.workMode === 'server'
+                  ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30 hover:bg-sky-500/20'
+                  : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+              }`}
+              title="Configurar Modo de Trabajo & Enlace Central de este equipo"
+            >
+              <Server className="w-3 h-3" />
+              <span>
+                {systemNodeConfig?.workMode === 'server'
+                  ? 'Servidor'
+                  : 'Punto POS'}
+              </span>
             </button>
           </div>
         </div>
@@ -449,6 +470,24 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               <span className="hidden xl:inline text-[11px]">Actualizar Sistema</span>
+            </button>
+          )}
+
+          {/* Acceso Directo a FarmaDesk / Escritorio Remoto */}
+          {(currentUser.role === 'master' || currentUser.role === 'supervisor') && (
+            <button
+              type="button"
+              onClick={() => handleSwitchView('vnc_remote')}
+              className={`p-1.5 sm:px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+                activeView === 'vnc_remote'
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-indigo-600/30 ring-2 ring-indigo-500/30'
+                  : 'bg-white dark:bg-slate-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200'
+              }`}
+              title="Consola de Escritorio Remoto FarmaDesk Pro"
+              aria-label="FarmaDesk Remoto"
+            >
+              <Laptop className="w-3.5 h-3.5 text-indigo-500" />
+              <span className="hidden xl:inline text-[11px]">FarmaDesk</span>
             </button>
           )}
 

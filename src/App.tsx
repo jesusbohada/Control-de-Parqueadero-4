@@ -25,7 +25,9 @@ import {
   Warehouse,
   PosPoint,
   RemoteExecutionOrder,
-  PrinterConfig
+  PrinterConfig,
+  CommercialAgreement,
+  AgreementDiscountType
 } from './types';
 import { printInstantThermal, openCashDrawer } from './services/printerService';
 import { PrinterSettingsModal } from './components/PrinterSettingsModal';
@@ -51,7 +53,8 @@ import {
   INITIAL_SYSTEM_NODE_CONFIG,
   INITIAL_WAREHOUSES,
   INITIAL_POS_POINTS,
-  INITIAL_REMOTE_ORDERS
+  INITIAL_REMOTE_ORDERS,
+  INITIAL_COMMERCIAL_AGREEMENTS
 } from './data/initialData';
 import { 
   ensureUniqueBranchFarmadeskCredentials, 
@@ -69,6 +72,10 @@ import {
   getDatabaseNameForTerminal,
   exportDatabaseBackup,
   dbSaveSpots,
+  dbDeleteSpot,
+  dbDeleteMultipleSpots,
+  dbUpdateMultipleSpotStatus,
+  dbReconcileSpots,
   dbSaveActiveTicket,
   dbRemoveActiveTicket,
   dbSavePaidTicket,
@@ -80,7 +87,10 @@ import {
   dbSaveUser,
   dbSaveUsers,
   dbDeleteUser,
-  dbSavePaymentGatewayConfig
+  dbSavePaymentGatewayConfig,
+  dbSaveExpenseConcepts,
+  dbSaveExpenseCategories,
+  dbSavePrinters
 } from './db/terminalDatabase';
 import { Building2, XCircle, Monitor, Radio, Cpu, HardDrive, RefreshCw, Terminal, Keyboard, MousePointer, ShieldAlert, Wifi, Sliders, Send, Settings, User, ExternalLink, Car, Database, ShieldCheck, Printer } from 'lucide-react';
 import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
@@ -99,6 +109,8 @@ import { LoginView } from './components/LoginView';
 import { UsersManagementModal } from './components/UsersManagementModal';
 import { VehicleCategoriesModal } from './components/VehicleCategoriesModal';
 import { ExpenseConceptsModal } from './components/ExpenseConceptsModal';
+import { CommercialAgreementsModal } from './components/CommercialAgreementsModal';
+import { CashShiftsHistoryModal } from './components/CashShiftsHistoryModal';
 import { SpotsManagementModal } from './components/SpotsManagementModal';
 import { SubscribersModal } from './components/SubscribersModal';
 import { CentralHubModal } from './components/CentralHubModal';
@@ -373,7 +385,6 @@ export default function App() {
       window.history.pushState(null, '', '/');
       setCurrentPathname('/');
     }
-    setIsPathAuthorized(false);
   };
 
   // --- Pure High-Contrast Theme System (Reactivo & Persistente) ---
@@ -443,6 +454,36 @@ export default function App() {
     };
   }, []);
 
+  // --- One-Time Clean Slate Routine for Production Baseline Zero ---
+  if (typeof window !== 'undefined') {
+    const cleanSlateKey = 'pk_clean_slate_production_v3';
+    if (!localStorage.getItem(cleanSlateKey)) {
+      try {
+        localStorage.removeItem('pk_active_tickets');
+        localStorage.removeItem('pk_paid_tickets');
+        localStorage.removeItem('pk_closed_shifts_history');
+        localStorage.removeItem('pk_closed_days_history');
+        localStorage.removeItem('pk_subscribers');
+        localStorage.removeItem('pk_commercial_agreements');
+        localStorage.removeItem('pk_remote_orders');
+        localStorage.removeItem('pk_central_packages');
+        localStorage.removeItem('pk_known_databases');
+        localStorage.removeItem('pk_sync_audit_logs');
+        localStorage.removeItem('wolfzone_postgres_query_history');
+        localStorage.setItem('pk_branches', JSON.stringify(INITIAL_BRANCHES));
+        localStorage.setItem('pk_current_branch_id', 'suc-001');
+        localStorage.setItem('pk_warehouses', JSON.stringify(INITIAL_WAREHOUSES));
+        localStorage.setItem('pk_pos_points', JSON.stringify(INITIAL_POS_POINTS));
+        localStorage.setItem('pk_spots_data', JSON.stringify(INITIAL_SPOTS));
+        localStorage.setItem('pk_current_shift', JSON.stringify(INITIAL_CASH_SHIFT));
+        localStorage.setItem('pk_operational_day', JSON.stringify(INITIAL_OPERATIONAL_DAY));
+        localStorage.setItem(cleanSlateKey, 'true');
+      } catch (e) {
+        console.warn('Error during clean slate initialization:', e);
+      }
+    }
+  }
+
   // --- Terminal Database Identification & Configuration ---
   const [terminalConfig, setTerminalConfig] = useState<TerminalConfig>(() => ({
     terminalId: getStoredTerminalId(),
@@ -465,14 +506,7 @@ export default function App() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const simActive = INITIAL_ACTIVE_TICKETS.filter(t => t && t.id && t.id.startsWith('tkt-sim-'));
-          const missing = simActive.filter(t => !parsed.some(p => p && p.id === t.id));
-          if (missing.length > 0) {
-            const merged = [...missing, ...parsed];
-            localStorage.setItem('pk_active_tickets', JSON.stringify(merged));
-            return merged;
-          }
-          return parsed;
+          return parsed.filter(t => t && !t.id?.startsWith('tkt-sim-') && !t.id?.startsWith('tk-1') && !t.id?.startsWith('tk-2') && !t.id?.startsWith('tk-3') && !t.id?.startsWith('tk-4') && !t.id?.startsWith('tk-5') && !t.id?.startsWith('tk-6'));
         }
       } catch (e) {
         console.error('Error loading pk_active_tickets:', e);
@@ -487,14 +521,7 @@ export default function App() {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const simPaid = INITIAL_PAID_TICKETS.filter(t => t && t.id && t.id.startsWith('tkt-sim-'));
-          const missing = simPaid.filter(t => !parsed.some(p => p && p.id === t.id));
-          if (missing.length > 0) {
-            const merged = [...missing, ...parsed];
-            localStorage.setItem('pk_paid_tickets', JSON.stringify(merged));
-            return merged;
-          }
-          return parsed;
+          return parsed.filter(t => t && !t.id?.startsWith('tkt-sim-') && !t.id?.startsWith('pk-0'));
         }
       } catch (e) {
         console.error('Error loading pk_paid_tickets:', e);
@@ -644,20 +671,36 @@ export default function App() {
     localStorage.setItem('pk_expense_concepts', JSON.stringify(expenseConcepts));
   }, [expenseConcepts]);
 
+  const [commercialAgreements, setCommercialAgreements] = useState<CommercialAgreement[]>(() => {
+    try {
+      const saved = localStorage.getItem('pk_commercial_agreements');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error('Error loading pk_commercial_agreements:', e);
+    }
+    return INITIAL_COMMERCIAL_AGREEMENTS;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('pk_commercial_agreements', JSON.stringify(commercialAgreements));
+    } catch (e) {
+      console.error('Error saving pk_commercial_agreements:', e);
+    }
+  }, [commercialAgreements]);
+
   const [closedShiftsHistory, setClosedShiftsHistory] = useState<CashShift[]>(() => {
     try {
       const saved = localStorage.getItem('pk_closed_shifts_history');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const simShifts = INITIAL_CLOSED_SHIFTS.filter(s => s && s.id && s.id.startsWith('shift-sim-'));
-          const missing = simShifts.filter(s => !parsed.some(p => p && p.id === s.id));
-          if (missing.length > 0) {
-            const merged = [...missing, ...parsed];
-            localStorage.setItem('pk_closed_shifts_history', JSON.stringify(merged));
-            return merged;
-          }
-          return parsed;
+          return parsed.filter(s => s && s.id && !s.id.startsWith('shift-sim-') && !s.id.startsWith('shift-hist-') && !s.id.startsWith('shift-0'));
         }
       }
     } catch (e) {
@@ -680,14 +723,7 @@ export default function App() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
-          const simDays = INITIAL_CLOSED_DAYS.filter(d => d && d.id && (d.id.startsWith('day-sim-') || d.id === 'day-2026-10-19-1'));
-          const missing = simDays.filter(d => !parsed.some(p => p && p.id === d.id));
-          if (missing.length > 0) {
-            const merged = [...missing, ...parsed];
-            localStorage.setItem('pk_closed_days_history', JSON.stringify(merged));
-            return merged;
-          }
-          return parsed;
+          return parsed.filter(d => d && d.id && !d.id.startsWith('day-sim-') && !d.id.startsWith('day-hist-') && !d.id.startsWith('day-2026') && d.id !== 'day-clean-01');
         }
       }
     } catch (e) {
@@ -748,6 +784,7 @@ export default function App() {
       } catch (e) {
         console.warn('Error guardando impresoras:', e);
       }
+      dbSavePrinters(updated).catch(console.error);
       return updated;
     });
   };
@@ -760,6 +797,7 @@ export default function App() {
       } catch (e) {
         console.warn('Error eliminando impresora:', e);
       }
+      dbSavePrinters(updated).catch(console.error);
       return updated;
     });
   };
@@ -768,8 +806,16 @@ export default function App() {
   const [branches, setBranches] = useState<BranchLocation[]>(() => {
     try {
       const saved = localStorage.getItem('pk_branches');
-      const list = saved ? JSON.parse(saved) : INITIAL_BRANCHES;
-      return ensureUniqueBranchFarmadeskCredentials(list);
+      if (saved) {
+        const list = JSON.parse(saved);
+        if (Array.isArray(list) && list.length > 0) {
+          const sanitized = list.filter(b => b && b.id === 'suc-001');
+          if (sanitized.length > 0) {
+            return ensureUniqueBranchFarmadeskCredentials(sanitized);
+          }
+        }
+      }
+      return ensureUniqueBranchFarmadeskCredentials(INITIAL_BRANCHES);
     } catch {
       return ensureUniqueBranchFarmadeskCredentials(INITIAL_BRANCHES);
     }
@@ -781,7 +827,7 @@ export default function App() {
 
   const [currentBranchId, setCurrentBranchId] = useState<string>(() => {
     const saved = localStorage.getItem('pk_current_branch_id');
-    return (!saved || saved === 'branch-01') ? 'suc-001' : saved;
+    return (!saved || saved === 'branch-01' || saved !== 'suc-001') ? 'suc-001' : saved;
   });
 
   useEffect(() => {
@@ -904,11 +950,16 @@ export default function App() {
   const handleSaveBranch = (branchToSave: BranchLocation) => {
     setBranches(prev => {
       const exists = prev.some(b => b.id === branchToSave.id);
+      let updated: BranchLocation[];
       if (exists) {
-        return prev.map(b => b.id === branchToSave.id ? branchToSave : b);
+        updated = prev.map(b => b.id === branchToSave.id ? branchToSave : b);
+      } else {
+        updated = [branchToSave, ...prev];
       }
-      return [branchToSave, ...prev];
+      localStorage.setItem('pk_branches', JSON.stringify(updated));
+      return updated;
     });
+    pushBranchTelemetry(branchToSave).catch(console.warn);
   };
 
   const handleDeleteBranch = (branchId: string) => {
@@ -962,6 +1013,7 @@ export default function App() {
   };
 
   const [isCentralHubModalOpen, setIsCentralHubModalOpen] = useState(false);
+  const [centralHubInitialTab, setCentralHubInitialTab] = useState<'branches' | 'telemetry_dashboard' | 'global_version' | 'ota_releases' | 'sync_domains' | 'analytics' | 'network_logs' | 'server_config'>('branches');
   const [isBranchSyncModalOpen, setIsBranchSyncModalOpen] = useState(false);
   const [isSoftwareUpdaterModalOpen, setIsSoftwareUpdaterModalOpen] = useState(false);
 
@@ -1059,6 +1111,14 @@ export default function App() {
     }
     return activeTickets;
   }, [activeTickets, activeRemoteSession, currentBranchId]);
+
+  const effectivePaidTickets = useMemo<ParkingTicket[]>(() => {
+    const activeBranchId = activeRemoteSession?.branchId || currentBranchId;
+    if (activeBranchId) {
+      return paidTickets.filter(t => !t.branchId || t.branchId === activeBranchId);
+    }
+    return paidTickets;
+  }, [paidTickets, activeRemoteSession, currentBranchId]);
 
   const effectiveSpots = useMemo<ParkingSpot[]>(() => {
     // Si tenemos spots reales configurados (de PostgreSQL o memoria), usarlos con sincronización en tiempo real
@@ -1211,12 +1271,20 @@ export default function App() {
         } = result.data;
 
         if (sBranches && JSON.stringify(sBranches) !== JSON.stringify(branches)) {
-          setBranches(sBranches);
-          localStorage.setItem('pk_branches', JSON.stringify(sBranches));
+          const sanitized = Array.isArray(sBranches) 
+            ? sBranches.filter((b: any) => b && (b.id === 'suc-001' || !b.id.startsWith('suc-00')))
+            : INITIAL_BRANCHES;
+          const finalBranches = sanitized.length > 0 ? sanitized : INITIAL_BRANCHES;
+          setBranches(finalBranches);
+          localStorage.setItem('pk_branches', JSON.stringify(finalBranches));
         }
         if (sWarehouses && JSON.stringify(sWarehouses) !== JSON.stringify(warehouses)) {
-          setWarehouses(sWarehouses);
-          localStorage.setItem('pk_warehouses', JSON.stringify(sWarehouses));
+          const sanitizedW = Array.isArray(sWarehouses)
+            ? sWarehouses.filter((w: any) => w && (w.id === 'bod-001' || !w.id.startsWith('bod-00')))
+            : INITIAL_WAREHOUSES;
+          const finalW = sanitizedW.length > 0 ? sanitizedW : INITIAL_WAREHOUSES;
+          setWarehouses(finalW);
+          localStorage.setItem('pk_warehouses', JSON.stringify(finalW));
         }
         if (sRates && JSON.stringify(sRates) !== JSON.stringify(rates)) {
           setRates(sRates);
@@ -1498,24 +1566,55 @@ export default function App() {
     };
   }, [systemNodeConfig?.workMode, systemNodeConfig?.centralServerHost, currentBranchId, currentBranch, currentUser]);
 
-  // 1.8. Servidor Central: Monitoreo periódico de IPs públicas y telemetría de sucursales
+  // 1.8. Servidor Central & POS: Monitoreo periódico de telemetría y consolidado de sucursales en vivo
   useEffect(() => {
-    if (systemNodeConfig?.workMode !== 'server') return;
+    let isMounted = true;
 
     const pullBranchesTelemetryFromDisk = async () => {
       try {
         const telemetryList = await fetchBranchesTelemetry();
-        if (Array.isArray(telemetryList) && telemetryList.length > 0) {
+        if (isMounted && Array.isArray(telemetryList) && telemetryList.length > 0) {
           setBranches(prev => {
             let hasChanges = false;
             const updated = prev.map(branch => {
               const telemetry = telemetryList.find(t => t.id === branch.id);
               if (telemetry) {
-                const newPublicIp = telemetry.publicIp || telemetry.reportedPublicIp || telemetry.ipAddress;
+                const newPublicIp = telemetry.publicIp || telemetry.reportedPublicIp || telemetry.ipAddress || branch.ipAddress;
                 const newStatus = telemetry.status || branch.status;
-                if (newPublicIp && (branch.publicIp !== newPublicIp || branch.ipAddress !== newPublicIp || branch.status !== newStatus)) {
+                const isCurrent = branch.id === currentBranchId;
+
+                // Para sucursales remotas, tomar directamente los valores del servidor
+                // Para la sucursal actual local, conservar ventas activas locales si son mayores
+                const newRevenue = isCurrent 
+                  ? Math.max(branch.todayRevenue || 0, telemetry.todayRevenue || 0)
+                  : (telemetry.todayRevenue ?? branch.todayRevenue);
+
+                const newOccupied = isCurrent
+                  ? branch.occupiedSpots
+                  : (telemetry.occupiedSpots ?? branch.occupiedSpots);
+
+                const newTotalSpots = telemetry.totalSpots ?? branch.totalSpots;
+                const newVehicles = isCurrent
+                  ? Math.max(branch.todayVehicles || 0, telemetry.todayVehicles || 0)
+                  : (telemetry.todayVehicles ?? branch.todayVehicles);
+
+                const newGlobalVer = telemetry.installedGlobalVersion || branch.installedGlobalVersion;
+                const newIsGlobalOutdated = telemetry.isGlobalOutdated !== undefined ? telemetry.isGlobalOutdated : branch.isGlobalOutdated;
+                const newShiftSummary = telemetry.financialShiftSummary || branch.financialShiftSummary;
+
+                const hasDiff = 
+                  branch.todayRevenue !== newRevenue ||
+                  branch.occupiedSpots !== newOccupied ||
+                  branch.totalSpots !== newTotalSpots ||
+                  branch.todayVehicles !== newVehicles ||
+                  branch.status !== newStatus ||
+                  branch.installedGlobalVersion !== newGlobalVer ||
+                  branch.isGlobalOutdated !== newIsGlobalOutdated ||
+                  branch.ipAddress !== newPublicIp ||
+                  branch.publicIp !== newPublicIp;
+
+                if (hasDiff) {
                   hasChanges = true;
-                  // Si una sucursal pasa a estar offline o desconectada, notificar al personal
                   if (branch.status === 'online' && newStatus === 'offline') {
                     webNotificationService.notifyBranchCriticalState(
                       branch,
@@ -1524,14 +1623,24 @@ export default function App() {
                       () => setIsBranchesModalOpen(true)
                     );
                   }
+
                   return {
                     ...branch,
+                    ...telemetry,
+                    isCurrentBranch: isCurrent,
                     publicIp: newPublicIp,
                     reportedPublicIp: newPublicIp,
                     ipAddress: newPublicIp,
                     localIp: telemetry.localIp || branch.localIp,
                     status: newStatus,
-                    lastSyncTimestamp: (telemetry as any).lastReportedAt || branch.lastSyncTimestamp,
+                    todayRevenue: newRevenue,
+                    occupiedSpots: newOccupied,
+                    totalSpots: newTotalSpots,
+                    todayVehicles: newVehicles,
+                    installedGlobalVersion: newGlobalVer,
+                    isGlobalOutdated: newIsGlobalOutdated,
+                    financialShiftSummary: newShiftSummary,
+                    lastSyncTimestamp: (telemetry as any).lastReportedAt || telemetry.lastSyncTimestamp || branch.lastSyncTimestamp,
                     lastIpReportedAt: telemetry.lastIpReportedAt || branch.lastIpReportedAt,
                     farmadeskId: telemetry.farmadeskId || branch.farmadeskId,
                     farmadeskPassword: telemetry.farmadeskPassword || branch.farmadeskPassword
@@ -1549,10 +1658,13 @@ export default function App() {
     };
 
     pullBranchesTelemetryFromDisk();
-    const pollInterval = setInterval(pullBranchesTelemetryFromDisk, 8000);
+    const pollInterval = setInterval(pullBranchesTelemetryFromDisk, 4000);
 
-    return () => clearInterval(pollInterval);
-  }, [systemNodeConfig?.workMode]);
+    return () => {
+      isMounted = false;
+      clearInterval(pollInterval);
+    };
+  }, [currentBranchId]);
 
   // 2. Debounced automatic push for server role (Central)
   useEffect(() => {
@@ -1661,6 +1773,7 @@ export default function App() {
       performedBy: currentUser?.name || 'Maestro'
     };
     setSyncAuditLogs(prev => [auditRecord, ...prev]);
+    pushBranchTelemetry(newBranch).catch(console.warn);
   };
 
   const handlePublishCentralPackage = async (packageData: Partial<CentralUpdatePackage>) => {
@@ -1814,6 +1927,7 @@ export default function App() {
         });
         const combined = Array.from(map.values());
         localStorage.setItem('pk_expense_concepts', JSON.stringify(combined));
+        dbSaveExpenseConcepts(combined).catch(console.error);
         return combined;
       });
       details.push(`${pkg.payload.expenseConcepts.length} conceptos de egresos integrados`);
@@ -1829,6 +1943,7 @@ export default function App() {
         });
         const combined = Array.from(map.values());
         localStorage.setItem('pk_expense_categories', JSON.stringify(combined));
+        dbSaveExpenseCategories(combined).catch(console.error);
         return combined;
       });
     }
@@ -1986,6 +2101,12 @@ export default function App() {
       if (centralData.globalConfig?.expenseConcepts) {
         setExpenseConcepts(centralData.globalConfig.expenseConcepts);
         localStorage.setItem('pk_expense_concepts', JSON.stringify(centralData.globalConfig.expenseConcepts));
+        dbSaveExpenseConcepts(centralData.globalConfig.expenseConcepts).catch(console.error);
+      }
+      if (centralData.globalConfig?.expenseCategories) {
+        setExpenseCategories(centralData.globalConfig.expenseCategories);
+        localStorage.setItem('pk_expense_categories', JSON.stringify(centralData.globalConfig.expenseCategories));
+        dbSaveExpenseCategories(centralData.globalConfig.expenseCategories).catch(console.error);
       }
     } catch (err) {
       console.warn('[Sync] Error en pullCentralData:', err);
@@ -2096,10 +2217,10 @@ export default function App() {
       isAppOutdated: res.isAppOutdated ?? currentBranch.isAppOutdated,
       financialShiftSummary: {
         totalCollected: todayRevenue,
-        cashInDrawer: currentShift.initialCash + (currentShift.cashMovements?.filter(m => m.type === 'income').reduce((acc, m) => acc + m.amount, 0) || 0) - (currentShift.cashMovements?.filter(m => m.type === 'expense').reduce((acc, m) => acc + m.amount, 0) || 0),
-        shiftNumber: currentShift.shiftNumber || 1,
+        cashInDrawer: (currentShift?.initialCash || 0) + (currentShift?.cashMovements?.filter(m => m.type === 'income' && (!m.paymentMethod || m.paymentMethod === 'cash')).reduce((acc, m) => acc + m.amount, 0) || 0) - (currentShift?.cashMovements?.filter(m => m.type === 'expense').reduce((acc, m) => acc + m.amount, 0) || 0),
+        shiftNumber: currentShift?.shiftNumber || 1,
         consecutiveArqueo: `ARQ-${closedShiftsHistory.length + 421}`,
-        lastClosureDate: closedShiftsHistory[0]?.endTime || currentShift.startTime
+        lastClosureDate: closedShiftsHistory[0]?.endTime || currentShift?.startTime || new Date().toISOString()
       },
       status: 'online' as const
     };
@@ -2152,8 +2273,24 @@ export default function App() {
   const reloadFromTerminalDb = async () => {
     try {
       const data = await loadTerminalDatabaseData(terminalConfig.terminalId);
-      setSpots(data.spots);
-      setActiveTickets(data.activeTickets);
+      const rawSpots = data.spots || [];
+      const rawTickets = data.activeTickets || [];
+
+      // Auto-reconcile spots with active tickets on boot to eliminate phantom orphan occupancies
+      const reconciledSpots = rawSpots.map(s => {
+        const matchingTicket = rawTickets.find(t => t.spotCode === s.code || t.id === s.currentTicketId);
+        if (matchingTicket) {
+          return { ...s, status: 'occupied' as const, currentTicketId: matchingTicket.id };
+        }
+        if (s.status === 'occupied') {
+          return { ...s, status: 'available' as const, currentTicketId: undefined };
+        }
+        return s;
+      });
+
+      setSpots(reconciledSpots);
+      localStorage.setItem('pk_spots_data', JSON.stringify(reconciledSpots));
+      setActiveTickets(rawTickets);
       setPaidTickets(data.paidTickets);
       setRates(data.rates);
       setBusinessInfo(data.businessInfo);
@@ -2168,6 +2305,56 @@ export default function App() {
         setUsers(data.users);
         localStorage.setItem('pk_system_users', JSON.stringify(data.users));
       }
+      if (data.expenseConcepts && Array.isArray(data.expenseConcepts) && data.expenseConcepts.length > 0) {
+        setExpenseConcepts(data.expenseConcepts);
+        localStorage.setItem('pk_expense_concepts', JSON.stringify(data.expenseConcepts));
+      }
+      if (data.expenseCategories && Array.isArray(data.expenseCategories) && data.expenseCategories.length > 0) {
+        setExpenseCategories(data.expenseCategories);
+        localStorage.setItem('pk_expense_categories', JSON.stringify(data.expenseCategories));
+      }
+      if (data.printers && Array.isArray(data.printers) && data.printers.length > 0) {
+        setPrinters(data.printers);
+        localStorage.setItem('pk_printers', JSON.stringify(data.printers));
+      }
+      if (data.roleMatrix) {
+        localStorage.setItem('pk_role_matrix_config', JSON.stringify(data.roleMatrix));
+      }
+      if (data.userTemplates && Array.isArray(data.userTemplates) && data.userTemplates.length > 0) {
+        localStorage.setItem('pk_user_templates', JSON.stringify(data.userTemplates));
+      }
+
+      // Purge any stale simulation or mock records so production operates 100% clean
+      if (rawTickets.length === 0) {
+        setActiveTickets([]);
+        localStorage.setItem('pk_active_tickets', JSON.stringify([]));
+      }
+      if (!data.paidTickets || data.paidTickets.length === 0) {
+        setPaidTickets([]);
+        localStorage.setItem('pk_paid_tickets', JSON.stringify([]));
+      }
+      setClosedShiftsHistory(prev => {
+        const filtered = Array.isArray(prev) ? prev.filter(s => s && s.id && !s.id.startsWith('shift-hist-') && !s.id.startsWith('shift-sim-') && !s.id.startsWith('shift-0')) : [];
+        localStorage.setItem('pk_closed_shifts_history', JSON.stringify(filtered));
+        return filtered;
+      });
+      setClosedDaysHistory(prev => {
+        const filtered = Array.isArray(prev) ? prev.filter(d => d && d.id && !d.id.startsWith('day-hist-') && !d.id.startsWith('day-sim-') && !d.id.startsWith('day-2026') && d.id !== 'day-clean-01') : [];
+        localStorage.setItem('pk_closed_days_history', JSON.stringify(filtered));
+        return filtered;
+      });
+      setBranches(prev => {
+        const filtered = Array.isArray(prev) ? prev.filter(b => b && (b.id === 'suc-001' || !b.id.startsWith('suc-00'))) : INITIAL_BRANCHES;
+        const finalB = filtered.length > 0 ? filtered : INITIAL_BRANCHES;
+        localStorage.setItem('pk_branches', JSON.stringify(finalB));
+        return finalB;
+      });
+      setWarehouses(prev => {
+        const filtered = Array.isArray(prev) ? prev.filter(w => w && (w.id === 'bod-001' || !w.id.startsWith('bod-00'))) : INITIAL_WAREHOUSES;
+        const finalW = filtered.length > 0 ? filtered : INITIAL_WAREHOUSES;
+        localStorage.setItem('pk_warehouses', JSON.stringify(finalW));
+        return finalW;
+      });
     } catch (e) {
       console.warn('Carga inicial desde IndexedDB completada con fallback local:', e);
     }
@@ -2193,6 +2380,11 @@ export default function App() {
       cash: { view: 'cash', category: 'finance' },
       caja: { view: 'cash', category: 'finance' },
       shift: { view: 'cash', category: 'finance' },
+      cash_history: { view: 'cash_history', category: 'finance' },
+      history: { view: 'cash_history', category: 'finance' },
+      historico: { view: 'cash_history', category: 'finance' },
+      cierres: { view: 'cash_history', category: 'finance' },
+      arqueos: { view: 'cash_history', category: 'finance' },
       expense_concepts: { view: 'expense_concepts', category: 'finance' },
       expenses: { view: 'expense_concepts', category: 'finance' },
       reports: { view: 'reports', category: 'reports' },
@@ -2212,9 +2404,12 @@ export default function App() {
       software_updater: { view: 'software_updater', category: 'updates' },
       updates: { view: 'software_updater', category: 'updates' },
       updater: { view: 'software_updater', category: 'updates' },
-      work_mode: { view: 'work_mode', category: 'updates' },
+      work_mode: { view: 'work_mode', category: 'central' },
+      nodo: { view: 'work_mode', category: 'central' },
       rates: { view: 'rates', category: 'config' },
       tarifas: { view: 'rates', category: 'config' },
+      agreements: { view: 'agreements', category: 'config' },
+      convenios: { view: 'agreements', category: 'config' },
       vehicle_categories: { view: 'vehicle_categories', category: 'config' },
       vehicles: { view: 'vehicle_categories', category: 'config' },
       users: { view: 'users', category: 'config' },
@@ -2266,6 +2461,41 @@ export default function App() {
 
   // Sync URL query params whenever activeView changes
   const handleSwitchView = (newView: ActiveWorkspaceView, newCategory?: WorkspaceCategory) => {
+    // Verificación de Permisos de Seguridad
+    if (currentUser && currentUser.role !== 'master') {
+      const perms = currentUser.permissions;
+      let hasAccess = true;
+      let requiredName = '';
+
+      if (newView === 'users' && !perms.canManageUsers) {
+        hasAccess = false;
+        requiredName = 'Gestión de Usuarios y Cajeros';
+      } else if (newView === 'database' && !perms.canManageDatabase) {
+        hasAccess = false;
+        requiredName = 'Base de Datos y Respaldo';
+      } else if (newView === 'rates' && !perms.canEditRates) {
+        hasAccess = false;
+        requiredName = 'Configuración de Tarifas';
+      } else if (newView === 'reports' && !perms.canViewReports) {
+        hasAccess = false;
+        requiredName = 'Reportes y Analíticas';
+      } else if (newView === 'cash' && !perms.canManageCashShift) {
+        hasAccess = false;
+        requiredName = 'Gestión y Cierre de Turnos de Caja';
+      } else if (newView === 'expense_concepts' && !perms.canManageExpenseConcepts) {
+        hasAccess = false;
+        requiredName = 'Conceptos de Gastos';
+      } else if (newView === 'map' && !perms.canViewMap) {
+        hasAccess = false;
+        requiredName = 'Mapa de Plazas';
+      }
+
+      if (!hasAccess) {
+        alert(`⛔ Acceso Restringido: Tu perfil (${currentUser.role}) no tiene permisos para acceder a "${requiredName}".`);
+        return;
+      }
+    }
+
     setActiveView(newView);
     if (newCategory) {
       setActiveCategory(newCategory);
@@ -2277,6 +2507,7 @@ export default function App() {
         spots: 'operations',
         anpr_camera: 'operations',
         cash: 'finance',
+        cash_history: 'finance',
         expense_concepts: 'finance',
         reports: 'reports',
         branches: 'central',
@@ -2285,8 +2516,9 @@ export default function App() {
         branch_sync: 'central',
         vnc_remote: 'central',
         software_updater: 'updates',
-        work_mode: 'updates',
+        work_mode: 'central',
         rates: 'config',
+        agreements: 'config',
         vehicle_categories: 'config',
         users: 'config',
         database: 'config',
@@ -2346,9 +2578,13 @@ export default function App() {
     }));
     setActiveView('operations');
     playSound('success', soundEnabled);
+    dbAddAuditLog('LOGIN', `Inicio de sesión exitoso: ${user.name} (@${user.username}) - Rol: ${user.role}`, user.name).catch(console.error);
   };
 
   const handleLogout = () => {
+    if (currentUser) {
+      dbAddAuditLog('LOGOUT', `Cierre de sesión: ${currentUser.name} (@${currentUser.username})`, currentUser.name).catch(console.error);
+    }
     setCurrentUser(null);
     sessionStorage.removeItem('pk_current_user');
     localStorage.removeItem('pk_current_user');
@@ -2612,6 +2848,9 @@ export default function App() {
       }
     }
 
+    // Auto-push live telemetry & yard occupancy to Central Server
+    handlePushBranchOperations().catch(err => console.warn('[Sync] Auto-push tras ingreso de vehículo:', err));
+
     return newTicket;
   };
 
@@ -2624,6 +2863,10 @@ export default function App() {
       changeGiven?: number;
       discountAmount?: number;
       paymentDetails?: PaymentTransactionDetails;
+      commercialAgreementId?: string;
+      commercialAgreementName?: string;
+      commercialAgreementSealOrVoucher?: string;
+      commercialAgreementDiscountType?: AgreementDiscountType;
     }
   ): ParkingTicket | null => {
     const targetTicket = activeTickets.find(t => t.id === ticketId);
@@ -2650,6 +2893,10 @@ export default function App() {
       taxAmount: feeCalculation.taxAmount,
       discountAmount: discount,
       totalAmount: finalAmount,
+      commercialAgreementId: billingDetails.commercialAgreementId,
+      commercialAgreementName: billingDetails.commercialAgreementName,
+      commercialAgreementSealOrVoucher: billingDetails.commercialAgreementSealOrVoucher,
+      commercialAgreementDiscountType: billingDetails.commercialAgreementDiscountType,
       paymentMethod: billingDetails.paymentMethod,
       paymentDetails: billingDetails.paymentDetails,
       cashReceived: billingDetails.cashReceived,
@@ -2661,8 +2908,12 @@ export default function App() {
       electronicInvoice: billingDetails.paymentDetails?.isElectronicInvoice ? {
         cufe: billingDetails.paymentDetails.cufe || '',
         invoiceNumber: billingDetails.paymentDetails.electronicInvoiceNumber || '',
-        prefix: businessInfo.dianPrefix || 'FE',
+        prefix: businessInfo.dianPrefix ? (businessInfo.dianPrefix.endsWith('-') ? businessInfo.dianPrefix : `${businessInfo.dianPrefix}-`) : 'FE-',
         resolutionNumber: businessInfo.dianResolutionNumber || '',
+        qrUrl: billingDetails.paymentDetails.qrUrl || (billingDetails.paymentDetails.cufe ? `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${billingDetails.paymentDetails.cufe}` : undefined),
+        xmlUuid: billingDetails.paymentDetails.xmlUuid,
+        trackId: billingDetails.paymentDetails.trackId,
+        status: 'VALIDADA_DIAN',
         customer: {
           name: billingDetails.paymentDetails.customerName || 'Consumidor Final',
           documentNumber: billingDetails.paymentDetails.customerDocument || '222222222222',
@@ -2671,6 +2922,21 @@ export default function App() {
         }
       } : undefined,
     };
+
+    // Auto-increment DIAN electronic invoice consecutive
+    if (billingDetails.paymentDetails?.isElectronicInvoice) {
+      setBusinessInfo(prev => {
+        const nextNum = (prev.dianCurrentNumber || 1040) + 1;
+        const updated = { ...prev, dianCurrentNumber: nextNum };
+        try {
+          localStorage.setItem('pk_business_info', JSON.stringify(updated));
+        } catch (e) {
+          console.error('Error saving business info:', e);
+        }
+        dbSaveBusinessInfo(updated).catch(console.error);
+        return updated;
+      });
+    }
 
     // Remove from active tickets in state and local DB
     setActiveTickets(prev => prev.filter(t => t.id !== ticketId));
@@ -2717,6 +2983,9 @@ export default function App() {
         handleOpenPrintModal(paidTicket, 'exit');
       }
     }
+
+    // Auto-push live telemetry & operations to Central Server
+    handlePushBranchOperations().catch(err => console.warn('[Sync] Auto-push tras cobro de ticket:', err));
 
     return paidTicket;
   };
@@ -2779,9 +3048,19 @@ export default function App() {
   };
 
   const handleToggleSpotStatus = (spotId: string, newStatus: 'available' | 'reserved' | 'maintenance') => {
-    const updated = spots.map(s => s.id === spotId ? { ...s, status: newStatus } : s);
+    const updated = spots.map(s => {
+      if (s.id === spotId) {
+        return { 
+          ...s, 
+          status: newStatus, 
+          currentTicketId: newStatus === 'available' ? undefined : s.currentTicketId 
+        };
+      }
+      return s;
+    });
     setSpots(updated);
     dbSaveSpots(updated).catch(console.error);
+    localStorage.setItem('pk_spots_data', JSON.stringify(updated));
   };
 
   // --- Handlers: Parking Spots Dedicated Panel ---
@@ -2796,6 +3075,7 @@ export default function App() {
         updated = [...prev, spotToSave];
       }
       dbSaveSpots(updated).catch(console.error);
+      localStorage.setItem('pk_spots_data', JSON.stringify(updated));
       return updated;
     });
     dbAddAuditLog('SYSTEM_CONFIG', `Plaza de parqueo guardada: ${spotToSave.code}`, currentUser?.username || 'Administrador').catch(console.error);
@@ -2806,6 +3086,7 @@ export default function App() {
     setSpots(prev => {
       const updated = [...prev, ...newSpotsBatch];
       dbSaveSpots(updated).catch(console.error);
+      localStorage.setItem('pk_spots_data', JSON.stringify(updated));
       return updated;
     });
     dbAddAuditLog('SYSTEM_CONFIG', `Se generaron ${newSpotsBatch.length} plazas de parqueo por lote`, currentUser?.username || 'Administrador').catch(console.error);
@@ -2814,13 +3095,17 @@ export default function App() {
 
   const handleDeleteSpot = (spotId: string) => {
     const toDelete = spots.find(s => s.id === spotId);
-    if (toDelete && toDelete.status === 'occupied') {
-      alert('No se puede eliminar una plaza ocupada por un vehículo.');
-      return;
+    if (toDelete) {
+      const hasRealVehicle = effectiveActiveTickets.some(t => t.spotCode === toDelete.code || t.id === toDelete.currentTicketId);
+      if (hasRealVehicle) {
+        alert(`No se puede eliminar la plaza ${toDelete.code} porque tiene un vehículo activo en patio.`);
+        return;
+      }
     }
     setSpots(prev => {
       const updated = prev.filter(s => s.id !== spotId);
-      dbSaveSpots(updated).catch(console.error);
+      dbDeleteSpot(spotId).catch(console.error);
+      localStorage.setItem('pk_spots_data', JSON.stringify(updated));
       return updated;
     });
     if (toDelete) {
@@ -2830,9 +3115,11 @@ export default function App() {
   };
 
   const handleDeleteMultipleSpots = (spotIds: string[]) => {
+    const realOccupiedSpotCodes = new Set(effectiveActiveTickets.map(t => t.spotCode));
     setSpots(prev => {
-      const updated = prev.filter(s => !spotIds.includes(s.id) || s.status === 'occupied');
-      dbSaveSpots(updated).catch(console.error);
+      const updated = prev.filter(s => !spotIds.includes(s.id) || realOccupiedSpotCodes.has(s.code));
+      dbDeleteMultipleSpots(spotIds).catch(console.error);
+      localStorage.setItem('pk_spots_data', JSON.stringify(updated));
       return updated;
     });
     dbAddAuditLog('SYSTEM_CONFIG', `Eliminación masiva de ${spotIds.length} plazas de parqueo`, currentUser?.username || 'Administrador').catch(console.error);
@@ -2840,18 +3127,62 @@ export default function App() {
   };
 
   const handleUpdateMultipleSpotStatus = (spotIds: string[], status: 'available' | 'reserved' | 'maintenance') => {
+    const realOccupiedSpotCodes = new Set(effectiveActiveTickets.map(t => t.spotCode));
     setSpots(prev => {
       const updated = prev.map(s => {
-        if (spotIds.includes(s.id) && s.status !== 'occupied') {
-          return { ...s, status };
+        if (spotIds.includes(s.id)) {
+          if (realOccupiedSpotCodes.has(s.code) && status !== 'available') {
+            return s;
+          }
+          return { ...s, status, currentTicketId: status === 'available' ? undefined : s.currentTicketId };
         }
         return s;
       });
-      dbSaveSpots(updated).catch(console.error);
+      dbUpdateMultipleSpotStatus(spotIds, status).catch(console.error);
+      localStorage.setItem('pk_spots_data', JSON.stringify(updated));
       return updated;
     });
     dbAddAuditLog('SYSTEM_CONFIG', `Cambio de estado masivo a ${status} para ${spotIds.length} plazas`, currentUser?.username || 'Administrador').catch(console.error);
     playSound('beep', soundEnabled);
+  };
+
+  const handleReconcileSpotsWithActiveTickets = async (): Promise<{ success: boolean; freedCount?: number; activeCount?: number }> => {
+    try {
+      const serverRes = await dbReconcileSpots();
+      if (serverRes.success && Array.isArray(serverRes.spots)) {
+        setSpots(serverRes.spots);
+        localStorage.setItem('pk_spots_data', JSON.stringify(serverRes.spots));
+        playSound('success', soundEnabled);
+        return { success: true, freedCount: serverRes.freedCount || 0, activeCount: effectiveActiveTickets.length };
+      }
+    } catch (e) {
+      console.warn('[handleReconcileSpotsWithActiveTickets] Fallback local tras excepción:', e);
+    }
+
+    let freed = 0;
+    const reconciled = spots.map(s => {
+      const activeTicket = effectiveActiveTickets.find(t => t.spotCode === s.code || t.id === s.currentTicketId);
+      if (activeTicket) {
+        return { ...s, status: 'occupied' as const, currentTicketId: activeTicket.id };
+      }
+      if (s.status === 'occupied') {
+        freed++;
+        return { ...s, status: 'available' as const, currentTicketId: undefined };
+      }
+      return s;
+    });
+
+    setSpots(reconciled);
+    localStorage.setItem('pk_spots_data', JSON.stringify(reconciled));
+    dbSaveSpots(reconciled).catch(console.error);
+    playSound('success', soundEnabled);
+    return { success: true, freedCount: freed, activeCount: effectiveActiveTickets.length };
+  };
+
+  const handleGoToExitTicket = (ticket: ParkingTicket) => {
+    setSelectedPlateForExit(ticket.plate);
+    setActiveCategory('operations');
+    setActiveView('operations');
   };
 
   // --- Handlers: Cash Shift Movements with DB Persistence ---
@@ -2865,7 +3196,9 @@ export default function App() {
     attachmentUrl?: string,
     attachmentName?: string,
     attachmentType?: 'image' | 'pdf' | 'document',
-    attachmentSize?: number
+    attachmentSize?: number,
+    paymentMethod?: PaymentMethod | string,
+    paymentReference?: string
   ) => {
     const newMovement: CashMovement = {
       id: `mov-${Date.now()}`,
@@ -2873,10 +3206,12 @@ export default function App() {
       type,
       amount,
       description,
-      operator: currentShift.operatorName,
+      operator: currentUser?.name || currentShift.operatorName || 'Cajero',
       conceptId,
       conceptName,
       voucherNumber,
+      paymentMethod,
+      paymentReference,
       attachmentUrl,
       attachmentName,
       attachmentType,
@@ -2945,9 +3280,15 @@ export default function App() {
       }
     });
 
-    const totalOtherIncomes = currentShift.cashMovements
-      .filter((m) => m.type === 'income' && !m.description.includes('Apertura'))
+    const totalCashOtherIncomes = currentShift.cashMovements
+      .filter((m) => m.type === 'income' && !m.description.includes('Apertura') && (!m.paymentMethod || m.paymentMethod === 'cash'))
       .reduce((acc, m) => acc + m.amount, 0);
+
+    const totalElectronicOtherIncomes = currentShift.cashMovements
+      .filter((m) => m.type === 'income' && !m.description.includes('Apertura') && m.paymentMethod && m.paymentMethod !== 'cash')
+      .reduce((acc, m) => acc + m.amount, 0);
+
+    const totalOtherIncomes = totalCashOtherIncomes + totalElectronicOtherIncomes;
 
     const totalExpenses = currentShift.cashMovements
       .filter((m) => m.type === 'expense')
@@ -2958,8 +3299,8 @@ export default function App() {
       .reduce((acc, m) => acc + m.amount, 0);
 
     const totalOutflows = totalExpenses + totalPickups;
-    const expectedCashInDrawer = currentShift.initialCash + cash + totalOtherIncomes - totalOutflows;
-    const totalCollected = cash + card + wallet + qr + breB + agreement;
+    const expectedCashInDrawer = currentShift.initialCash + cash + totalCashOtherIncomes - totalOutflows;
+    const totalCollected = cash + card + wallet + qr + breB + agreement + totalOtherIncomes;
 
     // Generate consecutive sequential code for shift arqueo
     const nextShiftConsecutive = closedShiftsHistory.length + 421;
@@ -3080,7 +3421,8 @@ export default function App() {
 
     const dayShifts = [currentShift, ...closedShiftsHistory.filter(s => s.operationalDayId === operationalDay.id)];
 
-    let dayTotalOtherIncomes = 0;
+    let dayTotalCashOtherIncomes = 0;
+    let dayTotalElectronicOtherIncomes = 0;
     let dayTotalExpenses = 0;
     let dayTotalPickups = 0;
 
@@ -3088,7 +3430,11 @@ export default function App() {
       const movements = s.cashMovements || [];
       movements.forEach(m => {
         if (m.type === 'income' && !m.description.includes('Apertura')) {
-          dayTotalOtherIncomes += m.amount;
+          if (m.paymentMethod && m.paymentMethod !== 'cash') {
+            dayTotalElectronicOtherIncomes += m.amount;
+          } else {
+            dayTotalCashOtherIncomes += m.amount;
+          }
         } else if (m.type === 'expense') {
           dayTotalExpenses += m.amount;
         } else if (m.type === 'pickup' || m.type === 'withdrawal') {
@@ -3097,9 +3443,10 @@ export default function App() {
       });
     });
 
+    const dayTotalOtherIncomes = dayTotalCashOtherIncomes + dayTotalElectronicOtherIncomes;
     const dayBaseCash = operationalDay.initialDayCash || currentShift.initialCash;
-    const dayExpectedCashInDrawer = dayBaseCash + dayCash + dayTotalOtherIncomes - (dayTotalExpenses + dayTotalPickups);
-    const dayTotalCollected = dayCash + dayCard + dayWallet + dayQr + dayBreB + dayAgreement;
+    const dayExpectedCashInDrawer = dayBaseCash + dayCash + dayTotalCashOtherIncomes - (dayTotalExpenses + dayTotalPickups);
+    const dayTotalCollected = dayCash + dayCard + dayWallet + dayQr + dayBreB + dayAgreement + dayTotalOtherIncomes;
 
     // Generate consecutive sequential code for day closure starting at 4310
     const nextDayConsecutive = closedDaysHistory.length + 4310;
@@ -3350,12 +3697,15 @@ export default function App() {
   const handleSaveExpenseConcept = (conceptToSave: ExpenseConcept) => {
     setExpenseConcepts(prev => {
       const idx = prev.findIndex(c => c.id === conceptToSave.id);
+      let updated: ExpenseConcept[];
       if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = conceptToSave;
-        return copy;
+        updated = [...prev];
+        updated[idx] = conceptToSave;
+      } else {
+        updated = [...prev, conceptToSave];
       }
-      return [...prev, conceptToSave];
+      dbSaveExpenseConcepts(updated).catch(console.error);
+      return updated;
     });
     dbAddAuditLog('CASH_MOVEMENT', `Concepto de gasto guardado: ${conceptToSave.name}`, currentUser?.name || 'Administrador').catch(console.error);
     playSound('success', soundEnabled);
@@ -3363,7 +3713,11 @@ export default function App() {
 
   const handleDeleteExpenseConcept = (conceptId: string) => {
     const toDelete = expenseConcepts.find(c => c.id === conceptId);
-    setExpenseConcepts(prev => prev.filter(c => c.id !== conceptId));
+    setExpenseConcepts(prev => {
+      const updated = prev.filter(c => c.id !== conceptId);
+      dbSaveExpenseConcepts(updated).catch(console.error);
+      return updated;
+    });
     if (toDelete) {
       dbAddAuditLog('CASH_MOVEMENT', `Concepto de gasto eliminado: ${toDelete.name}`, currentUser?.name || 'Administrador').catch(console.error);
     }
@@ -3373,12 +3727,15 @@ export default function App() {
   const handleSaveExpenseCategory = (categoryToSave: ExpenseCategory) => {
     setExpenseCategories(prev => {
       const idx = prev.findIndex(c => c.id === categoryToSave.id);
+      let updated: ExpenseCategory[];
       if (idx >= 0) {
-        const copy = [...prev];
-        copy[idx] = categoryToSave;
-        return copy;
+        updated = [...prev];
+        updated[idx] = categoryToSave;
+      } else {
+        updated = [...prev, categoryToSave];
       }
-      return [...prev, categoryToSave];
+      dbSaveExpenseCategories(updated).catch(console.error);
+      return updated;
     });
     dbAddAuditLog('CASH_MOVEMENT', `Categoría de gasto guardada: ${categoryToSave.name}`, currentUser?.name || 'Administrador').catch(console.error);
     playSound('success', soundEnabled);
@@ -3386,9 +3743,36 @@ export default function App() {
 
   const handleDeleteExpenseCategory = (categoryId: string) => {
     const toDelete = expenseCategories.find(c => c.id === categoryId);
-    setExpenseCategories(prev => prev.filter(c => c.id !== categoryId));
+    setExpenseCategories(prev => {
+      const updated = prev.filter(c => c.id !== categoryId);
+      dbSaveExpenseCategories(updated).catch(console.error);
+      return updated;
+    });
     if (toDelete) {
       dbAddAuditLog('CASH_MOVEMENT', `Categoría de gasto eliminada: ${toDelete.name}`, currentUser?.name || 'Administrador').catch(console.error);
+    }
+    playSound('beep', soundEnabled);
+  };
+
+  const handleSaveCommercialAgreement = (agreementToSave: CommercialAgreement) => {
+    setCommercialAgreements(prev => {
+      const idx = prev.findIndex(c => c.id === agreementToSave.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = agreementToSave;
+        return copy;
+      }
+      return [...prev, agreementToSave];
+    });
+    dbAddAuditLog('RATE_CHANGE', `Convenio comercial guardado: ${agreementToSave.name} (${agreementToSave.code})`, currentUser?.name || 'Administrador').catch(console.error);
+    playSound('success', soundEnabled);
+  };
+
+  const handleDeleteCommercialAgreement = (agreementId: string) => {
+    const toDelete = commercialAgreements.find(c => c.id === agreementId);
+    setCommercialAgreements(prev => prev.filter(c => c.id !== agreementId));
+    if (toDelete) {
+      dbAddAuditLog('RATE_CHANGE', `Convenio comercial eliminado: ${toDelete.name} (${toDelete.code})`, currentUser?.name || 'Administrador').catch(console.error);
     }
     playSound('beep', soundEnabled);
   };
@@ -3432,27 +3816,17 @@ export default function App() {
   const handleSaveBusinessInfo = (newInfo: ParkingBusinessInfo) => {
     setBusinessInfo(newInfo);
     dbSaveBusinessInfo(newInfo).catch(console.error);
+    dbAddAuditLog('SYSTEM_CONFIG', `Información de negocio y DIAN actualizada: ${newInfo.name || ''} (NIT: ${newInfo.nit || ''})`, currentUser?.name || 'Administrador').catch(console.error);
   };
 
   const handleSavePaymentGatewayConfig = (newConfig: PaymentGatewayConfig) => {
     setPaymentGatewayConfig(newConfig);
     localStorage.setItem('pk_payment_gateway_config', JSON.stringify(newConfig));
     dbSavePaymentGatewayConfig(newConfig).catch(console.error);
-    dbAddAuditLog('GATEWAY_CONFIG', 'Medios y pasarela de pago actualizados', currentShift.operatorName).catch(console.error);
+    dbAddAuditLog('GATEWAY_CONFIG', 'Medios y pasarela de pago actualizados', currentShift?.operatorName || currentUser?.name || 'Administrador').catch(console.error);
   };
 
-  // Gatekeeper 1: if not accessed via /wolfzonepos or authorized session
-  if (!isPathAuthorized) {
-    return (
-      <AccessGate 
-        onGrantAccess={handleGrantAccess} 
-        attemptedPath={currentPathname} 
-        protectedRoutes={protectedRoutes}
-      />
-    );
-  }
-
-  // Gatekeeper 2: User Login Required (Master, Supervisor, Cashier)
+  // Control de Acceso: Inicio de Sesión de Usuario Requerido (Maestro, Supervisor, Cajero)
   if (!currentUser) {
     return (
       <LoginView
@@ -3693,6 +4067,7 @@ export default function App() {
             onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
             onOpenAnprCamera={() => setActiveView('anpr_camera')}
             vehicleCategories={vehicleCategories}
+            commercialAgreements={commercialAgreements}
           />
         )}
 
@@ -3706,6 +4081,7 @@ export default function App() {
             onSelectSpotForEntry={handleSelectSpotForEntry}
             onSelectSpotForExit={handleSelectSpotForExit}
             onToggleSpotStatus={handleToggleSpotStatus}
+            onOpenSpotsManagement={() => setActiveView('spots')}
           />
         )}
 
@@ -3714,8 +4090,8 @@ export default function App() {
             embedded={true}
             isOpen={true}
             onClose={() => setActiveView('operations')}
-            spots={spots}
-            activeTickets={activeTickets}
+            spots={effectiveSpots}
+            activeTickets={effectiveActiveTickets}
             vehicleCategories={vehicleCategories}
             onSaveSpot={handleSaveSpot}
             onSaveMultipleSpots={handleSaveMultipleSpots}
@@ -3723,6 +4099,8 @@ export default function App() {
             onDeleteMultipleSpots={handleDeleteMultipleSpots}
             onUpdateSpotStatus={handleToggleSpotStatus}
             onUpdateMultipleSpotStatus={handleUpdateMultipleSpotStatus}
+            onReconcileSpots={handleReconcileSpotsWithActiveTickets}
+            onGoToExitTicket={handleGoToExitTicket}
           />
         )}
 
@@ -3769,6 +4147,27 @@ export default function App() {
           />
         )}
 
+        {activeView === 'cash_history' && (
+          <CashShiftModal
+            initialSubTab="history"
+            currentShift={currentShift}
+            operationalDay={operationalDay}
+            todayPaidTickets={paidTickets}
+            currencySymbol={rates.currencySymbol}
+            businessInfo={businessInfo}
+            closedShiftsHistory={closedShiftsHistory}
+            closedDaysHistory={closedDaysHistory}
+            onUpdateShiftInHistory={handleUpdateShiftInHistory}
+            onUpdateDayInHistory={handleUpdateDayInHistory}
+            onAddMovement={handleAddCashMovement}
+            onCloseShiftAndArqueo={handleCloseShiftAndArqueo}
+            onCloseDefinitiveDay={handleCloseDefinitiveDay}
+            currentUser={currentUser}
+            expenseConcepts={expenseConcepts}
+            expenseCategories={expenseCategories}
+          />
+        )}
+
         {activeView === 'expense_concepts' && (
           <ExpenseConceptsModal
             embedded={true}
@@ -3787,8 +4186,8 @@ export default function App() {
         {/* INFORMES & BI */}
         {activeView === 'reports' && (
           <RealTimeReports
-            paidTickets={paidTickets}
-            activeTickets={activeTickets}
+            paidTickets={effectivePaidTickets}
+            activeTickets={effectiveActiveTickets}
             rates={rates}
             businessInfo={{
               ...effectiveBusinessInfo,
@@ -3799,7 +4198,7 @@ export default function App() {
               fechaEmision: new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }),
             }}
             vehicleCategories={vehicleCategories}
-            spots={spots}
+            spots={effectiveSpots}
             currentShift={currentShift}
             operationalDay={operationalDay}
             closedShiftsHistory={closedShiftsHistory}
@@ -3833,7 +4232,18 @@ export default function App() {
             onConnectRemoteBranch={handleConnectRemoteBranch}
             currentUser={currentUser}
             onOpenSync={() => handleSwitchView('branch_sync', 'central')}
+            onOpenWorkMode={() => handleSwitchView('work_mode', 'central')}
             onOpenUpdater={() => handleSwitchView('software_updater', 'updates')}
+            onOpenCentralHub={(tab) => {
+              if (tab) setCentralHubInitialTab(tab as any);
+              handleSwitchView('central_hub', 'central');
+            }}
+            onRefreshBranches={async () => {
+              const refreshed = await fetchBranchesTelemetry();
+              if (refreshed && refreshed.length > 0) {
+                setBranches(refreshed);
+              }
+            }}
             pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
             softwareUpdateAvailable={hasSoftwareUpdateAvailable}
           />
@@ -3843,6 +4253,7 @@ export default function App() {
           <CentralHubModal
             embedded={true}
             isOpen={true}
+            initialTab={centralHubInitialTab}
             onClose={() => setActiveView('branches')}
             currentUser={currentUser}
             branches={branches}
@@ -3857,6 +4268,7 @@ export default function App() {
             onSaveRates={handleSaveRates}
             onSaveBusinessInfo={handleSaveBusinessInfo}
             onPublishPackage={handlePublishCentralPackage}
+            onOpenWorkModeConfig={() => handleSwitchView('work_mode', 'central')}
             onSaveNewBranch={handleSaveNewBranch}
             onSwitchBranch={(branchId: string) => setCurrentBranchId(branchId)}
             onForceSyncBranch={async (branchId: string) => {
@@ -4012,13 +4424,15 @@ export default function App() {
           vehicleCategories={vehicleCategories}
           rates={rates}
           paymentGatewayConfig={paymentGatewayConfig}
+          currentUser={currentUser}
+          onAddMovement={handleAddCashMovement}
         />
 
         {activeView === 'work_mode' && (
           <SystemWorkModeConfigModal
             embedded={true}
             isOpen={true}
-            onClose={() => setActiveView('software_updater')}
+            onClose={() => handleSwitchView('operations')}
             config={systemNodeConfig}
             branches={branches}
             onSaveConfig={handleSaveSystemNodeConfig}
@@ -4043,6 +4457,7 @@ export default function App() {
             printers={printers}
             onSavePrinter={handleSavePrinter}
             onDeletePrinter={handleDeletePrinter}
+            onOpenVehicleCategories={() => setActiveView('vehicle_categories')}
             onClose={() => setActiveView('operations')}
           />
         )}
@@ -4051,11 +4466,22 @@ export default function App() {
           <VehicleCategoriesModal
             embedded={true}
             isOpen={true}
-            onClose={() => setActiveView('operations')}
+            onClose={() => setActiveView('rates')}
             categories={vehicleCategories}
             onSaveCategory={handleSaveVehicleCategory}
             onDeleteCategory={handleDeleteVehicleCategory}
             currentUser={currentUser!}
+          />
+        )}
+
+        {activeView === 'agreements' && (
+          <CommercialAgreementsModal
+            embedded={true}
+            isOpen={true}
+            onClose={() => setActiveView('operations')}
+            agreements={commercialAgreements}
+            onSaveAgreement={handleSaveCommercialAgreement}
+            onDeleteAgreement={handleDeleteCommercialAgreement}
           />
         )}
 

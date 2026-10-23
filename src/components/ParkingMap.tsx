@@ -14,7 +14,7 @@ import {
   Grid
 } from 'lucide-react';
 import { ParkingSpot, ParkingTicket, RatesConfig, VehicleType, VehicleCategoryConfig, SystemUser } from '../types';
-import { calculateParkingFee, formatCurrency } from '../utils/billing';
+import { calculateParkingFee, formatCurrency, getVehicleRate } from '../utils/billing';
 import { renderVehicleIcon } from '../utils/vehicleIcons';
 
 interface ParkingMapProps {
@@ -26,6 +26,7 @@ interface ParkingMapProps {
   onSelectSpotForEntry: (spotCode: string, vehicleType: VehicleType) => void;
   onSelectSpotForExit: (plate: string) => void;
   onToggleSpotStatus: (spotId: string, newStatus: 'available' | 'reserved' | 'maintenance') => void;
+  onOpenSpotsManagement?: () => void;
 }
 
 export const ParkingMap: React.FC<ParkingMapProps> = ({
@@ -37,6 +38,7 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
   onSelectSpotForEntry,
   onSelectSpotForExit,
   onToggleSpotStatus,
+  onOpenSpotsManagement,
 }) => {
   const [selectedZone, setSelectedZone] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'available' | 'occupied'>('all');
@@ -130,6 +132,18 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
                 <div className="text-sm font-black text-slate-950 dark:text-slate-100">{reserved} plazas</div>
               </div>
             </div>
+
+            {onOpenSpotsManagement && (
+              <button
+                type="button"
+                onClick={onOpenSpotsManagement}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 dark:bg-amber-400 dark:hover:bg-amber-300 transition-all shadow-md shadow-amber-500/20 cursor-pointer active:scale-98"
+                title="Administrar, crear, editar o eliminar plazas de parqueo"
+              >
+                <Grid className="w-4 h-4 text-slate-950" />
+                <span>Gestión de Plazas</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -150,56 +164,30 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
               }`}
             >
-              Todas las Zonas
+              Todas las Zonas ({total})
             </button>
-            <button
-              type="button"
-              onClick={() => setSelectedZone('car')}
-              className={`text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 font-black transition-all cursor-pointer border ${
-                selectedZone === 'car' 
-                  ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 border-slate-900 dark:border-amber-400 shadow-sm' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
-              }`}
-            >
-              <Car className="w-3.5 h-3.5" />
-              <span>Autos ({spots.filter(s => s.type === 'car').length})</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedZone('motorcycle')}
-              className={`text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 font-black transition-all cursor-pointer border ${
-                selectedZone === 'motorcycle' 
-                  ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 border-slate-900 dark:border-amber-400 shadow-sm' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
-              }`}
-            >
-              <Bike className="w-3.5 h-3.5" />
-              <span>Motos ({spots.filter(s => s.type === 'motorcycle').length})</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedZone('suv')}
-              className={`text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 font-black transition-all cursor-pointer border ${
-                selectedZone === 'suv' 
-                  ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 border-slate-900 dark:border-amber-400 shadow-sm' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
-              }`}
-            >
-              <Truck className="w-3.5 h-3.5" />
-              <span>SUVs ({spots.filter(s => s.type === 'suv').length})</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedZone('bicycle')}
-              className={`text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 font-black transition-all cursor-pointer border ${
-                selectedZone === 'bicycle' 
-                  ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 border-slate-900 dark:border-amber-400 shadow-sm' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
-              }`}
-            >
-              <Bike className="w-3.5 h-3.5" />
-              <span>Bicis ({spots.filter(s => s.type === 'bicycle').length})</span>
-            </button>
+            {zones.map((z) => {
+              const zoneCount = spots.filter(s => s.type === z).length;
+              if (zoneCount === 0) return null;
+              const cat = vehicleCategories?.find(c => c.id === z);
+              const label = cat?.name || (z === 'car' ? 'Autos' : z === 'motorcycle' ? 'Motos' : z === 'suv' ? 'SUVs' : z === 'bicycle' ? 'Bicis' : String(z).toUpperCase());
+              const isSelected = selectedZone === z;
+              return (
+                <button
+                  key={z}
+                  type="button"
+                  onClick={() => setSelectedZone(z)}
+                  className={`text-xs px-3 py-1.5 rounded-xl flex items-center gap-1.5 font-black transition-all cursor-pointer border ${
+                    isSelected 
+                      ? 'bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 border-slate-900 dark:border-amber-400 shadow-sm' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 border-slate-300 dark:border-slate-700'
+                  }`}
+                >
+                  {getVehicleIcon(z, 'w-3.5 h-3.5')}
+                  <span>{label} ({zoneCount})</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Status filter */}
@@ -258,7 +246,7 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
                 <div>
                   <h3 className="font-black text-base text-[var(--text-primary)]">{getZoneTitle(zoneType)}</h3>
                   <p className="text-xs text-[var(--text-secondary)] font-medium">
-                    Tarifa: <span className="font-bold text-[var(--text-primary)]">{formatCurrency(rates[zoneType]?.hourRate || rates.carHourRate || 0, rates.currencySymbol)}/hora</span>
+                    Tarifa: <span className="font-bold text-[var(--text-primary)]">{formatCurrency(getVehicleRate(zoneType, rates, vehicleCategories).hourRate, rates.currencySymbol)}/hora</span>
                   </p>
                 </div>
               </div>
@@ -273,7 +261,7 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
                 const activeTicket = activeTickets.find(t => t.spotCode === spot.code);
                 const nowIso = new Date().toISOString();
                 const calc = activeTicket 
-                  ? calculateParkingFee(activeTicket.entryTime, nowIso, activeTicket.vehicleType, rates)
+                  ? calculateParkingFee(activeTicket.entryTime, nowIso, activeTicket.vehicleType, rates, vehicleCategories)
                   : null;
 
                 if (spot.status === 'available') {
@@ -341,6 +329,36 @@ export const ParkingMap: React.FC<ParkingMapProps> = ({
                           Cobrar
                         </span>
                       </div>
+                    </div>
+                  );
+                }
+
+                if (spot.status === 'occupied' && !activeTicket) {
+                  return (
+                    <div
+                      key={spot.id}
+                      className="bg-amber-50/70 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-600 rounded-xl p-3.5 flex flex-col justify-between min-h-[125px] transition-colors shadow-xs"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono font-black text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 px-2 py-0.5 rounded-md border border-amber-300 dark:border-amber-700">
+                          {spot.code}
+                        </span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                      </div>
+                      <div className="text-center py-2">
+                        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mx-auto" />
+                        <span className="text-[10px] font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider block mt-1">
+                          OCUPADA (Sin ticket)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onToggleSpotStatus(spot.id, 'available')}
+                        className="text-[11px] font-black text-amber-800 dark:text-amber-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-center underline cursor-pointer"
+                        title="Liberar plaza y cambiar estado a disponible"
+                      >
+                        Liberar plaza
+                      </button>
                     </div>
                   );
                 }

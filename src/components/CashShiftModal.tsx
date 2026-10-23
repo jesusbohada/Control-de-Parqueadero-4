@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { 
   DollarSign, 
   CreditCard, 
@@ -52,7 +52,6 @@ import { formatCurrency } from '../utils/billing';
 import { getTicketPaymentBreakdown } from '../utils/paymentUtils';
 import { exportCashMovementsToCsv } from '../utils/exportReportUtils';
 import { CashShiftsHistoryModal } from './CashShiftsHistoryModal';
-import html2canvas from 'html2canvas-pro';
 import { printInstantThermal } from '../services/printerService';
 
 interface CashShiftModalProps {
@@ -65,6 +64,7 @@ interface CashShiftModalProps {
   expenseCategories?: ExpenseCategory[];
   closedShiftsHistory?: CashShift[];
   closedDaysHistory?: OperationalDay[];
+  initialSubTab?: 'arqueo' | 'cierre_dia' | 'movements' | 'history';
   onOpenExpenseConceptsModal?: () => void;
   onUpdateShiftInHistory?: (updatedShift: CashShift) => void;
   onUpdateDayInHistory?: (updatedDay: OperationalDay) => void;
@@ -102,9 +102,41 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
   onCloseShiftAndArqueo,
   onCloseDefinitiveDay,
   currentUser,
+  initialSubTab,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'arqueo' | 'cierre_dia' | 'movements'>('arqueo');
+  const [activeSubTab, setActiveSubTab] = useState<'arqueo' | 'cierre_dia' | 'movements' | 'history'>(initialSubTab || 'arqueo');
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
+
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [selectedRecordForTicket, setSelectedRecordForTicket] = useState<{
+    type: 'shift' | 'day';
+    shift?: CashShift;
+    day?: OperationalDay;
+  } | null>(null);
+
+  const safeClosedShifts = useMemo(() => {
+    const list = Array.isArray(closedShiftsHistory) ? closedShiftsHistory : [];
+    return [...list].sort((a, b) => {
+      const tA = new Date(a.endTime || a.startTime).getTime() || 0;
+      const tB = new Date(b.endTime || b.startTime).getTime() || 0;
+      return tB - tA;
+    });
+  }, [closedShiftsHistory]);
+
+  const safeClosedDays = useMemo(() => {
+    const list = Array.isArray(closedDaysHistory) ? closedDaysHistory : [];
+    return [...list].sort((a, b) => {
+      const tA = new Date(a.closedAt || a.openedAt || '').getTime() || 0;
+      const tB = new Date(b.closedAt || b.openedAt || '').getTime() || 0;
+      return tB - tA;
+    });
+  }, [closedDaysHistory]);
+
   const [countedCashInput, setCountedCashInput] = useState<string>('');
   
   // Day counted cash input
@@ -146,70 +178,42 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
   const [voucherPrintStatus, setVoucherPrintStatus] = useState<string | null>(null);
 
   const handlePrintVoucher = async () => {
-    if (businessInfo.silentBackgroundPrint !== false) {
-      setIsVoucherPrinting(true);
-      setVoucherPrintStatus('🖨️ Capturando comprobante e imprimiendo...');
-      try {
-        const el = document.getElementById('printable-ticket');
-        let imageBase64: string | undefined;
-        if (el) {
-          const fullHeight = el.scrollHeight || el.offsetHeight;
-          const canvas = await html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            height: fullHeight,
-            windowHeight: fullHeight + 200,
-            scrollY: 0,
-            scrollX: 0,
-            onclone: (clonedDoc) => {
-              const clonedEl = clonedDoc.getElementById('printable-ticket');
-              if (clonedEl) {
-                clonedEl.style.height = 'auto';
-                clonedEl.style.maxHeight = 'none';
-                clonedEl.style.overflow = 'visible';
-                let parent = clonedEl.parentElement;
-                while (parent) {
-                  parent.style.height = 'auto';
-                  parent.style.maxHeight = 'none';
-                  parent.style.overflow = 'visible';
-                  parent = parent.parentElement;
-                }
-              }
-            }
-          });
-          imageBase64 = canvas.toDataURL('image/png');
-        }
+    setIsVoucherPrinting(true);
+    setVoucherPrintStatus('🖨️ Enviando comprobante a impresora térmica...');
+    try {
+      const isArqueo = printedVoucherType === 'arqueo';
+      const targetPrinter = businessInfo.defaultPrinterName && businessInfo.defaultPrinterName !== 'POS-80'
+        ? businessInfo.defaultPrinterName
+        : undefined;
 
-        const isArqueo = printedVoucherType === 'arqueo';
-        const res = await printInstantThermal({
-          type: isArqueo ? 'cash_shift' : 'day_closure',
-          shift: currentShift,
-          day: operationalDay,
-          businessInfo,
-          imageBase64,
-          paperWidth: voucherPaperWidth,
-          autoCut: businessInfo.cutPaperOnPrint ?? true,
-          openDrawer: false
-        });
+      const res = await printInstantThermal({
+        type: isArqueo ? 'cash_shift' : 'day_closure',
+        shift: currentShift,
+        day: operationalDay,
+        businessInfo,
+        targetPrinterName: targetPrinter,
+        paperWidth: voucherPaperWidth,
+        autoCut: businessInfo.cutPaperOnPrint ?? true,
+        openDrawer: false
+      });
 
-        if (res.success) {
-          setVoucherPrintStatus(`✅ Impreso exitosamente en ${res.printerName}`);
-          setTimeout(() => {
-            setPrintedVoucherType(null);
-            setVoucherPrintStatus(null);
-          }, 1200);
-          return;
-        } else {
-          setVoucherPrintStatus('⚠️ Abriendo diálogo estándar...');
-        }
-      } catch (err) {
-        console.warn('Error capturando comprobante gráfico:', err);
-      } finally {
-        setIsVoucherPrinting(false);
+      if (res.success) {
+        setVoucherPrintStatus(`✅ Impreso exitosamente en ${res.printerName}`);
+        setTimeout(() => {
+          setPrintedVoucherType(null);
+          setVoucherPrintStatus(null);
+        }, 1200);
+        return;
+      } else {
+        setVoucherPrintStatus('⚠️ Abriendo diálogo estándar...');
+        window.print();
       }
+    } catch (err) {
+      console.warn('Error imprimiendo comprobante térmico:', err);
+      window.print();
+    } finally {
+      setIsVoucherPrinting(false);
     }
-    window.print();
   };
 
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -450,9 +454,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
   const dayTotals = useMemo(() => computeBreakdown(todayPaidTickets), [todayPaidTickets]);
 
   // Cash drawer movements (Current Shift)
-  const totalOtherIncomes = currentShift.cashMovements
-    .filter((m) => m.type === 'income' && !m.description.includes('Apertura'))
+  const totalCashOtherIncomes = currentShift.cashMovements
+    .filter((m) => m.type === 'income' && !m.description.includes('Apertura') && (!m.paymentMethod || m.paymentMethod === 'cash'))
     .reduce((acc, m) => acc + m.amount, 0);
+
+  const totalElectronicOtherIncomes = currentShift.cashMovements
+    .filter((m) => m.type === 'income' && !m.description.includes('Apertura') && m.paymentMethod && m.paymentMethod !== 'cash')
+    .reduce((acc, m) => acc + m.amount, 0);
+
+  const totalOtherIncomes = totalCashOtherIncomes + totalElectronicOtherIncomes;
 
   const totalExpenses = currentShift.cashMovements
     .filter((m) => m.type === 'expense')
@@ -465,14 +475,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
   const totalOutflows = totalExpenses + totalPickups;
 
   const expectedCashInDrawer =
-    currentShift.initialCash + shiftTotals.cash + totalOtherIncomes - totalOutflows;
+    currentShift.initialCash + shiftTotals.cash + totalCashOtherIncomes - totalOutflows;
 
   const countedCashNumber = parseFloat(countedCashInput) || 0;
   const cashDifference = countedCashInput ? countedCashNumber - expectedCashInDrawer : null;
 
   // Day Operative Cash Movements & Theoretical Balance
   const dayBaseCash = operationalDay.initialDayCash || currentShift.initialCash;
-  const dayExpectedCashInDrawer = dayBaseCash + dayTotals.cash + totalOtherIncomes - totalOutflows;
+  const dayExpectedCashInDrawer = dayBaseCash + dayTotals.cash + totalCashOtherIncomes - totalOutflows;
   const dayCountedCashNumber = parseFloat(dayCountedCashInput) || 0;
   const dayCashDifference = dayCountedCashInput ? dayCountedCashNumber - dayExpectedCashInDrawer : null;
 
@@ -772,18 +782,25 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             >
               Gastos/Movimientos ({currentShift.cashMovements.length})
             </button>
-            {currentUser?.permissions?.canViewCashShiftsHistory !== false && currentUser?.permissions?.uiVisibility?.showCashShiftsHistory !== false && (
-              <>
-                <div className="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
-                <button
-                  onClick={() => setIsHistoryModalOpen(true)}
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-bold transition-all cursor-pointer flex items-center gap-1.5 border border-indigo-500/40 shadow-xs"
-                >
-                  <History className="w-3.5 h-3.5 text-indigo-200" />
-                  <span>Histórico de Cierres</span>
-                </button>
-              </>
-            )}
+            <div className="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+            <button
+              onClick={() => setActiveSubTab('history')}
+              className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeSubTab === 'history'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>Histórico de Cierres ({safeClosedShifts.length + safeClosedDays.length})</span>
+            </button>
+            <button
+              onClick={() => setIsHistoryModalOpen(true)}
+              className="px-2 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-md transition-colors cursor-pointer"
+              title="Abrir en Ventana Emergente Completa"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
@@ -1255,6 +1272,119 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               </div>
             </div>
           </div>
+
+          {/* ========================================================================= */}
+          {/* ARQUEOS DE TURNO ANTERIORES CERRADOS (HISTÓRICO INTEGRADO)                */}
+          {/* ========================================================================= */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Arqueos de Turno Anteriores Cerrados</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                      {safeClosedShifts.length} {safeClosedShifts.length === 1 ? 'Turno' : 'Turnos'}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Historial de turnos operados con sus respectivos comprobantes y cuadres de caja
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('history')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer self-start sm:self-auto"
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Ver Todos en Panel Histórico →</span>
+              </button>
+            </div>
+
+            {safeClosedShifts.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
+                Aún no hay arqueos de turnos anteriores cerrados registrados.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {safeClosedShifts.map((shift) => {
+                  const cash = shift.cashCollectedSnapshot ?? 0;
+                  const digital = (shift.cardCollectedSnapshot ?? 0) + (shift.walletCollectedSnapshot ?? 0) + (shift.qrCollectedSnapshot ?? 0) + (shift.breBCollectedSnapshot ?? 0);
+                  const total = shift.totalCollectedSnapshot ?? (cash + digital);
+                  const diff = shift.cashDifference ?? 0;
+
+                  return (
+                    <div
+                      key={shift.id}
+                      className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded">
+                            Turno #{shift.shiftNumber}
+                          </span>
+                          {shift.consecutiveCode && (
+                            <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                              {shift.consecutiveCode}
+                            </span>
+                          )}
+                          {shift.isAudited && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                              <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                              Auditado
+                            </span>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedRecordForTicket({
+                              type: 'shift',
+                              shift,
+                            });
+                            setIsHistoryModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer"
+                          title="Ver tiquete térmico con márgenes y descargar PDF"
+                        >
+                          <Printer className="w-3.5 h-3.5 text-indigo-400" />
+                          <span>Ver Tiquete</span>
+                        </button>
+                      </div>
+
+                      <div className="text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <span>Cajero: <strong className="text-slate-900 dark:text-slate-100">{shift.operatorName}</strong></span>
+                          <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Recaudo Total</span>
+                          <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, currencySymbol)}</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo en Caja</span>
+                          <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(shift.finalCountedCash || cash, currencySymbol)}</span>
+                        </div>
+                        <div className={`p-2 rounded border ${diff === 0 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-rose-800'}`}>
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Cuadre Físico</span>
+                          <span className="font-bold">{diff === 0 ? 'Cuadrado $0' : formatCurrency(diff, currencySymbol)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1518,6 +1648,11 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                             <span>Operador: <strong>{m.operator}</strong></span>
                             <span>•</span>
                             <span>{new Date(m.timestamp).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+                            {m.paymentMethod && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                {m.paymentMethod === 'cash' ? 'Efectivo' : m.paymentMethod === 'card' ? 'Tarjeta' : m.paymentMethod === 'transfer' ? 'Transferencia' : String(m.paymentMethod).toUpperCase()}
+                              </span>
+                            )}
                             {m.voucherNumber && <span>• Doc: {m.voucherNumber}</span>}
                           </div>
                         </div>
@@ -1585,6 +1720,133 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <span>Ejecutar Cierre Definitivo de Caja</span>
               </button>
             </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* CIERRES DEFINITIVOS DE DÍA ANTERIORES (HISTÓRICO INTEGRADO)               */}
+          {/* ========================================================================= */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Cierres Definitivos de Jornada Registrados</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                      {safeClosedDays.length} {safeClosedDays.length === 1 ? 'Día Operativo' : 'Días Operativos'}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Cierres Z fiscales y actas de consolidación contable de jornadas completas
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('history')}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 transition-all cursor-pointer self-start sm:self-auto"
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Ver Todos en Panel Histórico →</span>
+              </button>
+            </div>
+
+            {safeClosedDays.length === 0 ? (
+              <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
+                Aún no hay cierres definitivos de días anteriores registrados.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {safeClosedDays.map((day) => {
+                  const cash = day.cashCollectedSnapshot ?? 0;
+                  const digital = (day.cardCollectedSnapshot ?? 0) + (day.walletCollectedSnapshot ?? 0) + (day.qrCollectedSnapshot ?? 0) + (day.breBCollectedSnapshot ?? 0);
+                  const total = day.totalCollected ?? (cash + digital);
+                  const exp = day.totalExpensesSnapshot ?? 0;
+                  const toConsign = day.totalToConsignSnapshot ?? (day.finalDayCash || 0);
+
+                  return (
+                    <div
+                      key={day.id}
+                      className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all shadow-2xs"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono text-xs font-black bg-emerald-700 text-white px-2.5 py-0.5 rounded">
+                              Cierre Día #{day.dayNumber || 1}
+                            </span>
+                            {day.consecutiveCode && (
+                              <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                                Reporte Fiscal: {day.consecutiveCode}
+                              </span>
+                            )}
+                            {day.isAudited && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                                <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                                Auditado Fiscal OK
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                            <span>Fecha: <strong>{day.formattedDate || day.date}</strong></span>
+                            <span>•</span>
+                            <span>Cerrado por: <strong>{day.closedByOperator || 'Administrador'}</strong></span>
+                            <span>•</span>
+                            <span>Turnos: <strong>{day.shiftsCount || 1} turnos</strong></span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedRecordForTicket({
+                              type: 'day',
+                              day,
+                            });
+                            setIsHistoryModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer self-start sm:self-auto"
+                          title="Ver e imprimir comprobante fiscal Z con márgenes y descargar PDF"
+                        >
+                          <Printer className="w-4 h-4 text-emerald-400" />
+                          <span>Ver Tiquete Fiscal Z</span>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Total Facturado</span>
+                          <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, currencySymbol)}</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo Total</span>
+                          <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(cash, currencySymbol)}</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Medios Digitales</span>
+                          <span className="font-bold text-indigo-700 dark:text-indigo-400">{formatCurrency(digital, currencySymbol)}</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Gastos del Día</span>
+                          <span className="font-bold text-rose-700 dark:text-rose-400">-{formatCurrency(exp, currencySymbol)}</span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800 text-emerald-950 dark:text-emerald-200">
+                          <span className="text-[9px] uppercase font-sans text-emerald-800 dark:text-emerald-400 block font-bold">Total a Bóveda</span>
+                          <span className="font-black">{formatCurrency(toConsign, currencySymbol)}</span>
+                        </div>
+                      </div>
+
+                      {day.closingNotes && (
+                        <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-950 dark:text-amber-200 italic">
+                          "{day.closingNotes}"
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -2245,6 +2507,240 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       )}
 
       {/* ========================================================= */}
+      {/* VIEW 4: HISTÓRICO INTEGRADO DE CIERRES Y ARQUEOS          */}
+      {/* ========================================================= */}
+      {activeSubTab === 'history' && (
+        <div className="space-y-6">
+          {/* Header Bar with Action & Summary */}
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 rounded-2xl border border-indigo-900/50 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-300">
+                <History className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span>Histórico de Arqueos y Cierres Definitivos</span>
+                  <span className="text-xs bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 px-2.5 py-0.5 rounded-full font-mono font-bold">
+                    {safeClosedShifts.length + safeClosedDays.length} Registros
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-300">
+                  Consulta de comprobantes térmicos, actas de jornada, reimpresión y descarga PDF oficial
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsHistoryModalOpen(true)}
+                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Abrir en Ventana Emergente</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">Total Arqueos de Turno</span>
+              <span className="text-xl font-black font-mono text-indigo-600 dark:text-indigo-400">{safeClosedShifts.length}</span>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">Cierres de Día Registrados</span>
+              <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">{safeClosedDays.length}</span>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">Recaudo Turnos Simulados</span>
+              <span className="text-xl font-black font-mono text-slate-900 dark:text-white">
+                {formatCurrency(safeClosedShifts.reduce((acc, s) => acc + (s.totalCollectedSnapshot || 0), 0), currencySymbol)}
+              </span>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
+              <span className="text-[10px] uppercase font-bold text-slate-500 block">Total en Bóveda Día</span>
+              <span className="text-xl font-black font-mono text-emerald-700 dark:text-emerald-300">
+                {formatCurrency(safeClosedDays.reduce((acc, d) => acc + (d.totalToConsignSnapshot || d.finalDayCash || 0), 0), currencySymbol)}
+              </span>
+            </div>
+          </div>
+
+          {/* Seccion 1: Cierres Definitivos de Jornada */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Cierres Definitivos de Jornada Operativa ({safeClosedDays.length})
+                </h4>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {safeClosedDays.map((day) => {
+                const cash = day.cashCollectedSnapshot ?? 0;
+                const digital = (day.cardCollectedSnapshot ?? 0) + (day.walletCollectedSnapshot ?? 0) + (day.qrCollectedSnapshot ?? 0) + (day.breBCollectedSnapshot ?? 0);
+                const total = day.totalCollected ?? (cash + digital);
+                const toConsign = day.totalToConsignSnapshot ?? (day.finalDayCash || 0);
+
+                return (
+                  <div
+                    key={day.id}
+                    className="p-4 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 hover:border-emerald-300 dark:hover:border-emerald-700 transition-all shadow-2xs"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-xs font-black bg-emerald-700 text-white px-2.5 py-0.5 rounded">
+                          Cierre Día #{day.dayNumber || 1}
+                        </span>
+                        {day.consecutiveCode && (
+                          <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            {day.consecutiveCode}
+                          </span>
+                        )}
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
+                          Fecha: <strong>{day.formattedDate || day.date}</strong> • Responsable: <strong>{day.closedByOperator}</strong>
+                        </span>
+                        {day.isAudited && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                            Auditado
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRecordForTicket({
+                            type: 'day',
+                            day,
+                          });
+                          setIsHistoryModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer self-start sm:self-auto"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Ver Tiquete Fiscal Z</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Total Facturado</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo Total</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(cash, currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Medios Digitales</span>
+                        <span className="font-bold text-indigo-700 dark:text-indigo-400">{formatCurrency(digital, currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800 text-emerald-950 dark:text-emerald-200">
+                        <span className="text-[9px] uppercase font-sans text-emerald-800 dark:text-emerald-400 block font-bold">Total a Bóveda</span>
+                        <span className="font-black">{formatCurrency(toConsign, currencySymbol)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Seccion 2: Arqueos de Turno */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white">
+                  Arqueos de Turno Realizados ({safeClosedShifts.length})
+                </h4>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {safeClosedShifts.map((shift) => {
+                const cash = shift.cashCollectedSnapshot ?? 0;
+                const digital = (shift.cardCollectedSnapshot ?? 0) + (shift.walletCollectedSnapshot ?? 0) + (shift.qrCollectedSnapshot ?? 0) + (shift.breBCollectedSnapshot ?? 0);
+                const total = shift.totalCollectedSnapshot ?? (cash + digital);
+                const diff = shift.cashDifference ?? 0;
+
+                return (
+                  <div
+                    key={shift.id}
+                    className="p-4 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded">
+                          Turno #{shift.shiftNumber}
+                        </span>
+                        {shift.consecutiveCode && (
+                          <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            {shift.consecutiveCode}
+                          </span>
+                        )}
+                        {shift.isAudited && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                            Auditado
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRecordForTicket({
+                            type: 'shift',
+                            shift,
+                          });
+                          setIsHistoryModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer"
+                        title="Ver tiquete térmico con márgenes y descargar PDF"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>Ver Tiquete</span>
+                      </button>
+                    </div>
+
+                    <div className="text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span>Cajero: <strong className="text-slate-900 dark:text-slate-100">{shift.operatorName}</strong></span>
+                        <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Recaudo Total</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo en Caja</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(shift.finalCountedCash || cash, currencySymbol)}</span>
+                      </div>
+                      <div className={`p-2 rounded border ${diff === 0 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-rose-800'}`}>
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Cuadre Físico</span>
+                        <span className="font-bold">{diff === 0 ? 'Cuadrado $0' : formatCurrency(diff, currencySymbol)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
       {/* THERMAL PRINT MODAL FOR ARQUEO / CIERRE                   */}
       {/* ========================================================= */}
       {printedVoucherType && (
@@ -2305,7 +2801,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 const vHasCountedInput = isArqueoVoucher ? Boolean(countedCashInput) : Boolean(dayCountedCashInput);
                 const vCashDiff = isArqueoVoucher ? cashDifference : dayCashDifference;
 
-                const totalEfectivoEntrado = vBase + vCash + totalOtherIncomes;
+                const totalEfectivoEntrado = vBase + vCash + totalCashOtherIncomes;
                 const totalEgresosReales = totalExpenses;
 
                 const dineroFaltante = (vHasCountedInput && vCashDiff !== null && vCashDiff < 0) ? Math.abs(vCashDiff) : 0;
@@ -2451,11 +2947,19 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                               +{formatCurrency(vCash, currencySymbol)}
                             </td>
                           </tr>
-                          {totalOtherIncomes > 0 && (
+                          {totalCashOtherIncomes > 0 && (
                             <tr>
-                              <td className="py-1 font-semibold text-emerald-700">(+) OTROS INGRESOS EN EFECTIVO</td>
+                              <td className="py-1 font-semibold text-emerald-700">(+) OTROS INGRESOS EN EFECTIVO (MENSUALIDADES)</td>
                               <td className="py-1 text-right font-bold text-emerald-700">
-                                +{formatCurrency(totalOtherIncomes, currencySymbol)}
+                                +{formatCurrency(totalCashOtherIncomes, currencySymbol)}
+                              </td>
+                            </tr>
+                          )}
+                          {totalElectronicOtherIncomes > 0 && (
+                            <tr>
+                              <td className="py-1 font-semibold text-indigo-700">(i) OTROS INGRESOS ELECTRÓNICOS (BANCOS/BILLETERAS)</td>
+                              <td className="py-1 text-right font-bold text-indigo-700">
+                                +{formatCurrency(totalElectronicOtherIncomes, currencySymbol)}
                               </td>
                             </tr>
                           )}
@@ -2961,15 +3465,19 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       {/* History & Recalculation Modal */}
       <CashShiftsHistoryModal
         isOpen={isHistoryModalOpen}
-        onClose={() => setIsHistoryModalOpen(false)}
-        closedShifts={closedShiftsHistory}
-        closedDays={closedDaysHistory}
+        onClose={() => {
+          setIsHistoryModalOpen(false);
+          setSelectedRecordForTicket(null);
+        }}
+        closedShifts={safeClosedShifts}
+        closedDays={safeClosedDays}
         allTickets={todayPaidTickets}
         currencySymbol={currencySymbol}
         businessInfo={businessInfo}
         currentUser={currentUser}
         onUpdateShift={onUpdateShiftInHistory}
         onUpdateDay={onUpdateDayInHistory}
+        initialSelectedRecord={selectedRecordForTicket}
       />
     </div>
   );

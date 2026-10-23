@@ -59,7 +59,7 @@ echo.
 echo [1/3] Deteniendo procesos colgados de PostgreSQL...
 taskkill /F /IM postgres.exe >nul 2>&1
 taskkill /F /IM pg_ctl.exe >nul 2>&1
-timeout /t 1 /nobreak >nul
+ping 127.0.0.1 -n 2 >nul
 
 echo [2/3] Eliminando posibles archivos de bloqueo postmaster.pid...
 for %%v in (17 16 15 14 13 12) do (
@@ -75,7 +75,7 @@ for %%v in (17 16 15 14 13 12) do (
 echo [3/3] Iniciando servicio de PostgreSQL...
 net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql-x64-14 >nul 2>&1 || net start postgresql >nul 2>&1
 
-timeout /t 2 /nobreak >nul
+ping 127.0.0.1 -n 3 >nul
 netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1
 if %errorlevel% equ 0 (
     echo.

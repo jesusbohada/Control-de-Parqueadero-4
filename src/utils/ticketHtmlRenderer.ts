@@ -2,6 +2,7 @@ import QRCode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 import { ParkingTicket, CashShift, OperationalDay, ParkingBusinessInfo, RatesConfig, VehicleCategoryConfig } from '../types';
+import { getVehicleRate } from './billing';
 
 export interface GenerateTicketHtmlOptions {
   type: 'entry_ticket' | 'exit_receipt' | 'cash_shift' | 'day_closure' | 'test';
@@ -87,7 +88,11 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
   const securityHash = `WOLF-${hex.substring(0, 4)}-${hex.substring(4, 8)}`;
 
   // Generación de Código QR Escaneable de Alta Definición
-  const qrPayload = JSON.stringify({
+  const dianQrUrl = ticket?.electronicInvoice?.qrUrl || (ticket?.electronicInvoice?.cufe 
+    ? `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${ticket.electronicInvoice.cufe}`
+    : '');
+
+  const qrPayload = dianQrUrl || JSON.stringify({
     t: ticket?.ticketNumber || 'TEST',
     p: ticket?.plate || 'TEST',
     in: ticket?.entryTime || new Date().toISOString(),
@@ -449,96 +454,94 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
     const entryDate = new Date(ticket.entryTime || Date.now());
     const formattedDate = entryDate.toLocaleDateString('es-CO');
     const formattedTime = entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
-    const vehicleRate = rates[ticket.vehicleType] || { hourRate: 4000, gracePeriodMinutes: 15 };
+    const vehicleRate = getVehicleRate(ticket.vehicleType, rates as RatesConfig, vehicleCategories);
 
     const isSubEntry = !!(ticket as any).isSubscriber || (ticket.notes && /abonado/i.test(ticket.notes));
 
     bodyContent = `
-      <div class="ticket-frame">
-        <div class="header-card">
-          ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
-          <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
-          <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
-          <div class="header-sub">${businessInfo.address || ''}</div>
-          <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
-          ${businessInfo.branchName ? `<div class="header-sub">SEDE: ${businessInfo.branchName}</div>` : ''}
-          <div><span class="badge-black">${isSubEntry ? '*** INGRESO VEHÍCULO ABONADO ***' : '*** TICKET DE INGRESO ***'}</span></div>
-        </div>
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        ${businessInfo.branchName ? `<div class="header-sub">SEDE: ${businessInfo.branchName}</div>` : ''}
+        <div><span class="badge-black">${isSubEntry ? '*** INGRESO VEHÍCULO ABONADO ***' : '*** TICKET DE INGRESO ***'}</span></div>
+      </div>
 
-        <div class="info-card">
-          <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-            <span class="bold">N° TICKET:</span>
-            <span class="font-black">${ticket.ticketNumber || ticket.barcode || 'N/A'}</span>
-          </div>
-          <div class="row">
-            <span>Puesto Asignado:</span>
-            <span class="bold" style="border:1.5px solid #000;padding:1px 6px;border-radius:3px;">${ticket.spotCode || 'PATIO GENERAL'}</span>
-          </div>
-          <div class="row">
-            <span>Jornada Operativa:</span>
-            <span class="bold">Día #${ticket.operationalDayNumber || 1} • Turno #${ticket.shiftNumber || 1}</span>
-          </div>
-          <div class="row">
-            <span>Fecha / Hora Entrada:</span>
-            <span class="bold">${formattedDate} ${formattedTime}</span>
-          </div>
-          ${ticket.cashierName ? `
-          <div class="row">
-            <span>Operador:</span>
-            <span class="bold">${ticket.cashierName}</span>
-          </div>` : ''}
-        </div>
+      <div class="divider"></div>
 
-        <div class="plate-box">
-          <div class="plate-label">${ticket.isForeignPlate ? `PLACA EXTRANJERA (${ticket.originCountry || 'INTERNACIONAL'})` : (isSubEntry ? 'PLACA / ABONADO MENSUAL' : 'PLACA / VEHÍCULO')}</div>
-          <div class="plate-text">${ticket.plate}</div>
-          <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)} ${isSubEntry ? '• PLAN MENSUAL' : (ticket.isForeignPlate ? '• INTERNACIONAL' : '')}</div>
-        </div>
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">N° TICKET:</span>
+        <span class="font-black">${ticket.ticketNumber || ticket.barcode || 'N/A'}</span>
+      </div>
+      <div class="row">
+        <span>Puesto Asignado:</span>
+        <span class="bold" style="border:1.5px solid #000;padding:1px 6px;border-radius:3px;">${ticket.spotCode || 'PATIO GENERAL'}</span>
+      </div>
+      <div class="row">
+        <span>Jornada Operativa:</span>
+        <span class="bold">Día #${ticket.operationalDayNumber || 1} • Turno #${ticket.shiftNumber || 1}</span>
+      </div>
+      <div class="row">
+        <span>Fecha / Hora Entrada:</span>
+        <span class="bold">${formattedDate} ${formattedTime}</span>
+      </div>
+      ${ticket.cashierName ? `
+      <div class="row">
+        <span>Operador:</span>
+        <span class="bold">${ticket.cashierName}</span>
+      </div>` : ''}
 
-        ${ticket.notes ? `
-        <div class="notes-box">
-          <div class="notes-title">OBSERVACIÓN / DETALLES DE INGRESO:</div>
-          <div class="notes-content">${ticket.notes}</div>
-        </div>` : ''}
+      <div class="plate-box">
+        <div class="plate-label">${ticket.isForeignPlate ? `PLACA EXTRANJERA (${ticket.originCountry || 'INTERNACIONAL'})` : (isSubEntry ? 'PLACA / ABONADO MENSUAL' : 'PLACA / VEHÍCULO')}</div>
+        <div class="plate-text">${ticket.plate}</div>
+        <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)} ${isSubEntry ? '• PLAN MENSUAL' : (ticket.isForeignPlate ? '• INTERNACIONAL' : '')}</div>
+      </div>
 
-        ${isSubEntry ? `
-        <div style="border:1.5px solid #000;background:#fafafa;padding:4px 6px;border-radius:4px;margin:4px 0;">
-          <div class="row"><span class="bold">CONDICIÓN:</span><span class="font-black">ABONO MENSUAL ACTIVO</span></div>
-          <div class="row"><span>TARIFA TIEMPO:</span><span class="bold">$0 COP (PLAN CUBIERTO)</span></div>
-          <div class="row"><span>ACCESO:</span><span class="bold">AUTORIZADO / CONTROL ACTIVO</span></div>
-        </div>
-        ` : `
-        <div class="rates-box">
-          <div class="bold uppercase" style="font-size:${is58 ? '10px' : '11px'};margin-bottom:3px;border-bottom:1.5px solid #000;padding-bottom:2px;">Tarifas Vigentes:</div>
-          <div class="row">
-            <span>Hora ${getVehicleLabel(ticket.vehicleType, vehicleCategories)}:</span>
-            <span class="font-black">${formatMoney(vehicleRate.hourRate, rates.currencySymbol)}</span>
-          </div>
-          <div class="row">
-            <span>Minutos de gracia:</span>
-            <span class="bold">${vehicleRate.gracePeriodMinutes || 0} minutos</span>
-          </div>
-        </div>
-        `}
+      ${ticket.notes ? `
+      <div class="notes-box">
+        <div class="notes-title">OBSERVACIÓN / DETALLES DE INGRESO:</div>
+        <div class="notes-content">${ticket.notes}</div>
+      </div>` : ''}
 
-        <div class="security-seal">
-          <span class="bold">FIRMA ANTI-FRAUDE:</span>
-          <span class="font-black">${securityHash}</span>
+      ${isSubEntry ? `
+      <div style="border:1.5px dashed #000;background:#fafafa;padding:4px 6px;border-radius:4px;margin:4px 0;">
+        <div class="row"><span class="bold">CONDICIÓN:</span><span class="font-black">ABONO MENSUAL ACTIVO</span></div>
+        <div class="row"><span>TARIFA TIEMPO:</span><span class="bold">$0 COP (PLAN CUBIERTO)</span></div>
+        <div class="row"><span>ACCESO:</span><span class="bold">AUTORIZADO / CONTROL ACTIVO</span></div>
+      </div>
+      ` : `
+      <div class="rates-box">
+        <div class="bold uppercase" style="font-size:${is58 ? '10px' : '11px'};margin-bottom:3px;border-bottom:1.5px solid #000;padding-bottom:2px;">Tarifas Vigentes:</div>
+        <div class="row">
+          <span>Hora ${getVehicleLabel(ticket.vehicleType, vehicleCategories)}:</span>
+          <span class="font-black">${formatMoney(vehicleRate.hourRate, rates.currencySymbol)}</span>
         </div>
+        <div class="row">
+          <span>Minutos de gracia:</span>
+          <span class="bold">${vehicleRate.gracePeriodMinutes || 0} minutos</span>
+        </div>
+      </div>
+      `}
 
-        <div class="barcode-container">
-          <svg id="barcode-target"></svg>
-        </div>
-        <div class="text-center font-mono" style="font-size:9px;margin-top:2px;">
-          ID: ${ticket.id}
-        </div>
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
 
-        <div class="footer">
-          <div>${businessInfo.ticketFooter || 'Conserve este ticket para retirar su vehículo.'}</div>
-          <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
-          <div class="wolf-brand">wolfzonepos</div>
-          <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
-        </div>
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
+      <div class="text-center font-mono" style="font-size:9px;margin-top:2px;">
+        ID: ${ticket.id}
+      </div>
+
+      <div class="footer">
+        <div>${businessInfo.ticketFooter || 'Conserve este ticket para retirar su vehículo.'}</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+        <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
       </div>
     `;
   } else if (type === 'exit_receipt' && ticket) {
@@ -547,83 +550,81 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
 
     if (isSub) {
       bodyContent = `
-      <div class="ticket-frame">
-        <div class="header-card">
-          ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
-          <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
-          <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
-          <div class="header-sub">${businessInfo.address || ''}</div>
-          <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
-          <div>
-            <span class="badge-black">
-              *** COMPROBANTE DE SUSCRIPCIÓN MENSUAL ***
-            </span>
-          </div>
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        <div>
+          <span class="badge-black">
+            *** COMPROBANTE DE SUSCRIPCIÓN MENSUAL ***
+          </span>
         </div>
+      </div>
 
-        <div class="info-card">
-          <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-            <span class="bold">N° ABONO:</span>
-            <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
-          </div>
-          <div class="row"><span class="bold">TITULAR:</span><span class="font-black">${subInfo.fullName || 'Titular Registrado'}</span></div>
-          ${subInfo.documentId ? `<div class="row"><span>DOCUMENTO:</span><span class="bold">CC: ${subInfo.documentId}</span></div>` : ''}
-          ${subInfo.phone ? `<div class="row"><span>TELÉFONO:</span><span class="bold">${subInfo.phone}</span></div>` : ''}
-          <div class="row"><span>PLAZA ASIGNADA:</span><span class="font-black">${subInfo.assignedSpotCode || ticket.spotCode || 'FLOTANTE EN PATIO'}</span></div>
+      <div class="divider"></div>
+
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">N° ABONO:</span>
+        <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
+      </div>
+      <div class="row"><span class="bold">TITULAR:</span><span class="font-black">${subInfo.fullName || 'Titular Registrado'}</span></div>
+      ${subInfo.documentId ? `<div class="row"><span>DOCUMENTO:</span><span class="bold">CC: ${subInfo.documentId}</span></div>` : ''}
+      ${subInfo.phone ? `<div class="row"><span>TELÉFONO:</span><span class="bold">${subInfo.phone}</span></div>` : ''}
+      <div class="row"><span>PLAZA ASIGNADA:</span><span class="font-black">${subInfo.assignedSpotCode || ticket.spotCode || 'FLOTANTE EN PATIO'}</span></div>
+
+      <div class="plate-box">
+        <div class="plate-label">PLACA / VEHÍCULO</div>
+        <div class="plate-text">${ticket.plate}</div>
+        <div class="plate-type">${subInfo.vehicleCategoryName || getVehicleLabel(ticket.vehicleType, vehicleCategories)}</div>
+      </div>
+
+      <div style="border:1.5px dashed #000;padding:5px 6px;border-radius:4px;margin:5px 0;text-align:center;">
+        <div style="font-size:${is58 ? '9px' : '10px'};font-weight:700;text-transform:uppercase;">PERÍODO DE COBERTURA (30 DÍAS)</div>
+        <div style="font-size:${is58 ? '11px' : '12px'};font-weight:800;margin-top:2px;">
+          ${subInfo.startDate || ticket.entryTime} AL ${subInfo.endDate || ticket.exitTime}
         </div>
+      </div>
 
-        <div class="plate-box">
-          <div class="plate-label">PLACA / VEHÍCULO</div>
-          <div class="plate-text">${ticket.plate}</div>
-          <div class="plate-type">${subInfo.vehicleCategoryName || getVehicleLabel(ticket.vehicleType, vehicleCategories)}</div>
-        </div>
+      <div class="thick-divider"></div>
 
-        <div style="border:1.5px dashed #000;padding:5px 6px;border-radius:4px;margin:5px 0;text-align:center;">
-          <div style="font-size:${is58 ? '9px' : '10px'};font-weight:700;text-transform:uppercase;">PERÍODO DE COBERTURA (30 DÍAS)</div>
-          <div style="font-size:${is58 ? '11px' : '12px'};font-weight:800;margin-top:2px;">
-            ${subInfo.startDate || ticket.entryTime} AL ${subInfo.endDate || ticket.exitTime}
-          </div>
-        </div>
+      <div class="row font-black" style="font-size:${is58 ? '13px' : '16px'};padding:2px 0;">
+        <span>VALOR MENSUALIDAD:</span>
+        <span>${formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
+      </div>
 
-        <div class="thick-divider"></div>
+      <div class="thick-divider"></div>
 
-        <div class="row font-black" style="font-size:${is58 ? '13px' : '16px'};padding:2px 0;">
-          <span>VALOR MENSUALIDAD:</span>
-          <span>${formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
-        </div>
+      <div class="row">
+        <span>Medio de Pago:</span>
+        <span class="font-black uppercase">${subInfo.paymentMethodDisplay || ticket.paymentMethod || 'Efectivo'}</span>
+      </div>
+      ${subInfo.voucherNumber ? `
+      <div class="row font-black" style="background:#000;color:#fff;padding:2px 5px;border-radius:3px;margin:3px 0;">
+        <span>DOC. BANCARIO / VOUCHER:</span>
+        <span>#${subInfo.voucherNumber}</span>
+      </div>` : ''}
+      ${subInfo.paymentReference ? `
+      <div class="row" style="font-size:${is58 ? '9px' : '10.5px'};">
+        <span>Soporte / Pasarela:</span>
+        <span class="bold">${subInfo.paymentReference}</span>
+      </div>` : ''}
 
-        <div class="thick-divider"></div>
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
 
-        <div class="row">
-          <span>Medio de Pago:</span>
-          <span class="font-black uppercase">${subInfo.paymentMethodDisplay || ticket.paymentMethod || 'Efectivo'}</span>
-        </div>
-        ${subInfo.voucherNumber ? `
-        <div class="row font-black" style="background:#000;color:#fff;padding:2px 5px;border-radius:3px;margin:3px 0;">
-          <span>DOC. BANCARIO / VOUCHER:</span>
-          <span>#${subInfo.voucherNumber}</span>
-        </div>` : ''}
-        ${subInfo.paymentReference ? `
-        <div class="row" style="font-size:${is58 ? '9px' : '10.5px'};">
-          <span>Soporte / Pasarela:</span>
-          <span class="bold">${subInfo.paymentReference}</span>
-        </div>` : ''}
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
 
-        <div class="security-seal">
-          <span class="bold">FIRMA ANTI-FRAUDE:</span>
-          <span class="font-black">${securityHash}</span>
-        </div>
-
-        <div class="barcode-container">
-          <svg id="barcode-target"></svg>
-        </div>
-
-        <div class="footer">
-          <div style="white-space:pre-line;font-weight:600;line-height:1.4;">${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
-          <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU PREFERENCIA!</div>
-          <div class="wolf-brand">wolfzonepos</div>
-          <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
-        </div>
+      <div class="footer">
+        <div style="white-space:pre-line;font-weight:600;line-height:1.4;">${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU PREFERENCIA!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+        <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
       </div>
     `;
     } else {
@@ -635,122 +636,159 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       const isSubExitReceipt = (ticket.notes && /abonado/i.test(ticket.notes)) || (ticket as any).isSubscriber || (ticket.totalAmount === 0 && (ticket.discountAmount || 0) > 0);
 
       bodyContent = `
-      <div class="ticket-frame">
-        <div class="header-card">
-          ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
-          <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
-          <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
-          <div class="header-sub">${businessInfo.address || ''}</div>
-          <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
-          <div>
-            <span class="badge-black">
-              ${isFE ? '*** FACTURA ELECTRÓNICA DE VENTA ***' : (isSubExitReceipt ? '*** SALIDA AUTORIZADA - ABONADO MENSUAL ***' : '*** COMPROBANTE DE SALIDA POS ***')}
-            </span>
-          </div>
-          ${isFE ? `
-          <div style="font-size:9.5px;border:1.5px solid #000;padding:3px;border-radius:3px;margin-top:4px;font-weight:bold;">
-            <div>Factura N°: ${ticket.electronicInvoice?.prefix}${ticket.electronicInvoice?.invoiceNumber}</div>
-            <div>Resolución DIAN: ${ticket.electronicInvoice?.resolutionNumber}</div>
-          </div>` : ''}
+      <div class="text-center">
+        ${logoDataUrl ? `<img src="${logoDataUrl}" class="header-logo" alt="Logo" />` : ''}
+        <div class="header-name">${businessInfo.name || 'SISTEMA DE PARQUEADERO'}</div>
+        <div class="header-sub">NIT: ${businessInfo.nit || 'N/A'}</div>
+        <div class="header-sub">${businessInfo.address || ''}</div>
+        <div class="header-sub">TEL: ${businessInfo.phone || ''}</div>
+        <div>
+          <span class="badge-black">
+            ${isFE ? '*** FACTURA ELECTRÓNICA DE VENTA ***' : (isSubExitReceipt ? '*** SALIDA AUTORIZADA - ABONADO MENSUAL ***' : '*** COMPROBANTE DE SALIDA POS ***')}
+          </span>
         </div>
-
-        <div class="info-card">
-          <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-            <span class="bold">N° TICKET:</span>
-            <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
-          </div>
-          <div class="row">
-            <span>Fecha / Hora Entrada:</span>
-            <span class="bold">${entryDate.toLocaleDateString('es-CO')} ${entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-          <div class="row">
-            <span>Fecha / Hora Salida:</span>
-            <span class="bold">${exitDate.toLocaleDateString('es-CO')} ${exitDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
-          </div>
-          <div class="row bold" style="border:1.5px solid #000;padding:3.5px 6px;border-radius:4px;margin:4px 0;background:#fafafa;">
-            <span>Tiempo Total:</span>
-            <span class="font-black">${hours}h ${mins}m (${ticket.totalMinutes || 0} min)</span>
-          </div>
-          ${ticket.cashierName ? `
-          <div class="row">
-            <span>Atendido por:</span>
-            <span class="bold">${ticket.cashierName}</span>
-          </div>` : ''}
-        </div>
-
-        <div class="plate-box">
-          <div class="plate-label">PLACA / VEHÍCULO</div>
-          <div class="plate-text">${ticket.plate}</div>
-          <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)}</div>
-        </div>
-
-        ${ticket.notes ? `
-        <div class="notes-box">
-          <div class="notes-title">OBSERVACIONES REGISTRADAS:</div>
-          <div class="notes-content">${ticket.notes}</div>
+        ${isFE ? `
+        <div style="font-size:9.5px;border:1.5px solid #000;padding:4px 5px;border-radius:4px;margin-top:4px;font-weight:bold;background:#fafafa;">
+          <div>Factura Electrónica N°: ${ticket.electronicInvoice?.prefix}${ticket.electronicInvoice?.invoiceNumber}</div>
+          <div>Resolución DIAN N°: ${ticket.electronicInvoice?.resolutionNumber || businessInfo.dianResolutionNumber || ''}</div>
+          <div style="font-size:8px;font-weight:normal;color:#333;">Rango: ${businessInfo.dianFromNumber || 1} al ${businessInfo.dianToNumber || 50000} • Vigencia: ${businessInfo.dianResolutionDate || '18 Meses'}</div>
         </div>` : ''}
+      </div>
 
-        <div class="section-card">
-          <div class="row">
-            <span>Tarifa Base:</span>
-            <span class="bold">${formatMoney(ticket.baseAmount || 0, rates.currencySymbol)}</span>
-          </div>
-          ${ticket.taxAmount ? `
-          <div class="row">
-            <span>IVA / Impuesto:</span>
-            <span class="bold">${formatMoney(ticket.taxAmount, rates.currencySymbol)}</span>
-          </div>` : ''}
-          ${ticket.discountAmount ? `
-          <div class="row">
-            <span>Descuento aplicado:</span>
-            <span class="bold">-${formatMoney(ticket.discountAmount, rates.currencySymbol)}</span>
-          </div>` : ''}
-          <div class="thick-divider"></div>
-          <div class="row font-black" style="font-size:${is58 ? '14px' : '17px'};padding:2px 0;">
-            <span>TOTAL COBRADO:</span>
-            <span>${isSubExitReceipt ? '$ 0 COP (ABONO CUBIERTO)' : formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
-          </div>
+      <div class="divider"></div>
+
+      ${isFE && ticket.electronicInvoice?.customer ? `
+      <div style="margin:4px 0;border:1px dashed #000;padding:4px 6px;border-radius:4px;">
+        <div class="bold" style="border-bottom:1px solid #000;padding-bottom:2px;margin-bottom:3px;font-size:${is58 ? '9px' : '10px'};letter-spacing:0.5px;">
+          DATOS DEL ADQUIRENTE / CLIENTE
         </div>
-
-        <div class="info-card">
-          <div class="row">
-            <span>Medio de Pago:</span>
-            <span class="font-black uppercase">${isSubExitReceipt ? 'PLAN MENSUAL DE ABONADO' : (ticket.paymentMethod || 'Efectivo')}</span>
-          </div>
-          ${ticket.cashReceived ? `
-          <div class="row">
-            <span>Efectivo Recibido:</span>
-            <span class="bold">${formatMoney(ticket.cashReceived, rates.currencySymbol)}</span>
-          </div>
-          <div class="row font-black">
-            <span>Cambio / Vueltas:</span>
-            <span>${formatMoney(ticket.changeGiven || 0, rates.currencySymbol)}</span>
-          </div>` : ''}
+        <div class="row">
+          <span>Nombre / Razón Social:</span>
+          <span class="bold">${ticket.electronicInvoice.customer.name || 'Consumidor Final'}</span>
         </div>
-
-        ${isFE && ticket.electronicInvoice?.cufe ? `
-        <div style="font-size:8.5px;border-top:1.5px dashed #000;padding-top:4px;margin-top:4px;word-break:break-all;font-weight:bold;">
-          <span>CUFE:</span> ${ticket.electronicInvoice.cufe}
+        <div class="row">
+          <span>${ticket.electronicInvoice.customer.docType || 'NIT/CC'}:</span>
+          <span class="bold font-mono">${ticket.electronicInvoice.customer.documentNumber || '222222222222'}</span>
+        </div>
+        ${ticket.electronicInvoice.customer.email ? `
+        <div class="row">
+          <span>Correo Electrónico:</span>
+          <span class="bold" style="word-break:break-all;font-size:${is58 ? '8.5px' : '9.5px'};">${ticket.electronicInvoice.customer.email}</span>
         </div>` : ''}
+      </div>
+      <div class="thin-divider"></div>` : ''}
 
-        <div class="security-seal">
-          <span class="bold">FIRMA ANTI-FRAUDE:</span>
-          <span class="font-black">${securityHash}</span>
-        </div>
+      <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
+        <span class="bold">N° TICKET:</span>
+        <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
+      </div>
+      <div class="row">
+        <span>Fecha / Hora Entrada:</span>
+        <span class="bold">${entryDate.toLocaleDateString('es-CO')} ${entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+      <div class="row">
+        <span>Fecha / Hora Salida:</span>
+        <span class="bold">${exitDate.toLocaleDateString('es-CO')} ${exitDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+      <div class="row bold" style="border:1.5px solid #000;padding:3.5px 6px;border-radius:4px;margin:4px 0;background:#fafafa;">
+        <span>Tiempo Total:</span>
+        <span class="font-black">${hours}h ${mins}m (${ticket.totalMinutes || 0} min)</span>
+      </div>
+      ${ticket.cashierName ? `
+      <div class="row">
+        <span>Atendido por:</span>
+        <span class="bold">${ticket.cashierName}</span>
+      </div>` : ''}
 
-        <div class="barcode-container">
-          <svg id="barcode-target"></svg>
-        </div>
+      <div class="plate-box">
+        <div class="plate-label">PLACA / VEHÍCULO</div>
+        <div class="plate-text">${ticket.plate}</div>
+        <div class="plate-type">${getVehicleLabel(ticket.vehicleType, vehicleCategories)}</div>
+      </div>
 
-        <div class="footer">
-          <div style="white-space:pre-line;font-weight:600;line-height:1.4;">${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
-          <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
-          <div class="wolf-brand">wolfzonepos</div>
-          <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
-        </div>
+      ${ticket.notes ? `
+      <div class="notes-box">
+        <div class="notes-title">OBSERVACIONES REGISTRADAS:</div>
+        <div class="notes-content">${ticket.notes}</div>
+      </div>` : ''}
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <span>Tarifa Base:</span>
+        <span class="bold">${formatMoney(ticket.baseAmount || 0, rates.currencySymbol)}</span>
+      </div>
+      ${ticket.taxAmount ? `
+      <div class="row">
+        <span>IVA / Impuesto:</span>
+        <span class="bold">${formatMoney(ticket.taxAmount, rates.currencySymbol)}</span>
+      </div>` : ''}
+      ${ticket.discountAmount ? `
+      <div class="row">
+        <span>Descuento aplicado:</span>
+        <span class="bold">-${formatMoney(ticket.discountAmount, rates.currencySymbol)}</span>
+      </div>` : ''}
+      ${ticket.commercialAgreementName ? `
+      <div class="row" style="color:#0f766e;font-size:${is58 ? '10px' : '11.5px'};">
+        <span>Convenio Aliado:</span>
+        <span class="bold">${ticket.commercialAgreementName}</span>
+      </div>
+      ${ticket.commercialAgreementSealOrVoucher ? `
+      <div class="row" style="color:#0f766e;font-size:${is58 ? '10px' : '11.5px'};">
+        <span>Sello / Factura:</span>
+        <span class="bold font-mono">${ticket.commercialAgreementSealOrVoucher}</span>
+      </div>` : ''}` : ''}
+      <div class="thick-divider"></div>
+      <div class="row font-black" style="font-size:${is58 ? '14px' : '17px'};padding:2px 0;">
+        <span>TOTAL COBRADO:</span>
+        <span>${isSubExitReceipt ? '$ 0 COP (ABONO CUBIERTO)' : formatMoney(ticket.totalAmount || 0, rates.currencySymbol)}</span>
+      </div>
+
+      <div class="thin-divider"></div>
+
+      <div class="row">
+        <span>Medio de Pago:</span>
+        <span class="font-black uppercase">${isSubExitReceipt ? 'PLAN MENSUAL DE ABONADO' : (ticket.paymentMethod || 'Efectivo')}</span>
+      </div>
+      ${ticket.cashReceived ? `
+      <div class="row">
+        <span>Efectivo Recibido:</span>
+        <span class="bold">${formatMoney(ticket.cashReceived, rates.currencySymbol)}</span>
+      </div>
+      <div class="row font-black">
+        <span>Cambio / Vueltas:</span>
+        <span>${formatMoney(ticket.changeGiven || 0, rates.currencySymbol)}</span>
+      </div>` : ''}
+
+      ${isFE ? `
+      <div style="text-align:center;margin:6px 0;padding:6px;border:1px dashed #000;border-radius:4px;background:#fafafa;">
+        ${qrDataUrl ? `<img src="${qrDataUrl}" style="width:${is58 ? '110px' : '135px'};height:${is58 ? '110px' : '135px'};display:block;margin:0 auto;" alt="QR DIAN" />` : ''}
+        <div style="font-size:${is58 ? '8px' : '9px'};font-weight:bold;margin-top:3px;letter-spacing:0.5px;">CÓDIGO QR TRIBUTARIO DIAN</div>
+        <div style="font-size:${is58 ? '7px' : '8px'};color:#444;">Consulte la validez fiscal escaneando con la app DIAN</div>
+        ${ticket.electronicInvoice?.cufe ? `
+        <div style="font-size:${is58 ? '7px' : '8px'};word-break:break-all;margin-top:3px;font-family:monospace;text-align:left;background:#fff;padding:2px 4px;border:1px solid #ddd;">
+          <span style="font-weight:bold;">CUFE:</span> ${ticket.electronicInvoice.cufe}
+        </div>` : ''}
+      </div>` : ''}
+
+      <div class="security-seal">
+        <span class="bold">FIRMA ANTI-FRAUDE:</span>
+        <span class="font-black">${securityHash}</span>
+      </div>
+
+      <div class="barcode-container">
+        <svg id="barcode-target"></svg>
+      </div>
+
+      <div class="footer">
+        <div style="white-space:pre-line;font-weight:600;line-height:1.4;">${businessInfo.ticketFooter || 'Gracias por preferir nuestros servicios.'}</div>
+        <div class="bold" style="margin-top:4px;">¡GRACIAS POR SU VISITA!</div>
+        <div class="wolf-brand">wolfzonepos</div>
+        <div style="font-size:9px;">Sistema Integral de Gestión & Facturación POS</div>
       </div>
     `;
     }
+
   } else if (type === 'cash_shift' && shift) {
     const diff = shift.cashDifference || 0;
     const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';

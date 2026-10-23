@@ -133,7 +133,7 @@ export function exportPaymentsToCsv(
   const rows = tickets.map((t) => {
     const methodMeta = getPaymentMethodMeta(t.paymentMethod || 'cash');
     const hasElecInvoice = Boolean(t.electronicInvoice || t.paymentDetails?.isElectronicInvoice);
-    const invoiceNum = t.electronicInvoice?.invoiceNumber || t.paymentDetails?.electronicInvoiceNumber || '';
+    const invoiceNum = t.electronicInvoice ? `${t.electronicInvoice.prefix || ''}${t.electronicInvoice.invoiceNumber || ''}` : (t.paymentDetails?.electronicInvoiceNumber || '');
     const cufe = t.electronicInvoice?.cufe || t.paymentDetails?.cufe || '';
     const subMethod = t.paymentDetails?.subMethodName || t.paymentDetails?.agreementName || '';
     const ref = t.paymentDetails?.referenceNumber || '';
@@ -346,7 +346,7 @@ export function exportFullAccountingReportToCsv(
 
   tickets.forEach((t) => {
     const methodMeta = getPaymentMethodMeta(t.paymentMethod || 'cash');
-    const invoiceNum = t.electronicInvoice?.invoiceNumber || t.paymentDetails?.electronicInvoiceNumber || 'Ticket POS';
+    const invoiceNum = t.electronicInvoice ? `${t.electronicInvoice.prefix || ''}${t.electronicInvoice.invoiceNumber || ''}` : (t.paymentDetails?.electronicInvoiceNumber || 'Ticket POS');
     lines.push([
       escapeCsvCell(t.ticketNumber || t.id),
       escapeCsvCell(t.plate),

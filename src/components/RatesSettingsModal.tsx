@@ -27,11 +27,27 @@ import {
   Grid,
   Printer,
   X,
-  Trash2
+  Trash2,
+  Globe,
+  Server,
+  Cpu,
+  Key,
+  Lock,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  Radio,
+  Eye,
+  EyeOff,
+  HelpCircle,
+  Send
 } from 'lucide-react';
 import { RatesConfig, ParkingBusinessInfo, VehicleType, PaymentGatewayConfig, SystemUser, VehicleCategoryConfig, ExpenseConcept, ExpenseCategory, SystemNodeConfig, PrinterConfig } from '../types';
 import { DEFAULT_RATES, DEFAULT_BUSINESS_INFO } from '../data/initialData';
 import { PaymentMethodsSettings } from './PaymentMethodsSettings';
+import { generateDianCUFE } from '../utils/dianService';
+import { DynamicQrCode } from './DynamicQrCode';
+import { calculateParkingFeeForMinutes, formatCurrency, getVehicleRate } from '../utils/billing';
 
 interface RatesSettingsModalProps {
   rates: RatesConfig;
@@ -48,6 +64,7 @@ interface RatesSettingsModalProps {
   printers?: PrinterConfig[];
   onSavePrinter?: (printer: PrinterConfig) => void;
   onDeletePrinter?: (printerId: string) => void;
+  onOpenVehicleCategories?: () => void;
   onClose?: () => void;
 }
 
@@ -66,12 +83,120 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
   printers = [],
   onSavePrinter,
   onDeletePrinter,
+  onOpenVehicleCategories,
   onClose,
 }) => {
   const [activeTab, setActiveTab] = useState<'rates' | 'payments' | 'electronic_invoice' | 'business' | 'printers'>(initialTab as any);
   const [localRates, setLocalRates] = useState<RatesConfig>(rates);
   const [localBusinessInfo, setLocalBusinessInfo] = useState<ParkingBusinessInfo>(businessInfo);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [dianTestResult, setDianTestResult] = useState<{ cufe: string; qrUrl: string; invoiceNum: string } | null>(null);
+  const [isTestingDian, setIsTestingDian] = useState(false);
+
+  const handleTestDian = async () => {
+    setIsTestingDian(true);
+    try {
+      const now = new Date();
+      const pfx = (localBusinessInfo.dianPrefix || 'FE').trim();
+      const prefix = pfx.endsWith('-') ? pfx : `${pfx}-`;
+      const num = localBusinessInfo.dianCurrentNumber || 1042;
+      const invoiceNum = `${prefix}${num}`;
+      const cufe = await generateDianCUFE({
+        invoiceNumber: invoiceNum,
+        issueDate: now.toISOString().split('T')[0],
+        issueTime: now.toTimeString().split(' ')[0],
+        subtotal: 10000,
+        taxAmount: 1900,
+        totalAmount: 11900,
+        nitEmitter: localBusinessInfo.nit || '9014587231',
+        docCustomer: '222222222222',
+        technicalKey: localBusinessInfo.dianTechnicalKey,
+        environment: localBusinessInfo.dianEnvironment,
+      });
+      const qrUrl = `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${cufe}`;
+      setDianTestResult({ cufe, qrUrl, invoiceNum });
+    } catch (e) {
+      console.error('Error probando DIAN:', e);
+    } finally {
+      setIsTestingDian(false);
+    }
+  };
+
+  const [dianConnectionTestResult, setDianConnectionTestResult] = useState<{
+    success: boolean;
+    status: string;
+    message: string;
+    dianSoapReachable?: boolean;
+    hasCertificate?: boolean;
+    provider?: string;
+  } | null>(null);
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [isUploadingCert, setIsUploadingCert] = useState(false);
+  const [certUploadSuccess, setCertUploadSuccess] = useState<string | null>(null);
+
+  const handleTestDianConnection = async () => {
+    setIsTestingConnection(true);
+    setDianConnectionTestResult(null);
+    try {
+      const res = await fetch('/api/dian/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: localBusinessInfo.dianEmissionMode || 'simulator',
+          provider: localBusinessInfo.dianProvider || 'factus',
+          apiKey: localBusinessInfo.dianProviderApiKey,
+          apiUrl: localBusinessInfo.dianProviderApiUrl,
+          environment: localBusinessInfo.dianEnvironment || 'prod'
+        })
+      });
+      const data = await res.json();
+      setDianConnectionTestResult(data);
+    } catch (e: any) {
+      setDianConnectionTestResult({
+        success: false,
+        status: 'ERROR',
+        message: 'No se pudo comunicar con el backend local: ' + e.message
+      });
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  const handleCertificateUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingCert(true);
+    setCertUploadSuccess(null);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result as string;
+      try {
+        const res = await fetch('/api/dian/certificate/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileBase64: base64
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setLocalBusinessInfo(prev => ({
+            ...prev,
+            dianCertUploaded: true,
+            dianCertFileName: file.name
+          }));
+          setCertUploadSuccess(`Certificado '${file.name}' cargado e instalado en el servidor.`);
+        }
+      } catch (err: any) {
+        console.error('Error subiendo certificado:', err);
+      } finally {
+        setIsUploadingCert(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Quick Calculator Simulation
   const [calcVehicle, setCalcVehicle] = useState<VehicleType>('car');
@@ -137,21 +262,10 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
     { label: 'Smart Parking', url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=120&auto=format&fit=crop&q=60' },
   ];
 
-  // Quick simulation calculation
-  const simulatedCost = (() => {
-    const rate = localRates[calcVehicle] || {
-      hourRate: 4000,
-      minuteRate: 70,
-      dayRate: 25000,
-      gracePeriodMinutes: 15,
-      minimumChargeMinutes: 15,
-      lostTicketFee: 15000,
-    };
-    if (calcMinutes <= rate.gracePeriodMinutes) return 0;
-    const billable = Math.max(calcMinutes, rate.minimumChargeMinutes);
-    const hours = Math.ceil(billable / 60);
-    return hours * rate.hourRate;
-  })();
+  // Quick simulation calculation using full business billing rules
+  const simulatedCalc = useMemo(() => {
+    return calculateParkingFeeForMinutes(calcMinutes, calcVehicle, localRates, vehicleCategories);
+  }, [calcMinutes, calcVehicle, localRates, vehicleCategories]);
 
   return (
     <div className="space-y-6">
@@ -287,6 +401,16 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
             </div>
             
             <div className="flex items-center gap-2 flex-wrap">
+              {onOpenVehicleCategories && (
+                <button
+                  type="button"
+                  onClick={onOpenVehicleCategories}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-amber-950 bg-amber-400 hover:bg-amber-300 dark:bg-amber-400 dark:hover:bg-amber-300 transition-all shadow-xs cursor-pointer active:scale-98"
+                >
+                  <Layers className="w-3.5 h-3.5 text-amber-950" />
+                  <span>Gestionar Tipos de Vehículos (+)</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleResetRates}
@@ -295,6 +419,139 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Valores por Defecto</span>
               </button>
+            </div>
+          </div>
+
+          {/* Reglas Globales de Facturación, Redondeo e Impuestos */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                  <Calculator className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Reglas Generales de Liquidación, Redondeo e Impuestos
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Determine cómo se redondea el tiempo facturable y el régimen de impuestos aplicable al estacionamiento.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Método de Redondeo */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  <span>Método de Redondeo de Tiempo:</span>
+                </label>
+                <select
+                  value={localRates.roundingMethod || 'fraction_15'}
+                  onChange={(e) => setLocalRates(prev => ({ ...prev, roundingMethod: e.target.value as any }))}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-amber-500 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none cursor-pointer"
+                >
+                  <option value="fraction_15">Fracción de 15 minutos (Cobro por cuartos de hora)</option>
+                  <option value="fraction_30">Fracción de 30 minutos (Cobro por medias horas)</option>
+                  <option value="next_hour">Hora completa adelantada (Hora o fracción de hora)</option>
+                  <option value="exact">Cobro exacto por minuto transcurrido</option>
+                </select>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
+                  {localRates.roundingMethod === 'exact'
+                    ? 'Tarifa exacta por minuto; no redondea a bloques de tiempo.'
+                    : localRates.roundingMethod === 'next_hour'
+                    ? 'Si supera el tiempo de gracia, se factura la hora completa de inmediato.'
+                    : localRates.roundingMethod === 'fraction_30'
+                    ? 'Se redondea al múltiplo superior de 30 minutos.'
+                    : 'Estándar comercial: redondea al múltiplo superior de 15 minutos.'}
+                </span>
+              </div>
+
+              {/* Impuesto IVA */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span>Impuesto a las Ventas (IVA %):</span>
+                  <span className="text-[10px] font-mono text-amber-600 dark:text-amber-400 font-bold">
+                    {localRates.taxPercentage > 0 ? `${localRates.taxPercentage}% IVA` : 'Exento / 0%'}
+                  </span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      value={localRates.taxPercentage || 0}
+                      onChange={(e) => setLocalRates(prev => ({ ...prev, taxPercentage: Math.max(0, parseInt(e.target.value) || 0) }))}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                    <span className="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLocalRates(prev => ({ ...prev, taxPercentage: 0 }))}
+                    className={`px-2.5 py-2 rounded-xl text-[11px] font-bold border transition-colors cursor-pointer ${
+                      (localRates.taxPercentage || 0) === 0
+                        ? 'bg-amber-500 text-slate-950 border-amber-600'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
+                    }`}
+                    title="No responsable de IVA / Régimen Simple (0%)"
+                  >
+                    0%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLocalRates(prev => ({ ...prev, taxPercentage: 19 }))}
+                    className={`px-2.5 py-2 rounded-xl text-[11px] font-bold border transition-colors cursor-pointer ${
+                      (localRates.taxPercentage || 0) === 19
+                        ? 'bg-amber-500 text-slate-950 border-amber-600'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
+                    }`}
+                    title="Responsable de IVA (19% Tarifa General Colombia)"
+                  >
+                    19%
+                  </button>
+                </div>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
+                  {(localRates.taxPercentage || 0) > 0
+                    ? 'Se discriminará el IVA en el ticket y en la factura electrónica.'
+                    : 'Tarifas netas sin discriminación de IVA (No Responsable).'}
+                </span>
+              </div>
+
+              {/* Multa general por pérdida de ticket y Moneda */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                  <span>Multa General Ticket Extraviado:</span>
+                  <span className="text-[10px] font-mono text-slate-400">{localRates.currencySymbol || '$'}</span>
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2 relative">
+                    <input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      value={localRates.lostTicketFee || 15000}
+                      onChange={(e) => setLocalRates(prev => ({ ...prev, lostTicketFee: Math.max(0, parseInt(e.target.value) || 0) }))}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-amber-500 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      maxLength={5}
+                      value={localRates.currencySymbol || '$'}
+                      onChange={(e) => setLocalRates(prev => ({ ...prev, currencySymbol: e.target.value || '$' }))}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-amber-500 rounded-xl px-2 py-2 text-xs font-mono font-bold text-center text-slate-900 dark:text-slate-100 outline-none"
+                      title="Símbolo de moneda (ej: $, COP)"
+                    />
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
+                  Valor base aplicado cuando el conductor extravía el ticket y no hay tarifa específica.
+                </span>
+              </div>
             </div>
           </div>
 
@@ -467,14 +724,28 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 </div>
               </div>
 
-              <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-center">
-                <span className="text-[11px] text-slate-600 dark:text-slate-400 uppercase font-bold">Cobro Calculado al Cliente</span>
-                <span className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                  {localRates.currencySymbol}{simulatedCost.toLocaleString()}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                  {calcMinutes <= (localRates[calcVehicle]?.gracePeriodMinutes ?? 15) ? 'Dentro de período de gracia (Gratis)' : 'Tarifado según política'}
-                </span>
+              <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex flex-col justify-center space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400 uppercase font-bold">Liquidación Estimada:</span>
+                  <span className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                    {formatCurrency(simulatedCalc.totalAmount, localRates.currencySymbol)}
+                  </span>
+                </div>
+                {localRates.taxPercentage > 0 && (
+                  <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400 pt-0.5 border-t border-slate-200 dark:border-slate-700">
+                    <span>Base: {formatCurrency(simulatedCalc.baseAmount, localRates.currencySymbol)}</span>
+                    <span>IVA ({localRates.taxPercentage}%): {formatCurrency(simulatedCalc.taxAmount, localRates.currencySymbol)}</span>
+                  </div>
+                )}
+                <div className="text-[10px] text-slate-600 dark:text-slate-300 font-medium">
+                  {simulatedCalc.isWithinGracePeriod ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓ {simulatedCalc.appliedRateDescription}</span>
+                  ) : (
+                    <span>
+                      {simulatedCalc.billableMinutes} min facturables ({simulatedCalc.formattedDuration}) • {simulatedCalc.appliedRateDescription}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -505,6 +776,320 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 />
                 <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Módulo FE Habilitado</span>
               </label>
+            </div>
+
+            {/* ======================================================== */}
+            {/* SELECTOR DE MODALIDAD DE EMISIÓN FISCAL (3 OPCIONES)    */}
+            {/* ======================================================== */}
+            <div>
+              <label className="block font-bold text-xs text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">
+                Modalidad de Emisión Fiscal:
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* Opción 1: Simulador Local */}
+                <div
+                  onClick={() => setLocalBusinessInfo(prev => ({ ...prev, dianEmissionMode: 'simulator' }))}
+                  className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    (localBusinessInfo.dianEmissionMode || 'simulator') === 'simulator'
+                      ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/20 shadow-xs ring-2 ring-amber-500/20'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="p-1.5 bg-amber-500/10 text-amber-600 rounded-lg">
+                      <Cpu className="w-4 h-4" />
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      (localBusinessInfo.dianEmissionMode || 'simulator') === 'simulator'
+                        ? 'bg-amber-500 text-slate-950 font-black'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                    }`}>
+                      {(localBusinessInfo.dianEmissionMode || 'simulator') === 'simulator' ? 'ACTIVO' : 'SELECCIONAR'}
+                    </span>
+                  </div>
+                  <div className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                    1. Simulador Local / Sandbox
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-snug">
+                    Cálculo matemático SHA-384 y QR oficial en modo demostración. Ideal para pruebas y capacitación sin gastar folios ni certificado.
+                  </p>
+                </div>
+
+                {/* Opción 2: Proveedor Tecnológico (API REST) */}
+                <div
+                  onClick={() => setLocalBusinessInfo(prev => ({ ...prev, dianEmissionMode: 'provider_api' }))}
+                  className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    localBusinessInfo.dianEmissionMode === 'provider_api'
+                      ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20 shadow-xs ring-2 ring-indigo-500/20'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="p-1.5 bg-indigo-500/10 text-indigo-600 rounded-lg">
+                      <Globe className="w-4 h-4" />
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      localBusinessInfo.dianEmissionMode === 'provider_api'
+                        ? 'bg-indigo-600 text-white font-black'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                    }`}>
+                      {localBusinessInfo.dianEmissionMode === 'provider_api' ? 'ACTIVO' : 'SELECCIONAR'}
+                    </span>
+                  </div>
+                  <div className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                    2. Proveedor Tecnológico (API)
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-snug">
+                    Conexión vía API REST con Factus, Dataico, The Factory HKA u otros. Emisión inmediata sin comprar certificado digital propio.
+                  </p>
+                </div>
+
+                {/* Opción 3: Software Propio Directo */}
+                <div
+                  onClick={() => setLocalBusinessInfo(prev => ({ ...prev, dianEmissionMode: 'direct_soap' }))}
+                  className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all ${
+                    localBusinessInfo.dianEmissionMode === 'direct_soap'
+                      ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-xs ring-2 ring-emerald-500/20'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="p-1.5 bg-emerald-500/10 text-emerald-600 rounded-lg">
+                      <Server className="w-4 h-4" />
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      localBusinessInfo.dianEmissionMode === 'direct_soap'
+                        ? 'bg-emerald-600 text-white font-black'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                    }`}>
+                      {localBusinessInfo.dianEmissionMode === 'direct_soap' ? 'ACTIVO' : 'SELECCIONAR'}
+                    </span>
+                  </div>
+                  <div className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                    3. Software Propio (Directo DIAN)
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-snug">
+                    Emisión UBL 2.1 directa ante la DIAN con Certificado Digital (.p12). Sin intermediarios ni costo recurrente por folio.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* PANEL CONDICIONAL SEGÚN LA MODALIDAD SELECCIONADA       */}
+            {/* ======================================================== */}
+            {localBusinessInfo.dianEmissionMode === 'provider_api' && (
+              <div className="p-4 bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-2xl space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                    <Globe className="w-4 h-4 text-indigo-600" />
+                    <span>Parámetros de Integración con Proveedor Tecnológico (API REST)</span>
+                  </span>
+                  <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 px-2 py-0.5 rounded font-mono font-bold">
+                    REST / JSON UBL 2.1
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Proveedor Autorizado
+                    </label>
+                    <select
+                      value={localBusinessInfo.dianProvider || 'factus'}
+                      onChange={(e) => {
+                        const prov = e.target.value as any;
+                        const defaultUrl = prov === 'dataico' 
+                          ? 'https://api.dataico.com/dataico_api/v2' 
+                          : prov === 'the_factory' 
+                          ? 'https://emision21.thefactoryhka.com.co/ws/v1' 
+                          : 'https://api.factus.com.co/v1';
+                        setLocalBusinessInfo(prev => ({ 
+                          ...prev, 
+                          dianProvider: prov,
+                          dianProviderApiUrl: defaultUrl 
+                        }));
+                      }}
+                      className="w-full bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100 outline-none"
+                    >
+                      <option value="factus">Factus (Colombia) - Recomendado POS</option>
+                      <option value="dataico">Dataico API</option>
+                      <option value="the_factory">The Factory HKA</option>
+                      <option value="generic">API REST Genérica</option>
+                    </select>
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      URL Endpoint del Proveedor
+                    </label>
+                    <input
+                      type="text"
+                      value={localBusinessInfo.dianProviderApiUrl || 'https://api.factus.com.co/v1'}
+                      onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianProviderApiUrl: e.target.value }))}
+                      placeholder="https://api.factus.com.co/v1"
+                      className="w-full bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      API Token / Clave Secreta
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showApiKey ? 'text' : 'password'}
+                        value={localBusinessInfo.dianProviderApiKey || ''}
+                        onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianProviderApiKey: e.target.value }))}
+                        placeholder="Pegue aquí el API Token entregado por su proveedor"
+                        className="w-full bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 rounded-xl px-3 py-2 pr-10 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Client ID / ID Empresa (Opcional)
+                    </label>
+                    <input
+                      type="text"
+                      value={localBusinessInfo.dianProviderClientId || ''}
+                      onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianProviderClientId: e.target.value }))}
+                      placeholder="Ej: cli_98234"
+                      className="w-full bg-white dark:bg-slate-900 border border-indigo-300 dark:border-indigo-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {localBusinessInfo.dianEmissionMode === 'direct_soap' && (
+              <div className="p-4 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-2xl space-y-3 animate-in fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200 flex items-center gap-1.5">
+                    <Server className="w-4 h-4 text-emerald-600" />
+                    <span>Emisión Directa ante la DIAN (Software Propio con Certificado Digital)</span>
+                  </span>
+                  <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded font-mono font-bold">
+                    SOAP / XMLDSig UBL 2.1
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                  {/* Subir Certificado .p12 */}
+                  <div className="sm:col-span-2">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Certificado Digital de Firma (.p12 / .pfx)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs cursor-pointer flex items-center gap-2 shadow-xs transition-colors">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{isUploadingCert ? 'Cargando certificado...' : 'Seleccionar Certificado (.p12)'}</span>
+                        <input
+                          type="file"
+                          accept=".p12,.pfx"
+                          onChange={handleCertificateUpload}
+                          className="hidden"
+                          disabled={isUploadingCert}
+                        />
+                      </label>
+                      <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+                        {localBusinessInfo.dianCertFileName ? (
+                          <span className="text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            {localBusinessInfo.dianCertFileName}
+                          </span>
+                        ) : (
+                          'Ningún certificado cargado'
+                        )}
+                      </span>
+                    </div>
+                    {certUploadSuccess && (
+                      <div className="mt-1.5 text-[11px] text-emerald-700 font-medium">
+                        ✓ {certUploadSuccess}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Contraseña del Certificado .p12
+                    </label>
+                    <input
+                      type="password"
+                      value={localBusinessInfo.dianCertPassword || ''}
+                      onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianCertPassword: e.target.value }))}
+                      placeholder="Contraseña del archivo .p12"
+                      className="w-full bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Software ID (Portal DIAN)
+                    </label>
+                    <input
+                      type="text"
+                      value={localBusinessInfo.dianSoftwareId || 'soft-wz-84920'}
+                      onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianSoftwareId: e.target.value }))}
+                      placeholder="ID expedido por la DIAN"
+                      className="w-full bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      PIN del Software
+                    </label>
+                    <input
+                      type="password"
+                      value={localBusinessInfo.dianSoftwarePin || '12345'}
+                      onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianSoftwarePin: e.target.value }))}
+                      placeholder="PIN DIAN de 5 dígitos"
+                      className="w-full bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      TestSetId (Set de Pruebas DIAN)
+                    </label>
+                    <input
+                      type="text"
+                      value={localBusinessInfo.dianTestSetId || ''}
+                      onChange={(e) => setLocalBusinessInfo(prev => ({ ...prev, dianTestSetId: e.target.value }))}
+                      placeholder="Código del set de pruebas"
+                      className="w-full bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(!localBusinessInfo.dianEmissionMode || localBusinessInfo.dianEmissionMode === 'simulator') && (
+              <div className="p-3.5 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-xl text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="leading-snug">
+                  <span className="font-bold block">Modo Simulador Autónomo Activo:</span>
+                  El sistema genera el CUFE criptográfico exacto (SHA-384) y el código QR de consulta tributaria para demostración y capacitación de cajeros sin necesidad de consumir folios comerciales ni conexión activa con el portal DIAN.
+                </div>
+              </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* PARÁMETROS FISCALES COMUNES (RESOLUCIÓN & RANGOS)       */}
+            {/* ======================================================== */}
+            <div>
+              <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
+                Parámetros de la Resolución DIAN:
+              </h4>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
@@ -601,6 +1186,107 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                   className="w-full bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
                 />
               </div>
+            </div>
+
+            {/* Interactive DIAN Diagnostic & Testing Suite */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-500" />
+                    <span>Diagnóstico de Conectividad & Simulación Fiscal</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Compruebe la comunicación con el proveedor/servidores DIAN y verifique el cálculo criptográfico del CUFE.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTestDianConnection}
+                    disabled={isTestingConnection}
+                    className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 font-bold text-xs transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                  >
+                    <Radio className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600" />
+                    <span>{isTestingConnection ? 'Comprobando red...' : 'Probar Conexión'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleTestDian}
+                    disabled={isTestingDian}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
+                  >
+                    <FileCheck className="w-3.5 h-3.5" />
+                    <span>{isTestingDian ? 'Calculando...' : 'Generar CUFE Demo'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Resultado de Prueba de Conexión */}
+              {dianConnectionTestResult && (
+                <div className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 animate-in fade-in ${
+                  dianConnectionTestResult.success
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                    : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+                }`}>
+                  {dianConnectionTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <span className="font-bold block">
+                      {dianConnectionTestResult.success ? 'Conectividad Verificada' : 'Diagnóstico de Conexión'}:
+                    </span>
+                    <span className="text-[11px] leading-tight">
+                      {dianConnectionTestResult.message}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {dianTestResult && (
+                <div className="p-3.5 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>Cálculo Criptográfico Exitoso • Factura {dianTestResult.invoiceNum}</span>
+                    </span>
+                    <span className="text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded">
+                      SHA-384 VÁLIDO
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <div className="bg-white p-2 rounded-xl shadow-xs border border-emerald-200 shrink-0">
+                      <DynamicQrCode value={dianTestResult.qrUrl} size={110} />
+                    </div>
+                    <div className="space-y-1.5 text-xs min-w-0 flex-1">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 block">
+                          CUFE Generado (Código Único):
+                        </span>
+                        <div className="font-mono text-[10px] text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900 p-2 rounded-lg border border-emerald-200 dark:border-emerald-800/60 break-all select-all font-semibold">
+                          {dianTestResult.cufe}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 block">
+                          URL de Consulta DIAN:
+                        </span>
+                        <a
+                          href={dianTestResult.qrUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-sky-600 dark:text-sky-400 hover:underline truncate block"
+                        >
+                          {dianTestResult.qrUrl}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="p-3.5 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 rounded-xl text-xs text-blue-950 dark:text-blue-200 flex items-start gap-3">

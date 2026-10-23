@@ -152,17 +152,21 @@ export interface SplitPaymentItem {
 }
 
 export interface PaymentTransactionDetails {
-  method: PaymentMethod;
-  methodLabel: string;
+  method?: PaymentMethod;
+  methodLabel?: string;
   subMethodId?: string; // id específico de billetera, QR o llave Bre-B
   subMethodName?: string; // nombre para mostrar de billetera, QR o llave Bre-B
   referenceNumber?: string; // voucher, autorización datáfono, ref transferencia
   cardType?: 'debit' | 'credit';
   cardTerminal?: string; // Redeban, Bold, Credibanco, etc.
+  cardBrand?: string;
   agreementName?: string; // Convenio comercial o entidad aliada
   walletAccountPhone?: string;
+  digitalWalletApproval?: string;
   breBKeyDetails?: string;
   bankAccountDetails?: string;
+  qrApprovalCode?: string;
+  transferBank?: string;
   isPsePayment?: boolean;
   psePaymentUrl?: string;
   accountDetails?: {
@@ -174,11 +178,19 @@ export interface PaymentTransactionDetails {
   customerDocument?: string;
   customerName?: string;
   notes?: string;
+  cardAuthCode?: string;
+  digitalWalletName?: string;
+  qrBankName?: string;
+  transferRef?: string;
+  breBKey?: string;
 
   // Facturación Electrónica DIAN
   isElectronicInvoice?: boolean;
   electronicInvoiceNumber?: string; // e.g. 'FE-01042'
   cufe?: string; // Código Único de Factura Electrónica
+  qrUrl?: string;
+  xmlUuid?: string;
+  trackId?: string;
   customerDocType?: 'CC' | 'NIT' | 'CE' | 'PASSPORT';
   customerEmail?: string;
   customerPhone?: string;
@@ -235,6 +247,31 @@ export interface PaymentGatewayConfig {
   generalPseQrUrl?: string; // QR PSE global o código unificado
 }
 
+export type AgreementDiscountType = 
+  | 'free_minutes'           // X minutos gratis (ej: 60 min, 120 min)
+  | 'percentage_discount'    // X% de descuento sobre el valor del tiempo (ej: 50%)
+  | 'fixed_discount'         // Descuento en pesos directo (ej: -$3.000 COP)
+  | 'flat_rate';             // Tarifa fija única (ej: $4.000 COP)
+
+export interface CommercialAgreement {
+  id: string;
+  code: string;                  // e.g. CONV-01
+  name: string;                  // e.g. "Gimnasio Bodytech"
+  businessName: string;          // e.g. "Bodytech S.A.S."
+  nit?: string;                  // e.g. "900.123.456-7"
+  phone?: string;
+  contactPerson?: string;
+  discountType: AgreementDiscountType;
+  discountValue: number;         // minutos si 'free_minutes', % si 'percentage_discount', $ COP si 'fixed_discount' o 'flat_rate'
+  applicableVehicleTypes?: ('all' | VehicleType)[];
+  requiresSealOrVoucher?: boolean; // Requiere que el cajero digite número de factura, sello o código de aprobación
+  sealPromptLabel?: string;      // e.g. "N° Factura de Compra" o "Código de Sello"
+  billingEntity?: 'customer_pays_balance' | 'ally_billed_monthly'; // Si el cliente paga el saldo o se factura al aliado
+  isActive: boolean;
+  notes?: string;
+  createdAt?: string;
+}
+
 export interface ParkingTicket {
   id: string;
   ticketNumber: string; // e.g. PK-2026-0012
@@ -276,11 +313,21 @@ export interface ParkingTicket {
   isForeignPlate?: boolean;
   originCountry?: string; // País de procedencia (ej. Venezuela, Ecuador, Panamá, USA, etc.)
 
+  // Convenio Comercial / Sello Aliado
+  commercialAgreementId?: string;
+  commercialAgreementName?: string;
+  commercialAgreementSealOrVoucher?: string;
+  commercialAgreementDiscountType?: AgreementDiscountType;
+
   electronicInvoice?: {
     cufe: string;
     invoiceNumber: string;
     prefix: string;
     resolutionNumber: string;
+    qrUrl?: string;
+    xmlUuid?: string;
+    trackId?: string;
+    status?: 'VALIDADA_DIAN' | 'RECHAZADA_DIAN' | 'PENDIENTE_TRANSMISION';
     customer?: {
       name: string;
       documentNumber: string;
@@ -339,6 +386,19 @@ export interface ParkingBusinessInfo {
 
   // Facturación Electrónica DIAN
   electronicInvoicingEnabled?: boolean;
+  dianEmissionMode?: 'simulator' | 'provider_api' | 'direct_soap';
+  // Proveedor Tecnológico (API REST)
+  dianProvider?: 'factus' | 'dataico' | 'the_factory' | 'generic';
+  dianProviderApiUrl?: string;
+  dianProviderApiKey?: string;
+  dianProviderClientId?: string;
+  // Software Propio (SOAP Directo con Certificado Digital .p12)
+  dianCertUploaded?: boolean;
+  dianCertFileName?: string;
+  dianCertPassword?: string;
+  dianSoftwarePin?: string;
+  dianTestSetId?: string;
+  // Parámetros Fiscales
   dianResolutionNumber?: string;
   dianPrefix?: string;
   dianFromNumber?: number;
@@ -348,6 +408,7 @@ export interface ParkingBusinessInfo {
   dianEnvironment?: 'hab' | 'prod';
   dianSoftwareId?: string;
   dianTechnicalKey?: string;
+  enableCommercialAgreements?: boolean;
 }
 
 export interface CashMovement {
@@ -360,6 +421,8 @@ export interface CashMovement {
   conceptId?: string;
   conceptName?: string;
   voucherNumber?: string;
+  paymentMethod?: PaymentMethod | string;
+  paymentReference?: string;
   attachmentUrl?: string;
   attachmentName?: string;
   attachmentType?: 'image' | 'pdf' | 'document';
@@ -579,6 +642,7 @@ export interface UserPermissions {
   // Configuración, Sucursales y Servidor Central
   canEditRates: boolean;                   // Modificar tarifas y costos por tiempo
   canManageVehicleCategories?: boolean;    // Crear y editar tipos/categorías de vehículos
+  canManageAgreements?: boolean;           // Crear y editar convenios comerciales y sellos de descuento
   canEditBusinessInfo?: boolean;           // Modificar datos de la empresa (NIT, nombre, pie de ticket)
   canConfigureDianInvoicing?: boolean;     // Modificar parámetros de Facturación Electrónica DIAN
   canManageDatabase: boolean;              // Gestionar BD local, backups y restauración

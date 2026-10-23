@@ -25,7 +25,12 @@ import {
   Phone,
   User,
   Radio,
-  ExternalLink
+  ExternalLink,
+  Server,
+  TrendingUp,
+  BarChart3,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { 
   BranchLocation, 
@@ -61,8 +66,11 @@ interface BranchesManagementModalProps {
   embedded?: boolean;
   onOpenSync?: () => void;
   onOpenUpdater?: () => void;
+  onOpenCentralHub?: (tab?: 'branches' | 'analytics' | 'global_version') => void;
+  onRefreshBranches?: () => Promise<void>;
   pendingCentralUpdatesCount?: number;
   softwareUpdateAvailable?: boolean;
+  onOpenWorkMode?: () => void;
 }
 
 export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = ({
@@ -77,7 +85,12 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   onConnectRemoteBranch,
   currentUser,
   embedded = false,
+  onOpenCentralHub,
+  onRefreshBranches,
+  onOpenWorkMode,
 }) => {
+  const [activeMainTab, setActiveMainTab] = useState<'branches' | 'consolidated'>('branches');
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCityFilter, setSelectedCityFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -369,6 +382,22 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
     }
   };
 
+  const handleManualRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    playSound('beep');
+    try {
+      if (onRefreshBranches) {
+        await onRefreshBranches();
+      }
+      playSound('success');
+    } catch {
+      // quiet fallback
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   if (!isOpen && !embedded) return null;
 
   return (
@@ -400,7 +429,23 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {onOpenCentralHub && (
+              <button
+                type="button"
+                id="btn-open-central-hub"
+                onClick={() => onOpenCentralHub('analytics')}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-sky-600 via-indigo-600 to-blue-700 hover:from-sky-500 hover:to-indigo-500 text-white shadow-md shadow-indigo-600/25 active:scale-98 transition-all cursor-pointer border border-sky-300/30"
+                title="Abrir Servidor Central / Hub Matriz para ver Consolidado Contable Nacional"
+              >
+                <Server className="w-4 h-4 text-sky-200" />
+                <span>Servidor Central / Hub Matriz</span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] bg-white/20 text-white font-mono font-bold">
+                  Consolidado
+                </span>
+              </button>
+            )}
+
             <button
               type="button"
               id="btn-quick-new-branch"
@@ -419,6 +464,89 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                 title="Cerrar módulo"
               >
                 <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Selector de Pestañas: Sedes & Red Física vs Consolidado Contable Nacional */}
+        <div className="px-6 py-2.5 bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              id="tab-branches-physical"
+              onClick={() => setActiveMainTab('branches')}
+              className={`px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all cursor-pointer ${
+                activeMainTab === 'branches'
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Sedes & Red Física</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                activeMainTab === 'branches' ? 'bg-white/25 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+              }`}>
+                {branches.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              id="tab-branches-consolidated"
+              onClick={() => setActiveMainTab('consolidated')}
+              className={`px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all cursor-pointer ${
+                activeMainTab === 'consolidated'
+                  ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 text-sky-400" />
+              <span>Consolidado Contable</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                activeMainTab === 'consolidated' ? 'bg-white/25 text-white' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400'
+              }`}>
+                Nacional
+              </span>
+            </button>
+
+            {onRefreshBranches && (
+              <button
+                type="button"
+                id="btn-refresh-branches-telemetry"
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                title="Sincronizar telemetría y consolidado en vivo con el Servidor Central"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-sky-600 dark:text-sky-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span>{isRefreshing ? 'Sincronizando...' : 'Refrescar'}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap text-xs">
+            {onOpenWorkMode && (
+              <button
+                type="button"
+                onClick={onOpenWorkMode}
+                className="text-xs font-bold text-amber-700 hover:text-amber-600 dark:text-amber-300 flex items-center gap-1.5 cursor-pointer bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-lg border border-amber-300 dark:border-amber-800 transition-colors"
+                title="Configurar el rol de este equipo (Servidor Central, Sucursal o Taquilla POS)"
+              >
+                <Sliders className="w-3.5 h-3.5 text-amber-500" />
+                <span>Modo Servidor / Nodo</span>
+              </button>
+            )}
+
+            {onOpenCentralHub && (
+              <button
+                type="button"
+                onClick={() => onOpenCentralHub('analytics')}
+                className="text-xs font-bold text-sky-600 hover:text-sky-500 dark:text-sky-400 flex items-center gap-1.5 hover:underline cursor-pointer bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-lg border border-sky-200 dark:border-sky-800"
+              >
+                <Server className="w-3.5 h-3.5" />
+                <span>Abrir Servidor Central / Hub Matriz</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -483,8 +611,11 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
           </div>
         </div>
 
-        {/* Barra de Filtros y Búsqueda */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* VISTA 1: LISTADO DE SEDES Y RED FÍSICA */}
+        {activeMainTab === 'branches' && (
+          <>
+            {/* Barra de Filtros y Búsqueda */}
+            <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="relative flex-1 min-w-[240px]">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -932,6 +1063,210 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
             </div>
           )}
         </div>
+      </>
+    )}
+
+    {/* VISTA 2: CONSOLIDADO CONTABLE NACIONAL */}
+    {activeMainTab === 'consolidated' && (
+      <div className="flex-1 p-5 overflow-y-auto space-y-6 bg-slate-50/50 dark:bg-slate-950/40">
+        {/* Hero Banner Consolidado */}
+        <div className="bg-gradient-to-r from-sky-900 via-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-mono text-sky-200 mb-2 border border-white/10">
+                <BarChart3 className="w-3.5 h-3.5 text-sky-300" />
+                <span>Consolidado Contable & Financiero Nacional</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                Balance en Tiempo Real de Todas las Sucursales
+              </h3>
+              <p className="text-xs text-sky-200/80 max-w-2xl mt-1">
+                Métricas acumuladas de la jornada operativa recibidas desde cada nodo de sede física. Datos sincronizados con el Servidor Central matriz.
+              </p>
+            </div>
+
+            {onOpenCentralHub && (
+              <button
+                type="button"
+                id="btn-goto-central-hub-analytics"
+                onClick={() => onOpenCentralHub('analytics')}
+                className="px-4 py-2.5 rounded-xl font-black text-xs bg-white text-indigo-950 hover:bg-sky-50 shadow-lg shadow-black/20 flex items-center gap-2 shrink-0 transition-transform active:scale-95 cursor-pointer"
+              >
+                <Server className="w-4 h-4 text-sky-600" />
+                <span>Abrir Hub Matriz Completo</span>
+                <ArrowRight className="w-4 h-4 text-sky-600" />
+              </button>
+            )}
+          </div>
+
+          {/* Métricas destacadas */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
+            <div>
+              <span className="text-[11px] text-sky-200/70 block uppercase font-mono font-semibold">Recaudo Total Red</span>
+              <span className="text-xl sm:text-2xl font-black text-emerald-300 font-mono mt-0.5 block">
+                {formatCurrency(totalRevenue)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[11px] text-sky-200/70 block uppercase font-mono font-semibold">Vehículos Totales</span>
+              <span className="text-xl sm:text-2xl font-black text-white font-mono mt-0.5 block">
+                {branches.reduce((sum, b) => sum + (b.todayVehicles || 0), 0)}
+              </span>
+            </div>
+            <div>
+              <span className="text-[11px] text-sky-200/70 block uppercase font-mono font-semibold">Ocupación Nacional</span>
+              <span className="text-xl sm:text-2xl font-black text-sky-300 font-mono mt-0.5 block">
+                {totalSpots > 0 ? Math.round((totalOccupiedSpots / totalSpots) * 100) : 0}%
+              </span>
+            </div>
+            <div>
+              <span className="text-[11px] text-sky-200/70 block uppercase font-mono font-semibold">Sedes Conectadas</span>
+              <span className="text-xl sm:text-2xl font-black text-white font-mono mt-0.5 block">
+                {onlineBranches} <span className="text-sm font-normal text-sky-300">/ {totalBranches}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabla de Consolidado Financiero por Sucursal */}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2 bg-slate-50/50 dark:bg-slate-950/50">
+            <div>
+              <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                <span>Cierres y Recaudos en Tiempo Real por Sucursal</span>
+              </h4>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Detalle financiero de ingresos y flujo vehicular de cada punto de venta
+              </p>
+            </div>
+            <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+              {branches.length} Sedes Monitoreadas
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+              <thead className="bg-slate-100/70 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200 uppercase font-mono text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th className="py-3 px-4">Sede / Código</th>
+                  <th className="py-3 px-4">Ciudad</th>
+                  <th className="py-3 px-4 text-center">Estado Red</th>
+                  <th className="py-3 px-4 text-right">Ocupación Plazas</th>
+                  <th className="py-3 px-4 text-right">Vehículos Hoy</th>
+                  <th className="py-3 px-4 text-right">Recaudo Hoy</th>
+                  <th className="py-3 px-4 text-right">% Cuota</th>
+                  <th className="py-3 px-4 text-center">Cajero / Turno</th>
+                  <th className="py-3 px-4 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
+                {branches.map(branch => {
+                  const occPct = branch.totalSpots > 0 ? Math.round((branch.occupiedSpots / branch.totalSpots) * 100) : 0;
+                  const sharePct = totalRevenue > 0 ? Math.round((branch.todayRevenue / totalRevenue) * 100) : 0;
+
+                  return (
+                    <tr key={branch.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-slate-900 dark:text-white font-sans">{branch.name}</div>
+                        <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-bold">{branch.code}</div>
+                      </td>
+                      <td className="py-3 px-4 font-sans text-slate-600 dark:text-slate-400">{branch.city}</td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          branch.status === 'online'
+                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                            : 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${branch.status === 'online' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                          {branch.status === 'online' ? 'EN LÍNEA' : 'OFFLINE'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <div className="font-bold">{branch.occupiedSpots} / {branch.totalSpots}</div>
+                        <div className="w-20 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full ml-auto mt-1 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${
+                              occPct > 85 ? 'bg-rose-500' : occPct > 60 ? 'bg-amber-500' : 'bg-emerald-500'
+                            }`}
+                            style={{ width: `${Math.min(occPct, 100)}%` }}
+                          />
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-right font-bold">
+                        {branch.todayVehicles || 0}
+                      </td>
+                      <td className="py-3 px-4 text-right font-black text-emerald-600 dark:text-emerald-400 text-sm">
+                        {formatCurrency(branch.todayRevenue || 0)}
+                      </td>
+                      <td className="py-3 px-4 text-right font-bold text-slate-500 dark:text-slate-400">
+                        {sharePct}%
+                      </td>
+                      <td className="py-3 px-4 text-center font-sans text-[11px]">
+                        <span className="font-bold text-slate-800 dark:text-slate-200">{branch.currentCashier || 'Administrador'}</span>
+                        <div className="text-[10px] text-slate-400 font-mono">Turno #{branch.activeShiftNumber || 1}</div>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {onConnectRemoteBranch && (
+                          <button
+                            type="button"
+                            onClick={() => onConnectRemoteBranch(branch, 'desktop')}
+                            className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer"
+                            title="Acceso remoto FarmaDesk"
+                          >
+                            FarmaDesk
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot className="bg-slate-100/90 dark:bg-slate-800/90 font-mono font-bold text-slate-900 dark:text-white border-t-2 border-slate-300 dark:border-slate-700">
+                <tr>
+                  <td className="py-3 px-4" colSpan={3}>TOTAL NACIONAL CONSOLIDADO</td>
+                  <td className="py-3 px-4 text-right">{totalOccupiedSpots} / {totalSpots}</td>
+                  <td className="py-3 px-4 text-right">{branches.reduce((sum, b) => sum + (b.todayVehicles || 0), 0)}</td>
+                  <td className="py-3 px-4 text-right text-emerald-600 dark:text-emerald-400 text-sm font-black">
+                    {formatCurrency(totalRevenue)}
+                  </td>
+                  <td className="py-3 px-4 text-right">100%</td>
+                  <td className="py-3 px-4 text-center" colSpan={2}>-</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        {/* Tarjeta de Acceso Completo al Servidor Central */}
+        {onOpenCentralHub && (
+          <div className="bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-950/30 dark:to-indigo-950/30 border border-sky-200 dark:border-sky-800/60 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Server className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-black text-slate-900 dark:text-white">
+                  Consola Integral del Servidor Central / Hub Matriz
+                </h4>
+                <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                  Accede a las 8 consolas del servidor: Distribución de Tarifas Globales, Actualizaciones OTA de Software, Matriz de Dominios de Sincronización y Auditoría Telemetría.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onOpenCentralHub('analytics')}
+              className="px-5 py-2.5 rounded-xl font-black text-xs bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 flex items-center gap-2 shrink-0 transition-transform active:scale-95 cursor-pointer whitespace-nowrap"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span>Abrir Consolidado en Hub Matriz</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    )}
 
         {/* ============================================================== */}
         {/* MODAL SECUNDARIO: CREAR / EDITAR SUCURSAL                     */}

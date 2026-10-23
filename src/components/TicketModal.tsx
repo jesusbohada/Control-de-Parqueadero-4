@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Printer, X, CheckCircle2, QrCode, Car, Bike, Truck, Shield, FileCheck } from 'lucide-react';
 import { ParkingTicket, ParkingBusinessInfo, RatesConfig, PaymentMethod, VehicleCategoryConfig } from '../types';
-import { formatCurrency } from '../utils/billing';
+import { formatCurrency, getVehicleRate } from '../utils/billing';
 import { getPaymentMethodMeta, formatPaymentDetailsSummary } from '../utils/paymentUtils';
 import { DynamicQrCode } from './DynamicQrCode';
 import { DynamicBarcode } from './DynamicBarcode';
-import html2canvas from 'html2canvas-pro';
 import { printInstantThermal } from '../services/printerService';
 
 interface TicketModalProps {
@@ -55,74 +54,58 @@ export const TicketModal: React.FC<TicketModalProps> = ({
   });
 
   const handlePrint = async () => {
-    if (businessInfo.silentBackgroundPrint !== false) {
-      setIsEscPosPrinting(true);
-      setEscPosStatus('🖨️ Capturando ticket de pantalla...');
-      try {
-        const el = document.getElementById('printable-ticket');
-        let imageBase64: string | undefined;
-        if (el) {
-          const fullHeight = el.scrollHeight || el.offsetHeight;
-          const canvas = await html2canvas(el, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            height: fullHeight,
-            windowHeight: fullHeight + 200,
-            scrollY: 0,
-            scrollX: 0,
-            onclone: (clonedDoc) => {
-              const clonedEl = clonedDoc.getElementById('printable-ticket');
-              if (clonedEl) {
-                clonedEl.style.height = 'auto';
-                clonedEl.style.maxHeight = 'none';
-                clonedEl.style.overflow = 'visible';
-                let parent = clonedEl.parentElement;
-                while (parent) {
-                  parent.style.height = 'auto';
-                  parent.style.maxHeight = 'none';
-                  parent.style.overflow = 'visible';
-                  parent = parent.parentElement;
-                }
-              }
-            }
-          });
-          imageBase64 = canvas.toDataURL('image/png');
-        }
+    setIsEscPosPrinting(true);
+    setEscPosStatus('🖨️ Enviando a impresora térmica...');
+    try {
+      const targetPrinter = businessInfo.defaultPrinterName && businessInfo.defaultPrinterName !== 'POS-80'
+        ? businessInfo.defaultPrinterName
+        : undefined;
 
-        setEscPosStatus('Enviando al spooler de impresora física...');
-        const res = await printInstantThermal({
-          type: mode === 'entry' ? 'entry_ticket' : 'exit_receipt',
-          ticket,
-          businessInfo,
-          rates,
-          imageBase64,
-          paperWidth,
-          autoCut: businessInfo.cutPaperOnPrint ?? true,
-          openDrawer: mode === 'exit' && (ticket.paymentMethod === 'cash' || ticket.paymentMethod === 'mixed' || !ticket.paymentMethod) && (businessInfo.openCashDrawerOnCashPayment ?? true)
-        });
+      const res = await printInstantThermal({
+        type: mode === 'entry' ? 'entry_ticket' : 'exit_receipt',
+        ticket,
+        businessInfo,
+        rates,
+        targetPrinterName: targetPrinter,
+        paperWidth,
+        autoCut: businessInfo.cutPaperOnPrint ?? true,
+        openDrawer: mode === 'exit' && (ticket.paymentMethod === 'cash' || ticket.paymentMethod === 'mixed' || !ticket.paymentMethod) && (businessInfo.openCashDrawerOnCashPayment ?? true)
+      });
 
-        if (res.success) {
-          setEscPosStatus(`✅ Impreso exitosamente en ${res.printerName}`);
-          setTimeout(() => {
-            onClose();
-          }, 1000);
-          return;
-        } else {
-          setEscPosStatus('⚠️ Falló spooler, abriendo diálogo...');
-        }
-      } catch (err: any) {
-        console.warn('[TicketModal] Error en captura gráfica o spooler:', err);
-      } finally {
-        setIsEscPosPrinting(false);
+      if (res.success) {
+        setEscPosStatus(`✅ Impreso exitosamente en ${res.printerName}`);
+        setTimeout(() => {
+          onClose();
+        }, 1200);
+        return;
+      } else {
+        setEscPosStatus('⚠️ Falló spooler térmico, abriendo diálogo...');
+        window.print();
       }
+    } catch (err: any) {
+      console.warn('[TicketModal] Error en impresión térmica:', err);
+      window.print();
+    } finally {
+      setIsEscPosPrinting(false);
     }
-    window.print();
   };
 
   const handlePrintEscPos = async () => {
     await handlePrint();
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        e.stopPropagation();
+        handlePrint();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, ticket, mode, paperWidth, businessInfo, rates]);
 
   const getVehicleLabel = (type: string) => {
     const custom = vehicleCategories?.find(c => c.id === type);
@@ -427,27 +410,49 @@ export const TicketModal: React.FC<TicketModalProps> = ({
                   )}
                 </div>
 
-                {/* CUFE for Electronic Invoicing */}
+                {/* QR Tributario DIAN & CUFE for Electronic Invoicing */}
                 {ticket.electronicInvoice && (
-                  <div className="mt-2 pt-2 border-t border-dashed border-slate-300 text-[8px] text-slate-600 dark:text-slate-300 break-all space-y-0.5">
-                    <div className="font-bold uppercase text-slate-700 dark:text-slate-200">CUFE (Código Único Factura Electrónica):</div>
-                    <div className="font-mono leading-none">{ticket.electronicInvoice.cufe}</div>
+                  <div className="mt-2 pt-2 border-t border-dashed border-slate-300 text-center space-y-1.5">
+                    <div className="flex justify-center py-1">
+                      <div className="p-1.5 bg-white rounded border border-slate-200 inline-block shadow-2xs">
+                        <DynamicQrCode
+                          value={ticket.electronicInvoice.qrUrl || `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${ticket.electronicInvoice.cufe}`}
+                          size={paperWidth === '58mm' ? 100 : 120}
+                          alt="QR DIAN"
+                        />
+                      </div>
+                    </div>
+                    <div className="text-[9px] font-bold uppercase tracking-wider text-slate-800">
+                      Código QR Tributario DIAN
+                    </div>
+                    <div className="text-[8px] text-slate-500">
+                      Consulte la validez fiscal escaneando con la app DIAN
+                    </div>
+                    <div className="text-[8px] text-slate-600 break-all text-left bg-slate-50 p-1.5 rounded border border-slate-200">
+                      <span className="font-bold text-slate-800">CUFE: </span>
+                      <span className="font-mono">{ticket.electronicInvoice.cufe}</span>
+                    </div>
                   </div>
                 )}
               </div>
             ) : (
               /* Entry Rates Summary for customer reference */
-              <div className="py-2.5 border-b border-dashed border-slate-400 text-[10px] text-slate-600 dark:text-slate-300 space-y-1">
-                <div className="font-bold uppercase text-slate-800 dark:text-slate-200">Tarifas Vigentes:</div>
-                <div className="flex justify-between">
-                  <span>Hora {getVehicleLabel(ticket.vehicleType)}:</span>
-                  <span className="font-bold">{formatCurrency(rates[ticket.vehicleType]?.hourRate || 0, rates.currencySymbol)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Minutos de gracia:</span>
-                  <span>{rates[ticket.vehicleType]?.gracePeriodMinutes || 0} minutos</span>
-                </div>
-              </div>
+              (() => {
+                const vRate = getVehicleRate(ticket.vehicleType, rates, vehicleCategories);
+                return (
+                  <div className="py-2.5 border-b border-dashed border-slate-400 text-[10px] text-slate-600 dark:text-slate-300 space-y-1">
+                    <div className="font-bold uppercase text-slate-800 dark:text-slate-200">Tarifas Vigentes:</div>
+                    <div className="flex justify-between">
+                      <span>Hora {getVehicleLabel(ticket.vehicleType)}:</span>
+                      <span className="font-bold">{formatCurrency(vRate.hourRate, rates.currencySymbol)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Minutos de gracia:</span>
+                      <span>{vRate.gracePeriodMinutes || 0} minutos</span>
+                    </div>
+                  </div>
+                );
+              })()
             )}
 
             {/* Código de Barras 1D Code 128 de Alta Precisión para Lectores Ópticos / Pistolas Láser */}

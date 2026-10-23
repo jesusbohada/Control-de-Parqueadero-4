@@ -23,7 +23,6 @@ import {
 import { PrinterConfig, ParkingBusinessInfo } from '../types';
 import { DynamicBarcode } from './DynamicBarcode';
 import { DynamicQrCode } from './DynamicQrCode';
-import html2canvas from 'html2canvas-pro';
 import { fetchSystemPrinters, printInstantThermal, openCashDrawer, SystemPrinterInfo } from '../services/printerService';
 
 interface PrinterSettingsModalProps {
@@ -188,41 +187,6 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
     const printerName = activePrinter?.printerName || activePrinter?.name || 'POS-80';
 
     try {
-      let imageBase64: string | undefined;
-      const previewEl = document.getElementById('printable-ticket');
-      if (previewEl) {
-        try {
-          const fullHeight = previewEl.scrollHeight || previewEl.offsetHeight;
-          const canvas = await html2canvas(previewEl, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            height: fullHeight,
-            windowHeight: fullHeight + 200,
-            scrollY: 0,
-            scrollX: 0,
-            onclone: (clonedDoc) => {
-              const clonedEl = clonedDoc.getElementById('printable-ticket');
-              if (clonedEl) {
-                clonedEl.style.height = 'auto';
-                clonedEl.style.maxHeight = 'none';
-                clonedEl.style.overflow = 'visible';
-                let parent = clonedEl.parentElement;
-                while (parent) {
-                  parent.style.height = 'auto';
-                  parent.style.maxHeight = 'none';
-                  parent.style.overflow = 'visible';
-                  parent = parent.parentElement;
-                }
-              }
-            }
-          });
-          imageBase64 = canvas.toDataURL('image/png');
-        } catch (err) {
-          console.warn('[PrinterSettingsModal] Error capturando canvas de prueba:', err);
-        }
-      }
-
       const dummyTicket = {
         id: 'tkt_test_sample',
         ticketNumber: 'PK-9999',
@@ -252,7 +216,6 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
           openCashDrawerOnCashPayment: localOpenDrawer,
           ticketFooter: localFooterText
         },
-        imageBase64,
         targetPrinterName: printerName,
         paperWidth: testPaperWidth,
         autoCut: localCutPaper,

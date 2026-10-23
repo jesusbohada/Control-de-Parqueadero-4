@@ -102,116 +102,115 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
   lines.push(sep);
 
   if (type === 'entry_ticket' && ticket) {
-    lines.push(boxDoubleBorder);
-    lines.push(boxCenter(businessInfo.name || 'SISTEMA DE PARQUEADERO'));
-    if (businessInfo.nit) lines.push(boxCenter(`NIT: ${businessInfo.nit}`));
-    if (businessInfo.address) lines.push(boxCenter(businessInfo.address));
-    if (businessInfo.phone) lines.push(boxCenter(`TEL: ${businessInfo.phone}`));
-    lines.push(boxBorder);
-    lines.push(boxCenter('*** TICKET DE INGRESO ***'));
-    lines.push(boxCenter(`NRO: ${ticket.ticketNumber || ticket.barcode || 'N/A'}`));
-    lines.push(boxDoubleBorder);
-    lines.push(boxCenter('PLACA VEHICULO:'));
-    lines.push(boxCenter(`[ ${ticket.plate} ]`));
-    lines.push(boxBorder);
-    lines.push(boxRow('CATEGORIA:', (ticket.vehicleType || '').toUpperCase()));
-    lines.push(boxRow('PLAZA ASIGNADA:', ticket.spotCode || 'PATIO GENERAL'));
-    lines.push(boxRow('FECHA/HORA:', new Date(ticket.entryTime || Date.now()).toLocaleString('es-CO')));
+    lines.push(center('*** TICKET DE INGRESO ***'));
+    lines.push(center(`NRO: ${ticket.ticketNumber || ticket.barcode || 'N/A'}`));
+    lines.push(sep);
+    lines.push(center('PLACA VEHICULO:'));
+    lines.push(center(`*** [ ${ticket.plate} ] ***`));
+    lines.push(thinSep);
+    lines.push(row('CATEGORIA:', (ticket.vehicleType || '').toUpperCase()));
+    lines.push(row('PLAZA ASIGNADA:', ticket.spotCode || 'PATIO GENERAL'));
+    lines.push(row('FECHA/HORA:', new Date(ticket.entryTime || Date.now()).toLocaleString('es-CO')));
     if (ticket.isForeignPlate && ticket.originCountry) {
-      lines.push(boxRow('PROCEDENCIA:', ticket.originCountry.toUpperCase()));
+      lines.push(row('PROCEDENCIA:', ticket.originCountry.toUpperCase()));
     }
     if (ticket.cashierName) {
-      lines.push(boxRow('REGISTRADO POR:', ticket.cashierName));
+      lines.push(row('REGISTRADO POR:', ticket.cashierName));
     }
-    lines.push(boxBorder);
-    lines.push(boxCenter(`CODIGO BARRAS: ${ticket.ticketNumber || ticket.barcode || ''}`));
-    lines.push(boxCenter(`AUDIT HASH: ${(ticket.id || '').substring(0, 10)}`));
-    lines.push(boxDoubleBorder);
-    lines.push(boxCenter(businessInfo.ticketFooter || 'Conserve este ticket para retirar su vehiculo.'));
+    lines.push(thinSep);
+    lines.push(center(`CODIGO BARRAS: ${ticket.ticketNumber || ticket.barcode || ''}`));
+    lines.push(center(`AUDIT HASH: ${(ticket.id || '').substring(0, 10)}`));
+    lines.push(thinSep);
+    lines.push(center(businessInfo.ticketFooter || 'Conserve este ticket para retirar su vehiculo.'));
   } else if (type === 'exit_receipt' && ticket) {
     const isSub = !!(ticket as any).subscriberInfo || ticket.ticketNumber?.startsWith('SUB-');
     const sub = (ticket as any).subscriberInfo || {};
 
     if (isSub) {
-      lines.push(boxDoubleBorder);
-      lines.push(boxCenter(businessInfo.name || 'SISTEMA DE PARQUEADERO'));
-      if (businessInfo.nit) lines.push(boxCenter(`NIT: ${businessInfo.nit}`));
-      if (businessInfo.address) lines.push(boxCenter(businessInfo.address));
-      lines.push(boxBorder);
-      lines.push(boxCenter('*** COMPROBANTE DE MENSUALIDAD ***'));
-      lines.push(boxCenter('SUSCRIPCION DE ABONADO'));
-      lines.push(boxCenter(`NRO ABONO: ${ticket.ticketNumber || 'N/A'}`));
-      lines.push(boxDoubleBorder);
-      lines.push(boxCenter(`PLACA: [ ${ticket.plate} ]`));
+      lines.push(center('*** COMPROBANTE DE MENSUALIDAD ***'));
+      lines.push(center('SUSCRIPCION DE ABONADO'));
+      lines.push(center(`NRO ABONO: ${ticket.ticketNumber || 'N/A'}`));
+      lines.push(sep);
+      lines.push(center(`PLACA: [ ${ticket.plate} ]`));
       if (sub.vehicleCategoryName || ticket.vehicleType) {
-        lines.push(boxRow('CATEGORIA:', (sub.vehicleCategoryName || ticket.vehicleType).toUpperCase()));
+        lines.push(row('CATEGORIA:', (sub.vehicleCategoryName || ticket.vehicleType).toUpperCase()));
       }
-      lines.push(boxRow('TITULAR:', (sub.fullName || 'Abonado').toUpperCase()));
-      if (sub.documentId) lines.push(boxRow('DOCUMENTO:', sub.documentId));
-      if (sub.phone) lines.push(boxRow('TELEFONO:', sub.phone));
-      lines.push(boxRow('PLAZA ASIGNADA:', sub.assignedSpotCode || ticket.spotCode || 'PATIO GENERAL'));
-      lines.push(boxBorder);
-      lines.push(boxCenter('PERIODO DE COBERTURA (30 DIAS):'));
-      lines.push(boxCenter(`${sub.startDate || ticket.entryTime} AL ${sub.endDate || ticket.exitTime}`));
-      lines.push(boxDoubleBorder);
-      lines.push(boxRow('VALOR MENSUAL:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
-      lines.push(boxRow('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
-      lines.push(boxDoubleBorder);
-      lines.push(boxRow('MEDIO DE PAGO:', (sub.paymentMethodDisplay || ticket.paymentMethod || 'Efectivo').toUpperCase()));
+      lines.push(row('TITULAR:', (sub.fullName || 'Abonado').toUpperCase()));
+      if (sub.documentId) lines.push(row('DOCUMENTO:', sub.documentId));
+      if (sub.phone) lines.push(row('TELEFONO:', sub.phone));
+      lines.push(row('PLAZA ASIGNADA:', sub.assignedSpotCode || ticket.spotCode || 'PATIO GENERAL'));
+      lines.push(thinSep);
+      lines.push(center('PERIODO DE COBERTURA (30 DIAS):'));
+      lines.push(center(`${sub.startDate || ticket.entryTime} AL ${sub.endDate || ticket.exitTime}`));
+      lines.push(sep);
+      lines.push(row('VALOR MENSUAL:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
+      lines.push(row('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
+      lines.push(sep);
+      lines.push(row('MEDIO DE PAGO:', (sub.paymentMethodDisplay || ticket.paymentMethod || 'Efectivo').toUpperCase()));
       if (sub.voucherNumber) {
-        lines.push(boxRow('DOC / VOUCHER:', `#${sub.voucherNumber}`));
+        lines.push(row('DOC / VOUCHER:', `#${sub.voucherNumber}`));
       }
       if (sub.paymentReference) {
-        lines.push(boxRow('SOPORTE:', sub.paymentReference));
+        lines.push(row('SOPORTE:', sub.paymentReference));
       }
-      lines.push(boxBorder);
+      lines.push(thinSep);
       if (businessInfo.ticketFooter) {
         businessInfo.ticketFooter.split('\n').forEach((line: string) => {
-          if (line.trim()) lines.push(boxCenter(line.trim()));
+          if (line.trim()) lines.push(center(line.trim()));
         });
       }
-      lines.push(boxCenter('¡GRACIAS POR SU PREFERENCIA!'));
-      lines.push(boxDoubleBorder);
+      lines.push(center('¡GRACIAS POR SU PREFERENCIA!'));
     } else {
-      lines.push(boxDoubleBorder);
-      lines.push(boxCenter(businessInfo.name || 'SISTEMA DE PARQUEADERO'));
-      if (businessInfo.nit) lines.push(boxCenter(`NIT: ${businessInfo.nit}`));
-      if (businessInfo.address) lines.push(boxCenter(businessInfo.address));
-      lines.push(boxBorder);
-      lines.push(boxCenter('COMPROBANTE DE SALIDA / FACTURA POS'));
-      lines.push(boxCenter(`TICKET NRO: ${ticket.ticketNumber || 'N/A'}`));
+      lines.push(center(ticket.electronicInvoice ? '*** FACTURA ELECTRONICA DE VENTA ***' : 'COMPROBANTE DE SALIDA / FACTURA POS'));
+      lines.push(center(`TICKET NRO: ${ticket.ticketNumber || 'N/A'}`));
       if (ticket.electronicInvoice?.invoiceNumber) {
-        lines.push(boxCenter(`FACTURA ELECTRONICA: ${ticket.electronicInvoice.prefix}-${ticket.electronicInvoice.invoiceNumber}`));
+        lines.push(center(`FACTURA ELECTRONICA: ${ticket.electronicInvoice.prefix}${ticket.electronicInvoice.invoiceNumber}`));
         if (ticket.electronicInvoice.resolutionNumber) {
-          lines.push(boxCenter(`RES. DIAN: ${ticket.electronicInvoice.resolutionNumber}`));
+          lines.push(center(`RES. DIAN: ${ticket.electronicInvoice.resolutionNumber}`));
         }
       }
-      lines.push(boxDoubleBorder);
-      lines.push(boxCenter(`PLACA: [ ${ticket.plate} ]`));
-      lines.push(boxBorder);
-      lines.push(boxRow('INGRESO:', new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
-      lines.push(boxRow('SALIDA:', new Date(ticket.exitTime || Date.now()).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
-      lines.push(boxRow('TIEMPO TOTAL:', `${ticket.totalMinutes || 0} min`));
-      lines.push(boxBorder);
-      lines.push(boxRow('SUBTOTAL:', `$ ${(ticket.baseAmount || 0).toLocaleString('es-CO')}`));
-      if (ticket.taxAmount) lines.push(boxRow('IVA / IMPUESTO:', `$ ${ticket.taxAmount.toLocaleString('es-CO')}`));
-      if (ticket.discountAmount) lines.push(boxRow('DESCUENTO:', `-$ ${ticket.discountAmount.toLocaleString('es-CO')}`));
-      lines.push(boxDoubleBorder);
-      lines.push(boxRow('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
-      lines.push(boxDoubleBorder);
-      lines.push(boxRow('MEDIO DE PAGO:', (ticket.paymentMethod || 'Efectivo').toUpperCase()));
-      if (ticket.cashReceived) lines.push(boxRow('EFECTIVO RECIBIDO:', `$ ${ticket.cashReceived.toLocaleString('es-CO')}`));
-      if (ticket.changeGiven) lines.push(boxRow('CAMBIO DEVUELTO:', `$ ${ticket.changeGiven.toLocaleString('es-CO')}`));
-      if (ticket.electronicInvoice?.cufe) {
-        lines.push(boxBorder);
-        lines.push(boxCenter('CUFE DIAN:'));
-        lines.push(boxCenter(ticket.electronicInvoice.cufe.substring(0, 32) + '...'));
+      if (ticket.electronicInvoice?.customer) {
+        lines.push(thinSep);
+        lines.push(center('-- DATOS ADQUIRENTE / CLIENTE --'));
+        if (ticket.electronicInvoice.customer.name) {
+          lines.push(row('CLIENTE:', ticket.electronicInvoice.customer.name.substring(0, width - 10)));
+        }
+        lines.push(row(`${ticket.electronicInvoice.customer.docType || 'NIT/CC'}:`, ticket.electronicInvoice.customer.documentNumber || '222222222222'));
+        if (ticket.electronicInvoice.customer.email) {
+          lines.push(row('EMAIL:', ticket.electronicInvoice.customer.email.substring(0, width - 8)));
+        }
       }
-      lines.push(boxBorder);
-      lines.push(boxCenter('¡GRACIAS POR SU VISITA!'));
-      lines.push(boxDoubleBorder);
+      lines.push(sep);
+      lines.push(center(`PLACA: [ ${ticket.plate} ]`));
+      lines.push(thinSep);
+      lines.push(row('INGRESO:', new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
+      lines.push(row('SALIDA:', new Date(ticket.exitTime || Date.now()).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })));
+      lines.push(row('TIEMPO TOTAL:', `${ticket.totalMinutes || 0} min`));
+      lines.push(thinSep);
+      lines.push(row('SUBTOTAL:', `$ ${(ticket.baseAmount || 0).toLocaleString('es-CO')}`));
+      if (ticket.taxAmount) lines.push(row('IVA / IMPUESTO:', `$ ${ticket.taxAmount.toLocaleString('es-CO')}`));
+      if (ticket.discountAmount) lines.push(row('DESCUENTO:', `-$ ${ticket.discountAmount.toLocaleString('es-CO')}`));
+      if (ticket.commercialAgreementName) {
+        lines.push(row('CONVENIO:', ticket.commercialAgreementName.substring(0, width - 12)));
+        if (ticket.commercialAgreementSealOrVoucher) {
+          lines.push(row('SELLO/FACTURA:', ticket.commercialAgreementSealOrVoucher.substring(0, width - 16)));
+        }
+      }
+      lines.push(sep);
+      lines.push(row('TOTAL PAGADO:', `$ ${(ticket.totalAmount || 0).toLocaleString('es-CO')}`));
+      lines.push(sep);
+      lines.push(row('MEDIO DE PAGO:', (ticket.paymentMethod || 'Efectivo').toUpperCase()));
+      if (ticket.cashReceived) lines.push(row('EFECTIVO RECIBIDO:', `$ ${ticket.cashReceived.toLocaleString('es-CO')}`));
+      if (ticket.changeGiven) lines.push(row('CAMBIO DEVUELTO:', `$ ${ticket.changeGiven.toLocaleString('es-CO')}`));
+      if (ticket.electronicInvoice?.cufe) {
+        lines.push(thinSep);
+        lines.push(center('CUFE DIAN:'));
+        lines.push(center(ticket.electronicInvoice.cufe.substring(0, 32) + '...'));
+      }
+      lines.push(thinSep);
+      lines.push(center('¡GRACIAS POR SU VISITA!'));
     }
-  } else if (type === 'cash_shift' && shift) {
+    } else if (type === 'cash_shift' && shift) {
     lines.push(boxDoubleBorder);
     lines.push(boxCenter(businessInfo.name || 'SISTEMA DE PARQUEADERO'));
     lines.push(boxCenter(`NIT: ${businessInfo.nit || 'N/A'}`));

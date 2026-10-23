@@ -14,6 +14,14 @@ echo.
 set PORT=3000
 set URL=http://localhost:%PORT%
 
+:: Verificar si el servidor ya esta activo en puerto 3000
+netstat -ano | findstr /R /C:":3000.*LISTENING" >nul
+if %ERRORLEVEL% NEQ 0 (
+    echo [*] El servidor POS no esta activo. Iniciando servidor automaticamente...
+    call "%~dp0Iniciar-Parqueadero.bat"
+    exit
+)
+
 :: Intentar con Microsoft Edge
 if exist "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
     echo [+] Iniciando con Microsoft Edge Kiosk...

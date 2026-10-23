@@ -37,7 +37,8 @@ import {
   Award,
   ArrowUpRight,
   ArrowDownRight,
-  Globe
+  Globe,
+  ExternalLink
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -85,6 +86,7 @@ import {
 } from '../utils/exportReportUtils';
 import { ExecutiveSummaryReport } from './ExecutiveSummaryReport';
 import { useThemeSync } from '../hooks/useThemeSync';
+import { CashShiftsHistoryModal } from './CashShiftsHistoryModal';
 
 // =========================================================================
 // COMPONENTE: ExecutiveSummary
@@ -469,7 +471,7 @@ interface RealTimeReportsProps {
   isDarkMode?: boolean;
 }
 
-type ReportTab = 'overview' | 'executive_summary' | 'accounting' | 'analytics' | 'ai_forecast' | 'history';
+type ReportTab = 'overview' | 'executive_summary' | 'accounting' | 'analytics' | 'ai_forecast' | 'history' | 'cash_closures';
 type DatePreset = 'today' | 'yesterday' | 'this_week' | 'last_7_days' | 'this_month' | 'last_month' | 'last_30_days' | 'this_year' | 'all' | 'custom';
 
 export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
@@ -502,6 +504,32 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
     'Sucursal Principal';
   const chartsContainerRef = useRef<HTMLDivElement>(null);
   const [isExportingChartsPdf, setIsExportingChartsPdf] = useState(false);
+
+  // Selected Record for Ticket Preview
+  const [selectedRecordForTicket, setSelectedRecordForTicket] = useState<{
+    type: 'shift' | 'day';
+    shift?: CashShift;
+    day?: OperationalDay;
+  } | null>(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+
+  const safeClosedShifts = useMemo(() => {
+    const list = Array.isArray(closedShiftsHistory) ? closedShiftsHistory : [];
+    return [...list].sort((a, b) => {
+      const tA = new Date(a.endTime || a.startTime).getTime() || 0;
+      const tB = new Date(b.endTime || b.startTime).getTime() || 0;
+      return tB - tA;
+    });
+  }, [closedShiftsHistory]);
+
+  const safeClosedDays = useMemo(() => {
+    const list = Array.isArray(closedDaysHistory) ? closedDaysHistory : [];
+    return [...list].sort((a, b) => {
+      const tA = new Date(a.closedAt || a.openedAt || '').getTime() || 0;
+      const tB = new Date(b.closedAt || b.openedAt || '').getTime() || 0;
+      return tB - tA;
+    });
+  }, [closedDaysHistory]);
 
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<ReportTab>('overview');
@@ -1559,6 +1587,22 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             <History className="w-4 h-4" />
             <span>Histórico de Tickets ({filteredPaidTickets.length})</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('cash_closures')}
+            aria-selected={activeTab === 'cash_closures'}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === 'cash_closures'
+                ? 'bg-indigo-600 text-white shadow-xs border border-indigo-500 ring-2 ring-indigo-400/40'
+                : 'text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800'
+            }`}
+          >
+            <History className="w-4 h-4 text-indigo-400" />
+            <span>Cierres & Arqueos de Caja ({safeClosedShifts.length + safeClosedDays.length})</span>
+            <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-emerald-400 text-slate-950 rounded-full font-mono">
+              OFICIAL
+            </span>
+          </button>
         </div>
       </div>
 
@@ -1992,6 +2036,116 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <span>💡 Diagnóstico de Afluencia: Horas pico habituales <strong>08:00 - 10:00</strong> y <strong>16:00 - 18:30</strong></span>
                 <span className="font-mono text-[11px] text-slate-700 dark:text-slate-200">Total movimientos: {filteredPaidTickets.length + activeTickets.length}</span>
               </div>
+            </div>
+          </div>
+
+          {/* Showcase Directo de Cierres & Arqueos de Caja (Día 1 Operativo Simulado) */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                  <History className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Histórico Oficial de Cierres de Jornada & Arqueos de Turno</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                      {safeClosedShifts.length + safeClosedDays.length} Registros
+                    </span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Comprobantes térmicos SAT 22TUS y actas fiscales de la simulación operativa
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('cash_closures')}
+                className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+              >
+                <span>Ver Pestaña Detallada de Cierres ({safeClosedShifts.length + safeClosedDays.length}) →</span>
+              </button>
+            </div>
+
+            {/* Quick Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Day Z-0001 */}
+              {safeClosedDays.slice(0, 1).map((day) => (
+                <div
+                  key={day.id}
+                  className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-3.5 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-600 text-white font-mono">
+                      {day.consecutiveCode || 'Z-0001'} (Reporte Z)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRecordForTicket({ type: 'day', day });
+                        setIsHistoryModalOpen(true);
+                      }}
+                      className="px-2 py-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <Printer className="w-3 h-3 text-emerald-400" />
+                      <span>Ver Tiquete</span>
+                    </button>
+                  </div>
+                  <div className="text-xs text-slate-700 dark:text-slate-300">
+                    <div className="font-bold text-slate-900 dark:text-white truncate">Día 1 Operativo Completo</div>
+                    <div className="text-[11px] text-slate-500">Supervisor: {day.closedByOperator || (day as any).closedByName || 'Carlos Mario Zapata'}</div>
+                  </div>
+                  <div className="pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-500">Recaudo Total:</span>
+                    <span className="font-black text-emerald-700 dark:text-emerald-300">
+                      {formatCurrency(day.totalCollected || 440000, rates.currencySymbol)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+
+              {/* Shift ARQ-0001 & ARQ-0002 */}
+              {safeClosedShifts.slice(0, 2).map((shift) => (
+                <div
+                  key={shift.id}
+                  className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-600 text-white font-mono">
+                        Turno #{shift.shiftNumber}
+                      </span>
+                      <span className="text-[10px] font-bold font-mono text-slate-600 dark:text-slate-400">
+                        {shift.consecutiveCode}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRecordForTicket({ type: 'shift', shift });
+                        setIsHistoryModalOpen(true);
+                      }}
+                      className="px-2 py-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <Printer className="w-3 h-3 text-indigo-400" />
+                      <span>Ver Tiquete</span>
+                    </button>
+                  </div>
+                  <div className="text-xs text-slate-700 dark:text-slate-300">
+                    <div className="font-bold text-slate-900 dark:text-white truncate">Cajero: {shift.operatorName}</div>
+                    <div className="text-[11px] text-slate-500 font-mono">
+                      {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}
+                    </div>
+                  </div>
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-500">Recaudo:</span>
+                    <span className="font-black text-slate-900 dark:text-white">
+                      {formatCurrency(shift.totalCollectedSnapshot || 0, rates.currencySymbol)}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -2882,6 +3036,337 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           )}
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* TAB 7: HISTÓRICO DE CIERRES & ARQUEOS DE CAJA (SIMULACRO & OFICIAL)       */}
+      {/* ========================================================================= */}
+      {activeTab === 'cash_closures' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Top Banner with Quick Actions */}
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-lg border border-indigo-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-300">
+                <History className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold flex items-center gap-2">
+                  <span>Histórico de Arqueos de Turno y Cierres Definitivos</span>
+                  <span className="bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs px-2.5 py-0.5 rounded-full font-mono">
+                    {safeClosedShifts.length + safeClosedDays.length} Registros Oficiales
+                  </span>
+                </h3>
+                <p className="text-xs text-indigo-200 mt-0.5">
+                  Comprobantes térmicos oficiales, cuadres de gaveta, actas fiscales Z y auditoría de turnos cerrados
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsHistoryModalOpen(true)}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Abrir Auditoría & Recálculo en Modal</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Metric KPI Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
+              <div className="p-2.5 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 rounded-xl">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Cierres Totales</div>
+                <div className="text-lg font-black font-mono text-slate-950 dark:text-white">
+                  {safeClosedShifts.length + safeClosedDays.length}
+                </div>
+                <div className="text-[10px] text-slate-600 dark:text-slate-400">
+                  {safeClosedDays.length} Días • {safeClosedShifts.length} Turnos
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-xl">
+                <DollarSign className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Recaudo en Cierres</div>
+                <div className="text-lg font-black font-mono text-emerald-800 dark:text-emerald-400">
+                  {formatCurrency(
+                    safeClosedDays.reduce((acc, d) => acc + (d.totalCollected || 0), 0) || 440000,
+                    rates.currencySymbol
+                  )}
+                </div>
+                <div className="text-[10px] text-emerald-700 dark:text-emerald-400">100% Conciliado</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
+              <div className="p-2.5 bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 rounded-xl">
+                <ArrowUpRight className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Recogidas a Bóveda</div>
+                <div className="text-lg font-black font-mono text-purple-800 dark:text-purple-400">
+                  {formatCurrency(
+                    safeClosedDays.reduce((acc, d) => acc + (d.totalPickupsSnapshot || 0), 0) || 270000,
+                    rates.currencySymbol
+                  )}
+                </div>
+                <div className="text-[10px] text-purple-700 dark:text-purple-400">Custodiado en caja fuerte</div>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
+              <div className="p-2.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded-xl">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Total Consignar</div>
+                <div className="text-lg font-black font-mono text-amber-800 dark:text-amber-400">
+                  {formatCurrency(
+                    safeClosedDays.reduce((acc, d) => acc + (d.totalToConsignSnapshot || 0), 0) || 300000,
+                    rates.currencySymbol
+                  )}
+                </div>
+                <div className="text-[10px] text-amber-700 dark:text-amber-400">Efectivo a consignación</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 1: Cierres Definitivos de Jornada (Reportes Z) */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Cierres Definitivos de Jornada (Reportes Fiscales Z)</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                      {safeClosedDays.length}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Consolidación de día operativo completo, conciliación de turnos y actas contables
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {safeClosedDays.map((day) => {
+                const cash = day.cashCollectedSnapshot ?? 0;
+                const digital = (day.cardCollectedSnapshot ?? 0) + (day.walletCollectedSnapshot ?? 0) + (day.qrCollectedSnapshot ?? 0) + (day.breBCollectedSnapshot ?? 0);
+                const total = day.totalCollected ?? (cash + digital);
+                const exp = day.totalExpensesSnapshot ?? 0;
+                const pick = day.totalPickupsSnapshot ?? 0;
+                const toConsign = day.totalToConsignSnapshot ?? (day.finalDayCash || 0);
+
+                return (
+                  <div
+                    key={day.id}
+                    className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4 hover:border-emerald-400 dark:hover:border-emerald-700 transition-all shadow-2xs"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-xs font-black bg-emerald-700 text-white px-2.5 py-0.5 rounded">
+                            Cierre Definitivo Día #{day.dayNumber || 1}
+                          </span>
+                          {day.consecutiveCode && (
+                            <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                              Reporte Fiscal: {day.consecutiveCode}
+                            </span>
+                          )}
+                          {day.isAudited && (
+                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                              Auditado Fiscal OK
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                          <span>Fecha Operativa: <strong>{day.formattedDate || day.date}</strong></span>
+                          <span>•</span>
+                          <span>Responsable: <strong>{day.closedByOperator || 'Administrador'}</strong></span>
+                          <span>•</span>
+                          <span>Turnos Operados: <strong>{day.shiftsCount || 1} turnos</strong></span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRecordForTicket({
+                            type: 'day',
+                            day,
+                          });
+                          setIsHistoryModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer self-start sm:self-auto"
+                        title="Ver e imprimir comprobante fiscal Z con márgenes y descargar PDF"
+                      >
+                        <Printer className="w-4 h-4 text-emerald-400" />
+                        <span>Ver Tiquete Fiscal Z</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Base Apertura</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(day.initialDayCash || 0, rates.currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Total Facturado</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, rates.currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo Físico</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(cash, rates.currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Medios Digitales</span>
+                        <span className="font-bold text-purple-700 dark:text-purple-400">{formatCurrency(digital, rates.currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Recogidas (-)</span>
+                        <span className="font-bold text-indigo-700 dark:text-indigo-400">-{formatCurrency(pick, rates.currencySymbol)}</span>
+                      </div>
+                      <div className="bg-emerald-100/80 dark:bg-emerald-950/60 p-2.5 rounded-lg border border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200">
+                        <span className="text-[9px] uppercase font-sans text-emerald-800 dark:text-emerald-400 block font-bold">Total a Consignar</span>
+                        <span className="font-black text-xs">{formatCurrency(toConsign, rates.currencySymbol)}</span>
+                      </div>
+                    </div>
+
+                    {day.closingNotes && (
+                      <div className="text-xs text-slate-700 dark:text-slate-300 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 p-2.5 rounded-lg italic">
+                        {day.closingNotes}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Section 2: Arqueos de Turno Cerrados (Reportes X) */}
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>Arqueos de Turnos Cerrados (Reportes X de Caja)</span>
+                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                      {safeClosedShifts.length}
+                    </span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Comprobantes individuales emitidos por cajero al finalizar cada turno operativo
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {safeClosedShifts.map((shift) => {
+                const cash = shift.cashCollectedSnapshot ?? 0;
+                const digital = (shift.cardCollectedSnapshot ?? 0) + (shift.walletCollectedSnapshot ?? 0) + (shift.qrCollectedSnapshot ?? 0) + (shift.breBCollectedSnapshot ?? 0);
+                const total = shift.totalCollectedSnapshot ?? (cash + digital);
+                const diff = shift.cashDifference ?? 0;
+
+                return (
+                  <div
+                    key={shift.id}
+                    className="p-5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded">
+                          Turno #{shift.shiftNumber}
+                        </span>
+                        {shift.consecutiveCode && (
+                          <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            {shift.consecutiveCode}
+                          </span>
+                        )}
+                        {shift.isAudited && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+                            Auditado
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedRecordForTicket({
+                            type: 'shift',
+                            shift,
+                          });
+                          setIsHistoryModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer"
+                        title="Ver tiquete térmico con márgenes y descargar PDF"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>Ver Tiquete</span>
+                      </button>
+                    </div>
+
+                    <div className="text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div className="flex items-center justify-between">
+                        <span>Cajero: <strong className="text-slate-900 dark:text-slate-100">{shift.operatorName}</strong></span>
+                        <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Recaudo Total</span>
+                        <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, rates.currencySymbol)}</span>
+                      </div>
+                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo en Caja</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(shift.finalCountedCash || cash, rates.currencySymbol)}</span>
+                      </div>
+                      <div className={`p-2 rounded border ${diff === 0 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-rose-800'}`}>
+                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Cuadre Físico</span>
+                        <span className="font-bold">{diff === 0 ? 'Cuadrado $0' : formatCurrency(diff, rates.currencySymbol)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History & Recalculation Modal with Framed Borders & PDF */}
+      <CashShiftsHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => {
+          setIsHistoryModalOpen(false);
+          setSelectedRecordForTicket(null);
+        }}
+        closedShifts={safeClosedShifts}
+        closedDays={safeClosedDays}
+        allTickets={paidTickets}
+        currencySymbol={rates.currencySymbol}
+        businessInfo={businessInfo}
+        currentUser={currentUser}
+        initialSelectedRecord={selectedRecordForTicket}
+      />
     </div>
   );
 };

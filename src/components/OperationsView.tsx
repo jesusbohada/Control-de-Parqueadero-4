@@ -40,7 +40,9 @@ import {
   Copy,
   Globe,
   Maximize2,
-  Camera
+  Camera,
+  Handshake,
+  Stamp
 } from 'lucide-react';
 import { 
   ParkingSpot, 
@@ -58,9 +60,11 @@ import {
   BreBKey,
   CardTerminalOption,
   BankAccountOption,
-  VehicleCategoryConfig
+  VehicleCategoryConfig,
+  CommercialAgreement,
+  AgreementDiscountType
 } from '../types';
-import { calculateParkingFee, formatCurrency, formatPlate } from '../utils/billing';
+import { calculateParkingFee, formatCurrency, formatPlate, calculateAgreementDiscount, getVehicleRate } from '../utils/billing';
 import { playSound } from '../utils/audio';
 import { renderVehicleIcon } from '../utils/vehicleIcons';
 import { 
@@ -83,7 +87,7 @@ import { PaymentQrModal } from './PaymentQrModal';
 import { DynamicQrCode } from './DynamicQrCode';
 import { DynamicBarcode } from './DynamicBarcode';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
-import { generateDianCUFE } from '../utils/dianService';
+import { generateDianCUFE, transmitInvoiceToDian } from '../utils/dianService';
 
 interface OperationsViewProps {
   spots: ParkingSpot[];
@@ -107,6 +111,10 @@ interface OperationsViewProps {
       changeGiven?: number;
       discountAmount?: number;
       paymentDetails?: PaymentTransactionDetails;
+      commercialAgreementId?: string;
+      commercialAgreementName?: string;
+      commercialAgreementSealOrVoucher?: string;
+      commercialAgreementDiscountType?: AgreementDiscountType;
     }
   ) => ParkingTicket | null;
   onPrintTicket: (ticket: ParkingTicket, mode: 'entry' | 'exit') => void;
@@ -117,6 +125,7 @@ interface OperationsViewProps {
   onOpenTicketScanner?: () => void;
   onOpenAnprCamera?: () => void;
   vehicleCategories?: VehicleCategoryConfig[];
+  commercialAgreements?: CommercialAgreement[];
 }
 
 export const OperationsView: React.FC<OperationsViewProps> = ({
@@ -135,6 +144,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   onOpenTicketScanner,
   onOpenAnprCamera,
   vehicleCategories = [],
+  commercialAgreements = [],
 }) => {
   // --- Entry Form State ---
   const [entryPlate, setEntryPlate] = useState('');
@@ -285,6 +295,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   const [cardType, setCardType] = useState<'debit' | 'credit'>('debit');
   const [agreementName, setAgreementName] = useState<string>('');
   const [agreementNotes, setAgreementNotes] = useState<string>('');
+  const [selectedAgreementId, setSelectedAgreementId] = useState<string>('');
+  const [agreementSealInput, setAgreementSealInput] = useState<string>('');
 
   // Mixed payment state
   const [splitCashAmount, setSplitCashAmount] = useState<string>('');
@@ -621,6 +633,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     setPaymentReference('');
     setAgreementName('');
     setAgreementNotes('');
+    setSelectedAgreementId('');
+    setAgreementSealInput('');
     setSplitCashAmount('');
     setSplitSecondAmount('');
     setSplitSecondReference('');
@@ -684,10 +698,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   const liveCalculation = useMemo(() => {
     if (!selectedTicket) return null;
     const nowIso = new Date().toISOString();
-    return calculateParkingFee(selectedTicket.entryTime, nowIso, selectedTicket.vehicleType, rates);
-  }, [selectedTicket, rates, tick]);
+    return calculateParkingFee(selectedTicket.entryTime, nowIso, selectedTicket.vehicleType, rates, vehicleCategories);
+  }, [selectedTicket, rates, vehicleCategories, tick]);
 
-  const lostTicketFeeAmount = (selectedTicket && rates[selectedTicket.vehicleType]?.lostTicketFee) || 15000;
+  const lostTicketFeeAmount = (selectedTicket && getVehicleRate(selectedTicket.vehicleType, rates, vehicleCategories).lostTicketFee) || rates.lostTicketFee || 15000;
   const lostTicketAddition = (selectedTicket && isNoTicketPresented && applyLostTicketFee) ? lostTicketFeeAmount : 0;
   const discountVal = Math.max(0, parseFloat(discountInput) || 0);
   const finalTotalAmount = Math.max(0, (liveCalculation?.totalAmount || 0) + lostTicketAddition - discountVal);
@@ -747,6 +761,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     setPaymentReference('');
     setAgreementName('');
     setAgreementNotes('');
+    setSelectedAgreementId('');
+    setAgreementSealInput('');
     setSplitCashAmount('');
     setSplitSecondAmount('');
     setSplitSecondReference('');
@@ -841,6 +857,31 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     if (isNoTicketPresented) {
       if (!propertyCardNumber.trim() || !ownerFullName.trim() || !ownerDocNumber.trim()) {
         setExitError('Para autorizar la salida sin ticket impreso, es OBLIGATORIO registrar el N° de Tarjeta de Propiedad, Nombre del Titular y Documento de Identidad.');
+        playSound('alert', soundEnabled);
+        return;
+      }
+    }
+
+    // Regla de Convenios Comerciales: Validación obligatoria de Sello / Factura aliada
+    const currentAgreement = commercialAgreements?.find(a => a.id === selectedAgreementId);
+    if (currentAgreement && currentAgreement.requiresSealOrVoucher) {
+      if (!agreementSealInput.trim()) {
+        const promptText = currentAgreement.sealPromptLabel || 'N° de Sello o Factura de compra';
+        setExitError(`Para autorizar la salida con el convenio '${currentAgreement.name}', es OBLIGATORIO ingresar el ${promptText}.`);
+        playSound('alert', soundEnabled);
+        return;
+      }
+    }
+
+    // Validación obligatoria para Facturación Electrónica DIAN
+    if (isElectronicInvoiceRequested) {
+      if (!customerDocNumber.trim()) {
+        setExitError('Para emitir Factura Electrónica (DIAN), debe ingresar el Número de Identificación (Cédula o NIT).');
+        playSound('alert', soundEnabled);
+        return;
+      }
+      if (!customerName.trim()) {
+        setExitError('Para emitir Factura Electrónica (DIAN), debe ingresar el Nombre o Razón Social del cliente.');
         playSound('alert', soundEnabled);
         return;
       }
@@ -1005,28 +1046,56 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     // Facturación Electrónica DIAN
     if (isElectronicInvoiceRequested) {
       const consecutive = (businessInfo.dianCurrentNumber || 1040) + 1;
-      const prefix = businessInfo.dianPrefix || 'FE';
+      const rawPrefix = (businessInfo.dianPrefix || 'FE').trim();
+      const prefix = rawPrefix.endsWith('-') ? rawPrefix : `${rawPrefix}-`;
       const now = new Date();
       const issueDate = now.toISOString().split('T')[0];
       const issueTime = now.toTimeString().split(' ')[0];
       const customerDoc = customerDocNumber.trim() || '222222222222';
 
-      const cufe = await generateDianCUFE({
+      const transmission = await transmitInvoiceToDian({
         invoiceNumber: `${prefix}${consecutive}`,
+        prefix,
+        consecutive,
         issueDate,
         issueTime,
+        nitEmitter: businessInfo.nit,
+        emitterName: businessInfo.name,
+        customer: {
+          name: customerName.trim() || 'Consumidor Final',
+          documentNumber: customerDoc,
+          docType: customerDocType,
+          email: customerEmail.trim() || undefined,
+        },
         subtotal: liveCalculation.baseAmount,
         taxAmount: liveCalculation.taxAmount,
+        discountAmount: discountVal,
         totalAmount: finalTotalAmount,
-        nitEmitter: businessInfo.nit,
-        docCustomer: customerDoc,
+        paymentMethodCode: exitPaymentMethod === 'card' ? '48' : exitPaymentMethod === 'transfer' ? '47' : '10',
+        resolutionNumber: businessInfo.dianResolutionNumber || '18764002918234',
         technicalKey: businessInfo.dianTechnicalKey,
+        softwareId: businessInfo.dianSoftwareId,
         environment: businessInfo.dianEnvironment,
+        mode: businessInfo.dianEmissionMode || 'simulator',
+        providerConfig: {
+          provider: businessInfo.dianProvider || 'factus',
+          apiKey: businessInfo.dianProviderApiKey,
+          apiUrl: businessInfo.dianProviderApiUrl,
+          clientId: businessInfo.dianProviderClientId,
+        },
+        directConfig: {
+          certPassword: businessInfo.dianCertPassword,
+          softwarePin: businessInfo.dianSoftwarePin,
+          testSetId: businessInfo.dianTestSetId,
+        }
       });
 
       paymentDetails.isElectronicInvoice = true;
-      paymentDetails.electronicInvoiceNumber = `${prefix}${consecutive}`;
-      paymentDetails.cufe = cufe;
+      paymentDetails.electronicInvoiceNumber = consecutive.toString();
+      paymentDetails.cufe = transmission.cufe;
+      paymentDetails.qrUrl = transmission.qrUrl;
+      paymentDetails.xmlUuid = transmission.xmlUuid;
+      paymentDetails.trackId = transmission.trackId;
       paymentDetails.customerDocType = customerDocType;
       paymentDetails.customerDocument = customerDoc;
       paymentDetails.customerName = customerName.trim() || 'Consumidor Final';
@@ -1038,6 +1107,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
       cashReceived: exitPaymentMethod === 'cash' ? cashReceivedVal : undefined,
       changeGiven: exitPaymentMethod === 'cash' ? changeGiven : undefined,
       discountAmount: discountVal > 0 ? discountVal : undefined,
+      commercialAgreementId: currentAgreement?.id,
+      commercialAgreementName: currentAgreement?.name,
+      commercialAgreementSealOrVoucher: currentAgreement ? agreementSealInput.trim() : undefined,
+      commercialAgreementDiscountType: currentAgreement?.discountType,
       paymentDetails,
     });
 
@@ -1053,6 +1126,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
       setPaymentReference('');
       setAgreementName('');
       setAgreementNotes('');
+    setSelectedAgreementId('');
+    setAgreementSealInput('');
       setSplitCashAmount('');
       setSplitSecondAmount('');
       setSplitSecondReference('');
@@ -1604,7 +1679,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between">
                     <span className="text-slate-700 dark:text-slate-200 font-normal">Hora:</span>
                     <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold">
-                      {formatCurrency(rates[entryVehicleType]?.hourRate || 0, rates.currencySymbol)}
+                      {formatCurrency(getVehicleRate(entryVehicleType, rates, vehicleCategories).hourRate, rates.currencySymbol)}
                     </span>
                   </div>
                 </div>
@@ -1997,6 +2072,133 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         +{formatCurrency(lostTicketFeeAmount, rates.currencySymbol)}
                       </span>
                     </div>
+                  )}
+
+                  {/* Convenio Comercial / Alianza (Pausado por defecto si no está habilitado) */}
+                  {Boolean(businessInfo?.enableCommercialAgreements) && (
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1">
+                        <Handshake className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                        <span>Convenio Comercial / Alianza:</span>
+                      </span>
+                      {selectedAgreementId && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedAgreementId('');
+                            setAgreementSealInput('');
+                            setDiscountInput('0');
+                            playSound('beep', soundEnabled);
+                          }}
+                          className="text-[10px] text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                          <span>Quitar Convenio</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedAgreementId('');
+                          setAgreementSealInput('');
+                          setDiscountInput('0');
+                        }}
+                        className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition-all text-left flex items-center justify-between cursor-pointer ${
+                          !selectedAgreementId
+                            ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-600'
+                            : 'bg-white dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                        }`}
+                      >
+                        <span>Sin Convenio</span>
+                        {!selectedAgreementId && <Check className="w-3 h-3 text-slate-600 dark:text-slate-300" />}
+                      </button>
+
+                      {commercialAgreements?.filter(a => a.isActive).map(ag => {
+                        const isApplicable = !ag.applicableVehicleTypes || 
+                          ag.applicableVehicleTypes.includes('all') || 
+                          ag.applicableVehicleTypes.includes(selectedTicket.vehicleType);
+                        const isSelected = selectedAgreementId === ag.id;
+
+                        let badgeText = '';
+                        if (ag.discountType === 'free_minutes') badgeText = `${ag.discountValue}m gratis`;
+                        else if (ag.discountType === 'percentage_discount') badgeText = `${ag.discountValue}%`;
+                        else if (ag.discountType === 'fixed_discount') badgeText = `-$${ag.discountValue?.toLocaleString('es-CO')}`;
+                        else if (ag.discountType === 'flat_rate') badgeText = `$${ag.discountValue?.toLocaleString('es-CO')} fija`;
+
+                        return (
+                          <button
+                            key={ag.id}
+                            type="button"
+                            disabled={!isApplicable}
+                            onClick={() => {
+                              setSelectedAgreementId(ag.id);
+                              const discResult = calculateAgreementDiscount(
+                                liveCalculation,
+                                ag,
+                                selectedTicket.entryTime,
+                                new Date().toISOString(),
+                                selectedTicket.vehicleType,
+                                rates
+                              );
+                              setDiscountInput(discResult.discountAmount.toString());
+                              playSound('success', soundEnabled);
+                            }}
+                            className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition-all text-left flex items-center justify-between cursor-pointer ${
+                              !isApplicable
+                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                                : isSelected
+                                ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs ring-1 ring-indigo-500'
+                                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                            }`}
+                            title={!isApplicable ? `No aplica para ${getVehicleName(selectedTicket.vehicleType)}` : ag.notes || ag.name}
+                          >
+                            <span className="truncate mr-1">{ag.name.split('/')[0].trim()}</span>
+                            <span className={`text-[9px] font-mono px-1 rounded shrink-0 ${
+                              isSelected 
+                                ? 'bg-indigo-800 text-indigo-100' 
+                                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                            }`}>
+                              {badgeText}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Seal / Voucher / Stamp input field if required */}
+                    {(() => {
+                      const currentAg = commercialAgreements?.find(a => a.id === selectedAgreementId);
+                      if (!currentAg || !currentAg.requiresSealOrVoucher) return null;
+                      return (
+                        <div className="mt-2 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1 animate-in fade-in">
+                          <div className="flex items-center justify-between">
+                            <label className="text-[11px] font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                              <Stamp className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                              <span>{currentAg.sealPromptLabel || 'N° Sello / Factura Aliada'} *</span>
+                            </label>
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/60 px-1.5 py-0.5 rounded">
+                              Requerido
+                            </span>
+                          </div>
+                          <input
+                            type="text"
+                            value={agreementSealInput}
+                            onChange={(e) => {
+                              setAgreementSealInput(e.target.value);
+                              if (exitError) setExitError(null);
+                            }}
+                            placeholder={`Ej: ${currentAg.code}-004921 o Factura de compra`}
+                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500/30"
+                            autoFocus
+                          />
+                        </div>
+                      );
+                    })()}
+                  </div>
                   )}
 
                   {/* Discount / Exoneration */}
@@ -3220,6 +3422,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* ======================================================= */}
                 {/* FACTURACIÓN ELECTRÓNICA DIAN (Optional Toggle)          */}
                 {/* ======================================================= */}
+                {businessInfo.electronicInvoicingEnabled !== false && currentUser?.permissions?.canIssueElectronicInvoice !== false && (
                 <div className="pt-2 border-t border-slate-200">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
@@ -3236,6 +3439,22 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {isElectronicInvoiceRequested && (
                     <div className="mt-3 p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-2.5 text-xs animate-in fade-in">
+                      <div className="flex items-center justify-between pb-1 border-b border-indigo-200/60">
+                        <span className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider">Datos del Adquirente</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomerDocType('CC');
+                            setCustomerDocNumber('222222222222');
+                            setCustomerName('Consumidor Final');
+                            setCustomerEmail('consumidorfinal@dian.gov.co');
+                          }}
+                          className="px-2 py-0.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded font-semibold text-[10px] transition-colors flex items-center gap-1 border border-indigo-300 shadow-sm active:scale-95"
+                          title="Llenar automáticamente con datos estándar DIAN para Consumidor Final"
+                        >
+                          ⚡ Consumidor Final (222222222222)
+                        </button>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div>
                           <label className="block text-[10px] font-bold text-indigo-950 uppercase mb-1">
@@ -3301,6 +3520,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     </div>
                   )}
                 </div>
+                )}
 
                 {exitError && (
                   <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">

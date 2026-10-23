@@ -30,6 +30,18 @@ export interface DianInvoicePayload {
   technicalKey?: string;
   softwareId?: string;
   environment?: 'hab' | 'prod';
+  mode?: 'simulator' | 'provider_api' | 'direct_soap';
+  providerConfig?: {
+    provider?: 'factus' | 'dataico' | 'the_factory' | 'generic';
+    apiKey?: string;
+    apiUrl?: string;
+    clientId?: string;
+  };
+  directConfig?: {
+    certPassword?: string;
+    softwarePin?: string;
+    testSetId?: string;
+  };
 }
 
 export interface DianTransmissionResult {
@@ -127,6 +139,56 @@ export async function transmitInvoiceToDian(payload: DianInvoicePayload): Promis
   // Validate basic mandatory DIAN fields
   if (!payload.invoiceNumber || !payload.nitEmitter) {
     throw new Error('Faltan datos obligatorios para la transmisión de la Factura Electrónica (Número o NIT emisor).');
+  }
+
+  // Si estamos en entorno navegador con acceso al backend, intentar transmitir vía /api/dian/transmit
+  if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6500);
+      const res = await fetch('/api/dian/transmit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payload,
+          mode: payload.mode || 'simulator',
+          providerConfig: payload.providerConfig,
+          directConfig: payload.directConfig,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && data.cufe) {
+          const qrString = generateDianQrString({
+            invoiceNumber: payload.invoiceNumber,
+            issueDate: payload.issueDate,
+            nitEmitter: payload.nitEmitter,
+            docCustomer: payload.customer.documentNumber,
+            subtotal: payload.subtotal,
+            taxAmount: payload.taxAmount,
+            totalAmount: payload.totalAmount,
+            cufe: data.cufe,
+          });
+
+          return {
+            success: true,
+            status: data.status || 'VALIDADA_DIAN',
+            cufe: data.cufe,
+            qrUrl: data.qrUrl || `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${data.cufe}`,
+            qrString,
+            xmlUuid: data.xmlUuid || `DIAN-UBL21-${Date.now()}`,
+            validationTimestamp: data.validationTimestamp || new Date().toISOString(),
+            dianMessage: data.dianMessage || 'Documento procesado exitosamente por la DIAN.',
+            trackId: data.trackId || `TRK-${Date.now()}`,
+          };
+        }
+      }
+    } catch (apiErr) {
+      console.warn('[dianService] Error o timeout en /api/dian/transmit, ejecutando fallback local:', apiErr);
+    }
   }
 
   const cufe = await generateDianCUFE({

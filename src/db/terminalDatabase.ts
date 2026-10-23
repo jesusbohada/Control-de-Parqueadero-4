@@ -8,7 +8,10 @@ import {
   AuditLogEntry,
   SystemUser,
   UserPermissionTemplate,
-  PaymentGatewayConfig
+  PaymentGatewayConfig,
+  ExpenseConcept,
+  ExpenseCategory,
+  PrinterConfig
 } from '../types';
 import { 
   DEFAULT_RATES, 
@@ -18,6 +21,8 @@ import {
   INITIAL_PAID_TICKETS, 
   INITIAL_CASH_SHIFT,
   INITIAL_USERS,
+  INITIAL_EXPENSE_CONCEPTS,
+  INITIAL_EXPENSE_CATEGORIES,
   normalizeUser,
   DEFAULT_USER_TEMPLATES,
   DEFAULT_PAYMENT_GATEWAY_CONFIG
@@ -80,6 +85,11 @@ export async function loadTerminalDatabaseData(terminalId?: string) {
           localStorage.setItem('pk_current_shift', JSON.stringify(data.currentShift));
           localStorage.setItem('pk_payment_gateway_config', JSON.stringify(data.paymentGatewayConfig));
           localStorage.setItem('pk_system_users', JSON.stringify(data.users));
+          if (data.expenseConcepts) localStorage.setItem('pk_expense_concepts', JSON.stringify(data.expenseConcepts));
+          if (data.expenseCategories) localStorage.setItem('pk_expense_categories', JSON.stringify(data.expenseCategories));
+          if (data.printers) localStorage.setItem('pk_printers', JSON.stringify(data.printers));
+          if (data.roleMatrix) localStorage.setItem('pk_role_matrix_config', JSON.stringify(data.roleMatrix));
+          if (data.userTemplates) localStorage.setItem('pk_user_templates', JSON.stringify(data.userTemplates));
         } catch (e) {
           // LocalStorage quota may be reached, safe to ignore
         }
@@ -94,6 +104,11 @@ export async function loadTerminalDatabaseData(terminalId?: string) {
           currentShift: data.currentShift as CashShift,
           terminalConfig: data.terminalConfig as TerminalConfig,
           users: (data.users as SystemUser[]).map(normalizeUser),
+          expenseConcepts: (data.expenseConcepts || INITIAL_EXPENSE_CONCEPTS) as ExpenseConcept[],
+          expenseCategories: (data.expenseCategories || INITIAL_EXPENSE_CATEGORIES) as ExpenseCategory[],
+          printers: (data.printers || null) as PrinterConfig[] | null,
+          roleMatrix: data.roleMatrix || null,
+          userTemplates: (data.userTemplates || DEFAULT_USER_TEMPLATES) as UserPermissionTemplate[],
           databaseName: data.databaseName || getDatabaseNameForTerminal(termId)
         };
       }
@@ -111,6 +126,10 @@ export async function loadTerminalDatabaseData(terminalId?: string) {
   const localShift = localStorage.getItem('pk_current_shift');
   const localGateway = localStorage.getItem('pk_payment_gateway_config');
   const localUsers = localStorage.getItem('pk_system_users');
+  const localExpenseConcepts = localStorage.getItem('pk_expense_concepts');
+  const localExpenseCategories = localStorage.getItem('pk_expense_categories');
+  const localRoleMatrix = localStorage.getItem('pk_role_matrix_config') || localStorage.getItem('farmadesk_role_matrix_config');
+  const localUserTemplates = localStorage.getItem('pk_user_templates');
 
   return {
     spots: localSpots ? JSON.parse(localSpots) : INITIAL_SPOTS,
@@ -127,6 +146,10 @@ export async function loadTerminalDatabaseData(terminalId?: string) {
       createdAt: new Date().toISOString()
     },
     users: localUsers ? (JSON.parse(localUsers) as SystemUser[]).map(normalizeUser) : INITIAL_USERS.map(normalizeUser),
+    expenseConcepts: localExpenseConcepts ? JSON.parse(localExpenseConcepts) : INITIAL_EXPENSE_CONCEPTS,
+    expenseCategories: localExpenseCategories ? JSON.parse(localExpenseCategories) : INITIAL_EXPENSE_CATEGORIES,
+    roleMatrix: localRoleMatrix ? JSON.parse(localRoleMatrix) : null,
+    userTemplates: localUserTemplates ? JSON.parse(localUserTemplates) : DEFAULT_USER_TEMPLATES,
     databaseName: getDatabaseNameForTerminal(termId)
   };
 }
@@ -203,19 +226,75 @@ export function dbGetUserTemplates(): UserPermissionTemplate[] {
   return DEFAULT_USER_TEMPLATES;
 }
 
-export function dbSaveUserTemplate(template: UserPermissionTemplate): void {
+export async function dbSaveUserTemplate(template: UserPermissionTemplate): Promise<void> {
   if (typeof window === 'undefined') return;
   const current = dbGetUserTemplates();
   const idx = current.findIndex(t => t.id === template.id);
   if (idx >= 0) current[idx] = template;
   else current.push(template);
   localStorage.setItem('pk_user_templates', JSON.stringify(current));
+  try {
+    await fetch('/api/config/userTemplates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: current })
+    });
+  } catch (e) {
+    console.warn('[dbSaveUserTemplate] Error guardando en API:', e);
+  }
 }
 
-export function dbDeleteUserTemplate(templateId: string): void {
+export async function dbDeleteUserTemplate(templateId: string): Promise<void> {
   if (typeof window === 'undefined') return;
   const current = dbGetUserTemplates().filter(t => t.id !== templateId);
   localStorage.setItem('pk_user_templates', JSON.stringify(current));
+  try {
+    await fetch('/api/config/userTemplates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: current })
+    });
+  } catch (e) {
+    console.warn('[dbDeleteUserTemplate] Error en API:', e);
+  }
+}
+
+export async function dbSaveUserTemplates(templates: UserPermissionTemplate[]): Promise<void> {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('pk_user_templates', JSON.stringify(templates));
+  try {
+    await fetch('/api/config/userTemplates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: templates })
+    });
+  } catch (e) {
+    console.warn('[dbSaveUserTemplates] Error en API:', e);
+  }
+}
+
+export function dbGetRoleMatrix(): any {
+  if (typeof window === 'undefined') return null;
+  try {
+    const saved = localStorage.getItem('pk_role_matrix_config') || localStorage.getItem('farmadesk_role_matrix_config');
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return null;
+}
+
+export async function dbSaveRoleMatrix(roleMatrix: any): Promise<void> {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('pk_role_matrix_config', JSON.stringify(roleMatrix));
+  localStorage.setItem('farmadesk_role_matrix_config', JSON.stringify(roleMatrix));
+  try {
+    await fetch('/api/config/roleMatrix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: roleMatrix })
+    });
+  } catch (e) {
+    console.warn('[dbSaveRoleMatrix] Error guardando en API:', e);
+  }
 }
 
 export function getActiveSessionUser(): SystemUser | null {
@@ -264,6 +343,53 @@ export async function dbSaveSpots(spots: ParkingSpot[]): Promise<void> {
   } catch (e) {
     console.warn('[dbSaveSpots] Error en API:', e);
   }
+}
+
+export async function dbDeleteSpot(spotId: string): Promise<void> {
+  try {
+    await fetch(`/api/spots/${encodeURIComponent(spotId)}`, {
+      method: 'DELETE',
+    });
+  } catch (e) {
+    console.warn('[dbDeleteSpot] Error en API:', e);
+  }
+}
+
+export async function dbDeleteMultipleSpots(spotIds: string[]): Promise<void> {
+  try {
+    await fetch('/api/spots/delete-bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: spotIds })
+    });
+  } catch (e) {
+    console.warn('[dbDeleteMultipleSpots] Error en API:', e);
+  }
+}
+
+export async function dbUpdateMultipleSpotStatus(spotIds: string[], status: 'available' | 'reserved' | 'maintenance'): Promise<void> {
+  try {
+    await fetch('/api/spots/status-bulk', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: spotIds, status })
+    });
+  } catch (e) {
+    console.warn('[dbUpdateMultipleSpotStatus] Error en API:', e);
+  }
+}
+
+export async function dbReconcileSpots(): Promise<{ success: boolean; spots?: ParkingSpot[]; freedCount?: number }> {
+  try {
+    const res = await fetch('/api/spots/reconcile', { method: 'POST' });
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch (e) {
+    console.warn('[dbReconcileSpots] Error en API:', e);
+  }
+  return { success: false };
 }
 
 /**
@@ -368,6 +494,45 @@ export async function dbSaveTerminalConfig(config: TerminalConfig): Promise<void
     setStoredTerminalId(config.terminalId);
   } catch (e) {
     console.warn('[dbSaveTerminalConfig] Error en API:', e);
+  }
+}
+
+export async function dbSaveExpenseConcepts(concepts: ExpenseConcept[]): Promise<void> {
+  try {
+    await fetch('/api/config/expenseConcepts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: concepts })
+    });
+    localStorage.setItem('pk_expense_concepts', JSON.stringify(concepts));
+  } catch (e) {
+    console.warn('[dbSaveExpenseConcepts] Error en API:', e);
+  }
+}
+
+export async function dbSaveExpenseCategories(categories: ExpenseCategory[]): Promise<void> {
+  try {
+    await fetch('/api/config/expenseCategories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: categories })
+    });
+    localStorage.setItem('pk_expense_categories', JSON.stringify(categories));
+  } catch (e) {
+    console.warn('[dbSaveExpenseCategories] Error en API:', e);
+  }
+}
+
+export async function dbSavePrinters(printers: PrinterConfig[]): Promise<void> {
+  try {
+    await fetch('/api/config/printers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: printers })
+    });
+    localStorage.setItem('pk_printers', JSON.stringify(printers));
+  } catch (e) {
+    console.warn('[dbSavePrinters] Error en API:', e);
   }
 }
 
@@ -552,22 +717,15 @@ export interface TerminalDatabaseMeta {
 export function getRegisteredDatabases(): TerminalDatabaseMeta[] {
   if (typeof window === 'undefined') return [];
   const currentId = getStoredTerminalId();
-  let list: TerminalDatabaseMeta[] = [];
-  try {
-    const raw = localStorage.getItem('pk_known_databases');
-    if (raw) list = JSON.parse(raw);
-  } catch (e) {}
-
-  if (!list.some(db => db.terminalId === currentId)) {
-    list.unshift({
-      terminalId: currentId,
-      terminalName: `Taquilla ${currentId}`,
-      databaseName: getDatabaseNameForTerminal(currentId),
-      createdAt: new Date().toISOString(),
-      description: 'Base de datos principal PostgreSQL conectada'
-    });
-    localStorage.setItem('pk_known_databases', JSON.stringify(list));
-  }
+  const primaryDb: TerminalDatabaseMeta = {
+    terminalId: currentId,
+    terminalName: `Taquilla ${currentId}`,
+    databaseName: getDatabaseNameForTerminal(currentId),
+    createdAt: new Date().toISOString(),
+    description: 'Base de datos principal PostgreSQL conectada'
+  };
+  const list: TerminalDatabaseMeta[] = [primaryDb];
+  localStorage.setItem('pk_known_databases', JSON.stringify(list));
   return list;
 }
 

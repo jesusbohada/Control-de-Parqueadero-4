@@ -14,3 +14,4 @@ test_snap.png
 test_script.html
 backups/*.json
 backups/*.zip
+backups/*.bak

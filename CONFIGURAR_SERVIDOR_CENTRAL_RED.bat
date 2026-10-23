@@ -23,8 +23,8 @@ echo conectarse en red local sin bloqueos de Firewall.
 echo.
 echo Matriz de Puertos a Habilitar:
 echo  [A] APLICACION POS / CENTRAL : LAN Puerto 3000  ^| WAN Puerto 3001
-echo  [B] MOTOR POSTGRESQL CENTRAL : LAN Puerto 5432 (Para taquillas esclavas)
-echo  [C] FARMADESK PRO CONTROL REMOTO : Senalizacion / Relay Puerto 9050
+echo  [B] MOTOR POSTGRESQL CENTRAL : LAN Puertos 5432 y 5433 (Para taquillas esclavas)
+echo  [C] ASISTENCIA REMOTA / RELAY : Senalizacion / Relay Puerto 9050
 echo.
 echo Se ejecutaran las siguientes acciones automaticamente:
 echo  [1] Detectar IP local privada (LAN) del servidor en la sucursal
