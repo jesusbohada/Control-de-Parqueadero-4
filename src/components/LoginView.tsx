@@ -10,6 +10,7 @@ import {
   Server,
   ShieldCheck,
   Video,
+  Sparkles,
   SlidersHorizontal
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -26,7 +27,7 @@ interface LoginViewProps {
 }
 
 // ============================================================================
-// COMPONENTE: FONDO CINEMATOGRÁFICO DE VIDEO REAL CON VEHÍCULOS EN MOVIMIENTO
+// ESCENAS DE VIDEO REAL (MODO CÁMARAS)
 // ============================================================================
 export interface VideoBackgroundOption {
   id: string;
@@ -69,7 +70,7 @@ export const VIDEO_SCENES: VideoBackgroundOption[] = [
 
 interface RealTrafficBackgroundProps {
   currentScene: VideoBackgroundOption;
-  blurLevel: number; // 0 = Nitido (0px), 1 = Suave (0.8px), 2 = Cinemático (1.5px)
+  blurLevel: number;
 }
 
 const RealTrafficBackground: React.FC<RealTrafficBackgroundProps> = ({
@@ -78,23 +79,18 @@ const RealTrafficBackground: React.FC<RealTrafficBackgroundProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Asegurar reproducción fluida y continua del video al cambiar de escena
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 1.0;
-      videoRef.current.play().catch(() => {
-        // Autoplay manejado automáticamente por navegadores al estar muted
-      });
+      videoRef.current.play().catch(() => {});
     }
   }, [currentScene]);
 
-  // Cálculo del filtro de nitidez y contraste realista
   const blurPx = blurLevel === 0 ? 0 : blurLevel === 1 ? 0.8 : 1.5;
   const filterStyle = `blur(${blurPx}px) brightness(0.70) contrast(1.08) saturate(1.12)`;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#0B0F17]">
-      {/* 1. Video Real de Vehículos en Movimiento (Cámara Real) */}
       <video
         ref={videoRef}
         key={currentScene.src}
@@ -111,15 +107,12 @@ const RealTrafficBackground: React.FC<RealTrafficBackgroundProps> = ({
         <source src={currentScene.src} type="video/mp4" />
       </video>
 
-      {/* 2. Viñeta Suave para Garantizar Legibilidad Superior sin Ocultar los Vehículos */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
           background: 'radial-gradient(circle at center, rgba(11, 15, 23, 0.78) 0%, rgba(11, 15, 23, 0.42) 50%, rgba(11, 15, 23, 0.84) 100%)'
         }}
       />
-
-      {/* 3. Gradiente Vertical Suave Superior e Inferior */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F17]/90 via-transparent to-[#0B0F17]/60 pointer-events-none" />
     </div>
   );
@@ -140,15 +133,21 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [mascotWaved, setMascotWaved] = useState(false);
 
-  // Gestión de Escenas de Video Real y Nivel de Desenfoque
+  // Modo de visualización: 'mascot' (Ilustración Cabina de Control) o 'video' (Cámaras Reales)
+  const [loginMode, setLoginMode] = useState<'mascot' | 'video'>(() => {
+    return (typeof window !== 'undefined' && (localStorage.getItem('pk_login_visual_mode') as 'mascot' | 'video')) || 'mascot';
+  });
+
+  // Gestión de Escenas de Video Real
   const [selectedSceneId, setSelectedSceneId] = useState<string>(() => {
     return (typeof window !== 'undefined' && localStorage.getItem('pk_login_video_scene')) || 'parking';
   });
 
   const [blurLevel, setBlurLevel] = useState<number>(() => {
     const saved = typeof window !== 'undefined' ? localStorage.getItem('pk_login_video_blur') : null;
-    return saved !== null ? parseInt(saved, 10) : 1; // Default: 1 (0.8px, suave y nítido)
+    return saved !== null ? parseInt(saved, 10) : 1;
   });
 
   const currentScene = VIDEO_SCENES.find(s => s.id === selectedSceneId) || VIDEO_SCENES[0];
@@ -161,10 +160,17 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   const handleCycleBlur = () => {
-    const nextBlur = (blurLevel + 1) % 3; // 0 = Nítido (0px), 1 = Suave (0.8px), 2 = Cinemático (1.5px)
+    const nextBlur = (blurLevel + 1) % 3;
     setBlurLevel(nextBlur);
     if (typeof window !== 'undefined') {
       localStorage.setItem('pk_login_video_blur', nextBlur.toString());
+    }
+  };
+
+  const toggleVisualMode = (mode: 'mascot' | 'video') => {
+    setLoginMode(mode);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pk_login_visual_mode', mode);
     }
   };
 
@@ -182,6 +188,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
     } else if (onLoginSuccess) {
       onLoginSuccess(userToLogin);
     }
+  };
+
+  const handleMascotClick = () => {
+    playSound('click', true);
+    setMascotWaved(true);
+    setTimeout(() => setMascotWaved(false), 1200);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -265,200 +277,454 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#0B0F17] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
-      {/* Fondo de Video Realista de Tránsito y Vehículos en Movimiento */}
-      <RealTrafficBackground currentScene={currentScene} blurLevel={blurLevel} />
+    <div className="min-h-screen w-full bg-[#070b12] text-slate-100 flex items-center justify-center p-2 sm:p-4 md:p-6 relative overflow-hidden select-none">
+      
+      {/* ==================================================================== */}
+      {/* 1. MODO CABINA WOLFZONE (IMAGEN AJUSTADA CON HUD INTERACTIVO) */}
+      {/* ==================================================================== */}
+      {loginMode === 'mascot' ? (
+        <>
+          {/* Fondo Ambiental Suave para Llenar Cualquier Relación de Aspecto */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center filter blur-3xl scale-110 opacity-35 pointer-events-none"
+            style={{ backgroundImage: `url('/assets/login_mascot_bg.jpg')` }}
+          />
+          <div className="absolute inset-0 bg-radial from-transparent via-[#070b12]/60 to-[#070b12]/95 pointer-events-none" />
 
-      {/* Tarjeta Central de Acceso Elegante y Sobria */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[420px] bg-slate-900/85 border border-slate-800/90 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative z-10"
-      >
-        {/* Línea de acento luminoso superior en ámbar */}
-        <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-amber-500/70 to-transparent" />
-
-        {/* Encabezado: Logo y Nombre de Marca */}
-        <div className="text-center mb-6 flex flex-col items-center">
-          {/* Logo de la marca con agradable interacción */}
-          <motion.div 
-            whileHover={{ scale: 1.05, rotate: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-            className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-slate-700/80 p-2 shadow-xl shadow-amber-500/10 flex items-center justify-center mb-3.5 cursor-pointer relative group"
-          >
-            <img
-              src="/assets/wolf_logo_login_1790375008175.jpg"
-              alt="Logo Parqueadero POS"
-              className="w-full h-full object-contain rounded-xl drop-shadow-md"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'flex';
-              }}
+          {/* ESCENARIO PRINCIPAL 16:9 EN PANTALLAS (ESCRITORIO / TABLETS) */}
+          <div className="w-full max-w-[1150px] aspect-[1024/571] relative rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(6,182,212,0.30)] border border-cyan-500/40 bg-slate-950 hidden sm:block">
+            {/* Imagen Base de Alta Resolución */}
+            <img 
+              src="/assets/login_mascot_bg.jpg" 
+              alt="Sistema de Parqueadero Wolfzone" 
+              className="w-full h-full object-cover select-none pointer-events-none"
             />
-            <div className="hidden items-center justify-center w-full h-full text-amber-500 font-black font-mono text-2xl">
-              POS
+
+            {/* Formulario Interactivo Sobrepuesto en Coordenadas Exactas */}
+            <form onSubmit={handleFormSubmit} className="contents">
+              
+              {/* Badge de Sucursal o Servidor Central */}
+              <div 
+                className="absolute flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 border border-cyan-400/50 text-[10px] md:text-[11px] font-mono text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.35)] backdrop-blur-xs z-10"
+                style={{ left: '58.3%', top: '31.2%', maxWidth: '32%' }}
+              >
+                {isServer ? (
+                  <Server className="w-3 h-3 md:w-3.5 md:h-3.5 text-cyan-400 shrink-0" />
+                ) : (
+                  <Building2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-amber-400 shrink-0" />
+                )}
+                <span className="font-semibold truncate">{stationLabel}</span>
+              </div>
+
+              {/* Casilla 1: Usuario (Sobre el marco neón exacto) */}
+              <div 
+                className="absolute group z-10"
+                style={{ left: '58.4%', top: '41.3%', width: '28.3%', height: '7.4%' }}
+              >
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
+                  <User className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Ingresa tu usuario..."
+                  disabled={isLoggingIn}
+                  autoFocus
+                  required
+                  className="w-full h-full bg-slate-950/75 hover:bg-slate-950/60 focus:bg-slate-950/90 rounded-xl pl-8 md:pl-9 pr-3 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs md:text-sm border border-cyan-400/40 focus:border-cyan-300 focus:shadow-[0_0_16px_rgba(6,182,212,0.6)] focus:outline-none transition-all shadow-inner"
+                />
+              </div>
+
+              {/* Casilla 2: Contraseña (Sobre el marco neón exacto) */}
+              <div 
+                className="absolute group z-10"
+                style={{ left: '58.4%', top: '55.6%', width: '28.3%', height: '7.4%' }}
+              >
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
+                  <Lock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                </div>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={isLoggingIn}
+                  required
+                  className="w-full h-full bg-slate-950/75 hover:bg-slate-950/60 focus:bg-slate-950/90 rounded-xl pl-8 md:pl-9 pr-8 md:pr-9 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs md:text-sm border border-cyan-400/40 focus:border-cyan-300 focus:shadow-[0_0_16px_rgba(6,182,212,0.6)] focus:outline-none transition-all shadow-inner"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  className="absolute inset-y-0 right-0 pr-2.5 md:pr-3 flex items-center text-cyan-400/60 hover:text-cyan-200 transition-colors cursor-pointer"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                >
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                </button>
+              </div>
+
+              {/* Botón: Iniciar Sesión (Sobre el botón neón exacto) */}
+              <div 
+                className="absolute z-10"
+                style={{ left: '62.0%', top: '68.8%', width: '21.0%', height: '7.6%' }}
+              >
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-full h-full rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-300 active:from-cyan-600 active:to-teal-500 disabled:opacity-50 text-slate-950 font-black text-[11px] md:text-xs lg:text-sm tracking-wider uppercase flex items-center justify-center gap-1.5 md:gap-2 shadow-[0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_30px_rgba(34,211,238,1)] border border-cyan-200/90 transition-all cursor-pointer"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <div className="w-3.5 h-3.5 md:w-4 md:h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span className="hidden md:inline">Accediendo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[3]" />
+                      <span>Iniciar Sesión</span>
+                    </>
+                  )}
+                </motion.button>
+              </div>
+
+              {/* Mensaje de Alerta / Error */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.96 }}
+                    className="absolute z-20 p-2 md:p-2.5 rounded-xl bg-rose-950/95 border border-rose-500/80 text-rose-200 text-[10px] md:text-xs flex items-center gap-2 shadow-[0_0_16px_rgba(244,63,94,0.6)] backdrop-blur-md"
+                    style={{ left: '58.4%', top: '78.5%', width: '28.3%' }}
+                  >
+                    <AlertCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-400 shrink-0" />
+                    <span className="truncate font-semibold">{error}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </form>
+
+            {/* Interacción Divertida con la Mascota Wolfzone (Saluda al hacer clic) */}
+            <motion.div
+              onClick={handleMascotClick}
+              whileHover={{ scale: 1.02 }}
+              animate={mascotWaved ? { rotate: [0, -4, 4, -2, 0] } : {}}
+              transition={{ duration: 0.5 }}
+              title="¡Operador Wolfzone en guardia! Haz clic para saludar."
+              className="absolute z-10 cursor-pointer group"
+              style={{ left: '5%', top: '20%', width: '40%', height: '75%' }}
+            >
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-12 left-10 bg-slate-950/90 border border-cyan-500/60 rounded-xl px-3 py-1.5 text-[11px] font-mono text-cyan-300 shadow-lg pointer-events-none flex items-center gap-1.5 backdrop-blur-md">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                <span>¡Hola! Cabina de Control Operativa 🐺</span>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ESCENARIO RESPONSIVO PARA DISPOSITIVOS MÓVILES (sm:hidden) */}
+          <div className="w-full max-w-sm relative z-10 sm:hidden bg-slate-950/90 border border-cyan-500/40 rounded-3xl p-6 backdrop-blur-xl shadow-[0_0_40px_rgba(6,182,212,0.35)]">
+            {/* Avatar de la Mascota */}
+            <div className="flex flex-col items-center text-center mb-5">
+              <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.5)] mb-3 bg-slate-900">
+                <img 
+                  src="/assets/login_mascot_bg.jpg" 
+                  alt="Mascota Wolfzone"
+                  className="w-full h-full object-cover object-left-top scale-175 translate-x-2 translate-y-3"
+                />
+              </div>
+              <h1 className="text-base font-black uppercase text-cyan-200 tracking-wider">
+                Sistema de Parqueadero
+              </h1>
+              <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-900 border border-cyan-500/40 text-[11px] font-mono text-cyan-300">
+                {isServer ? <Server className="w-3.5 h-3.5 text-cyan-400" /> : <Building2 className="w-3.5 h-3.5 text-amber-400" />}
+                <span>{stationLabel}</span>
+              </div>
+            </div>
+
+            {/* Error en móvil */}
+            <AnimatePresence>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2"
+                >
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span className="font-semibold">{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Formulario Móvil */}
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-1 font-mono">
+                  Usuario
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-cyan-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Ingresa tu usuario"
+                    disabled={isLoggingIn}
+                    className="w-full bg-slate-900 border border-cyan-500/40 focus:border-cyan-300 rounded-xl pl-10 pr-3 py-3 text-sm text-cyan-100 placeholder-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-1 font-mono">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-cyan-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={isLoggingIn}
+                    className="w-full bg-slate-900 border border-cyan-500/40 focus:border-cyan-300 rounded-xl pl-10 pr-10 py-3 text-sm text-cyan-100 placeholder-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-cyan-400/70"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center gap-2 mt-4 cursor-pointer"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Iniciando...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4 h-4 stroke-[3]" />
+                    <span>Iniciar Sesión</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+        </>
+      ) : (
+        /* ==================================================================== */
+        /* 2. MODO CÁMARAS DE TRÁFICO REAL */
+        /* ==================================================================== */
+        <>
+          <RealTrafficBackground currentScene={currentScene} blurLevel={blurLevel} />
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="w-full max-w-[420px] bg-slate-900/85 border border-slate-800/90 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative z-10"
+          >
+            <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
+
+            <div className="text-center mb-6 flex flex-col items-center">
+              <motion.div 
+                whileHover={{ scale: 1.05, rotate: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 border border-cyan-500/40 p-2 shadow-xl shadow-cyan-500/10 flex items-center justify-center mb-3.5 cursor-pointer relative group"
+              >
+                <img
+                  src="/assets/wolf_logo_login_1790375008175.jpg"
+                  alt="Logo Parqueadero POS"
+                  className="w-full h-full object-contain rounded-xl drop-shadow-md"
+                />
+              </motion.div>
+
+              <h1 className="text-lg font-black tracking-tight text-white uppercase font-sans">
+                {businessName}
+              </h1>
+
+              <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-950/90 border border-slate-800 text-xs font-mono text-slate-300 shadow-inner">
+                {isServer ? (
+                  <Server className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                ) : (
+                  <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                )}
+                <span className="font-semibold text-slate-200">{stationLabel}</span>
+              </div>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0, y: -6 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -6 }}
+                  className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2.5 overflow-hidden shadow-xs"
+                >
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span className="font-semibold">{error}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <form onSubmit={handleFormSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                  Usuario
+                </label>
+                <div className="relative group">
+                  <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Ingresa tu usuario"
+                    disabled={isLoggingIn}
+                    autoFocus
+                    required
+                    className="w-full bg-slate-950/90 border border-slate-700/80 focus:border-cyan-400 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 font-mono shadow-inner"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                  Contraseña
+                </label>
+                <div className="relative group">
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={isLoggingIn}
+                    required
+                    className="w-full bg-slate-950/90 border border-slate-700/80 focus:border-cyan-400 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 font-mono shadow-inner"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 hover:from-cyan-400 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer mt-5"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Iniciando sesión...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="w-4.5 h-4.5 stroke-[2.5]" />
+                    <span>Iniciar Sesión</span>
+                  </>
+                )}
+              </motion.button>
+            </form>
+
+            <div className="mt-6 pt-4 border-t border-slate-800/80 text-center">
+              <span className="text-[11px] font-mono text-slate-500 flex items-center justify-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400/70" />
+                <span>Terminal POS Segura • Acceso Restringido</span>
+              </span>
             </div>
           </motion.div>
+        </>
+      )}
 
-          {/* Título de la Aplicación */}
-          <h1 className="text-lg font-black tracking-tight text-white uppercase font-sans">
-            {businessName}
-          </h1>
-
-          {/* Indicador de Sucursal o Servidor Central */}
-          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-950/90 border border-slate-800 text-xs font-mono text-slate-300 shadow-inner">
-            {isServer ? (
-              <Server className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-            ) : (
-              <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            )}
-            <span className="font-semibold text-slate-200">{stationLabel}</span>
-          </div>
-        </div>
-
-        {/* Mensaje de Alerta / Error */}
-        <AnimatePresence mode="wait">
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0, y: -6 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -6 }}
-              className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2.5 overflow-hidden shadow-xs"
-            >
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-              <span className="font-semibold">{error}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Formulario de Login Limpio */}
-        <form onSubmit={handleFormSubmit} className="space-y-4">
-          {/* Casilla de Usuario */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-              Usuario
-            </label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-amber-500 transition-colors">
-                <User className="w-4 h-4" />
-              </div>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Ingresa tu usuario"
-                disabled={isLoggingIn}
-                autoFocus
-                required
-                className="w-full bg-slate-950/90 border border-slate-700/80 focus:border-amber-500 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all font-mono shadow-inner"
-              />
-            </div>
-          </div>
-
-          {/* Casilla de Contraseña */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
-              Contraseña
-            </label>
-            <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-amber-500 transition-colors">
-                <Lock className="w-4 h-4" />
-              </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                disabled={isLoggingIn}
-                required
-                className="w-full bg-slate-950/90 border border-slate-700/80 focus:border-amber-500 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all font-mono shadow-inner"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
-                aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Botón de Iniciar Sesión */}
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            disabled={isLoggingIn}
-            className="pk-pos-key w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 active:from-amber-600 active:to-amber-500 disabled:opacity-50 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer mt-5"
-          >
-            {isLoggingIn ? (
-              <>
-                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                <span>Iniciando sesión...</span>
-              </>
-            ) : (
-              <>
-                <LogIn className="w-4.5 h-4.5 stroke-[2.5]" />
-                <span>Iniciar Sesión</span>
-              </>
-            )}
-          </motion.button>
-        </form>
-
-        {/* Pie de Página Minimalista y Seguro */}
-        <div className="mt-6 pt-4 border-t border-slate-800/80 text-center">
-          <span className="text-[11px] font-mono text-slate-500 flex items-center justify-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-amber-500/70" />
-            <span>Terminal POS Segura • Acceso Restringido</span>
-          </span>
-        </div>
-      </motion.div>
-
-      {/* Controles Discretos de Fondo de Video Real (Escenas y Enfoque) */}
+      {/* ==================================================================== */}
+      {/* BARRA INFERIOR DE CONTROL DE AMBIENTE (INTERACTIVA Y ELEGANTE) */}
+      {/* ==================================================================== */}
       <div className="absolute bottom-3 left-4 right-4 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-auto">
-        {/* Selector Rápido de Cámaras / Escenas de Video Real */}
-        <div className="flex items-center gap-1 p-1 rounded-full bg-slate-950/80 border border-slate-800/80 backdrop-blur-md shadow-lg text-[11px] font-mono text-slate-300">
-          <div className="flex items-center gap-1 px-2.5 py-1 text-slate-400">
-            <Video className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">Cámara Real:</span>
-          </div>
-          {VIDEO_SCENES.map((scene) => {
-            const isActive = scene.id === selectedSceneId;
-            return (
-              <button
-                key={scene.id}
-                type="button"
-                onClick={() => handleSelectScene(scene.id)}
-                title={scene.badge}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <span>{scene.iconLabel}</span>
-                <span className="hidden md:inline">{scene.name}</span>
-              </button>
-            );
-          })}
+        {/* Selector de Modo: Cabina Wolfzone vs Cámaras Reales */}
+        <div className="flex items-center gap-1 p-1 rounded-full bg-slate-950/85 border border-cyan-500/30 backdrop-blur-md shadow-lg text-[11px] font-mono text-slate-300">
+          <button
+            type="button"
+            onClick={() => toggleVisualMode('mascot')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+              loginMode === 'mascot'
+                ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <span>🐺</span>
+            <span>Cabina Wolfzone</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleVisualMode('video')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+              loginMode === 'video'
+                ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Video className="w-3.5 h-3.5" />
+            <span>Cámaras Reales</span>
+          </button>
         </div>
 
-        {/* Selector de Nivel de Nitidez / Desenfoque */}
-        <button
-          type="button"
-          onClick={handleCycleBlur}
-          title="Ajustar nitidez del video de fondo en tiempo real"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-mono backdrop-blur-md shadow-lg transition-all cursor-pointer"
-        >
-          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-          <span>
-            {blurLevel === 0 ? 'Nitidez: 100% Nítido (0px)' : blurLevel === 1 ? 'Nitidez: Suave (0.8px)' : 'Nitidez: Desenfoque (1.5px)'}
-          </span>
-        </button>
+        {/* Controles Específicos cuando el modo Video está Activo */}
+        {loginMode === 'video' && (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 p-1 rounded-full bg-slate-950/80 border border-slate-800/80 backdrop-blur-md shadow-lg text-[11px] font-mono text-slate-300">
+              {VIDEO_SCENES.map((scene) => (
+                <button
+                  key={scene.id}
+                  type="button"
+                  onClick={() => handleSelectScene(scene.id)}
+                  title={scene.badge}
+                  className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                    scene.id === selectedSceneId
+                      ? 'bg-cyan-500 text-slate-950 font-bold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <span>{scene.iconLabel}</span>
+                  <span className="hidden md:inline ml-1">{scene.name}</span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCycleBlur}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-slate-800/80 text-slate-300 hover:text-white text-[11px] font-mono backdrop-blur-md shadow-lg cursor-pointer"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{blurLevel === 0 ? '0px' : blurLevel === 1 ? '0.8px' : '1.5px'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Indicador de Terminal Segura */}
+        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/75 border border-slate-800 text-[11px] font-mono text-slate-400 backdrop-blur-md">
+          <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Terminal Oficial Wolfzone POS</span>
+        </div>
       </div>
     </div>
   );
