@@ -1377,7 +1377,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {spots.filter(s => s.type === entryVehicleType && s.status === 'available').length} celdas libres
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   {configuredCategories.map((cat) => {
                     const isSelected = entryVehicleType === cat.id;
                     const availableForThis = spots.filter(s => s.type === cat.id && s.status === 'available').length;
@@ -1393,28 +1393,18 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setEntryVehicleType(cat.id);
                           playSound('beep', soundEnabled);
                         }}
-                        className={`pk-pos-key h-16 sm:h-18 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer p-2 ${
+                        className={`pk-pos-key h-14 sm:h-16 rounded-xl border flex items-center justify-center transition-all cursor-pointer p-2 ${
                           isSelected
-                            ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-4 border-b-amber-700 shadow-lg shadow-amber-500/20 scale-[1.02] ring-2 ring-amber-400/50 z-10'
+                            ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-4 border-b-amber-700 shadow-lg shadow-amber-500/25 scale-[1.02] ring-2 ring-amber-400/50 z-10'
                             : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-200 shadow-2xs'
                         }`}
                       >
                         {getVehicleIcon(
                           cat.icon || cat.id,
                           isSelected
-                            ? 'w-7 h-7 sm:w-8 sm:h-8 text-slate-950 transition-transform stroke-[2.2]'
-                            : 'w-6 h-6 sm:w-7 sm:h-7 text-slate-500 dark:text-slate-400 transition-transform stroke-[1.8]'
+                            ? 'w-8 h-8 sm:w-9 sm:h-9 text-slate-950 transition-transform stroke-[2.2]'
+                            : 'w-7 h-7 sm:w-8 sm:h-8 text-slate-600 dark:text-slate-400 transition-transform stroke-[1.8]'
                         )}
-                        <div className="flex items-center justify-between w-full px-1 text-[10px] leading-none">
-                          <span className={`font-bold truncate ${isSelected ? 'text-slate-950' : 'text-slate-700 dark:text-slate-300'}`}>
-                            {cat.name}
-                          </span>
-                          <span className={`font-mono text-[9px] font-bold px-1 rounded ${
-                            isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                          }`}>
-                            {availableForThis}
-                          </span>
-                        </div>
                       </button>
                     );
                   })}
