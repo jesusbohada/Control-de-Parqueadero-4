@@ -11,7 +11,9 @@ import {
   ShieldCheck,
   Video,
   Sparkles,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SystemUser, BranchLocation } from '../types';
@@ -134,6 +136,23 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [mascotWaved, setMascotWaved] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
 
   // Modo de visualización: 'mascot' (Ilustración Cabina de Control) o 'video' (Cámaras Reales)
   const [loginMode, setLoginMode] = useState<'mascot' | 'video'>(() => {
@@ -277,52 +296,45 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#070b12] text-slate-100 flex items-center justify-center p-2 sm:p-4 md:p-6 relative overflow-hidden select-none">
+    <div className="fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#070b12] text-slate-100">
       
       {/* ==================================================================== */}
-      {/* 1. MODO CABINA WOLFZONE (IMAGEN AJUSTADA CON HUD INTERACTIVO) */}
+      {/* 1. MODO CABINA WOLFZONE (100% PANTALLA COMPLETA) */}
       {/* ==================================================================== */}
       {loginMode === 'mascot' ? (
         <>
-          {/* Fondo Ambiental Suave para Llenar Cualquier Relación de Aspecto */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center filter blur-3xl scale-110 opacity-35 pointer-events-none"
-            style={{ backgroundImage: `url('/assets/login_mascot_bg.jpg')` }}
-          />
-          <div className="absolute inset-0 bg-radial from-transparent via-[#070b12]/60 to-[#070b12]/95 pointer-events-none" />
-
-          {/* ESCENARIO PRINCIPAL 16:9 EN PANTALLAS (ESCRITORIO / TABLETS) */}
-          <div className="w-full max-w-[1150px] aspect-[1024/571] relative rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(6,182,212,0.30)] border border-cyan-500/40 bg-slate-950 hidden sm:block">
-            {/* Imagen Base de Alta Resolución */}
+          {/* ESCENARIO 100% PANTALLA COMPLETA EN PANTALLAS (ESCRITORIO / TABLETS / TERMINALES) */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden hidden sm:block">
+            {/* Imagen de Fondo 100% Pantalla Completa Sin Franjas ni Bordes */}
             <img 
               src="/assets/login_mascot_bg.jpg" 
               alt="Sistema de Parqueadero Wolfzone" 
-              className="w-full h-full object-cover select-none pointer-events-none"
+              className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none"
             />
 
-            {/* Formulario Interactivo Sobrepuesto en Coordenadas Exactas */}
+            {/* Formulario Interactivo Sobrepuesto en Coordenadas Exactas (100% Ajustado) */}
             <form onSubmit={handleFormSubmit} className="contents">
               
               {/* Badge de Sucursal o Servidor Central */}
               <div 
-                className="absolute flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 border border-cyan-400/50 text-[10px] md:text-[11px] font-mono text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.35)] backdrop-blur-xs z-10"
-                style={{ left: '58.3%', top: '31.2%', maxWidth: '32%' }}
+                className="absolute flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/85 border border-cyan-400/60 text-xs md:text-sm font-mono text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] backdrop-blur-xs z-10"
+                style={{ left: '58.8%', top: '30.8%', maxWidth: '30%' }}
               >
                 {isServer ? (
-                  <Server className="w-3 h-3 md:w-3.5 md:h-3.5 text-cyan-400 shrink-0" />
+                  <Server className="w-3.5 h-3.5 md:w-4 md:h-4 text-cyan-400 shrink-0" />
                 ) : (
-                  <Building2 className="w-3 h-3 md:w-3.5 md:h-3.5 text-amber-400 shrink-0" />
+                  <Building2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-amber-400 shrink-0" />
                 )}
                 <span className="font-semibold truncate">{stationLabel}</span>
               </div>
 
-              {/* Casilla 1: Usuario (Sobre el marco neón exacto) */}
+              {/* Casilla 1: Usuario (Sobre el marco neón exacto 100%) */}
               <div 
                 className="absolute group z-10"
-                style={{ left: '58.4%', top: '41.3%', width: '28.3%', height: '7.4%' }}
+                style={{ left: '58.8%', top: '41.8%', width: '28.0%', height: '6.8%' }}
               >
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
-                  <User className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 md:pl-4 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
+                  <User className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                 </div>
                 <input
                   type="text"
@@ -332,17 +344,17 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   disabled={isLoggingIn}
                   autoFocus
                   required
-                  className="w-full h-full bg-slate-950/75 hover:bg-slate-950/60 focus:bg-slate-950/90 rounded-xl pl-8 md:pl-9 pr-3 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs md:text-sm border border-cyan-400/40 focus:border-cyan-300 focus:shadow-[0_0_16px_rgba(6,182,212,0.6)] focus:outline-none transition-all shadow-inner"
+                  className="w-full h-full bg-[#071322]/80 hover:bg-[#071322]/60 focus:bg-[#071322]/95 rounded-xl lg:rounded-2xl pl-10 md:pl-12 lg:pl-14 pr-4 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs sm:text-sm md:text-base lg:text-lg border border-cyan-400/50 focus:border-cyan-300 focus:shadow-[0_0_20px_rgba(6,182,212,0.8)] focus:outline-none transition-all shadow-inner"
                 />
               </div>
 
-              {/* Casilla 2: Contraseña (Sobre el marco neón exacto) */}
+              {/* Casilla 2: Contraseña (Sobre el marco neón exacto 100%) */}
               <div 
                 className="absolute group z-10"
-                style={{ left: '58.4%', top: '55.6%', width: '28.3%', height: '7.4%' }}
+                style={{ left: '58.7%', top: '55.9%', width: '28.1%', height: '6.8%' }}
               >
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
-                  <Lock className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 md:pl-4 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
+                  <Lock className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                 </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -351,39 +363,39 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   placeholder="••••••••"
                   disabled={isLoggingIn}
                   required
-                  className="w-full h-full bg-slate-950/75 hover:bg-slate-950/60 focus:bg-slate-950/90 rounded-xl pl-8 md:pl-9 pr-8 md:pr-9 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs md:text-sm border border-cyan-400/40 focus:border-cyan-300 focus:shadow-[0_0_16px_rgba(6,182,212,0.6)] focus:outline-none transition-all shadow-inner"
+                  className="w-full h-full bg-[#071322]/80 hover:bg-[#071322]/60 focus:bg-[#071322]/95 rounded-xl lg:rounded-2xl pl-10 md:pl-12 lg:pl-14 pr-11 md:pr-12 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs sm:text-sm md:text-base lg:text-lg border border-cyan-400/50 focus:border-cyan-300 focus:shadow-[0_0_20px_rgba(6,182,212,0.8)] focus:outline-none transition-all shadow-inner"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
-                  className="absolute inset-y-0 right-0 pr-2.5 md:pr-3 flex items-center text-cyan-400/60 hover:text-cyan-200 transition-colors cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 md:pr-4 flex items-center text-cyan-400/60 hover:text-cyan-200 transition-colors cursor-pointer"
                   aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                 >
-                  {showPassword ? <EyeOff className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4 md:w-5 md:h-5" /> : <Eye className="w-4 h-4 md:w-5 md:h-5" />}
                 </button>
               </div>
 
-              {/* Botón: Iniciar Sesión (Sobre el botón neón exacto) */}
+              {/* Botón: Iniciar Sesión (Sobre el botón neón exacto 100%) */}
               <div 
                 className="absolute z-10"
-                style={{ left: '62.0%', top: '68.8%', width: '21.0%', height: '7.6%' }}
+                style={{ left: '62.3%', top: '69.5%', width: '20.0%', height: '7.8%' }}
               >
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={isLoggingIn}
-                  className="w-full h-full rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-300 active:from-cyan-600 active:to-teal-500 disabled:opacity-50 text-slate-950 font-black text-[11px] md:text-xs lg:text-sm tracking-wider uppercase flex items-center justify-center gap-1.5 md:gap-2 shadow-[0_0_20px_rgba(6,182,212,0.8)] hover:shadow-[0_0_30px_rgba(34,211,238,1)] border border-cyan-200/90 transition-all cursor-pointer"
+                  className="w-full h-full rounded-2xl md:rounded-3xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-300 active:from-cyan-600 active:to-teal-500 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.85)] hover:shadow-[0_0_35px_rgba(34,211,238,1)] border border-cyan-200/90 transition-all cursor-pointer"
                 >
                   {isLoggingIn ? (
                     <>
-                      <div className="w-3.5 h-3.5 md:w-4 md:h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                      <span className="hidden md:inline">Accediendo...</span>
+                      <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span className="hidden sm:inline">Accediendo...</span>
                     </>
                   ) : (
                     <>
-                      <LogIn className="w-3.5 h-3.5 md:w-4 md:h-4 stroke-[3]" />
+                      <LogIn className="w-4 h-4 md:w-5 md:h-5 stroke-[3]" />
                       <span>Iniciar Sesión</span>
                     </>
                   )}
@@ -394,13 +406,13 @@ export const LoginView: React.FC<LoginViewProps> = ({
               <AnimatePresence>
                 {error && (
                   <motion.div
-                    initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -4, scale: 0.96 }}
-                    className="absolute z-20 p-2 md:p-2.5 rounded-xl bg-rose-950/95 border border-rose-500/80 text-rose-200 text-[10px] md:text-xs flex items-center gap-2 shadow-[0_0_16px_rgba(244,63,94,0.6)] backdrop-blur-md"
-                    style={{ left: '58.4%', top: '78.5%', width: '28.3%' }}
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    className="absolute z-20 p-2.5 rounded-xl bg-rose-950/95 border border-rose-500/80 text-rose-200 text-xs sm:text-sm flex items-center gap-2 shadow-[0_0_18px_rgba(244,63,94,0.7)] backdrop-blur-md"
+                    style={{ left: '58.7%', top: '78.5%', width: '28.1%' }}
                   >
-                    <AlertCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-rose-400 shrink-0" />
+                    <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-rose-400 shrink-0" />
                     <span className="truncate font-semibold">{error}</span>
                   </motion.div>
                 )}
@@ -410,15 +422,15 @@ export const LoginView: React.FC<LoginViewProps> = ({
             {/* Interacción Divertida con la Mascota Wolfzone (Saluda al hacer clic) */}
             <motion.div
               onClick={handleMascotClick}
-              whileHover={{ scale: 1.02 }}
-              animate={mascotWaved ? { rotate: [0, -4, 4, -2, 0] } : {}}
+              whileHover={{ scale: 1.01 }}
+              animate={mascotWaved ? { rotate: [0, -3, 3, -2, 0] } : {}}
               transition={{ duration: 0.5 }}
               title="¡Operador Wolfzone en guardia! Haz clic para saludar."
               className="absolute z-10 cursor-pointer group"
-              style={{ left: '5%', top: '20%', width: '40%', height: '75%' }}
+              style={{ left: '5%', top: '15%', width: '40%', height: '80%' }}
             >
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-12 left-10 bg-slate-950/90 border border-cyan-500/60 rounded-xl px-3 py-1.5 text-[11px] font-mono text-cyan-300 shadow-lg pointer-events-none flex items-center gap-1.5 backdrop-blur-md">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-16 left-12 bg-slate-950/90 border border-cyan-500/60 rounded-xl px-3.5 py-2 text-xs font-mono text-cyan-300 shadow-xl pointer-events-none flex items-center gap-2 backdrop-blur-md">
+                <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
                 <span>¡Hola! Cabina de Control Operativa 🐺</span>
               </div>
             </motion.div>
@@ -720,10 +732,22 @@ export const LoginView: React.FC<LoginViewProps> = ({
           </div>
         )}
 
-        {/* Indicador de Terminal Segura */}
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/75 border border-slate-800 text-[11px] font-mono text-slate-400 backdrop-blur-md">
-          <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Terminal Oficial Wolfzone POS</span>
+        {/* Acciones de Pantalla Completa y Terminal Segura */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleFullScreen}
+            title={isFullscreen ? "Salir de pantalla completa" : "Ver en pantalla completa"}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/85 border border-cyan-500/40 hover:border-cyan-300 text-cyan-300 hover:text-white text-[11px] font-mono backdrop-blur-md shadow-lg transition-all cursor-pointer"
+          >
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{isFullscreen ? 'Salir Pantalla Completa' : 'Pantalla Completa'}</span>
+          </button>
+
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/75 border border-slate-800 text-[11px] font-mono text-slate-400 backdrop-blur-md">
+            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Terminal POS Wolfzone</span>
+          </div>
         </div>
       </div>
     </div>
