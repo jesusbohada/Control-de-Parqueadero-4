@@ -372,10 +372,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
           {/* Título Principal con Máximo Contraste y Nitidez */}
           <h1 className="text-2xl sm:text-[26px] font-black uppercase text-white tracking-wide font-sans drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">
-            Sistema de Parqueadero
+            WOLFZONE PARKING
           </h1>
           <p className="text-xs font-mono font-bold text-cyan-300 tracking-wider uppercase mt-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
-            Wolfzone Checkpoint • Terminal POS
+            Checkpoint • Terminal POS
           </p>
 
           {/* Badge de Estado y Sucursal */}
