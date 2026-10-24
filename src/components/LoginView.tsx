@@ -325,18 +325,18 @@ const TrafficBackground: React.FC = () => {
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Canvas animado con desenfoque cinematográfico suave */}
+      {/* Canvas animado con desenfoque sutil y mayor nitidez visual */}
       <canvas
         ref={canvasRef}
         className="w-full h-full block"
-        style={{ filter: 'blur(3.5px) saturate(1.2)' }}
+        style={{ filter: 'blur(1.2px) saturate(1.25)' }}
       />
       
       {/* Viñeta oscura central para garantizar 100% de legibilidad y contraste */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at center, rgba(11, 15, 23, 0.82) 0%, rgba(11, 15, 23, 0.55) 55%, rgba(11, 15, 23, 0.92) 100%)'
+          background: 'radial-gradient(circle at center, rgba(11, 15, 23, 0.72) 0%, rgba(11, 15, 23, 0.38) 55%, rgba(11, 15, 23, 0.86) 100%)'
         }}
       />
     </div>
