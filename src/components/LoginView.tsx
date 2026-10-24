@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Lock, 
   User, 
@@ -8,7 +8,6 @@ import {
   AlertCircle,
   Building2,
   Server,
-  Sparkles,
   ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -24,6 +23,329 @@ interface LoginViewProps {
   currentBranch?: BranchLocation;
 }
 
+// ============================================================================
+// COMPONENTE: FONDO ANIMADO DE TRÁNSITO VEHICULAR EN MOVIMIENTO (CINEMATIC BLUR)
+// ============================================================================
+interface TrafficVehicle {
+  x: number;
+  laneIndex: number;
+  speed: number;
+  type: 'car' | 'moto' | 'suv' | 'truck';
+  color: string;
+  roofColor: string;
+  length: number;
+  width: number;
+}
+
+interface BokehParticle {
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  alpha: number;
+  pulseSpeed: number;
+}
+
+const TrafficBackground: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Definición de carriles (Vía expresa en 2 sentidos)
+    const lanes = [
+      { yRatio: 0.18, dir: 1, speedFactor: 1.1 },
+      { yRatio: 0.28, dir: 1, speedFactor: 1.4 },
+      { yRatio: 0.38, dir: 1, speedFactor: 1.2 },
+      { yRatio: 0.62, dir: -1, speedFactor: 1.2 },
+      { yRatio: 0.72, dir: -1, speedFactor: 1.5 },
+      { yRatio: 0.82, dir: -1, speedFactor: 1.1 },
+    ];
+
+    const vehicleColors = ['#1e293b', '#0f172a', '#334155', '#475569', '#1e1b4b', '#312e81', '#1e3a5f'];
+    const roofColors = ['#334155', '#1e293b', '#475569', '#64748b', '#3b82f6'];
+
+    // Inicializar flota de vehículos
+    const vehicles: TrafficVehicle[] = [];
+    lanes.forEach((lane, laneIdx) => {
+      // 3 a 4 vehículos por carril espaciados
+      const count = 3 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < count; i++) {
+        const types: ('car' | 'moto' | 'suv' | 'truck')[] = ['car', 'car', 'suv', 'moto', 'truck'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        let len = 50;
+        let wid = 20;
+
+        if (type === 'moto') {
+          len = 28;
+          wid = 12;
+        } else if (type === 'suv') {
+          len = 60;
+          wid = 24;
+        } else if (type === 'truck') {
+          len = 85;
+          wid = 26;
+        }
+
+        vehicles.push({
+          x: (width / count) * i + Math.random() * 120,
+          laneIndex: laneIdx,
+          speed: (1.6 + Math.random() * 1.8) * lane.speedFactor,
+          type,
+          color: vehicleColors[Math.floor(Math.random() * vehicleColors.length)],
+          roofColor: roofColors[Math.floor(Math.random() * roofColors.length)],
+          length: len,
+          width: wid
+        });
+      }
+    });
+
+    // Puntos bokeh urbanos en el horizonte
+    const bokeh: BokehParticle[] = [];
+    const bokehColors = ['rgba(245, 158, 11, ', 'rgba(234, 179, 8, ', 'rgba(56, 189, 248, ', 'rgba(239, 68, 68, ', 'rgba(255, 255, 255, '];
+    for (let i = 0; i < 35; i++) {
+      bokeh.push({
+        x: Math.random() * width,
+        y: Math.random() * (height * 0.4),
+        radius: 3 + Math.random() * 14,
+        color: bokehColors[Math.floor(Math.random() * bokehColors.length)],
+        alpha: 0.1 + Math.random() * 0.35,
+        pulseSpeed: 0.01 + Math.random() * 0.02
+      });
+    }
+
+    let tick = 0;
+
+    const render = () => {
+      tick++;
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Fondo base de asfalto nocturno con leve reflejo
+      const gradBg = ctx.createLinearGradient(0, 0, 0, height);
+      gradBg.addColorStop(0, '#06080e');
+      gradBg.addColorStop(0.5, '#0b0f17');
+      gradBg.addColorStop(1, '#05070c');
+      ctx.fillStyle = gradBg;
+      ctx.fillRect(0, 0, width, height);
+
+      // 2. Dibujar bokeh urbano lejano
+      bokeh.forEach(b => {
+        const dynamicAlpha = b.alpha + Math.sin(tick * b.pulseSpeed) * 0.1;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${b.color}${Math.max(0.05, dynamicAlpha)})`;
+        ctx.fill();
+      });
+
+      // 3. Dibujar calzadas y líneas de carril
+      lanes.forEach(lane => {
+        const laneY = height * lane.yRatio;
+        
+        // Línea reflectiva discontinua del carril
+        ctx.beginPath();
+        ctx.setLineDash([20, 24]);
+        ctx.lineDashOffset = -tick * lane.dir * 1.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(0, laneY + 16);
+        ctx.lineTo(width, laneY + 16);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+
+      // Separador central de la autopista con brillo ámbar tenue
+      const midY = height * 0.5;
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.15)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, midY);
+      ctx.lineTo(width, midY);
+      ctx.stroke();
+
+      // 4. Renderizar y mover cada vehículo con sus luces
+      vehicles.forEach(v => {
+        const lane = lanes[v.laneIndex];
+        const dir = lane.dir;
+        const laneY = height * lane.yRatio;
+
+        // Actualizar posición
+        v.x += v.speed * dir;
+
+        // Bucle infinito continuo
+        if (dir === 1 && v.x > width + 160) {
+          v.x = -160;
+        } else if (dir === -1 && v.x < -160) {
+          v.x = width + 160;
+        }
+
+        const vx = v.x;
+        const vy = laneY - v.width / 2;
+        const vLen = v.length;
+        const vWid = v.width;
+
+        // A. Luces Delanteras (Faros y haz de luz proyectado hacia adelante)
+        if (dir === 1) {
+          // Vehículo va hacia la derecha -> Faros alumbran hacia la derecha
+          const beamGrad = ctx.createRadialGradient(
+            vx + vLen, vy + vWid / 2, 2,
+            vx + vLen + 110, vy + vWid / 2, 80
+          );
+          beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
+          beamGrad.addColorStop(0.3, 'rgba(253, 224, 71, 0.2)');
+          beamGrad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+
+          ctx.fillStyle = beamGrad;
+          ctx.beginPath();
+          ctx.moveTo(vx + vLen, vy + 2);
+          ctx.lineTo(vx + vLen + 130, vy - 20);
+          ctx.lineTo(vx + vLen + 130, vy + vWid + 20);
+          ctx.lineTo(vx + vLen, vy + vWid - 2);
+          ctx.closePath();
+          ctx.fill();
+
+          // Puntos de faro delantero
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#fef08a';
+          ctx.shadowBlur = 10;
+          ctx.fillRect(vx + vLen - 2, vy + 3, 3, 4);
+          ctx.fillRect(vx + vLen - 2, vy + vWid - 7, 3, 4);
+          ctx.shadowBlur = 0;
+
+          // B. Luces Traseras (Stops rojos con estela de luz hacia atrás)
+          const tailGrad = ctx.createLinearGradient(vx, vy, vx - 50, vy);
+          tailGrad.addColorStop(0, 'rgba(239, 68, 68, 0.6)');
+          tailGrad.addColorStop(0.5, 'rgba(220, 38, 38, 0.25)');
+          tailGrad.addColorStop(1, 'rgba(220, 38, 38, 0)');
+
+          ctx.fillStyle = tailGrad;
+          ctx.fillRect(vx - 50, vy + 2, 50, 4);
+          ctx.fillRect(vx - 50, vy + vWid - 6, 50, 4);
+
+          // Puntos de luz roja de los stops
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 12;
+          ctx.fillRect(vx - 1, vy + 2, 3, 4);
+          ctx.fillRect(vx - 1, vy + vWid - 6, 3, 4);
+          ctx.shadowBlur = 0;
+
+        } else {
+          // Vehículo va hacia la izquierda -> Faros alumbran hacia la izquierda
+          const beamGrad = ctx.createRadialGradient(
+            vx, vy + vWid / 2, 2,
+            vx - 110, vy + vWid / 2, 80
+          );
+          beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
+          beamGrad.addColorStop(0.3, 'rgba(253, 224, 71, 0.2)');
+          beamGrad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+
+          ctx.fillStyle = beamGrad;
+          ctx.beginPath();
+          ctx.moveTo(vx, vy + 2);
+          ctx.lineTo(vx - 130, vy - 20);
+          ctx.lineTo(vx - 130, vy + vWid + 20);
+          ctx.lineTo(vx, vy + vWid - 2);
+          ctx.closePath();
+          ctx.fill();
+
+          // Puntos de faro delantero
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#fef08a';
+          ctx.shadowBlur = 10;
+          ctx.fillRect(vx - 1, vy + 3, 3, 4);
+          ctx.fillRect(vx - 1, vy + vWid - 7, 3, 4);
+          ctx.shadowBlur = 0;
+
+          // B. Luces Traseras (Stops rojos hacia la derecha)
+          const tailGrad = ctx.createLinearGradient(vx + vLen, vy, vx + vLen + 50, vy);
+          tailGrad.addColorStop(0, 'rgba(239, 68, 68, 0.6)');
+          tailGrad.addColorStop(0.5, 'rgba(220, 38, 38, 0.25)');
+          tailGrad.addColorStop(1, 'rgba(220, 38, 38, 0)');
+
+          ctx.fillStyle = tailGrad;
+          ctx.fillRect(vx + vLen, vy + 2, 50, 4);
+          ctx.fillRect(vx + vLen, vy + vWid - 6, 50, 4);
+
+          // Puntos de luz roja
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 12;
+          ctx.fillRect(vx + vLen - 2, vy + 2, 3, 4);
+          ctx.fillRect(vx + vLen - 2, vy + vWid - 6, 3, 4);
+          ctx.shadowBlur = 0;
+        }
+
+        // C. Cuerpo y Silueta del Vehículo
+        ctx.fillStyle = v.color;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(vx, vy, vLen, vWid, [4]);
+        } else {
+          ctx.rect(vx, vy, vLen, vWid);
+        }
+        ctx.fill();
+
+        // Techo / Cabina del vehículo con reflejo de parabrisas
+        if (v.type !== 'moto') {
+          ctx.fillStyle = v.roofColor;
+          const cabinMargin = v.type === 'truck' ? 14 : 10;
+          ctx.fillRect(vx + cabinMargin, vy + 3, vLen - cabinMargin * 2, vWid - 6);
+
+          // Parabrisas reflectivo
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+          const windX = dir === 1 ? vx + vLen - cabinMargin : vx + cabinMargin - 4;
+          ctx.fillRect(windX, vy + 4, 3, vWid - 8);
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {/* Canvas animado con desenfoque cinematográfico suave */}
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full block"
+        style={{ filter: 'blur(3.5px) saturate(1.2)' }}
+      />
+      
+      {/* Viñeta oscura central para garantizar 100% de legibilidad y contraste */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(11, 15, 23, 0.82) 0%, rgba(11, 15, 23, 0.55) 55%, rgba(11, 15, 23, 0.92) 100%)'
+        }}
+      />
+    </div>
+  );
+};
+
+// ============================================================================
+// COMPONENTE PRINCIPAL DE LOGIN
+// ============================================================================
 export const LoginView: React.FC<LoginViewProps> = ({
   users,
   onLogin,
@@ -135,23 +457,22 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-[#0B0F17] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
-      {/* Fondo elegante con iluminación ambiental suave */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(245,158,11,0.12),rgba(255,255,255,0))] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[400px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
+      {/* Fondo Animado de Tránsito con Vehículos y Luces en Movimiento */}
+      <TrafficBackground />
 
-      {/* Tarjeta Central de Acceso */}
+      {/* Tarjeta Central de Acceso Elegante y Sobria */}
       <motion.div 
-        initial={{ opacity: 0, y: 18, scale: 0.97 }}
+        initial={{ opacity: 0, y: 20, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.45, ease: "easeOut" }}
-        className="w-full max-w-[420px] bg-slate-900/80 border border-slate-800/90 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative z-10"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[420px] bg-slate-900/85 border border-slate-800/90 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative z-10"
       >
-        {/* Línea de acento luminoso superior */}
-        <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+        {/* Línea de acento luminoso superior en ámbar */}
+        <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-amber-500/70 to-transparent" />
 
         {/* Encabezado: Logo y Nombre de Marca */}
         <div className="text-center mb-6 flex flex-col items-center">
-          {/* Logo de la marca con animación sutil */}
+          {/* Logo de la marca con agradable interacción */}
           <motion.div 
             whileHover={{ scale: 1.05, rotate: 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -178,7 +499,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           </h1>
 
           {/* Indicador de Sucursal o Servidor Central */}
-          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-950 border border-slate-800/90 text-xs font-mono text-slate-300 shadow-inner">
+          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-950/90 border border-slate-800 text-xs font-mono text-slate-300 shadow-inner">
             {isServer ? (
               <Server className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             ) : (
