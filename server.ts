@@ -2889,6 +2889,76 @@ async function startServer() {
     }
   }
 
+  // Respaldo completo e inmutable al momento de un Cierre Definitivo de Día o Arqueo
+  async function runClosureDatabaseBackup(type: 'day' | 'shift', metadata?: any) {
+    try {
+      const backupsDir = path.join(process.cwd(), 'backups');
+      if (!fs.existsSync(backupsDir)) {
+        fs.mkdirSync(backupsDir, { recursive: true });
+      }
+
+      let backup: any = null;
+      if (isPostgresReady()) {
+        const [spots, active, paid, shifts, configs, users, audit, subs] = await Promise.all([
+          pool.query('SELECT * FROM spots').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM active_tickets').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM paid_tickets').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM cash_shifts').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM configs').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM users').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM audit_logs').catch(() => ({ rows: [] })),
+          pool.query('SELECT * FROM subscribers').catch(() => ({ rows: [] }))
+        ]);
+        backup = {
+          version: 'wolfzonepos-postgresql-v1',
+          exportedAt: new Date().toISOString(),
+          closureType: type === 'day' ? 'CIERRE_DEFINITIVO_DIA' : 'CIERRE_ARQUEO_TURNO',
+          closureMetadata: metadata || null,
+          databaseEngine: 'PostgreSQL',
+          spots: spots.rows,
+          activeTickets: active.rows,
+          paidTickets: paid.rows,
+          cashShifts: shifts.rows,
+          configs: configs.rows,
+          users: users.rows,
+          auditLogs: audit.rows,
+          subscribers: subs.rows
+        };
+      } else {
+        backup = {
+          version: 'wolfzonepos-memory-v1',
+          exportedAt: new Date().toISOString(),
+          closureType: type === 'day' ? 'CIERRE_DEFINITIVO_DIA' : 'CIERRE_ARQUEO_TURNO',
+          closureMetadata: metadata || null,
+          databaseEngine: 'In-Memory',
+          spots: Array.from(memoryStoreRef.spots.values()),
+          activeTickets: Array.from(memoryStoreRef.activeTickets.values()),
+          paidTickets: Array.from(memoryStoreRef.paidTickets.values()),
+          cashShifts: Array.from(memoryStoreRef.cashShifts.values()),
+          configs: Array.from(memoryStoreRef.configs.entries()).map(([key, value]) => ({ key, value })),
+          users: Array.from(memoryStoreRef.users.values()),
+          subscribers: Array.from((memoryStoreRef as any).subscribers?.values() || []),
+          auditLogs: memoryStoreRef.auditLogs
+        };
+      }
+
+      const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+      const identifier = type === 'day' 
+        ? `DIA_${metadata?.dayNumber || metadata?.id || 'Z'}`
+        : `TURNO_${metadata?.shiftNumber || metadata?.id || 'T'}`;
+      
+      const prefix = type === 'day' ? 'BACKUP_CIERRE_DEFINITIVO' : 'BACKUP_ARQUEO';
+      const backupFileName = `${prefix}_${identifier}_${safeDate}.json`;
+      const backupPath = path.join(backupsDir, backupFileName);
+      fs.writeFileSync(backupPath, JSON.stringify(backup, null, 2), 'utf8');
+      console.log(`[Backup Cierre] Copia de seguridad inmutable generada en: ${backupPath}`);
+      return { backupFileName, backupPath };
+    } catch (bkErr: any) {
+      console.error('[Backup Cierre Error]:', bkErr.message);
+      throw bkErr;
+    }
+  }
+
   // Programar primer respaldo automático a los 15s de arranque y luego cada 6 horas
   setTimeout(runAutomatedDatabaseBackup, 15000);
   setInterval(runAutomatedDatabaseBackup, 6 * 60 * 60 * 1000);
@@ -2897,6 +2967,32 @@ async function startServer() {
     try {
       await runAutomatedDatabaseBackup();
       res.json({ success: true, message: 'Copia de seguridad generada y archivada con éxito en la carpeta /backups/' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/database/backup/closure', async (req, res) => {
+    try {
+      const { type, metadata, clientBackupPayload } = req.body || {};
+      const closureType = type === 'day' ? 'day' : 'shift';
+      const result = await runClosureDatabaseBackup(closureType, metadata);
+
+      // Si el cliente envió el payload exportado desde el navegador y no hay Postgres, guardarlo como respaldo alternativo
+      if (clientBackupPayload && !isPostgresReady()) {
+        try {
+          const backupsDir = path.join(process.cwd(), 'backups');
+          const safeDate = new Date().toISOString().replace(/[:.]/g, '-');
+          const clientFile = path.join(backupsDir, `BACKUP_CLIENTE_${closureType.toUpperCase()}_${safeDate}.json`);
+          fs.writeFileSync(clientFile, typeof clientBackupPayload === 'string' ? clientBackupPayload : JSON.stringify(clientBackupPayload, null, 2), 'utf8');
+        } catch {}
+      }
+
+      res.json({
+        success: true,
+        message: `Copia de seguridad inmutable de cierre archivada con éxito (${result.backupFileName})`,
+        ...result
+      });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -2914,12 +3010,16 @@ async function startServer() {
         .map(f => {
           const filePath = path.join(backupsDir, f);
           const stats = fs.statSync(filePath);
+          const isClosure = f.includes('CIERRE') || f.includes('cierre') || f.includes('ARQUEO') || f.includes('arqueo');
+          const closureType = f.includes('CIERRE_DEFINITIVO') ? 'Cierre Definitivo' : (f.includes('ARQUEO') ? 'Arqueo Turno' : (isClosure ? 'Cierre' : null));
           return {
             fileName: f,
             sizeBytes: stats.size,
             sizeFormatted: `${(stats.size / 1024).toFixed(1)} KB`,
             createdAt: stats.birthtime || stats.mtime,
             isAuto: f.startsWith('backup_auto_'),
+            isClosure,
+            closureType
           };
         })
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

@@ -2541,6 +2541,11 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                                     {bk.isAuto && (
                                       <span className="text-[9px] px-1.5 py-0.2 bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 rounded font-medium">Auto</span>
                                     )}
+                                    {(bk as any).isClosure && (
+                                      <span className="text-[9px] px-1.5 py-0.2 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded font-bold">
+                                        {(bk as any).closureType || 'Cierre'}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0">

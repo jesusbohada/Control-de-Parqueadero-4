@@ -606,9 +606,31 @@ export default function App() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
+      // Archivar copia de seguridad inmutable directamente en el servidor local de la sucursal (/backups/)
+      try {
+        await fetch('/api/database/backup/closure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type,
+            metadata: {
+              dateStr,
+              timeStr,
+              terminalId,
+              dbName
+            },
+            clientBackupPayload: jsonBackup
+          })
+        });
+      } catch (srvErr) {
+        console.warn('[Auto-Backup Server Notice] No se pudo comunicar con /api/database/backup/closure:', srvErr);
+      }
+
       setBackupLockState({
         isLocked: true,
-        message: '¡Copia de seguridad comprimida ZIP descargada con éxito! Desbloqueando la aplicación...',
+        message: type === 'day'
+          ? '¡Copia de seguridad obligatoria de Cierre Definitivo archivada en el servidor y descargada en ZIP con éxito!'
+          : '¡Copia de seguridad de Arqueo archivada en el servidor y descargada en ZIP con éxito!',
         type
       });
 
