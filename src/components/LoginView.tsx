@@ -29,7 +29,7 @@ interface LoginViewProps {
 }
 
 // ============================================================================
-// ESCENAS DE VIDEO REAL (MODO CÁMARAS)
+// ESCENAS DE VIDEO REAL (MODO CÁMARAS AUXILIARES)
 // ============================================================================
 export interface VideoBackgroundOption {
   id: string;
@@ -121,7 +121,7 @@ const RealTrafficBackground: React.FC<RealTrafficBackgroundProps> = ({
 };
 
 // ============================================================================
-// COMPONENTE PRINCIPAL DE LOGIN
+// COMPONENTE PRINCIPAL: LOGIN WOLFZONE TOTALMENTE REESTRUCTURADO
 // ============================================================================
 export const LoginView: React.FC<LoginViewProps> = ({
   users,
@@ -138,6 +138,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [mascotWaved, setMascotWaved] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Modo Visual: 'mascot' (Nuevo Arte Wolfzone Checkpoint) o 'video' (Cámaras Reales)
+  const [loginMode, setLoginMode] = useState<'mascot' | 'video'>(() => {
+    return (typeof window !== 'undefined' && (localStorage.getItem('pk_login_visual_mode') as 'mascot' | 'video')) || 'mascot';
+  });
+
+  // Gestión de Pantalla Completa del Navegador (F11 / POS Kiosk)
   useEffect(() => {
     const handleFsChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -154,12 +160,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
     }
   };
 
-  // Modo de visualización: 'mascot' (Ilustración Cabina de Control) o 'video' (Cámaras Reales)
-  const [loginMode, setLoginMode] = useState<'mascot' | 'video'>(() => {
-    return (typeof window !== 'undefined' && (localStorage.getItem('pk_login_visual_mode') as 'mascot' | 'video')) || 'mascot';
-  });
-
-  // Gestión de Escenas de Video Real
+  // Gestión de Escenas de Video
   const [selectedSceneId, setSelectedSceneId] = useState<string>(() => {
     return (typeof window !== 'undefined' && localStorage.getItem('pk_login_video_scene')) || 'parking';
   });
@@ -257,10 +258,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
         return;
       }
     } catch {
-      // Fallback a contingencia local si el backend no responde
+      // Contingencia local si no hay conexión con el servidor
     }
 
-    // 2. Fallback de contingencia local
+    // 2. Contingencia local de emergencia
     const foundUser = users.find(u => {
       const uName = u.username.toLowerCase();
       if (uName === cleanUser) return true;
@@ -299,31 +300,29 @@ export const LoginView: React.FC<LoginViewProps> = ({
     <div className="fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#070b12] text-slate-100">
       
       {/* ==================================================================== */}
-      {/* 1. MODO CABINA WOLFZONE (100% PANTALLA COMPLETA) */}
+      {/* 1. MODO ARTE WOLFZONE CHECKPOINT (100% PANTALLA COMPLETA INTEGRADA) */}
       {/* ==================================================================== */}
       {loginMode === 'mascot' ? (
         <>
-          {/* ESCENARIO 100% PANTALLA COMPLETA EN PANTALLAS (ESCRITORIO / TABLETS / TERMINALES) */}
+          {/* VISTA COMPLETA ESCRITORIO / POS / TABLETS (sm:block) */}
           <div className="absolute inset-0 w-full h-full overflow-hidden hidden sm:block">
-            {/* Imagen de Fondo 100% Pantalla Completa Sin Franjas ni Bordes */}
+            {/* Imagen de Arte 100% Pantalla Completa Borde a Borde */}
             <img 
-              src="/assets/login_mascot_bg.jpg" 
-              alt="Sistema de Parqueadero Wolfzone" 
+              src="/assets/login_wolfzone_art.jpg" 
+              alt="Sistema de Parqueadero Wolfzone Checkpoint" 
               className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none"
             />
 
-            {/* Formulario Interactivo Sobrepuesto en Coordenadas y Ángulos Exactos */}
+            {/* Formulario Interactivo Sobrepuesto en las Coordenadas Milimétricas del Arte */}
             <form onSubmit={handleFormSubmit} className="contents">
               
-              {/* Badge de Sucursal o Servidor Central (Alineado con el ángulo del panel) */}
+              {/* Badge Identificador de Sede / Servidor */}
               <div 
-                className="absolute flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/85 border border-cyan-400/60 text-xs md:text-sm font-mono text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] backdrop-blur-xs z-10"
+                className="absolute flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/90 border border-cyan-400/60 text-xs md:text-sm font-mono text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] backdrop-blur-xs z-10"
                 style={{ 
-                  left: '58.8%', 
-                  top: '30.8%', 
-                  maxWidth: '30%', 
-                  transform: 'rotate(0.5deg)', 
-                  transformOrigin: 'left center' 
+                  left: '55.0%', 
+                  top: '30.5%', 
+                  maxWidth: '32%' 
                 }}
               >
                 {isServer ? (
@@ -334,16 +333,14 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 <span className="font-semibold truncate">{stationLabel}</span>
               </div>
 
-              {/* Casilla 1: Usuario (Adaptada al 100% dentro del marco y ángulo neón) */}
+              {/* Casilla 1: Usuario (Calce 100% Exacto en el Canal Neón de la Imagen) */}
               <div 
                 className="absolute group z-10"
                 style={{ 
-                  left: '58.8%', 
-                  top: '41.8%', 
-                  width: '28.0%', 
-                  height: '7.0%', 
-                  transform: 'rotate(0.5deg)', 
-                  transformOrigin: 'left center' 
+                  left: '55.0%', 
+                  top: '41.9%', 
+                  width: '31.8%', 
+                  height: '7.2%' 
                 }}
               >
                 <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-cyan-400/80 group-focus-within:text-cyan-200 transition-colors">
@@ -361,16 +358,16 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 />
               </div>
 
-              {/* Casilla 2: Contraseña (Inclinada a 2.8° para calzar al 100% con la línea de la imagen) */}
+              {/* Casilla 2: Contraseña (Alineada al ángulo de 2.4° de la línea del arte) */}
               <div 
                 className="absolute group z-10"
                 style={{ 
-                  left: '58.7%', 
-                  top: '55.9%', 
-                  width: '28.1%', 
-                  height: '7.2%', 
-                  transform: 'rotate(2.8deg)', 
-                  transformOrigin: 'left center' 
+                  left: '55.0%', 
+                  top: '55.8%', 
+                  width: '31.8%', 
+                  height: '7.2%',
+                  transform: 'rotate(2.4deg)',
+                  transformOrigin: 'left center'
                 }}
               >
                 <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-cyan-400/80 group-focus-within:text-cyan-200 transition-colors">
@@ -396,16 +393,16 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 </button>
               </div>
 
-              {/* Botón: Iniciar Sesión (Inclinado a 4.8° para calzar al 100% sobre el botón neón) */}
+              {/* Botón: Iniciar Sesión (Calibrado a 3.9° sobre la cápsula de la imagen) */}
               <div 
                 className="absolute z-10"
                 style={{ 
                   left: '62.3%', 
                   top: '69.5%', 
                   width: '20.0%', 
-                  height: '7.8%', 
-                  transform: 'rotate(4.8deg)', 
-                  transformOrigin: 'center center' 
+                  height: '7.6%',
+                  transform: 'rotate(3.9deg)',
+                  transformOrigin: 'center center'
                 }}
               >
                 <motion.button
@@ -413,7 +410,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={isLoggingIn}
-                  className="w-full h-full rounded-full bg-gradient-to-r from-cyan-400/90 via-teal-300/95 to-cyan-400/90 hover:from-cyan-300 hover:to-teal-200 active:from-cyan-500 active:to-teal-400 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.9)] hover:shadow-[0_0_35px_rgba(34,211,238,1)] border border-cyan-100/90 transition-all cursor-pointer"
+                  className="w-full h-full rounded-full bg-gradient-to-r from-cyan-400/95 via-teal-300 to-cyan-400/95 hover:from-cyan-300 hover:to-teal-200 active:from-cyan-500 active:to-teal-400 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.9)] hover:shadow-[0_0_35px_rgba(34,211,238,1)] border border-cyan-100/90 transition-all cursor-pointer"
                 >
                   {isLoggingIn ? (
                     <>
@@ -429,7 +426,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 </motion.button>
               </div>
 
-              {/* Mensaje de Alerta / Error (Inclinado a 4.5° para encajar en el margen inferior) */}
+              {/* Alerta de Error Reactiva Flotante */}
               <AnimatePresence>
                 {error && (
                   <motion.div
@@ -438,11 +435,11 @@ export const LoginView: React.FC<LoginViewProps> = ({
                     exit={{ opacity: 0, y: -6, scale: 0.96 }}
                     className="absolute z-20 p-2.5 rounded-xl bg-rose-950/95 border border-rose-500/80 text-rose-200 text-xs sm:text-sm flex items-center gap-2 shadow-[0_0_18px_rgba(244,63,94,0.7)] backdrop-blur-md"
                     style={{ 
-                      left: '58.7%', 
+                      left: '55.0%', 
                       top: '78.5%', 
-                      width: '28.1%', 
-                      transform: 'rotate(4.5deg)', 
-                      transformOrigin: 'left center' 
+                      width: '31.8%',
+                      transform: 'rotate(3.5deg)',
+                      transformOrigin: 'left center'
                     }}
                   >
                     <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-rose-400 shrink-0" />
@@ -452,7 +449,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
               </AnimatePresence>
             </form>
 
-            {/* Interacción Divertida con la Mascota Wolfzone (Saluda al hacer clic) */}
+            {/* Interacción Amigable con la Mascota Wolfzone (Saluda al hacer clic) */}
             <motion.div
               onClick={handleMascotClick}
               whileHover={{ scale: 1.01 }}
@@ -460,111 +457,115 @@ export const LoginView: React.FC<LoginViewProps> = ({
               transition={{ duration: 0.5 }}
               title="¡Operador Wolfzone en guardia! Haz clic para saludar."
               className="absolute z-10 cursor-pointer group"
-              style={{ left: '5%', top: '15%', width: '40%', height: '80%' }}
+              style={{ left: '5%', top: '20%', width: '40%', height: '75%' }}
             >
               <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-16 left-12 bg-slate-950/90 border border-cyan-500/60 rounded-xl px-3.5 py-2 text-xs font-mono text-cyan-300 shadow-xl pointer-events-none flex items-center gap-2 backdrop-blur-md">
                 <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-                <span>¡Hola! Cabina de Control Operativa 🐺</span>
+                <span>¡Bienvenido a Wolfzone Checkpoint! 🐺</span>
               </div>
             </motion.div>
           </div>
 
-          {/* ESCENARIO RESPONSIVO PARA DISPOSITIVOS MÓVILES (sm:hidden) */}
-          <div className="w-full max-w-sm relative z-10 sm:hidden bg-slate-950/90 border border-cyan-500/40 rounded-3xl p-6 backdrop-blur-xl shadow-[0_0_40px_rgba(6,182,212,0.35)]">
-            {/* Avatar de la Mascota */}
-            <div className="flex flex-col items-center text-center mb-5">
-              <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.5)] mb-3 bg-slate-900">
-                <img 
-                  src="/assets/login_mascot_bg.jpg" 
-                  alt="Mascota Wolfzone"
-                  className="w-full h-full object-cover object-left-top scale-175 translate-x-2 translate-y-3"
-                />
-              </div>
-              <h1 className="text-base font-black uppercase text-cyan-200 tracking-wider">
-                Sistema de Parqueadero
-              </h1>
-              <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-900 border border-cyan-500/40 text-[11px] font-mono text-cyan-300">
-                {isServer ? <Server className="w-3.5 h-3.5 text-cyan-400" /> : <Building2 className="w-3.5 h-3.5 text-amber-400" />}
-                <span>{stationLabel}</span>
-              </div>
-            </div>
-
-            {/* Error en móvil */}
-            <AnimatePresence>
-              {error && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  className="mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2"
-                >
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                  <span className="font-semibold">{error}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Formulario Móvil */}
-            <form onSubmit={handleFormSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-1 font-mono">
-                  Usuario
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-cyan-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Ingresa tu usuario"
-                    disabled={isLoggingIn}
-                    className="w-full bg-slate-900 border border-cyan-500/40 focus:border-cyan-300 rounded-xl pl-10 pr-3 py-3 text-sm text-cyan-100 placeholder-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 font-mono"
+          {/* VISTA MÓVIL EN PANTALLAS VERTICALES (sm:hidden) */}
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-4 sm:hidden">
+            <img 
+              src="/assets/login_wolfzone_art.jpg" 
+              alt="Fondo Móvil"
+              className="absolute inset-0 w-full h-full object-cover filter blur-xs brightness-50"
+            />
+            <div className="w-full max-w-sm relative z-10 bg-slate-950/90 border border-cyan-500/40 rounded-3xl p-6 backdrop-blur-xl shadow-[0_0_40px_rgba(6,182,212,0.35)]">
+              <div className="flex flex-col items-center text-center mb-5">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.5)] mb-3 bg-slate-900">
+                  <img 
+                    src="/assets/login_wolfzone_art.jpg" 
+                    alt="Mascota Wolfzone"
+                    className="w-full h-full object-cover object-left-top scale-175 translate-x-3 translate-y-4"
                   />
+                </div>
+                <h1 className="text-base font-black uppercase text-cyan-200 tracking-wider">
+                  Wolfzone Checkpoint
+                </h1>
+                <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-900 border border-cyan-500/40 text-[11px] font-mono text-cyan-300">
+                  {isServer ? <Server className="w-3.5 h-3.5 text-cyan-400" /> : <Building2 className="w-3.5 h-3.5 text-amber-400" />}
+                  <span>{stationLabel}</span>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-1 font-mono">
-                  Contraseña
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-cyan-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    disabled={isLoggingIn}
-                    className="w-full bg-slate-900 border border-cyan-500/40 focus:border-cyan-300 rounded-xl pl-10 pr-10 py-3 text-sm text-cyan-100 placeholder-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-cyan-400/70"
+              <AnimatePresence>
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    className="mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoggingIn}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center gap-2 mt-4 cursor-pointer"
-              >
-                {isLoggingIn ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                    <span>Iniciando...</span>
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4 h-4 stroke-[3]" />
-                    <span>Iniciar Sesión</span>
-                  </>
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span className="font-semibold">{error}</span>
+                  </motion.div>
                 )}
-              </button>
-            </form>
+              </AnimatePresence>
+
+              <form onSubmit={handleFormSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-1 font-mono">
+                    Usuario
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-cyan-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Ingresa tu usuario"
+                      disabled={isLoggingIn}
+                      className="w-full bg-slate-900 border border-cyan-500/40 focus:border-cyan-300 rounded-xl pl-10 pr-3 py-3 text-sm text-cyan-100 placeholder-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-cyan-300 uppercase tracking-wider mb-1 font-mono">
+                    Contraseña
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-cyan-400/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      disabled={isLoggingIn}
+                      className="w-full bg-slate-900 border border-cyan-500/40 focus:border-cyan-300 rounded-xl pl-10 pr-10 py-3 text-sm text-cyan-100 placeholder-cyan-500/40 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-cyan-400/70"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 text-slate-950 font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.6)] flex items-center justify-center gap-2 mt-4 cursor-pointer"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span>Iniciando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4 h-4 stroke-[3]" />
+                      <span>Iniciar Sesión</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
           </div>
         </>
       ) : (
@@ -578,7 +579,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-full max-w-[420px] bg-slate-900/85 border border-slate-800/90 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative z-10"
+            className="w-full max-w-[420px] bg-slate-900/85 border border-slate-800/90 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative z-10 m-auto"
           >
             <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent" />
 
@@ -701,7 +702,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
       )}
 
       {/* ==================================================================== */}
-      {/* BARRA INFERIOR DE CONTROL DE AMBIENTE (INTERACTIVA Y ELEGANTE) */}
+      {/* BARRA INFERIOR DE ACCIONES (INTERACTIVA Y ELEGANTE) */}
       {/* ==================================================================== */}
       <div className="absolute bottom-3 left-4 right-4 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-auto">
         {/* Selector de Modo: Cabina Wolfzone vs Cámaras Reales */}
@@ -716,7 +717,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             }`}
           >
             <span>🐺</span>
-            <span>Cabina Wolfzone</span>
+            <span>Wolfzone Checkpoint</span>
           </button>
           <button
             type="button"
