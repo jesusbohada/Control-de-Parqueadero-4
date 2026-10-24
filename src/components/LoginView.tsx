@@ -94,98 +94,68 @@ const CyberParticlesCanvas: React.FC = () => {
 };
 
 // ============================================================================
-// COMPONENTE: FONDO TOTALMENTE ANIMADO EN BUCLE (WOLFZONE CHECKPOINT)
+// COMPONENTE: FONDO TOTALMENTE ANIMADO EN BUCLE (VIDEO LOGUIN ANIMADO.mp4)
 // ============================================================================
 const AnimatedWolfzoneScene: React.FC<{ onMascotClick: () => void }> = ({ onMascotClick }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.0;
+      videoRef.current.play().catch(() => {
+        // Autoplay asegurado por politicas de navegador
+      });
+    }
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {/* 1. Capa Fotográfica de Alta Resolución con Movimiento Panorámico/Respiración Cinematográfica */}
-      <motion.div
-        animate={{
-          scale: [1.0, 1.035, 1.0],
-          x: [0, -12, 0],
-          y: [0, -6, 0]
-        }}
-        transition={{
-          duration: 22,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute inset-[-20px] bg-cover bg-center"
+      {/* 1. Fondo de Video Animado en Bucle (LOGUIN ANIMADO.mp4) con Fallback Poster */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        poster="/assets/login_wolfzone_art.jpg"
+        className="absolute inset-0 w-full h-full object-cover"
         style={{
-          backgroundImage: "url('/assets/login_wolfzone_art.jpg')",
-          filter: 'brightness(0.92) contrast(1.08) saturate(1.12)'
+          filter: 'brightness(0.94) contrast(1.06) saturate(1.08)'
         }}
-      />
+      >
+        <source src="/assets/LOGUIN ANIMADO.mp4" type="video/mp4" />
+        <source src="/assets/LOGUIN%20ANIMADO.mp4" type="video/mp4" />
+      </video>
 
       {/* 2. Resplandor Ambiental Neón Pulsante en Bucle */}
       <motion.div
-        animate={{ opacity: [0.15, 0.35, 0.15] }}
+        animate={{ opacity: [0.08, 0.22, 0.08] }}
         transition={{ duration: 4.0, repeat: Infinity, ease: "easeInOut" }}
         className="absolute inset-0 bg-radial from-cyan-500/20 via-transparent to-transparent pointer-events-none"
       />
 
-      {/* 3. Baliza Roja Intermitente de la Cámara de Seguridad CCTV (Esquina Superior Izquierda) */}
-      <div className="absolute left-[11.1%] top-[13.4%] pointer-events-none z-10 hidden sm:block">
-        <div className="w-3 h-3 rounded-full bg-rose-500 shadow-[0_0_15px_#f43f5e] animate-ping opacity-80" />
-        <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e] absolute inset-0 m-auto" />
-      </div>
-
-      {/* 4. Luces Verdes Secuenciales de los Carriles del Checkpoint (1, 2, 3) */}
-      <div className="absolute left-[31.5%] top-[18.2%] w-[18%] h-[3%] pointer-events-none z-10 hidden md:flex items-center justify-between opacity-85">
-        <motion.div 
-          animate={{ opacity: [0.35, 1, 0.35] }} 
-          transition={{ duration: 1.8, repeat: Infinity }} 
-          className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" 
-        />
-        <motion.div 
-          animate={{ opacity: [0.35, 1, 0.35] }} 
-          transition={{ duration: 1.8, repeat: Infinity, delay: 0.6 }} 
-          className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" 
-        />
-        <motion.div 
-          animate={{ opacity: [0.35, 1, 0.35] }} 
-          transition={{ duration: 1.8, repeat: Infinity, delay: 1.2 }} 
-          className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" 
-        />
-      </div>
-
-      {/* 5. Pulso de Faros Xenón del Vehículo Eléctrico */}
-      <motion.div 
-        animate={{ opacity: [0.4, 0.9, 0.4], scale: [1, 1.06, 1] }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute left-[36.0%] top-[53.5%] w-24 h-12 bg-cyan-200/40 blur-xl rounded-full pointer-events-none z-10 hidden sm:block" 
-      />
-
-      {/* 6. Estela de Luz Neón en el Asfalto que Guía Hacia la Barrera */}
-      <motion.div
-        animate={{ opacity: [0.5, 0.9, 0.5] }}
-        transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute left-[38%] top-[62%] w-[18%] h-6 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent blur-md transform -rotate-12 pointer-events-none z-10 hidden sm:block"
-      />
-
-      {/* 7. Línea de Escaneo Holográfico Vertical en Bucle Continuo */}
+      {/* 3. Línea de Escaneo Holográfico Vertical en Bucle Continuo */}
       <motion.div
         animate={{ y: ['-20%', '120%'] }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: 'linear' }}
-        className="absolute inset-x-0 h-32 bg-gradient-to-b from-transparent via-cyan-400/[0.08] to-transparent pointer-events-none z-10"
+        transition={{ duration: 6.0, repeat: Infinity, ease: 'linear' }}
+        className="absolute inset-x-0 h-32 bg-gradient-to-b from-transparent via-cyan-400/[0.06] to-transparent pointer-events-none z-10"
       />
 
-      {/* 8. Motor de Partículas en Bucle */}
+      {/* 4. Motor de Partículas en Bucle */}
       <CyberParticlesCanvas />
 
-      {/* 9. Viñeta Suave para Preservar la Legibilidad Superior del Panel */}
+      {/* 5. Viñeta Suave para Preservar la Legibilidad Superior del Panel */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at 75% 50%, rgba(7, 11, 18, 0.45) 0%, rgba(7, 11, 18, 0.15) 50%, rgba(7, 11, 18, 0.85) 100%)'
+          background: 'radial-gradient(circle at 75% 50%, rgba(7, 11, 18, 0.40) 0%, rgba(7, 11, 18, 0.15) 50%, rgba(7, 11, 18, 0.85) 100%)'
         }}
       />
 
-      {/* 10. Gradiente Vertical Suave */}
+      {/* 6. Gradiente Vertical Suave */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#070b12]/90 via-transparent to-[#070b12]/60 pointer-events-none" />
 
-      {/* 11. Zona de Interacción con la Mascota Wolfzone (Saluda al hacer clic) */}
+      {/* 7. Zona de Interacción con la Mascota Wolfzone (Saluda al hacer clic) */}
       <motion.div
         onClick={onMascotClick}
         whileHover={{ scale: 1.01 }}
