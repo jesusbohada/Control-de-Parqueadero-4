@@ -92,7 +92,7 @@ import {
   dbSaveExpenseCategories,
   dbSavePrinters
 } from './db/terminalDatabase';
-import { Building2, XCircle, Monitor, Radio, Cpu, HardDrive, RefreshCw, Terminal, Keyboard, MousePointer, ShieldAlert, Wifi, Sliders, Send, Settings, User, ExternalLink, Car, Database, ShieldCheck, Printer } from 'lucide-react';
+import { Building2, XCircle, Monitor, Radio, Cpu, HardDrive, RefreshCw, Terminal, Keyboard, MousePointer, ShieldAlert, Wifi, Sliders, Send, Settings, User, ExternalLink, Car, Database, ShieldCheck, Printer, Layers } from 'lucide-react';
 import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
 import { Sidebar } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
@@ -125,6 +125,7 @@ import { FarmaDeskDocsModal } from './components/FarmaDeskDocsModal';
 import { CentralDashboard } from './components/CentralDashboard';
 import { TicketScannerModal } from './components/TicketScannerModal';
 import { BarcodeScanToast } from './components/BarcodeScanToast';
+import { WorkspaceTabBar, WorkspaceTabItem } from './components/WorkspaceTabBar';
 import { useBarcodeScanner } from './hooks/useBarcodeScanner';
 import { ThemeId, EnvThemeId } from './types/theme';
 import { ThemeManager, ContrastLevel, ThemeMode } from './utils/themeManager';
@@ -2436,6 +2437,185 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<WorkspaceCategory>(initialUrlRouting.category);
   const [activeView, setActiveView] = useState<ActiveWorkspaceView>(initialUrlRouting.view);
 
+  // --- Workspace Tabs Architecture (Multi-Pestaña Interna Independiente) ---
+  const [workspaceTabs, setWorkspaceTabs] = useState<WorkspaceTabItem[]>([
+    {
+      id: 'tab-pos-main',
+      title: 'Patio POS',
+      view: 'operations',
+      category: 'operations',
+      statusBadge: 'Listo',
+      statusVariant: 'success',
+      isPinned: true,
+      createdAt: Date.now(),
+    }
+  ]);
+  const [activeTabId, setActiveTabId] = useState<string>('tab-pos-main');
+  const [isPrintingThermal, setIsPrintingThermal] = useState<boolean>(false);
+  const [lastPrintedInfo, setLastPrintedInfo] = useState<{
+    ticketNumber?: string;
+    plate?: string;
+    timestamp: Date;
+    success: boolean;
+    printerName?: string;
+  } | null>(null);
+  const [lastPaidTicketGlobal, setLastPaidTicketGlobal] = useState<ParkingTicket | null>(null);
+  const [lastEntryTicketGlobal, setLastEntryTicketGlobal] = useState<ParkingTicket | null>(null);
+
+  const getTitleForWorkspaceView = (view: ActiveWorkspaceView): string => {
+    switch (view) {
+      case 'operations': return 'Patio POS';
+      case 'map': return 'Mapa de Plazas';
+      case 'spots': return 'Gestión de Plazas';
+      case 'anpr_camera': return 'Cámaras ANPR LPR';
+      case 'cash': return 'Arqueo de Turno';
+      case 'cash_history': return 'Historial de Cierres';
+      case 'expense_concepts': return 'Conceptos de Gastos';
+      case 'reports': return 'Reportes y Cierre Z';
+      case 'branches': return 'Sedes y Sucursales';
+      case 'central_hub': return 'Servidor Central Hub';
+      case 'central_dashboard': return 'Dashboard Central';
+      case 'branch_sync': return 'Sincronización Cloud';
+      case 'vnc_remote': return 'Escritorio Remoto';
+      case 'software_updater': return 'Actualizador Software';
+      case 'work_mode': return 'Modo de Trabajo';
+      case 'rates': return 'Configuración Tarifas';
+      case 'vehicle_categories': return 'Categorías Vehículos';
+      case 'users': return 'Usuarios y Permisos';
+      case 'printer_config': return 'Impresoras POS';
+      case 'database': return 'Base de Datos';
+      case 'subscribers': return 'Abonados / Mensualidades';
+      case 'agreements': return 'Convenios Comerciales';
+      default: return 'Espacio de Trabajo';
+    }
+  };
+
+  const getCategoryForWorkspaceView = (view: ActiveWorkspaceView): WorkspaceCategory => {
+    switch (view) {
+      case 'operations':
+      case 'map':
+      case 'spots':
+      case 'anpr_camera':
+      case 'subscribers':
+        return 'operations';
+      case 'cash':
+      case 'cash_history':
+      case 'expense_concepts':
+      case 'agreements':
+        return 'finance';
+      case 'reports':
+        return 'reports';
+      case 'branches':
+      case 'central_hub':
+      case 'central_dashboard':
+      case 'branch_sync':
+      case 'vnc_remote':
+      case 'work_mode':
+        return 'central';
+      case 'software_updater':
+        return 'updates';
+      case 'rates':
+      case 'vehicle_categories':
+      case 'users':
+      case 'printer_config':
+      case 'database':
+      default:
+        return 'config';
+    }
+  };
+
+  const handleSelectTab = (tabId: string) => {
+    const target = workspaceTabs.find(t => t.id === tabId);
+    if (!target) return;
+    setActiveTabId(tabId);
+    setActiveView(target.view);
+    setActiveCategory(target.category);
+    // Auto-focus priority input on tab switch
+    setTimeout(() => {
+      if (target.view === 'operations') {
+        const searchInput = document.getElementById('searchQuery') || document.querySelector('input[placeholder*="Pistolear"]') || document.getElementById('entryPlateInput');
+        (searchInput as HTMLInputElement)?.focus();
+      }
+    }, 100);
+  };
+
+  const handleCloseTab = (tabId: string) => {
+    setWorkspaceTabs(prev => {
+      const tabIndex = prev.findIndex(t => t.id === tabId);
+      if (tabIndex === -1) return prev;
+      if (prev[tabIndex].isPinned) return prev;
+
+      const filtered = prev.filter(t => t.id !== tabId);
+      if (activeTabId === tabId) {
+        const nextTab = filtered[Math.max(0, tabIndex - 1)] || filtered[0];
+        if (nextTab) {
+          setActiveTabId(nextTab.id);
+          setActiveView(nextTab.view);
+          setActiveCategory(nextTab.category);
+        }
+      }
+      return filtered;
+    });
+  };
+
+  const handleOpenNewTab = (view: ActiveWorkspaceView, category?: WorkspaceCategory, customTitle?: string) => {
+    const resolvedCat = category || getCategoryForWorkspaceView(view);
+    const resolvedTitle = customTitle || getTitleForWorkspaceView(view);
+    const newTabId = `tab-${view}-${Date.now()}`;
+    const newTab: WorkspaceTabItem = {
+      id: newTabId,
+      title: resolvedTitle,
+      view,
+      category: resolvedCat,
+      statusBadge: 'Activo',
+      statusVariant: 'info',
+      createdAt: Date.now(),
+    };
+
+    setWorkspaceTabs(prev => [...prev, newTab]);
+    setActiveTabId(newTabId);
+    setActiveView(view);
+    setActiveCategory(resolvedCat);
+
+    setTimeout(() => {
+      if (view === 'operations') {
+        const searchInput = document.getElementById('searchQuery') || document.querySelector('input[placeholder*="Pistolear"]') || document.getElementById('entryPlateInput');
+        (searchInput as HTMLInputElement)?.focus();
+      }
+    }, 100);
+  };
+
+  const handleReprintLastReceipt = () => {
+    if (lastPaidTicketGlobal) {
+      triggerInstantPrint({
+        type: 'exit_receipt',
+        ticket: lastPaidTicketGlobal,
+        openDrawer: false
+      });
+      setPrintToast({
+        type: 'info',
+        message: `🖨️ Reimprimiendo factura de salida: ${lastPaidTicketGlobal.plate} (#${lastPaidTicketGlobal.ticketNumber})`
+      });
+      setTimeout(() => setPrintToast(null), 3000);
+    } else if (lastEntryTicketGlobal) {
+      triggerInstantPrint({
+        type: 'entry_ticket',
+        ticket: lastEntryTicketGlobal
+      });
+      setPrintToast({
+        type: 'info',
+        message: `🖨️ Reimprimiendo ticket de ingreso: ${lastEntryTicketGlobal.plate} (#${lastEntryTicketGlobal.ticketNumber})`
+      });
+      setTimeout(() => setPrintToast(null), 3000);
+    } else {
+      setPrintToast({
+        type: 'info',
+        message: 'No hay tickets recientes para reimprimir en esta sesión.'
+      });
+      setTimeout(() => setPrintToast(null), 2500);
+    }
+  };
+
   // Detailed logging when user management modal / view is opened
   useEffect(() => {
     if (activeView === 'users' || isUsersModalOpen) {
@@ -2539,6 +2719,36 @@ export default function App() {
       }
       window.history.replaceState(null, '', url.toString());
     }
+
+    // Sync Workspace Tabs (Multi-Pestaña)
+    const targetCategory = newCategory || getCategoryForWorkspaceView(newView);
+    setWorkspaceTabs(prev => {
+      const existing = prev.find(t => t.view === newView);
+      if (existing) {
+        setActiveTabId(existing.id);
+        return prev;
+      }
+      const activeTab = prev.find(t => t.id === activeTabId);
+      if (activeTab && !activeTab.isPinned && !activeTab.hasUnsavedChanges) {
+        return prev.map(t => t.id === activeTabId ? {
+          ...t,
+          view: newView,
+          category: targetCategory,
+          title: getTitleForWorkspaceView(newView),
+        } : t);
+      }
+      const newTab: WorkspaceTabItem = {
+        id: `tab-${newView}-${Date.now()}`,
+        title: getTitleForWorkspaceView(newView),
+        view: newView,
+        category: targetCategory,
+        statusBadge: 'Activo',
+        statusVariant: 'info',
+        createdAt: Date.now(),
+      };
+      setActiveTabId(newTab.id);
+      return [...prev, newTab];
+    });
   };
 
   // Listen for browser back/forward buttons
@@ -2676,6 +2886,7 @@ export default function App() {
     const activePrinter = printers.find(p => p.isDefault) || printers[0];
     const targetPrinter = businessInfo.defaultPrinterName || activePrinter?.printerName || activePrinter?.name || 'POS-80';
 
+    setIsPrintingThermal(true);
     try {
       const result = await printInstantThermal({
         type: options.type,
@@ -2692,6 +2903,14 @@ export default function App() {
             ? ((options.ticket?.paymentMethod === 'cash' || options.ticket?.paymentMethod === 'mixed' || !options.ticket?.paymentMethod) && (businessInfo.openCashDrawerOnCashPayment ?? true))
             : false
         ),
+      });
+
+      setLastPrintedInfo({
+        ticketNumber: options.ticket?.ticketNumber,
+        plate: options.ticket?.plate,
+        timestamp: new Date(),
+        success: result.success,
+        printerName: result.printerName || targetPrinter
       });
 
       if (result.success) {
@@ -2711,6 +2930,8 @@ export default function App() {
       if (options.ticket) {
         handleOpenPrintModal(options.ticket, options.type === 'entry_ticket' ? 'entry' : 'exit');
       }
+    } finally {
+      setIsPrintingThermal(false);
     }
   };
 
@@ -2851,6 +3072,7 @@ export default function App() {
     // Auto-push live telemetry & yard occupancy to Central Server
     handlePushBranchOperations().catch(err => console.warn('[Sync] Auto-push tras ingreso de vehículo:', err));
 
+    setLastEntryTicketGlobal(newTicket);
     return newTicket;
   };
 
@@ -2987,6 +3209,7 @@ export default function App() {
     // Auto-push live telemetry & operations to Central Server
     handlePushBranchOperations().catch(err => console.warn('[Sync] Auto-push tras cobro de ticket:', err));
 
+    setLastPaidTicketGlobal(paidTicket);
     return paidTicket;
   };
 
@@ -3989,6 +4212,19 @@ export default function App() {
           onOpenSubscribersModal={() => setIsSubscribersModalOpen(true)}
         />
 
+        {/* Sistema de Pestañas Internas Independientes (Workspace Tabs) */}
+        <WorkspaceTabBar
+          tabs={workspaceTabs}
+          activeTabId={activeTabId}
+          onSelectTab={handleSelectTab}
+          onCloseTab={handleCloseTab}
+          onNewTab={handleOpenNewTab}
+          isPrinting={isPrintingThermal}
+          lastPrintedInfo={lastPrintedInfo}
+          onReprintLast={handleReprintLastReceipt}
+          hasLastTicketToReprint={Boolean(lastPaidTicketGlobal || lastEntryTicketGlobal)}
+        />
+
         {/* Espacio de Trabajo Principal Centrado y Amplio */}
         <main className="flex-1 max-w-[1720px] w-full mx-auto p-4 md:p-6 lg:p-8 overflow-x-hidden">
         {/* Top Floating Helper Banner when outside of Operations POS */}
@@ -4015,16 +4251,12 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      const url = new URL(window.location.href);
-                      url.searchParams.set('view', activeView);
-                      window.open(url.toString(), '_blank');
-                    }}
+                    onClick={() => handleOpenNewTab(activeView)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
-                    title="Abrir este módulo en una pestaña separada"
+                    title="Duplicar o abrir este módulo en una pestaña interna independiente"
                   >
-                    <ExternalLink className="w-3.5 h-3.5 text-sky-500" />
-                    <span>Abrir en Nueva Pestaña</span>
+                    <Layers className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Abrir en Pestaña Interna</span>
                   </button>
                   <button
                     type="button"

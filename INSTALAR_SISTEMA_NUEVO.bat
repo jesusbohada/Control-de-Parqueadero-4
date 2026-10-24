@@ -180,6 +180,12 @@ if %errorlevel% equ 0 (
     ) else (
         echo [OK] La base de datos '!PG_DB!' ya existe en PostgreSQL.
     )
+
+    if exist database_schema.sql (
+        echo Importando tablas y esquema inicial desde database_schema.sql...
+        "%PSQL_CMD%" -U !PG_USER! -h !PG_HOST! -p !PG_PORT! -d !PG_DB! -f database_schema.sql >nul 2>&1
+        echo [OK] Esquema de base de datos verificado e importado exitosamente.
+    )
 )
 echo.
 
@@ -236,7 +242,7 @@ echo =====================================================================
 echo             PASO 7: CREANDO ACCESO DIRECTO EN EL ESCRITORIO
 echo =====================================================================
 echo.
-set "SCRIPT_PATH=%~dp0INICIAR_PARQUEADERO.bat"
+set "SCRIPT_PATH=%~dp0Iniciar-Parqueadero.bat"
 set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Parqueadero POS.lnk"
 
 powershell -NoProfile -Command ^
@@ -251,7 +257,7 @@ powershell -NoProfile -Command ^
 if %errorlevel% equ 0 (
     echo [OK] Acceso directo 'Parqueadero POS' creado en tu Escritorio.
 ) else (
-    echo [INFO] Puedes iniciar el sistema ejecutando directamente 'INICIAR_PARQUEADERO.bat'.
+    echo [INFO] Puedes iniciar el sistema ejecutando directamente 'Iniciar-Parqueadero.bat'.
 )
 echo.
 
@@ -274,7 +280,7 @@ echo =====================================================================
 echo.
 set /p launch_now="Deseas iniciar el sistema ahora mismo? (S/N): "
 if /i "%launch_now%"=="S" (
-    start "" "%~dp0INICIAR_PARQUEADERO.bat"
+    start "" "%~dp0Iniciar-Parqueadero.bat"
 )
 exit /b
 

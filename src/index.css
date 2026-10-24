@@ -753,3 +753,294 @@ html[data-contrast-level="high"].dark {
   --border-subtle: #64748B !important;
   --border-input: #94A3B8 !important;
 }
+
+
+/* ==========================================================================
+   INTERVENCIÓN PRO MAX: ESTÉTICA INDUSTRIAL POS (PARKING HARDWARE SUITE)
+   Identidad Vehicular Real, Display VFD/LED, Teclas Táctiles y Workspace Tabs
+   ========================================================================== */
+
+/* 1. Marco de Matrícula Vehicular Física (Embossed Plate) */
+.pk-plate-frame {
+  position: relative;
+  background: linear-gradient(135deg, #FDE047 0%, #F59E0B 100%);
+  border: 3.5px solid #000000;
+  border-radius: 14px;
+  box-shadow: 
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    inset 0 2px 4px rgba(255, 255, 255, 0.7),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.35);
+  padding: 10px 16px 14px 16px;
+  text-align: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pk-plate-frame:focus-within {
+  box-shadow: 
+    0 0 0 4px rgba(245, 158, 11, 0.45),
+    0 10px 28px rgba(0, 0, 0, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+}
+
+.pk-plate-frame-foreign {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 100%);
+  border: 3.5px solid #1E293B;
+}
+
+.pk-plate-frame-error {
+  border-color: #DC2626 !important;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.35), 0 6px 18px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Tornillos de fijación metálicos simulados */
+.pk-plate-rivet {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FFFFFF 0%, #94A3B8 50%, #334155 100%);
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.pk-plate-rivet-tl { top: 8px; left: 10px; }
+.pk-plate-rivet-tr { top: 8px; right: 10px; }
+.pk-plate-rivet-bl { bottom: 8px; left: 10px; }
+.pk-plate-rivet-br { bottom: 8px; right: 10px; }
+
+/* Letras de la placa en relieve auténtico */
+.pk-plate-input {
+  background: transparent !important;
+  color: #000000 !important;
+  font-family: var(--font-mono), monospace !important;
+  font-weight: 900 !important;
+  font-size: 2.25rem !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8), 0 -1px 1px rgba(0, 0, 0, 0.4);
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  width: 100% !important;
+}
+
+.pk-plate-input::placeholder {
+  color: rgba(0, 0, 0, 0.35) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  font-size: 1.5rem !important;
+  text-shadow: none !important;
+}
+
+/* Mini placas vehiculares para tablas y monitores */
+.pk-mini-plate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  background: linear-gradient(180deg, #FDE047 0%, #F59E0B 100%);
+  color: #000000;
+  font-family: var(--font-mono), monospace;
+  font-weight: 900;
+  font-size: 0.825rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1.5px solid #000000;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  user-select: all;
+}
+
+.pk-mini-plate-white {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+  border-color: #1E293B;
+  color: #0F172A;
+}
+
+/* 2. Pantalla Digital VFD / Cockpit de Cobro (Cashier Console) */
+.pk-vfd-display {
+  background: #030712;
+  border: 2px solid #1F2937;
+  border-radius: 14px;
+  box-shadow: 
+    inset 0 3px 10px rgba(0, 0, 0, 0.9),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.pk-vfd-display::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.pk-vfd-text-emerald {
+  color: #10B981;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.7), 0 0 24px rgba(16, 185, 129, 0.35);
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.pk-vfd-text-amber {
+  color: #F59E0B;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.7), 0 0 24px rgba(245, 158, 11, 0.35);
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 3. Teclas de Hardware POS Táctil 3D */
+.pk-pos-key {
+  position: relative;
+  border-bottom-width: 4px !important;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.pk-pos-key:hover {
+  filter: brightness(1.05);
+}
+
+.pk-pos-key:active {
+  border-bottom-width: 1px !important;
+  transform: translateY(3px) !important;
+}
+
+/* 4. Billetes de Denominación Rápida POS */
+.pk-bill-chip {
+  position: relative;
+  font-family: var(--font-mono), monospace;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 5px 9px;
+  border-bottom-width: 3px !important;
+  transition: all 0.1s ease;
+  user-select: none;
+  font-size: 0.75rem;
+}
+
+.pk-bill-chip:hover {
+  filter: brightness(1.08);
+}
+
+.pk-bill-chip:active {
+  border-bottom-width: 1px !important;
+  transform: translateY(2px) !important;
+}
+
+.pk-bill-2k {
+  background: #0284C7;
+  color: #FFFFFF;
+  border-color: #0369A1;
+}
+
+.pk-bill-5k {
+  background: #EA580C;
+  color: #FFFFFF;
+  border-color: #C2410C;
+}
+
+.pk-bill-10k {
+  background: #DC2626;
+  color: #FFFFFF;
+  border-color: #B91C1C;
+}
+
+.pk-bill-20k {
+  background: #0D9488;
+  color: #FFFFFF;
+  border-color: #0F766E;
+}
+
+.pk-bill-50k {
+  background: #7C3AED;
+  color: #FFFFFF;
+  border-color: #6D28D9;
+}
+
+.pk-bill-100k {
+  background: #059669;
+  color: #FFFFFF;
+  border-color: #047857;
+}
+
+.pk-bill-exact {
+  background: #F59E0B;
+  color: #000000;
+  border-color: #D97706;
+}
+
+/* 5. Escáner de Código de Barras (Dock con Haz Láser) */
+.pk-scanner-dock {
+  position: relative;
+  border-radius: 12px;
+}
+
+.pk-scanner-dock::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.35), transparent);
+  animation: pkScannerSweep 3s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes pkScannerSweep {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* 6. Workspace Tabs Rack Industrial */
+.pk-workspace-tabbar {
+  scrollbar-width: thin;
+}
+
+.pk-tab-item {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pk-tab-active {
+  box-shadow: 0 3px 12px -1px rgba(245, 158, 11, 0.25);
+}
+
+.pk-currency-huge {
+  font-feature-settings: "tnum" 1, "zero" 1;
+  letter-spacing: -0.02em;
+}
+
+.pk-plate-display {
+  letter-spacing: 0.12em;
+  font-feature-settings: "tnum" 1;
+}
+
+.pk-table-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.pos-print-badge-active {
+  animation: posPrintPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes posPrintPulse {
+  0%, 100% {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+}

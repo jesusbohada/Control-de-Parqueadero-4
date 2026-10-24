@@ -271,6 +271,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   }, [selectedTicket?.plate]);
 
   const [barcodeScanFeedback, setBarcodeScanFeedback] = useState<string | null>(null);
+  const [isSubmittingExit, setIsSubmittingExit] = useState<boolean>(false);
+  const [lastPaidExitTicket, setLastPaidExitTicket] = useState<ParkingTicket | null>(null);
+  const [isReadingBarcodeInstant, setIsReadingBarcodeInstant] = useState<boolean>(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus permanente en el campo de lectura de ticket / código de barras
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!selectedTicket) {
+        searchInputRef.current?.focus();
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [selectedTicket]);
   const [exitPaymentMethod, setExitPaymentMethod] = useState<PaymentMethod>(() => paymentGatewayConfig?.defaultMethod || 'cash');
   const [cashReceivedInput, setCashReceivedInput] = useState<string>('');
   const [discountInput, setDiscountInput] = useState<string>('0');
@@ -495,17 +509,33 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     }
   }, [entryVehicleType, availableSpotsForType, entrySpotCode]);
 
-  // Hotkey F4 para abrir el Escáner QR de Tickets
+  // Hotkeys POS Profesionales: F2 (Entrada), F3 (Escáner/Salida), F4 (Cámara QR), F8 (Reimprimir)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F4') {
         e.preventDefault();
         onOpenTicketScanner?.();
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        plateInputRef.current?.focus();
+      } else if (e.key === 'F3') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      } else if (e.key === 'F8') {
+        if (lastPaidExitTicket) {
+          e.preventDefault();
+          onPrintTicket(lastPaidExitTicket, 'exit');
+          playSound('beep', soundEnabled);
+        } else if (lastGeneratedTicket) {
+          e.preventDefault();
+          onPrintTicket(lastGeneratedTicket, 'entry');
+          playSound('beep', soundEnabled);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onOpenTicketScanner]);
+  }, [onOpenTicketScanner, lastPaidExitTicket, lastGeneratedTicket, onPrintTicket, soundEnabled]);
 
   // Handle Entry Submission
   const handleEntrySubmit = async (e: React.FormEvent) => {
@@ -846,12 +876,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   // Handle Exit Submission
   const handleExitSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingExit) return;
     setExitError(null);
+    setIsSubmittingExit(true);
 
-    if (!selectedTicket || !liveCalculation) {
-      setExitError('Seleccione un vehículo para liquidar');
-      return;
-    }
+    try {
+      if (!selectedTicket || !liveCalculation) {
+        setExitError('Seleccione un vehículo para liquidar');
+        return;
+      }
 
     // Regla de Seguridad Obligatoria: Si no presenta ticket físico, debe presentar Tarjeta de Propiedad
     if (isNoTicketPresented) {
@@ -1115,6 +1148,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     });
 
     if (paidTicket) {
+      setLastPaidExitTicket(paidTicket);
       playSound('cash', soundEnabled);
       if (businessInfo.autoPrintOnExit && !businessInfo.silentBackgroundPrint) {
         onPrintTicket(paidTicket, 'exit');
@@ -1135,8 +1169,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
       setCustomerDocNumber('');
       setCustomerName('');
       setCustomerEmail('');
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 120);
     }
-  };
+  } finally {
+    setIsSubmittingExit(false);
+  }
+};
 
   const getVehicleIcon = (type: string, className = 'w-4 h-4') => {
     return renderVehicleIcon(type, className, vehicleCategories);
@@ -1178,6 +1218,106 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* ========================================================= */}
+      {/* PRO MAX: RADAR TÁCTICO DE OCUPACIÓN Y TELEMETRÍA EN TIEMPO REAL */}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 bg-[var(--bg-surface-2)] p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-md">
+        {/* Libres */}
+        <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl relative overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 shadow-inner">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse" />
+              <span className="text-[10px] uppercase font-black tracking-wider text-emerald-800 dark:text-emerald-300 block">Cupos Libres</span>
+            </div>
+            <span className="text-2xl font-black font-mono text-emerald-700 dark:text-emerald-400 tracking-tight">
+              {spots.filter(s => s.status === 'available').length}
+            </span>
+          </div>
+        </div>
+
+        {/* Ocupados */}
+        <div className="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl relative overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold shrink-0 shadow-inner">
+            <Car className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
+              <span className="text-[10px] uppercase font-black tracking-wider text-amber-800 dark:text-amber-300 block">En Patio (Activos)</span>
+            </div>
+            <span className="text-2xl font-black font-mono text-amber-700 dark:text-amber-400 tracking-tight">
+              {activeTickets.length}
+            </span>
+          </div>
+        </div>
+
+        {/* Capacidad Ocupación */}
+        <div className="flex items-center gap-3 p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl relative overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-400 flex items-center justify-center font-bold shrink-0 shadow-inner">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-black tracking-wider text-slate-700 dark:text-slate-300">Capacidad Total</span>
+              <span className="text-xs font-black font-mono text-sky-700 dark:text-sky-400">
+                {spots.length > 0 ? Math.round((activeTickets.length / spots.length) * 100) : 0}%
+              </span>
+            </div>
+            <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden mt-1">
+              <div 
+                className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 transition-all duration-500" 
+                style={{ width: `${Math.min(100, spots.length > 0 ? Math.round((activeTickets.length / spots.length) * 100) : 0)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Atajos Rápidos POS Hardware */}
+        <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
+          <div className="text-[11px] leading-tight space-y-1 w-full">
+            <span className="font-black text-slate-800 dark:text-slate-200 block text-[10px] uppercase tracking-wider">Teclas Rápidas Terminal:</span>
+            <div className="flex items-center gap-2 font-mono text-[10px] flex-wrap">
+              <span className="bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-1.5 py-0.5 rounded font-bold text-amber-600 dark:text-amber-400">F2 Entrada</span>
+              <span className="bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-1.5 py-0.5 rounded font-bold text-emerald-600 dark:text-emerald-400">F3 Salida</span>
+              <span className="bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-1.5 py-0.5 rounded font-bold text-sky-600 dark:text-sky-400">F8 Reimprimir</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Banner de Reimpresión Rápida de Última Salida */}
+      {lastPaidExitTicket && (
+        <div className="p-3 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-xs animate-in fade-in">
+          <div className="flex items-center gap-2.5 text-emerald-800 dark:text-emerald-300 font-medium">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <span>Última salida cobrada: <strong className="font-mono text-emerald-950 dark:text-white underline">{lastPaidExitTicket.plate}</strong> (#{lastPaidExitTicket.ticketNumber}) · Total: <strong>{formatCurrency(lastPaidExitTicket.totalAmount, rates.currencySymbol)}</strong> ({lastPaidExitTicket.paymentMethod})</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => onPrintTicket(lastPaidExitTicket, 'exit')}
+              className="pk-pos-key px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border-b-2 border-slate-950 shadow-xs"
+              title="Reimprimir último recibo de salida por atasco de papel (F8)"
+            >
+              <Printer className="w-3.5 h-3.5 text-amber-400" />
+              <span>Reimprimir Factura (F8)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setLastPaidExitTicket(null)}
+              className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+              title="Cerrar aviso de última salida"
+              aria-label="Cerrar aviso"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
       {/* TOP SECTION: TWO CLEAN, SPACIOUS WORK CARDS               */}
       {/* ========================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -1185,35 +1325,35 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
         {/* ========================================================= */}
         {/* CARD 1: INGRESO RÁPIDO DE VEHÍCULO                        */}
         {/* ========================================================= */}
-        <div className="lg:col-span-5 bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm">
+        <div className="lg:col-span-5 bg-[var(--bg-surface-2)] rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)]">
           {/* Card Header */}
-          <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
+          <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold shadow-inner">
                 <ArrowDownRight className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Registro de Entrada</h3>
-                <p className="text-[11px] text-slate-700 dark:text-slate-200">Expedición de ticket de ingreso</p>
+                <h3 className="font-black text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wide">Terminal de Entrada</h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Expedición y timbrado de ticket</p>
               </div>
             </div>
-            <span className="text-[11px] font-mono font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
-              {spots.filter(s => s.status === 'available').length} Libres
+            <span className="text-[11px] font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
+              ● {spots.filter(s => s.status === 'available').length} Libres
             </span>
           </div>
 
           <div className="p-4 sm:p-5">
             {entrySuccessMessage && (
-              <div className="mb-4 p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between gap-2 animate-in fade-in">
+              <div className="mb-4 p-3 bg-emerald-500/15 border-2 border-emerald-500/30 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between gap-2 animate-in fade-in">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-                  <span className="font-medium">{entrySuccessMessage}</span>
+                  <span className="font-bold">{entrySuccessMessage}</span>
                 </div>
                 {lastGeneratedTicket && (
                   <button
                     type="button"
                     onClick={() => onPrintTicket(lastGeneratedTicket, 'entry')}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-sm shrink-0"
+                    className="pk-pos-key px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-sm shrink-0 border-b-2 border-emerald-800"
                     title="Ver en pantalla o reimprimir ticket de ingreso"
                   >
                     <Printer className="w-3.5 h-3.5" />
@@ -1224,20 +1364,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             )}
 
             <form onSubmit={handleEntrySubmit} className="space-y-4">
-              {/* Vehicle Type Selection */}
+              {/* Vehicle Type Selection - Tactical Cockpit Instrument */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                     <span>Tipo de Vehículo:</span>
-                    <span className="text-indigo-600 dark:text-indigo-400 font-bold normal-case">
+                    <span className="text-amber-600 dark:text-amber-400 font-black">
                       {configuredCategories.find(c => c.id === entryVehicleType)?.name || entryVehicleType}
                     </span>
                   </label>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                    {spots.filter(s => s.type === entryVehicleType && s.status === 'available').length} libres
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold">
+                    {spots.filter(s => s.type === entryVehicleType && s.status === 'available').length} celdas libres
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {configuredCategories.map((cat) => {
                     const isSelected = entryVehicleType === cat.id;
                     const availableForThis = spots.filter(s => s.type === cat.id && s.status === 'available').length;
@@ -1253,18 +1393,28 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setEntryVehicleType(cat.id);
                           playSound('beep', soundEnabled);
                         }}
-                        className={`h-16 sm:h-18 rounded-2xl border-2 flex items-center justify-center transition-all cursor-pointer ${
+                        className={`pk-pos-key h-16 sm:h-18 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer p-2 ${
                           isSelected
-                            ? 'bg-indigo-600 dark:bg-indigo-600 text-white border-indigo-700 shadow-xl shadow-indigo-600/35 ring-4 ring-indigo-500/30 scale-[1.04] z-10'
-                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-xs'
+                            ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-4 border-b-amber-700 shadow-lg shadow-amber-500/20 scale-[1.02] ring-2 ring-amber-400/50 z-10'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-200 shadow-2xs'
                         }`}
                       >
                         {getVehicleIcon(
                           cat.icon || cat.id,
                           isSelected
-                            ? 'w-9 h-9 sm:w-10 sm:h-10 text-white transition-transform scale-110 drop-shadow-md stroke-[2.4]'
-                            : 'w-8 h-8 sm:w-9 sm:h-9 text-slate-500 dark:text-slate-400 transition-transform hover:scale-105 stroke-[1.8]'
+                            ? 'w-7 h-7 sm:w-8 sm:h-8 text-slate-950 transition-transform stroke-[2.2]'
+                            : 'w-6 h-6 sm:w-7 sm:h-7 text-slate-500 dark:text-slate-400 transition-transform stroke-[1.8]'
                         )}
+                        <div className="flex items-center justify-between w-full px-1 text-[10px] leading-none">
+                          <span className={`font-bold truncate ${isSelected ? 'text-slate-950' : 'text-slate-700 dark:text-slate-300'}`}>
+                            {cat.name}
+                          </span>
+                          <span className={`font-mono text-[9px] font-bold px-1 rounded ${
+                            isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                          }`}>
+                            {availableForThis}
+                          </span>
+                        </div>
                       </button>
                     );
                   })}
@@ -1472,60 +1622,58 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   </span>
                 </div>
 
-                <div className="relative">
-                  <input
-                    ref={plateInputRef}
-                    id="entryPlateInput"
-                    type="text"
-                    value={entryPlate}
-                    disabled={isCountrySelectionMissing}
-                    onChange={(e) => {
-                      const maxL = activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6);
-                      const val = formatPlate(e.target.value).slice(0, maxL);
-                      setEntryPlate(val);
-                      if (entryError) setEntryError(null);
-                      if (entryWarning) setEntryWarning(null);
-                    }}
-                    placeholder={
-                      isCountrySelectionMissing
-                        ? "SELECCIONE PAÍS..."
-                        : "DIGITE LA PLACA"
-                    }
-                    maxLength={activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6)}
-                    autoComplete="off"
-                    autoFocus
-                    className={`w-full border-2 rounded-xl px-4 py-3 text-2xl font-black font-mono tracking-widest uppercase outline-none transition-all text-center shadow-inner placeholder:font-normal placeholder:tracking-normal placeholder:text-lg placeholder:text-slate-400 dark:placeholder:text-slate-500 ${
-                      isCountrySelectionMissing
-                        ? 'border-slate-800 bg-slate-900/50 text-slate-300 cursor-not-allowed placeholder:text-slate-400 dark:placeholder:text-slate-500'
-                        : isPlateInvalid
-                        ? 'border-rose-500 bg-rose-950/20 text-rose-100 placeholder:text-rose-700/50 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 shadow-rose-950/30'
-                        : duplicateActiveTicket
-                        ? 'border-amber-500 bg-amber-950/20 text-amber-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20'
-                        : isPlateFormatValid
-                        ? (isForeignPlate
-                            ? 'border-sky-500 bg-sky-950/20 text-sky-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20'
-                            : 'border-emerald-500 bg-emerald-950/20 text-emerald-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20')
-                        : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-indigo-500'
-                    }`}
-                  />
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
-                    <span className={`text-[10px] font-bold border px-1.5 py-0.5 rounded font-mono transition-colors ${
-                      isCountrySelectionMissing
-                        ? 'bg-slate-900 text-slate-300 border-slate-800'
-                        : isPlateInvalid
-                        ? 'bg-rose-950 text-rose-800 dark:text-rose-300 border-rose-600/50'
-                        : isPlateFormatValid
-                        ? (isForeignPlate ? 'bg-sky-950 text-sky-800 dark:text-sky-300 border-sky-600/50' : 'bg-emerald-950 text-emerald-800 dark:text-emerald-300 border-emerald-600/50')
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-700'
-                    }`}>
-                      {isCountrySelectionMissing
-                        ? 'PAÍS'
-                        : isPlateInvalid
-                        ? `${cleanPlate.length}/${activeCountryRule?.maxLength || 6}`
-                        : isPlateFormatValid
-                        ? (activeCountryRule?.flag || '✓')
-                        : (isForeignPlate ? 'EXT' : 'COL')}
+                {/* MATRÍCULA VEHICULAR FÍSICA EN RELIEVE (AUTOMOTIVE EMBOSSED PLATE) */}
+                <div className={`pk-plate-frame ${isForeignPlate ? 'pk-plate-frame-foreign' : ''} ${isPlateInvalid ? 'pk-plate-frame-error' : ''}`}>
+                  {/* Tornillos de fijación metálicos simulados */}
+                  <span className="pk-plate-rivet pk-plate-rivet-tl" />
+                  <span className="pk-plate-rivet-tr" />
+                  <span className="pk-plate-rivet-bl" />
+                  <span className="pk-plate-rivet-br" />
+
+                  {/* Cinta superior oficial de la matrícula */}
+                  <div className="flex items-center justify-between px-3 pt-0.5 pb-1 select-none">
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-black font-sans">
+                      {isForeignPlate ? (activeCountryRule ? `${activeCountryRule.flag} ${activeCountryRule.name}` : 'EXTRANJERO') : '🇨🇴 COLOMBIA'}
                     </span>
+                    <span className="text-[9px] font-mono font-black text-black/80 bg-black/10 px-2 py-0.5 rounded border border-black/20">
+                      {entryVehicleType === 'motorcycle' ? 'MOTOCICLETA' : entryVehicleType === 'truck' ? 'CARGA' : entryVehicleType === 'bicycle' ? 'BICICLETA' : 'PARTICULAR'}
+                    </span>
+                  </div>
+
+                  {/* Input de matrícula en relieve metálico */}
+                  <div className="relative my-0.5">
+                    <input
+                      ref={plateInputRef}
+                      id="entryPlateInput"
+                      type="text"
+                      value={entryPlate}
+                      disabled={isCountrySelectionMissing}
+                      onChange={(e) => {
+                        const maxL = activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6);
+                        const val = formatPlate(e.target.value).slice(0, maxL);
+                        setEntryPlate(val);
+                        if (entryError) setEntryError(null);
+                        if (entryWarning) setEntryWarning(null);
+                      }}
+                      placeholder={
+                        isCountrySelectionMissing
+                          ? "SELECCIONE PAÍS..."
+                          : "ABC 123"
+                      }
+                      maxLength={activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6)}
+                      autoComplete="off"
+                      autoFocus
+                      className="pk-plate-input"
+                    />
+                  </div>
+
+                  {/* Borde inferior: Ciudad o RUNT Oficial */}
+                  <div className="flex items-center justify-between px-3 pt-0.5 text-[9px] font-black text-black/80 font-mono select-none">
+                    <span className="tracking-widest">MIN TRANSPORTE</span>
+                    <span className="tracking-[0.2em] uppercase font-sans font-black">
+                      {businessInfo?.branchName || 'RUNT OFICIAL'}
+                    </span>
+                    <span className="tracking-widest">{isForeignPlate ? 'INT' : 'RUNT'}</span>
                   </div>
                 </div>
 
@@ -1778,10 +1926,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleCancelExitProcess}
-                  className="text-xs text-rose-800 dark:text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 font-semibold flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  className="pk-pos-key text-xs text-rose-700 dark:text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 border-b-2 border-b-rose-700 font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
                   title="Cancelar proceso de salida actual y limpiar selección"
                 >
-                  <X className="w-3.5 h-3.5 text-rose-700 dark:text-rose-400" />
+                  <X className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                   <span>Cancelar Salida</span>
                 </button>
               )}
@@ -1790,54 +1938,34 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <button
                   type="button"
                   onClick={onOpenTicketScanner}
-                  className="text-xs font-bold text-white flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 shadow-xs transition-all cursor-pointer"
+                  className="pk-pos-key text-xs font-black text-slate-950 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-b-2 border-amber-700 shadow-sm transition-all cursor-pointer"
                   title="Escanear Código QR de Ticket con Cámara (F4)"
                 >
-                  <QrCode className="w-3.5 h-3.5" />
+                  <QrCode className="w-3.5 h-3.5 text-slate-950" />
                   <span>Escanear QR</span>
-                  <span className="text-[10px] font-mono bg-indigo-700/80 px-1 py-0.2 rounded text-indigo-200">F4</span>
+                  <span className="text-[10px] font-mono bg-slate-950/20 px-1 py-0.2 rounded text-slate-950 font-black">F4</span>
                 </button>
               )}
             </div>
           </div>
 
           <div className="p-4 sm:p-5 space-y-4">
-            {/* Search Input for Exit */}
+            {/* Search Input for Exit - Laser Gun Scanner Dock */}
             <div className="relative">
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
-                  <span>Buscar Vehículo por Placa, Ticket o Código de Barras</span>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <Barcode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Lector de Barras o Búsqueda por Placa:</span>
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border transition-all ${
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all ${
                     isGunScanning
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 animate-pulse'
+                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 animate-pulse shadow-sm'
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
-                  }`} title="Lector de código de barras físico listo en cualquier momento">
-                    <Barcode className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>{isGunScanning ? 'Leyendo Barras...' : 'Lector Listo'}</span>
+                  }`} title="Lector de código de barras físico listo en cualquier momento (pistoleo directo)">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    <span>{isGunScanning ? 'DETECTANDO HAZ...' : 'ESCÁNER ACTIVO'}</span>
                   </span>
-
-                  {onOpenTicketScanner && (
-                    <button
-                      type="button"
-                      onClick={onOpenTicketScanner}
-                      className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <QrCode className="w-3.5 h-3.5" />
-                      <span>Cámara QR</span>
-                    </button>
-                  )}
-                  {selectedTicket && (
-                    <button
-                      type="button"
-                      onClick={handleCancelExitProcess}
-                      className="text-[11px] text-slate-700 dark:text-slate-200 hover:text-rose-800 dark:text-rose-300 font-medium flex items-center gap-1 cursor-pointer"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>Limpiar</span>
-                    </button>
-                  )}
                 </div>
               </div>
 
@@ -1848,26 +1976,58 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 </div>
               )}
 
-              <div className="relative">
+              <div className="relative pk-scanner-dock pos-scanner-ready">
                 <input
+                  ref={searchInputRef}
+                  id="searchQuery"
                   type="text"
                   value={searchQuery}
+                  autoFocus
                   onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && searchQuery.trim()) {
                       e.preventDefault();
+                      setIsReadingBarcodeInstant(true);
+                      setTimeout(() => setIsReadingBarcodeInstant(false), 350);
                       processScannedBarcode(searchQuery);
                     }
                   }}
-                  placeholder="Digite placa o escanee código del ticket..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-sm font-bold font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none uppercase transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  placeholder="Pistolear código de barras o digitar placa..."
+                  className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 rounded-xl pl-10 pr-36 py-3 text-sm font-black font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none uppercase transition-all shadow-inner h-12"
                 />
-                <Search className="w-4 h-4 text-slate-700 dark:text-slate-200 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        searchInputRef.current?.focus();
+                      }}
+                      className="p-1 rounded-md text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      title="Limpiar texto escrito"
+                      aria-label="Limpiar campo de búsqueda"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  {isReadingBarcodeInstant ? (
+                    <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 animate-pulse pointer-events-none">
+                      <Barcode className="w-3.5 h-3.5 animate-spin" />
+                      <span>LEYENDO...</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>AUTO-FOCO (F3)</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Autocomplete dropdown if typing search query and no ticket selected */}
               {searchResults.length > 0 && (!selectedTicket || selectedTicket.plate !== searchQuery) && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl shadow-2xl max-h-52 overflow-y-auto divide-y divide-slate-800">
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl shadow-2xl max-h-52 overflow-y-auto divide-y divide-slate-800">
                   {searchResults.map((t) => (
                     <button
                       key={t.id}
@@ -1876,7 +2036,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       className="w-full p-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-xs transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-slate-900 dark:text-white text-sm">{t.plate}</span>
+                        <span className="pk-mini-plate">{t.plate}</span>
                         <span className="text-[10px] text-slate-600 dark:text-slate-300 font-medium uppercase">({getVehicleName(t.vehicleType)})</span>
                         <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono text-[10px] font-semibold border border-slate-300 dark:border-slate-700">
                           {t.spotCode}
@@ -1894,28 +2054,28 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             {/* If a vehicle is selected, show complete exit workflow */}
             {selectedTicket && liveCalculation ? (
               <form onSubmit={handleExitSubmit} noValidate className="space-y-4 pt-1">
-                {/* Vehicle Banner Summary */}
-                <div className="p-3.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl flex items-center justify-between flex-wrap gap-2">
+                {/* Vehicle Banner Summary with Mini Plate */}
+                <div className="p-3.5 bg-slate-900 text-white rounded-xl border border-slate-800 flex items-center justify-between flex-wrap gap-2 shadow-md">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/10 rounded-lg text-amber-700 dark:text-amber-400">
+                    <div className="p-2.5 bg-white/10 rounded-xl text-amber-400 border border-white/10">
                       {getVehicleIcon(selectedTicket.vehicleType, 'w-6 h-6')}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-black font-mono tracking-wider text-slate-900 dark:text-white">
+                        <span className="pk-mini-plate text-base px-2 py-0.5">
                           {selectedTicket.plate}
                         </span>
-                        <span className="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-bold uppercase">
-                          {selectedTicket.ticketNumber}
+                        <span className="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-black font-mono">
+                          #{selectedTicket.ticketNumber}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2 mt-0.5">
-                        <span>Puesto: <strong className="text-slate-900 dark:text-white font-mono">{selectedTicket.spotCode}</strong></span>
+                      <div className="text-xs text-slate-300 flex items-center gap-2 mt-1">
+                        <span>Puesto: <strong className="text-white font-mono">{selectedTicket.spotCode}</strong></span>
                         <span>•</span>
-                        <span>Ingreso: <strong className="text-slate-900 dark:text-white font-mono">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
+                        <span>Ingreso: <strong className="text-white font-mono">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
                       </div>
                       {selectedTicket.notes && (
-                        <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-0.5 mt-1 font-medium">
+                        <div className="text-[11px] text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded px-2 py-0.5 mt-1 font-medium">
                           <strong>Observaciones:</strong> {selectedTicket.notes}
                         </div>
                       )}
@@ -2226,16 +2386,33 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     />
                   </div>
 
-                  <div className="pt-2 border-t-2 border-slate-300 flex justify-between items-baseline">
-                    <span className="font-black text-sm text-slate-900 dark:text-slate-100 uppercase">Total a Cobrar:</span>
-                    <span className="text-2xl font-black text-emerald-700 font-mono">
-                      {formatCurrency(finalTotalAmount, rates.currencySymbol)}
-                    </span>
+                  {/* PANTALLA DIGITAL VFD / CONSOLA DE COBRO EN VIVO */}
+                  <div className="pk-vfd-display p-4 my-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
+                        <span className="text-slate-200 font-bold">TOTAL LIQUIDADO POS</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span>TIEMPO: <strong className="pk-vfd-text-amber font-mono">{liveCalculation.formattedDuration}</strong></span>
+                        <span>•</span>
+                        <span>PLACA: <strong className="text-white font-mono">{selectedTicket.plate}</strong></span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
+                        TOTAL NETO A COBRAR:
+                      </span>
+                      <span className="text-3xl sm:text-5xl font-black pk-vfd-text-emerald pk-currency-huge">
+                        {formatCurrency(finalTotalAmount, rates.currencySymbol)}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 {/* ======================================================= */}
-                {/* GROUPED PAYMENT BUTTONS (Clean, uncluttered, intuitive) */}
+                {/* GROUPED PAYMENT BUTTONS (Hardware POS Keypad)           */}
                 {/* ======================================================= */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -2255,10 +2432,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('cash');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'cash'
-                          ? 'bg-emerald-700 text-white border-emerald-800 shadow-sm ring-2 ring-emerald-600/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-emerald-600 text-white border-emerald-700 border-b-emerald-800 shadow-md ring-2 ring-emerald-500/30'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
                       <Banknote className={`w-5 h-5 ${exitPaymentMethod === 'cash' ? 'text-white' : 'text-emerald-500'}`} />
@@ -2273,17 +2450,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('card');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'card'
-                          ? 'bg-sky-700 text-white border-sky-800 shadow-sm ring-2 ring-sky-600/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-sky-600 text-white border-sky-700 border-b-sky-800 shadow-md ring-2 ring-sky-500/30'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
                       <CreditCard className={`w-5 h-5 ${exitPaymentMethod === 'card' ? 'text-white' : 'text-sky-500'}`} />
                       <span>Tarjeta</span>
                     </button>
 
-                    {/* 3. Billeteras (Grouped Button) */}
+                    {/* 3. Billeteras */}
                     <button
                       type="button"
                       aria-selected={exitPaymentMethod === 'wallet'}
@@ -2291,17 +2468,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('wallet');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'wallet'
-                          ? 'bg-purple-800 text-white border-purple-900 shadow-sm ring-2 ring-purple-600/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-purple-600 text-white border-purple-700 border-b-purple-800 shadow-md ring-2 ring-purple-500/30'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
                       <Smartphone className={`w-5 h-5 ${exitPaymentMethod === 'wallet' ? 'text-white' : 'text-purple-500'}`} />
                       <span>Billeteras</span>
                     </button>
 
-                    {/* 4. Códigos QR (Grouped Button) */}
+                    {/* 4. Códigos QR */}
                     <button
                       type="button"
                       aria-selected={exitPaymentMethod === 'qr'}
@@ -2309,17 +2486,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('qr');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'qr'
-                          ? 'bg-amber-600 text-white border-amber-700 shadow-sm ring-2 ring-amber-500/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-amber-600 text-white border-amber-700 border-b-amber-800 shadow-md ring-2 ring-amber-500/30'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
                       <QrCode className={`w-5 h-5 ${exitPaymentMethod === 'qr' ? 'text-white' : 'text-amber-500'}`} />
                       <span>QR Bancario</span>
                     </button>
 
-                    {/* 5. Llave Bre-B (Grouped Button) */}
+                    {/* 5. Llave Bre-B */}
                     <button
                       type="button"
                       aria-selected={exitPaymentMethod === 'bre_b'}
@@ -2327,13 +2504,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('bre_b');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'bre_b'
-                          ? 'bg-teal-700 text-white border-teal-800 shadow-sm ring-2 ring-teal-600/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-teal-600 text-white border-teal-700 border-b-teal-800 shadow-md ring-2 ring-teal-500/30'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
-                      <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-amber-800 dark:text-amber-300' : 'text-teal-500'}`} />
+                      <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-amber-300' : 'text-teal-500'}`} />
                       <span>Llave Bre-B</span>
                     </button>
 
@@ -2345,13 +2522,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('transfer');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'transfer'
-                          ? 'bg-indigo-800 text-white border-indigo-900 shadow-sm ring-2 ring-indigo-600/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-cyan-700 text-white border-cyan-800 border-b-cyan-900 shadow-md ring-2 ring-cyan-500/30'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
-                      <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-white' : 'text-indigo-500'}`} />
+                      <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-white' : 'text-cyan-500'}`} />
                       <span>Transferencia</span>
                     </button>
 
@@ -2363,31 +2540,31 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('mixed');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
                         exitPaymentMethod === 'mixed'
-                          ? 'bg-indigo-600 text-white border-indigo-700 shadow-sm ring-2 ring-indigo-500/30'
-                          : 'bg-[var(--bg-card)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--border-hover)]'
+                          ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-amber-700 shadow-md ring-2 ring-amber-400/40'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }`}
                     >
-                      <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-teal-700 dark:text-teal-400' : 'text-indigo-500'}`} />
+                      <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-slate-950' : 'text-amber-500'}`} />
                       <span>Pago Mixto</span>
                     </button>
                   </div>
 
                   {/* Sub-panel 1: Efectivo */}
                   {exitPaymentMethod === 'cash' && finalTotalAmount > 0 && (
-                    <div className="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/80 rounded-xl space-y-3 animate-in fade-in">
+                    <div className="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-300 dark:border-emerald-800/80 rounded-xl space-y-3 animate-in fade-in">
                       <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                         <div>
-                          <label htmlFor="cashReceivedInput" className="text-xs font-bold text-emerald-950 dark:text-emerald-300 block">
-                            Monto Entregado por el Cliente:
+                          <label htmlFor="cashReceivedInput" className="text-xs font-black text-emerald-950 dark:text-emerald-300 block uppercase tracking-wide">
+                            Efectivo Entregado por el Cliente:
                           </label>
                           <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                            Digite libremente cualquier valor o elija una sugerencia
+                            Digite el valor o seleccione una denominación rápida
                           </span>
                         </div>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-mono font-bold text-sm pointer-events-none">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-mono font-black text-sm pointer-events-none">
                             {rates.currencySymbol || '$'}
                           </span>
                           <input
@@ -2401,36 +2578,42 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               setCashReceivedInput(e.target.value);
                               if (exitError) setExitError(null);
                             }}
-                            className={`w-40 pl-7 pr-3 py-1.5 text-right bg-white dark:bg-slate-900 border text-slate-900 dark:text-slate-100 rounded-lg text-base font-black font-mono outline-none transition-all ${
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (!isPaymentBlocked && !isSubmittingExit) {
+                                  handleExitSubmit(e);
+                                }
+                              }
+                            }}
+                            className={`w-44 pl-7 pr-3 py-2 text-right bg-white dark:bg-slate-900 border-2 text-slate-900 dark:text-slate-100 rounded-xl text-lg font-black font-mono outline-none transition-all shadow-inner ${
                               isCashUnder
-                                ? 'border-rose-400 dark:border-rose-600 focus:ring-2 focus:ring-rose-400/30'
+                                ? 'border-rose-500 ring-2 ring-rose-500/20'
                                 : isCashExact || isCashOver
-                                ? 'border-emerald-500 focus:ring-2 focus:ring-emerald-500/30'
+                                ? 'border-emerald-500 ring-2 ring-emerald-500/20'
                                 : 'border-slate-300 dark:border-slate-700 focus:border-emerald-600'
                             }`}
                           />
                         </div>
                       </div>
 
-                      {/* Botones de montos rápidos y sugerencias */}
+                      {/* Billetes y Denominaciones Rápidas POS */}
                       <div className="flex items-center justify-between gap-1.5 flex-wrap pt-0.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          Sugerencias:
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          Billetes / Monto Rápido:
                         </span>
                         <div className="flex gap-1.5 flex-wrap justify-end">
                           <button
                             type="button"
                             onClick={() => setCashReceivedInput(finalTotalAmount.toString())}
-                            className={`text-xs px-2.5 py-1 rounded-md font-mono font-bold cursor-pointer transition-colors ${
-                              isCashExact
-                                ? 'bg-emerald-600 text-white shadow-xs'
-                                : 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200'
+                            className={`pk-bill-chip pk-bill-exact cursor-pointer transition-all ${
+                              isCashExact ? 'ring-2 ring-black dark:ring-white scale-105 shadow-md' : ''
                             }`}
                           >
                             Exacto ({formatCurrency(finalTotalAmount, rates.currencySymbol)})
                           </button>
 
-                          {/* Billetes y redondeos colombianos sugeridos */}
+                          {/* Billetes colombianos sugeridos con su color oficial */}
                           {(() => {
                             const suggestions = new Set<number>();
                             if (finalTotalAmount % 1000 !== 0) {
@@ -2439,30 +2622,38 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             [2000, 5000, 10000, 20000, 50000, 100000].forEach(val => {
                               if (val > finalTotalAmount) suggestions.add(val);
                             });
-                            return Array.from(suggestions).sort((a, b) => a - b).slice(0, 4).map((val) => (
-                              <button
-                                key={val}
-                                type="button"
-                                onClick={() => setCashReceivedInput(val.toString())}
-                                className={`text-xs px-2.5 py-1 rounded-md font-mono font-bold cursor-pointer transition-colors ${
-                                  cashReceivedVal === val
-                                    ? 'bg-emerald-600 text-white shadow-xs'
-                                    : 'bg-emerald-100/90 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:hover:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200'
-                                }`}
-                              >
-                                ${val.toLocaleString('es-CO')}
-                              </button>
-                            ));
+                            return Array.from(suggestions).sort((a, b) => a - b).slice(0, 4).map((val) => {
+                              const billClass = 
+                                val === 2000 ? 'pk-bill-2k' :
+                                val === 5000 ? 'pk-bill-5k' :
+                                val === 10000 ? 'pk-bill-10k' :
+                                val === 20000 ? 'pk-bill-20k' :
+                                val === 50000 ? 'pk-bill-50k' :
+                                val === 100000 ? 'pk-bill-100k' : 'pk-bill-exact';
+
+                              return (
+                                <button
+                                  key={val}
+                                  type="button"
+                                  onClick={() => setCashReceivedInput(val.toString())}
+                                  className={`pk-bill-chip ${billClass} cursor-pointer transition-all ${
+                                    cashReceivedVal === val ? 'ring-2 ring-black dark:ring-white scale-105 shadow-md' : ''
+                                  }`}
+                                >
+                                  ${val.toLocaleString('es-CO')}
+                                </button>
+                              );
+                            });
                           })()}
 
                           {hasCashTyped && (
                             <button
                               type="button"
                               onClick={() => setCashReceivedInput('')}
-                              className="text-xs bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md font-mono cursor-pointer"
+                              className="text-xs bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg font-mono cursor-pointer font-bold"
                               title="Limpiar valor digitado"
                             >
-                              ✕
+                              ✕ Limpiar
                             </button>
                           )}
                         </div>
@@ -3529,64 +3720,69 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   </div>
                 )}
 
-                {/* Submit Action */}
-                <div className="pt-2">
-                  {currentUser && !currentUser.permissions.canRegisterExit ? (
-                    <div className="w-full p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
-                      <span>Tu usuario no tiene permiso para liquidar salidas.</span>
-                    </div>
-                  ) : (
-                    <button
-                      type="submit"
-                      id="btn-complete-exit"
-                      disabled={isPaymentBlocked}
-                      className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                        isPaymentBlocked
-                          ? 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700 shadow-none'
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-98'
-                      }`}
-                    >
-                      {isPaymentBlocked ? (
-                        exitPaymentMethod === 'cash' ? (
-                          !hasCashTyped ? (
-                            <>
-                              <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
-                              <span>Ingrese el efectivo entregado por el cliente</span>
-                            </>
+                  {/* Submit Action - Heavy Duty POS Cashier Dispatch Key */}
+                  <div className="pt-2">
+                    {currentUser && !currentUser.permissions.canRegisterExit ? (
+                      <div className="w-full p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                        <span>Tu usuario no tiene permiso para liquidar salidas.</span>
+                      </div>
+                    ) : (
+                      <button
+                        type="submit"
+                        id="btn-complete-exit"
+                        disabled={isPaymentBlocked || isSubmittingExit}
+                        className={`pk-pos-key w-full py-4 px-5 rounded-xl font-black text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                          isPaymentBlocked || isSubmittingExit
+                            ? 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700 shadow-none'
+                            : 'bg-emerald-600 hover:bg-emerald-500 text-white border-b-4 border-emerald-800 shadow-xl shadow-emerald-950/20 active:border-b active:translate-y-1'
+                        }`}
+                      >
+                        {isSubmittingExit ? (
+                          <>
+                            <RefreshCw className="w-5 h-5 animate-spin text-white" />
+                            <span>Procesando cobro y liberando cupo...</span>
+                          </>
+                        ) : isPaymentBlocked ? (
+                          exitPaymentMethod === 'cash' ? (
+                            !hasCashTyped ? (
+                              <>
+                                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                                <span>Ingrese el efectivo entregado por el cliente</span>
+                              </>
+                            ) : (
+                              <>
+                                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                                <span>Efectivo insuficiente (Faltan {formatCurrency(cashShortage, rates.currencySymbol)})</span>
+                              </>
+                            )
+                          ) : exitPaymentMethod === 'mixed' ? (
+                            isSplitUnder ? (
+                              <>
+                                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                                <span>Falta distribuir {formatCurrency(splitDiff, rates.currencySymbol)} en Pago Mixto</span>
+                              </>
+                            ) : (
+                              <>
+                                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                                <span>Exceso en Pago Mixto (+{formatCurrency(Math.abs(splitDiff), rates.currencySymbol)})</span>
+                              </>
+                            )
                           ) : (
                             <>
-                              <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
-                              <span>Efectivo insuficiente (Faltan {formatCurrency(cashShortage, rates.currencySymbol)})</span>
-                            </>
-                          )
-                        ) : exitPaymentMethod === 'mixed' ? (
-                          isSplitUnder ? (
-                            <>
-                              <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
-                              <span>Falta distribuir {formatCurrency(splitDiff, rates.currencySymbol)} en Pago Mixto</span>
-                            </>
-                          ) : (
-                            <>
-                              <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
-                              <span>Exceso en Pago Mixto (+{formatCurrency(Math.abs(splitDiff), rates.currencySymbol)})</span>
+                              <AlertCircle className="w-5 h-5 shrink-0" />
+                              <span>Complete los datos de pago para proceder</span>
                             </>
                           )
                         ) : (
                           <>
-                            <AlertCircle className="w-5 h-5 shrink-0" />
-                            <span>Complete los datos de pago para proceder</span>
+                            <Check className="w-5 h-5 text-white stroke-[3]" />
+                            <span>COBRAR SALIDA Y FACTURAR ({formatCurrency(finalTotalAmount, rates.currencySymbol)}) [Enter]</span>
                           </>
-                        )
-                      ) : (
-                        <>
-                          <Check className="w-5 h-5 text-white font-black" />
-                          <span>Cobrar Salida y Generar Factura ({formatCurrency(finalTotalAmount, rates.currencySymbol)})</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
+                        )}
+                      </button>
+                    )}
+                  </div>
               </form>
             ) : (
               /* Empty state when no vehicle is chosen */
@@ -3625,9 +3821,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               <button
                 type="button"
                 onClick={() => setTableFilterType('all')}
-                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                   tableFilterType === 'all'
-                    ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                    ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
@@ -3641,9 +3837,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     key={cat.id}
                     type="button"
                     onClick={() => setTableFilterType(cat.id)}
-                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                       isSelected
-                        ? 'bg-indigo-600 text-white font-bold shadow-xs'
+                        ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
                         : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                     }`}
                     title={`${cat.name}: ${count} en parqueadero`}
@@ -3653,7 +3849,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {count > 0 && (
                       <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                         isSelected
-                          ? 'bg-indigo-700 text-indigo-100'
+                          ? 'bg-slate-950/20 text-slate-950'
                           : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}>
                         {count}
@@ -3670,20 +3866,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 value={tableSearch}
                 onChange={(e) => setTableSearch(e.target.value)}
                 placeholder="Filtrar por placa..."
-                className="text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 focus:border-indigo-500 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44"
+                className="text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 focus:border-amber-500 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44 font-mono font-bold"
               />
-              <Search className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             </div>
           </div>
         </div>
 
         {/* Table Content */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[520px] scrollbar-thin">
           <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="bg-slate-100 dark:bg-slate-950/90 text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+            <thead className="pk-table-sticky-header bg-slate-100/95 dark:bg-slate-950/95 backdrop-blur-md text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b-2 border-slate-200 dark:border-slate-800 shadow-2xs">
               <tr>
                 <th className="py-3 px-4">Ticket</th>
-                <th className="py-3 px-4">Placa / Vehículo</th>
+                <th className="py-3 px-4">Placa / Matrícula</th>
                 <th className="py-3 px-4">Puesto</th>
                 <th className="py-3 px-4">Hora Entrada</th>
                 <th className="py-3 px-4">Tiempo Transcurrido</th>
@@ -3694,8 +3890,35 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
               {filteredActiveTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-slate-600 dark:text-slate-300">
-                    No se encontraron vehículos estacionados con los criterios de búsqueda.
+                  <td colSpan={7} className="py-12 px-4 text-center">
+                    {activeTickets.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 max-w-sm mx-auto space-y-2.5">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                          <Car className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Patio de Estacionamiento 100% Libre</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed">
+                          No hay vehículos estacionados en este momento. Registre un nuevo ingreso con el formulario superior o mediante la cámara ANPR.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 max-w-sm mx-auto space-y-2.5">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                          <Search className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Sin vehículos coincidentes</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed">
+                          No se encontró ningún vehículo activo con el filtro "{tableSearch}". Verifique la placa o limpie la búsqueda.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => { setTableSearch(''); setTableFilterType('all'); }}
+                          className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline pt-1 cursor-pointer"
+                        >
+                          Limpiar búsqueda y mostrar todos ({activeTickets.length})
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (
@@ -3703,41 +3926,39 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   const nowIso = new Date().toISOString();
                   const calc = calculateParkingFee(ticket.entryTime, nowIso, ticket.vehicleType, rates);
                   const isSelected = selectedTicket?.id === ticket.id;
+                  const elapsedMinutes = Math.floor((new Date(nowIso).getTime() - new Date(ticket.entryTime).getTime()) / 60000);
 
                   return (
                     <tr
                       key={ticket.id}
                       className={`hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors ${
-                        isSelected ? 'bg-amber-50/80 dark:bg-slate-800/90 font-medium' : ''
+                        isSelected ? 'bg-amber-500/10 dark:bg-amber-500/15 font-medium' : ''
                       }`}
                     >
-                      <td className="py-3 px-4 font-mono font-semibold text-slate-600 dark:text-slate-300">
-                        {ticket.ticketNumber}
+                      <td className="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-300">
+                        #{ticket.ticketNumber}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200">
-                            {getVehicleIcon(ticket.vehicleType, 'w-3.5 h-3.5')}
-                          </div>
+                        <div className="flex items-center gap-2.5">
+                          <span className={ticket.isForeignPlate ? "pk-mini-plate pk-mini-plate-white" : "pk-mini-plate"}>
+                            {ticket.plate}
+                          </span>
                           <div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-mono font-bold text-slate-900 dark:text-white text-sm tracking-wide">
-                                {ticket.plate}
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-slate-600 dark:text-slate-400 capitalize font-bold">
+                                {getVehicleName(ticket.vehicleType)}
                               </span>
                               {ticket.isForeignPlate && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 px-1.5 py-0.2 rounded font-sans uppercase" title={`Placa extranjera proveniente de: ${ticket.originCountry || 'Internacional'}`}>
+                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded font-sans uppercase">
                                   🌐 {ticket.originCountry || 'Ext'}
                                 </span>
                               )}
                             </div>
-                            <span className="block text-[10px] text-slate-700 dark:text-slate-200 capitalize">
-                              {getVehicleName(ticket.vehicleType)}
-                            </span>
                           </div>
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded font-mono font-semibold">
+                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded font-mono font-black text-xs">
                           {ticket.spotCode}
                         </span>
                       </td>
@@ -3745,14 +3966,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 font-mono text-slate-700 dark:text-slate-200 font-semibold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <div className="flex items-center gap-1.5 font-mono text-slate-800 dark:text-slate-200 font-bold">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${
+                            elapsedMinutes > 180 
+                              ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.8)] animate-ping' 
+                              : elapsedMinutes > 60 
+                              ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.7)]' 
+                              : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse'
+                          }`} />
                           <span>{calc.formattedDuration}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                      <td className="py-3 px-4 font-mono font-black text-emerald-700 dark:text-emerald-400 text-sm">
                         {calc.isWithinGracePeriod ? (
-                          <span className="text-slate-700 dark:text-slate-200 font-normal">Gracia ($0)</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">Gracia ($0)</span>
                         ) : (
                           formatCurrency(calc.totalAmount, rates.currencySymbol)
                         )}
@@ -3762,7 +3989,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           <button
                             type="button"
                             onClick={() => onPrintTicket(ticket, 'entry')}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
                             title="Reimprimir Ticket de Ingreso"
                           >
                             <Printer className="w-4 h-4" />
@@ -3772,9 +3999,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           <button
                             type="button"
                             onClick={() => selectVehicleForExit(ticket)}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-lg transition-all shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-xs"
+                            className="pk-pos-key px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black rounded-xl border-b-2 border-emerald-800 transition-all shadow-xs cursor-pointer text-xs"
                           >
-                            Cobrar Salida
+                            Liquidar Salida
                           </button>
                         ) : (
                           <span className="text-[11px] text-slate-600 dark:text-slate-300 italic px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">

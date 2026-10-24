@@ -33,14 +33,6 @@
     },
     "dayRate": 28000,
     "hourRate": 4200,
-    "taxi_8055": {
-      "dayRate": 28000,
-      "hourRate": 4200,
-      "minuteRate": 70,
-      "lostTicketFee": 15000,
-      "gracePeriodMinutes": 15,
-      "minimumChargeMinutes": 15
-    },
     "categories": [
       {
         "id": "car",
@@ -104,15 +96,15 @@
       },
       {
         "id": "bicycle",
-        "icon": "Bus",
-        "name": "Bus",
+        "icon": "Bicycle",
+        "name": "Bicicleta / Patineta",
         "rate": {
           "dayRate": 7000,
           "hourRate": 1000,
           "minuteRate": 15,
-          "lostTicketFee": 15000,
+          "lostTicketFee": 5000,
           "gracePeriodMinutes": 15,
-          "minimumChargeMinutes": 15
+          "minimumChargeMinutes": 0
         },
         "enabled": true,
         "isActive": true,
@@ -120,28 +112,6 @@
         "defaultDailyRate": 7000,
         "defaultHourlyRate": 1000,
         "defaultMinuteRate": 15,
-        "gracePeriodMinutes": 15
-      },
-      {
-        "id": "taxi_8055",
-        "icon": "CarTaxiFront",
-        "name": "Taxi",
-        "rate": {
-          "dayRate": 28000,
-          "hourRate": 4200,
-          "minuteRate": 70,
-          "lostTicketFee": 15000,
-          "gracePeriodMinutes": 15,
-          "minimumChargeMinutes": 15
-        },
-        "enabled": true,
-        "isActive": false,
-        "isPreset": false,
-        "description": "",
-        "displayOrder": 5,
-        "defaultDailyRate": 28000,
-        "defaultHourlyRate": 4200,
-        "defaultMinuteRate": 70,
         "gracePeriodMinutes": 15
       }
     ],
