@@ -9,15 +9,21 @@ import {
   EyeOff, 
   LogIn, 
   AlertCircle,
-  Activity,
-  Cpu,
-  Database,
-  Globe,
+  Clock,
+  Server,
+  Wifi,
+  Printer,
+  Sparkles,
+  Building,
   KeyRound,
-  Building
+  Globe,
+  Delete,
+  ArrowRight,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SystemUser, BranchLocation } from '../types';
+import { playSound } from '../utils/audio';
 
 interface LoginViewProps {
   users: SystemUser[];
@@ -40,10 +46,26 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [loginMode, setLoginMode] = useState<'standard' | 'operator_pin'>('standard');
+  const [loginMode, setLoginMode] = useState<'standard' | 'operator_pin'>('operator_pin');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string>('');
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Reloj digital en vivo para terminal de taquilla
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Seleccionar automáticamente el primer usuario activo al abrir
+  useEffect(() => {
+    if (users.length > 0 && !selectedOperatorId) {
+      const activeUser = users.find(u => u.isActive !== false) || users[0];
+      setSelectedOperatorId(activeUser.id);
+    }
+  }, [users, selectedOperatorId]);
 
   const performLogin = (userToLogin: SystemUser) => {
+    playSound('success', true);
     if (onLogin) {
       onLogin(userToLogin);
     } else if (onLoginSuccess) {
@@ -51,8 +73,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
     }
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFormSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError(null);
 
     const cleanUser = loginMode === 'operator_pin' 
@@ -60,8 +82,15 @@ export const LoginView: React.FC<LoginViewProps> = ({
       : username.trim().toLowerCase();
     const cleanPass = password.trim();
 
-    if (!cleanUser || !cleanPass) {
-      setError(loginMode === 'operator_pin' ? 'Por favor selecciona tu operador e ingresa tu PIN.' : 'Por favor ingresa tu usuario y contraseña.');
+    if (!cleanUser) {
+      setError('Por favor selecciona tu operador o ingresa tu usuario.');
+      playSound('alert', true);
+      return;
+    }
+
+    if (!cleanPass) {
+      setError(loginMode === 'operator_pin' ? 'Por favor digita tu PIN de acceso.' : 'Por favor ingresa tu contraseña.');
+      playSound('alert', true);
       return;
     }
 
@@ -82,7 +111,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
       }
 
       if (res.status === 401 || res.status === 403) {
-        setError(data.error || 'Credenciales inválidas.');
+        setError(data.error || 'Credenciales inválidas. Verifica tu contraseña o PIN.');
+        playSound('alert', true);
         setIsLoggingIn(false);
         return;
       }
@@ -101,12 +131,14 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
     if (!foundUser) {
       setError('El usuario ingresado no existe en el sistema.');
+      playSound('alert', true);
       setIsLoggingIn(false);
       return;
     }
 
     if (foundUser.isActive === false) {
       setError('Este usuario se encuentra desactivado. Consulta con el Administrador Maestro.');
+      playSound('alert', true);
       setIsLoggingIn(false);
       return;
     }
@@ -115,6 +147,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
     if (!isPasswordMatch) {
       setError('Contraseña o PIN incorrecto. Verifica e intenta nuevamente.');
+      playSound('alert', true);
       setIsLoggingIn(false);
       return;
     }
@@ -122,292 +155,506 @@ export const LoginView: React.FC<LoginViewProps> = ({
     performLogin(foundUser);
   };
 
+  // Teclado numérico táctil (POS Numpad)
+  const handleNumpadPress = (digit: string) => {
+    playSound('beep', true);
+    setError(null);
+    if (password.length < 12) {
+      setPassword(prev => prev + digit);
+    }
+  };
+
+  const handleNumpadBackspace = () => {
+    playSound('beep', true);
+    setError(null);
+    setPassword(prev => prev.slice(0, -1));
+  };
+
+  const handleNumpadClear = () => {
+    playSound('beep', true);
+    setError(null);
+    setPassword('');
+  };
+
+  const selectedOperator = users.find(u => u.id === selectedOperatorId);
+
   return (
-    <div className="fixed inset-0 bg-slate-950 overflow-y-auto selection:bg-amber-500 selection:text-slate-950 text-slate-100 flex flex-col justify-center items-center p-4">
-      {/* Subtle modern ambient background gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-amber-500/5 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen w-full bg-[#0a0d14] text-slate-100 flex items-center justify-center p-3 sm:p-6 lg:p-10 relative overflow-hidden select-none">
+      {/* Fondo High-Tech con iluminación ambiental y rejilla táctica */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-amber-500/10 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-amber-500/5 rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Contenedor Principal */}
-      <div className="w-full max-w-md relative z-10 flex flex-col items-center my-auto">
-        
-        {/* Brand Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-center mb-6 flex flex-col items-center justify-center w-full relative z-20"
-        >
-          <div className="relative mb-3.5">
-            <img
-              src="/assets/wolf_logo_login_1790375008175.jpg"
-              alt="Parking POS Branding"
-              className="h-16 w-auto object-contain drop-shadow-md rounded-xl"
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'inline-flex';
-              }}
-            />
-            <div className="hidden items-center justify-center w-16 h-16 rounded-xl bg-slate-900 border border-slate-700 text-amber-500 shadow-lg">
-              <span className="text-lg font-black font-mono">POS</span>
-            </div>
-          </div>
+      {/* Contenedor Principal Adaptable */}
+      <div className="w-full max-w-6xl relative z-10 my-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+          
+          {/* ========================================================================= */}
+          {/* PANEL IZQUIERDO: SHOWCASE OPERATIVO, RELOJ Y ESTADO DEL SISTEMA          */}
+          {/* ========================================================================= */}
+          <motion.div 
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="lg:col-span-5 flex flex-col justify-between p-6 sm:p-8 rounded-3xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+          >
+            {/* Acento superior de luz */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-500 opacity-80" />
 
-          <h1 className="text-xl font-bold tracking-tight text-white uppercase font-mono">
-            {businessName}
-          </h1>
-
-          <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300 shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span className="font-semibold">{currentBranch ? currentBranch.name : 'Terminal POS Local'}</span>
-          </div>
-        </motion.div>
-
-        {/* Login Card Panel */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98, y: 12 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
-          className="bg-slate-900 border border-slate-800 rounded-2xl w-full p-6 sm:p-7 shadow-2xl relative z-10 overflow-hidden"
-        >
-            {/* Top glowing edge line */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
-
-            {/* Card Header */}
-            <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
-              <div>
-                <h2 className="text-base font-bold text-white flex items-center gap-2">
-                  <KeyRound className="w-4.5 h-4.5 text-amber-500" />
-                  Acceso al Sistema
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">Control y validación de cajeros</p>
+            {/* Encabezado y Marca */}
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono font-bold tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>SISTEMA EN LÍNEA 24/7</span>
+                </div>
+                <div className="text-[11px] font-mono text-slate-400 font-bold px-2 py-0.5 rounded bg-slate-950/60 border border-slate-800">
+                  {currentBranch ? currentBranch.name : 'Matriz Principal'}
+                </div>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-950 border border-amber-500/30 text-amber-400 font-bold">
-                v2.5 SECURE
-              </span>
-            </div>
 
-            {/* Alerts / Errors container */}
-            <AnimatePresence mode="wait">
-              {error && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0, y: -10 }}
-                  animate={{ opacity: 1, height: 'auto', y: 0 }}
-                  exit={{ opacity: 0, height: 0, y: -10 }}
-                  className="mb-4 p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5 overflow-hidden shadow-xs"
-                >
-                  <AlertCircle className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
-                  <span className="font-semibold">{error}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Selector de Modo de Acceso: Estándar vs PIN Rápido */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 mb-4 text-xs font-bold font-mono">
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginMode('standard');
-                  setError(null);
-                }}
-                className={`py-1.5 px-3 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  loginMode === 'standard'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>Usuario & Clave</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginMode('operator_pin');
-                  setError(null);
-                  if (!selectedOperatorId && users.length > 0) {
-                    const firstActive = users.find(u => u.isActive !== false) || users[0];
-                    setSelectedOperatorId(firstActive.id);
-                  }
-                }}
-                className={`py-1.5 px-3 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  loginMode === 'operator_pin'
-                    ? 'bg-amber-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>Cajero / PIN</span>
-              </button>
-            </div>
-
-            {/* Formulario con z-index superior para interacción óptima */}
-            <form onSubmit={handleFormSubmit} className="space-y-4 relative z-10">
-              {loginMode === 'standard' ? (
-                /* Username Input */
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-                    Usuario de Terminal
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                      <User className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="ej. admin, supervisor, caja"
-                      disabled={isLoggingIn}
-                      autoFocus
-                      required
-                      className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all font-mono"
+              {/* Logo y Título Principal */}
+              <div className="flex items-center gap-4 mb-5">
+                <div className="relative group shrink-0">
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-amber-500/20 via-slate-800 to-slate-900 border border-amber-500/40 p-1 flex items-center justify-center shadow-lg shadow-amber-500/10">
+                    <img
+                      src="/assets/wolf_logo_login_1790375008175.jpg"
+                      alt="WolfZone Logo"
+                      className="w-full h-full object-contain rounded-xl"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
                     />
+                    <div className="hidden items-center justify-center w-full h-full text-amber-500 font-black font-mono text-xl">
+                      POS
+                    </div>
                   </div>
                 </div>
-              ) : (
-                /* Quick Operator Selector for Touchscreen POS */
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-                    Selecciona tu Operador
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                    {users.map(u => {
-                      const isSelected = u.id === selectedOperatorId;
-                      const isDisabled = u.isActive === false;
-                      return (
-                        <button
-                          key={u.id}
-                          type="button"
-                          disabled={isDisabled || isLoggingIn}
-                          onClick={() => {
-                            setSelectedOperatorId(u.id);
-                            setError(null);
-                          }}
-                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer ${
-                            isDisabled
-                              ? 'opacity-40 border-slate-800 bg-slate-950 cursor-not-allowed'
-                              : isSelected
-                              ? 'bg-amber-500/15 border-amber-500 text-white shadow-xs'
-                              : 'bg-slate-950/70 border-slate-800 hover:border-slate-700 text-slate-300'
-                          }`}
-                        >
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                            isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-300'
-                          }`}>
-                            {u.role === 'master' ? <Crown className="w-4 h-4" /> : u.role === 'supervisor' ? <ShieldCheck className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
-                          </div>
-                          <div className="truncate flex-1 min-w-0">
-                            <span className="text-xs font-bold truncate block">{u.name}</span>
-                            <span className="text-[10px] text-slate-400 font-mono block">
-                              {isDisabled ? 'DESACTIVADO' : u.role.toUpperCase()}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
-              {/* Password Input */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">
-                    {loginMode === 'operator_pin' ? 'PIN del Operador Seleccionado' : 'Contraseña / PIN de Caja'}
-                  </label>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-mono font-black tracking-widest text-amber-500 uppercase block">
+                    Enterprise Parking Platform
+                  </span>
+                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight truncate">
+                    {businessName}
+                  </h1>
+                  <span className="text-xs text-slate-400 font-mono flex items-center gap-1.5 mt-0.5">
+                    <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>Control de Acceso & Facturación POS</span>
+                  </span>
                 </div>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                    <Lock className="w-4 h-4" />
+              </div>
+
+              {/* Reloj Digital de Alta Precisión */}
+              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 mb-6 shadow-inner">
+                <div className="flex items-center justify-between text-xs text-slate-400 font-mono mb-1">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-amber-400" />
+                    <span>HORA OFICIAL DE TAQUILLA</span>
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-400 uppercase">GMT-5 Colombia</span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-black font-mono tracking-wider text-white">
+                  {currentTime.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                </div>
+                <div className="text-xs text-slate-400 font-medium capitalize mt-0.5">
+                  {currentTime.toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+              </div>
+
+              {/* Chips de Telemetría Operativa */}
+              <div className="space-y-2.5">
+                <div className="text-[11px] font-bold font-mono tracking-wider text-slate-400 uppercase flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Diagnóstico del Sistema</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                      <Server className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-slate-200 block truncate text-[11px]">Motor PostgreSQL</span>
+                      <span className="text-[10px] text-emerald-400 font-mono block">En Línea • 0ms</span>
+                    </div>
                   </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={loginMode === 'operator_pin' ? 'Ingresa tu PIN (ej. 123456)' : '••••••••'}
-                    disabled={isLoggingIn}
-                    autoFocus={loginMode === 'operator_pin'}
-                    required
-                    className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-11 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500 transition-all font-mono"
-                  />
+
+                  <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center shrink-0">
+                      <Wifi className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-slate-200 block truncate text-[11px]">Modo Operativo</span>
+                      <span className="text-[10px] text-cyan-400 font-mono block">Offline-First Seguro</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
+                      <Printer className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-slate-200 block truncate text-[11px]">Impresión Térmica</span>
+                      <span className="text-[10px] text-slate-400 font-mono block">Tickets 58mm / 80mm</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-slate-200 block truncate text-[11px]">Trazabilidad DIAN</span>
+                      <span className="text-[10px] text-indigo-400 font-mono block">Cierres Z Auditables</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pie del Panel Izquierdo */}
+            <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span className="flex items-center gap-1.5">
+                <Globe className="w-3.5 h-3.5 text-slate-400" />
+                <span>Puerto Local 3000</span>
+              </span>
+              <span className="text-amber-500 font-bold font-mono">WolfZone v4.2 PRO</span>
+            </div>
+          </motion.div>
+
+          {/* ========================================================================= */}
+          {/* PANEL DERECHO: ESTACIÓN DE AUTENTICACIÓN TÁCTIL (LOGIN & NUMPAD)          */}
+          {/* ========================================================================= */}
+          <motion.div 
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+            className="lg:col-span-7 flex flex-col justify-between p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-slate-800/90 backdrop-blur-2xl shadow-2xl relative overflow-hidden"
+          >
+            {/* Acento superior de luz */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+
+            <div>
+              {/* Encabezado del Formulario */}
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                <div>
+                  <h2 className="text-lg font-black text-white flex items-center gap-2 tracking-tight">
+                    <KeyRound className="w-5 h-5 text-amber-500" />
+                    <span>Autenticación de Terminal</span>
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                    Ingresa tus credenciales para habilitar la taquilla
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    tabIndex={-1}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white transition-colors cursor-pointer"
-                    aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                    onClick={() => {
+                      setLoginMode('operator_pin');
+                      setError(null);
+                      playSound('beep', true);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer flex items-center gap-1.5 ${
+                      loginMode === 'operator_pin'
+                        ? 'bg-amber-500 text-slate-950 shadow-xs'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    <Briefcase className="w-3.5 h-3.5" />
+                    <span>Cajero (PIN)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginMode('standard');
+                      setError(null);
+                      playSound('beep', true);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer flex items-center gap-1.5 ${
+                      loginMode === 'standard'
+                        ? 'bg-amber-500 text-slate-950 shadow-xs'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Usuario & Clave</span>
                   </button>
                 </div>
               </div>
 
-              {/* Main Login Button */}
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isLoggingIn}
-                className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:opacity-50 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 flex items-center justify-center gap-2 transition-all mt-3 cursor-pointer relative overflow-hidden"
-              >
-                {isLoggingIn ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-slate-950" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Iniciando sesión...</span>
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="w-4.5 h-4.5 stroke-[2.5]" />
-                    <span>Ingresar al Sistema POS</span>
-                  </>
+              {/* Mensajes de Alerta / Error */}
+              <AnimatePresence mode="wait">
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0, y: -8 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -8 }}
+                    className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2.5 overflow-hidden shadow-xs"
+                  >
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span className="font-semibold">{error}</span>
+                  </motion.div>
                 )}
-              </motion.button>
-            </form>
+              </AnimatePresence>
 
-            {/* Security Notice */}
-            <div className="mt-6 pt-4 border-t border-slate-800 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400">
-                <ShieldCheck className="w-4 h-4 text-amber-500" />
-                <span>Ingresa tus credenciales para continuar.</span>
-              </div>
+              {/* MODO 1: CAJERO RÁPIDO CON PIN Y TECLADO TÁCTIL */}
+              {loginMode === 'operator_pin' ? (
+                <div className="space-y-4">
+                  {/* Selector visual de cajeros */}
+                  <div>
+                    <label className="block text-[11px] font-bold font-mono uppercase tracking-wider text-slate-400 mb-2">
+                      1. Selecciona tu Perfil de Operador:
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {users.map(u => {
+                        const isSelected = u.id === selectedOperatorId;
+                        const isDisabled = u.isActive === false;
+                        return (
+                          <button
+                            key={u.id}
+                            type="button"
+                            disabled={isDisabled || isLoggingIn}
+                            onClick={() => {
+                              setSelectedOperatorId(u.id);
+                              setPassword('');
+                              setError(null);
+                              playSound('beep', true);
+                            }}
+                            className={`p-2.5 rounded-xl border text-left transition-all flex items-center gap-2.5 cursor-pointer relative overflow-hidden ${
+                              isDisabled
+                                ? 'opacity-30 border-slate-800 bg-slate-950/40 cursor-not-allowed'
+                                : isSelected
+                                ? 'bg-amber-500/15 border-amber-500 text-white shadow-md shadow-amber-500/10 ring-1 ring-amber-400/40'
+                                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                              isSelected ? 'bg-amber-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400'
+                            }`}>
+                              {u.role === 'master' ? (
+                                <Crown className="w-4 h-4" />
+                              ) : u.role === 'supervisor' ? (
+                                <ShieldCheck className="w-4 h-4" />
+                              ) : (
+                                <Briefcase className="w-4 h-4" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="text-xs font-black truncate block leading-tight">{u.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono block uppercase">
+                                {u.role}
+                              </span>
+                            </div>
+                            {isSelected && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Campo de PIN y Teclado Táctil */}
+                  <div>
+                    <label className="block text-[11px] font-bold font-mono uppercase tracking-wider text-slate-400 mb-2">
+                      2. Digita tu PIN de Acceso ({selectedOperator?.name || 'Operador'}):
+                    </label>
+
+                    {/* Display del PIN */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="relative flex-1">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleFormSubmit();
+                          }}
+                          placeholder="Digita tu PIN con el teclado o pantalla táctil"
+                          autoFocus
+                          disabled={isLoggingIn}
+                          className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl px-4 py-3 text-base text-center font-mono font-black tracking-widest text-amber-400 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500/20 shadow-inner"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1 cursor-pointer"
+                          tabIndex={-1}
+                          title={showPassword ? 'Ocultar PIN' : 'Ver PIN'}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleNumpadClear}
+                        className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs font-bold transition cursor-pointer"
+                        title="Limpiar campo"
+                      >
+                        C
+                      </button>
+                    </div>
+
+                    {/* Teclado Táctil Numérico (POS Touch Numpad) */}
+                    <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(num => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => handleNumpadPress(num)}
+                          disabled={isLoggingIn}
+                          className="pk-pos-key h-11 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white font-mono font-bold text-lg flex items-center justify-center transition active:scale-95 cursor-pointer shadow-xs"
+                        >
+                          {num}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={handleNumpadBackspace}
+                        disabled={isLoggingIn}
+                        className="pk-pos-key h-11 rounded-xl bg-slate-950 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-700 text-slate-400 hover:text-rose-300 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                        title="Borrar dígito"
+                      >
+                        <Delete className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleNumpadPress('0')}
+                        disabled={isLoggingIn}
+                        className="pk-pos-key h-11 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white font-mono font-bold text-lg flex items-center justify-center transition active:scale-95 cursor-pointer shadow-xs"
+                      >
+                        0
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleFormSubmit()}
+                        disabled={isLoggingIn || !password}
+                        className="pk-pos-key h-11 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-950 font-black text-sm flex items-center justify-center transition active:scale-95 cursor-pointer shadow-md shadow-amber-500/20"
+                        title="Ingresar"
+                      >
+                        <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* MODO 2: USUARIO Y CONTRASEÑA ESTÁNDAR */
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                      Nombre de Usuario
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-amber-500 transition-colors">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="ej. admin, supervisor, caja"
+                        disabled={isLoggingIn}
+                        autoFocus
+                        required
+                        className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all font-mono shadow-inner"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+                      Contraseña / Clave Maestra
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 group-focus-within:text-amber-500 transition-colors">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        disabled={isLoggingIn}
+                        required
+                        className="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 rounded-xl pl-10 pr-11 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all font-mono shadow-inner"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        tabIndex={-1}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                        aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Botón Principal para Modo Estándar */}
+                  <button
+                    type="submit"
+                    disabled={isLoggingIn}
+                    className="pk-pos-key w-full py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:opacity-50 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer mt-2"
+                  >
+                    {isLoggingIn ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                        <span>Validando credenciales...</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="w-4.5 h-4.5 stroke-[2.5]" />
+                        <span>Ingresar a la Terminal POS</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              {/* Botón Principal para Modo PIN */}
+              {loginMode === 'operator_pin' && (
+                <button
+                  type="button"
+                  onClick={() => handleFormSubmit()}
+                  disabled={isLoggingIn || !password}
+                  className="pk-pos-key w-full py-3.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:opacity-40 text-slate-950 font-black text-sm tracking-wide shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30 flex items-center justify-center gap-2 transition-all cursor-pointer mt-4"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <span>Iniciando sesión...</span>
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4.5 h-4.5 stroke-[2.5]" />
+                      <span>Ingresar con {selectedOperator?.name || 'Operador'}</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-          </motion.div>
 
-          {/* Software Branding Footer Panel */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="w-full mt-5 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 backdrop-blur-sm flex items-center justify-between gap-3 text-xs text-slate-300 relative z-10"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
-                <ShieldCheck className="w-4.5 h-4.5" />
-              </div>
-              <div>
-                <span className="text-[11px] font-semibold text-slate-200 block tracking-wide">Parking POS Enterprise</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5 leading-tight font-sans">Sistema de Control Operativo y Facturación</span>
-              </div>
-            </div>
-
-            <div className="text-right shrink-0">
-              <span className="text-[10px] font-mono text-amber-400 font-bold bg-slate-950 px-2 py-1 rounded border border-slate-800 shadow-inner">
-                PRO EDITION
+            {/* Pie de Seguridad y Trazabilidad */}
+            <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span>Acceso Auditado y Cifrado</span>
+              </span>
+              <span className="text-[11px] font-mono text-slate-400">
+                Presiona <kbd className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-300 font-bold">Enter ↵</kbd>
               </span>
             </div>
           </motion.div>
 
-          {/* Footer legal Info */}
-          <div className="mt-5 text-center text-xs text-slate-400 font-mono flex items-center gap-1.5 relative z-10">
-            <Globe className="w-3.5 h-3.5 text-slate-400" />
-            <span>Servicio cifrado TLS 1.3 • Puerto local: 3000 • Taquilla segura</span>
-          </div>
-
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
