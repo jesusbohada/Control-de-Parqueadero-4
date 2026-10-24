@@ -351,7 +351,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         initial={{ opacity: 0, x: 40, scale: 0.96 }}
         animate={{ opacity: 1, x: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-[460px] lg:max-w-[490px] bg-slate-950/85 border-2 border-cyan-400/80 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-[0_0_60px_rgba(6,182,212,0.45)] relative z-20 overflow-hidden"
+        className="w-full max-w-[460px] lg:max-w-[490px] bg-slate-950/92 border-2 border-cyan-400/80 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-[0_0_60px_rgba(6,182,212,0.45)] relative z-20 overflow-hidden"
       >
         {/* Línea Luminosa Superior Neón */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee]" />
@@ -360,7 +360,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         <div className="mb-6 flex flex-col items-center text-center">
           {/* Logo Oficial Wolfzone con Resplandor */}
           <div className="relative mb-3.5 group cursor-pointer" onClick={handleMascotClick}>
-            <div className="absolute inset-0 bg-cyan-400/30 blur-xl rounded-2xl animate-pulse" />
+            <div className="absolute inset-0 bg-cyan-400/20 blur-md rounded-2xl" />
             <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-cyan-400/60 p-2 shadow-xl relative z-10 flex items-center justify-center">
               <img
                 src="/assets/wolf_logo_login_1790375008175.jpg"
@@ -370,11 +370,11 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </div>
           </div>
 
-          {/* Título Principal */}
-          <h1 className="text-xl sm:text-2xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-white to-cyan-300 tracking-wider font-sans">
+          {/* Título Principal con Máximo Contraste y Nitidez */}
+          <h1 className="text-2xl sm:text-[26px] font-black uppercase text-white tracking-wide font-sans drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">
             Sistema de Parqueadero
           </h1>
-          <p className="text-[11px] font-mono font-bold text-cyan-400/80 tracking-widest uppercase mt-0.5">
+          <p className="text-xs font-mono font-bold text-cyan-300 tracking-wider uppercase mt-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
             Wolfzone Checkpoint • Terminal POS
           </p>
 
