@@ -1044,3 +1044,49 @@ html[data-contrast-level="high"].dark {
     transform: translateY(-1px);
   }
 }
+
+
+/* ============================================================================ */
+/* BLINDAJE ULTRA-PRIORITARIO PARA LOGIN WOLFZONE (INMUNE A DATA-THEME="LIGHT")  */
+/* ============================================================================ */
+html.light #wolfzone-login-view h1,
+html.dark #wolfzone-login-view h1,
+:root[data-theme="light"] #wolfzone-login-view h1,
+:root[data-theme="dark"] #wolfzone-login-view h1,
+#wolfzone-login-view h1,
+#wolfzone-login-view .wolfzone-title,
+.wolfzone-title {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 24px rgba(6, 182, 212, 0.5) !important;
+}
+
+html.light #wolfzone-login-view .wolfzone-subtitle,
+:root[data-theme="light"] #wolfzone-login-view .wolfzone-subtitle,
+#wolfzone-login-view .wolfzone-subtitle {
+  color: #67e8f9 !important;
+  -webkit-text-fill-color: #67e8f9 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9) !important;
+}
+
+html.light #wolfzone-login-view input,
+:root[data-theme="light"] #wolfzone-login-view input,
+#wolfzone-login-view input {
+  background-color: rgba(15, 23, 42, 0.92) !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  border-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+html.light #wolfzone-login-view input::placeholder,
+:root[data-theme="light"] #wolfzone-login-view input::placeholder,
+#wolfzone-login-view input::placeholder {
+  color: #64748B !important;
+  -webkit-text-fill-color: #64748B !important;
+}

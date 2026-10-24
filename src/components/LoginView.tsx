@@ -337,7 +337,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#070b12] text-slate-100 flex items-center justify-end p-4 sm:p-8 md:p-12 lg:p-16">
+    <div 
+      id="wolfzone-login-view" 
+      className="wolfzone-login-view fixed inset-0 w-screen h-screen overflow-hidden select-none bg-[#070b12] text-slate-100 flex items-center justify-end p-4 sm:p-8 md:p-12 lg:p-16"
+    >
       
       {/* ==================================================================== */}
       {/* FONDO ANIMADO EN BUCLE CONTINUO (ILUSTRACIÓN + LUCES + PARTÍCULAS) */}
@@ -351,7 +354,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         initial={{ opacity: 0, x: 40, scale: 0.96 }}
         animate={{ opacity: 1, x: 0, scale: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-[460px] lg:max-w-[490px] bg-slate-950/92 border-2 border-cyan-400/80 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-[0_0_60px_rgba(6,182,212,0.45)] relative z-20 overflow-hidden"
+        className="w-full max-w-[460px] lg:max-w-[490px] bg-slate-950/95 border-2 border-cyan-400/80 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-[0_0_60px_rgba(6,182,212,0.45)] relative z-20 overflow-hidden"
       >
         {/* Línea Luminosa Superior Neón */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee]" />
@@ -370,11 +373,17 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </div>
           </div>
 
-          {/* Título Principal con Máximo Contraste y Nitidez */}
-          <h1 className="text-2xl sm:text-[26px] font-black uppercase text-white tracking-wide font-sans drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]">
+          {/* Título Principal con Máximo Contraste y Blindaje Total */}
+          <h1 
+            className="wolfzone-title text-2xl sm:text-[28px] font-black uppercase text-white tracking-wider font-sans drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
+            style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
+          >
             WOLFZONE PARKING
           </h1>
-          <p className="text-xs font-mono font-bold text-cyan-300 tracking-wider uppercase mt-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+          <p 
+            className="wolfzone-subtitle text-xs font-mono font-bold text-cyan-300 tracking-wider uppercase mt-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
+            style={{ color: '#67e8f9', WebkitTextFillColor: '#67e8f9' }}
+          >
             Checkpoint • Terminal POS
           </p>
 
