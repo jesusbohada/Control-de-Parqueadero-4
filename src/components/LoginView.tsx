@@ -312,13 +312,19 @@ export const LoginView: React.FC<LoginViewProps> = ({
               className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none"
             />
 
-            {/* Formulario Interactivo Sobrepuesto en Coordenadas Exactas (100% Ajustado) */}
+            {/* Formulario Interactivo Sobrepuesto en Coordenadas y Ángulos Exactos */}
             <form onSubmit={handleFormSubmit} className="contents">
               
-              {/* Badge de Sucursal o Servidor Central */}
+              {/* Badge de Sucursal o Servidor Central (Alineado con el ángulo del panel) */}
               <div 
-                className="absolute flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/85 border border-cyan-400/60 text-xs md:text-sm font-mono text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] backdrop-blur-xs z-10"
-                style={{ left: '58.8%', top: '30.8%', maxWidth: '30%' }}
+                className="absolute flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-950/85 border border-cyan-400/60 text-xs md:text-sm font-mono text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] backdrop-blur-xs z-10"
+                style={{ 
+                  left: '58.8%', 
+                  top: '30.8%', 
+                  maxWidth: '30%', 
+                  transform: 'rotate(0.5deg)', 
+                  transformOrigin: 'left center' 
+                }}
               >
                 {isServer ? (
                   <Server className="w-3.5 h-3.5 md:w-4 md:h-4 text-cyan-400 shrink-0" />
@@ -328,12 +334,19 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 <span className="font-semibold truncate">{stationLabel}</span>
               </div>
 
-              {/* Casilla 1: Usuario (Sobre el marco neón exacto 100%) */}
+              {/* Casilla 1: Usuario (Adaptada al 100% dentro del marco y ángulo neón) */}
               <div 
                 className="absolute group z-10"
-                style={{ left: '58.8%', top: '41.8%', width: '28.0%', height: '6.8%' }}
+                style={{ 
+                  left: '58.8%', 
+                  top: '41.8%', 
+                  width: '28.0%', 
+                  height: '7.0%', 
+                  transform: 'rotate(0.5deg)', 
+                  transformOrigin: 'left center' 
+                }}
               >
-                <div className="absolute inset-y-0 left-0 pl-3.5 md:pl-4 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
+                <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-cyan-400/80 group-focus-within:text-cyan-200 transition-colors">
                   <User className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                 </div>
                 <input
@@ -344,16 +357,23 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   disabled={isLoggingIn}
                   autoFocus
                   required
-                  className="w-full h-full bg-[#071322]/80 hover:bg-[#071322]/60 focus:bg-[#071322]/95 rounded-xl lg:rounded-2xl pl-10 md:pl-12 lg:pl-14 pr-4 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs sm:text-sm md:text-base lg:text-lg border border-cyan-400/50 focus:border-cyan-300 focus:shadow-[0_0_20px_rgba(6,182,212,0.8)] focus:outline-none transition-all shadow-inner"
+                  className="w-full h-full bg-transparent hover:bg-cyan-400/[0.04] focus:bg-[#071322]/80 rounded-full pl-11 md:pl-13 lg:pl-15 pr-4 text-cyan-100 placeholder-cyan-400/35 font-mono text-xs sm:text-sm md:text-base lg:text-lg font-bold tracking-wide outline-none border-0 ring-0 focus:ring-2 focus:ring-cyan-300/70 focus:shadow-[inset_0_0_15px_rgba(6,182,212,0.4)] transition-all caret-cyan-300"
                 />
               </div>
 
-              {/* Casilla 2: Contraseña (Sobre el marco neón exacto 100%) */}
+              {/* Casilla 2: Contraseña (Inclinada a 2.8° para calzar al 100% con la línea de la imagen) */}
               <div 
                 className="absolute group z-10"
-                style={{ left: '58.7%', top: '55.9%', width: '28.1%', height: '6.8%' }}
+                style={{ 
+                  left: '58.7%', 
+                  top: '55.9%', 
+                  width: '28.1%', 
+                  height: '7.2%', 
+                  transform: 'rotate(2.8deg)', 
+                  transformOrigin: 'left center' 
+                }}
               >
-                <div className="absolute inset-y-0 left-0 pl-3.5 md:pl-4 flex items-center pointer-events-none text-cyan-400/70 group-focus-within:text-cyan-300 transition-colors">
+                <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-cyan-400/80 group-focus-within:text-cyan-200 transition-colors">
                   <Lock className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
                 </div>
                 <input
@@ -363,30 +383,37 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   placeholder="••••••••"
                   disabled={isLoggingIn}
                   required
-                  className="w-full h-full bg-[#071322]/80 hover:bg-[#071322]/60 focus:bg-[#071322]/95 rounded-xl lg:rounded-2xl pl-10 md:pl-12 lg:pl-14 pr-11 md:pr-12 text-cyan-100 placeholder-cyan-500/40 font-mono text-xs sm:text-sm md:text-base lg:text-lg border border-cyan-400/50 focus:border-cyan-300 focus:shadow-[0_0_20px_rgba(6,182,212,0.8)] focus:outline-none transition-all shadow-inner"
+                  className="w-full h-full bg-transparent hover:bg-cyan-400/[0.04] focus:bg-[#071322]/80 rounded-full pl-11 md:pl-13 lg:pl-15 pr-12 md:pr-14 text-cyan-100 placeholder-cyan-400/35 font-mono text-xs sm:text-sm md:text-base lg:text-lg font-bold tracking-wide outline-none border-0 ring-0 focus:ring-2 focus:ring-cyan-300/70 focus:shadow-[inset_0_0_15px_rgba(6,182,212,0.4)] transition-all caret-cyan-300"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
-                  className="absolute inset-y-0 right-0 pr-3.5 md:pr-4 flex items-center text-cyan-400/60 hover:text-cyan-200 transition-colors cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-4 md:pr-5 flex items-center text-cyan-400/70 hover:text-cyan-200 transition-colors cursor-pointer"
                   aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4 md:w-5 md:h-5" /> : <Eye className="w-4 h-4 md:w-5 md:h-5" />}
                 </button>
               </div>
 
-              {/* Botón: Iniciar Sesión (Sobre el botón neón exacto 100%) */}
+              {/* Botón: Iniciar Sesión (Inclinado a 4.8° para calzar al 100% sobre el botón neón) */}
               <div 
                 className="absolute z-10"
-                style={{ left: '62.3%', top: '69.5%', width: '20.0%', height: '7.8%' }}
+                style={{ 
+                  left: '62.3%', 
+                  top: '69.5%', 
+                  width: '20.0%', 
+                  height: '7.8%', 
+                  transform: 'rotate(4.8deg)', 
+                  transformOrigin: 'center center' 
+                }}
               >
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={isLoggingIn}
-                  className="w-full h-full rounded-2xl md:rounded-3xl bg-gradient-to-r from-cyan-500 via-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-300 active:from-cyan-600 active:to-teal-500 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.85)] hover:shadow-[0_0_35px_rgba(34,211,238,1)] border border-cyan-200/90 transition-all cursor-pointer"
+                  className="w-full h-full rounded-full bg-gradient-to-r from-cyan-400/90 via-teal-300/95 to-cyan-400/90 hover:from-cyan-300 hover:to-teal-200 active:from-cyan-500 active:to-teal-400 disabled:opacity-50 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.9)] hover:shadow-[0_0_35px_rgba(34,211,238,1)] border border-cyan-100/90 transition-all cursor-pointer"
                 >
                   {isLoggingIn ? (
                     <>
@@ -402,7 +429,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 </motion.button>
               </div>
 
-              {/* Mensaje de Alerta / Error */}
+              {/* Mensaje de Alerta / Error (Inclinado a 4.5° para encajar en el margen inferior) */}
               <AnimatePresence>
                 {error && (
                   <motion.div
@@ -410,7 +437,13 @@ export const LoginView: React.FC<LoginViewProps> = ({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.96 }}
                     className="absolute z-20 p-2.5 rounded-xl bg-rose-950/95 border border-rose-500/80 text-rose-200 text-xs sm:text-sm flex items-center gap-2 shadow-[0_0_18px_rgba(244,63,94,0.7)] backdrop-blur-md"
-                    style={{ left: '58.7%', top: '78.5%', width: '28.1%' }}
+                    style={{ 
+                      left: '58.7%', 
+                      top: '78.5%', 
+                      width: '28.1%', 
+                      transform: 'rotate(4.5deg)', 
+                      transformOrigin: 'left center' 
+                    }}
                   >
                     <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-rose-400 shrink-0" />
                     <span className="truncate font-semibold">{error}</span>
