@@ -8,7 +8,9 @@ import {
   AlertCircle,
   Building2,
   Server,
-  ShieldCheck
+  ShieldCheck,
+  Video,
+  SlidersHorizontal
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SystemUser, BranchLocation } from '../types';
@@ -24,49 +26,101 @@ interface LoginViewProps {
 }
 
 // ============================================================================
-// COMPONENTE: FONDO DE VIDEO REALISTA DE TRÁNSITO VEHICULAR (CINEMATIC)
+// COMPONENTE: FONDO CINEMATOGRÁFICO DE VIDEO REAL CON VEHÍCULOS EN MOVIMIENTO
 // ============================================================================
-const RealTrafficBackground: React.FC = () => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+export interface VideoBackgroundOption {
+  id: string;
+  name: string;
+  src: string;
+  iconLabel: string;
+  badge: string;
+}
 
+export const VIDEO_SCENES: VideoBackgroundOption[] = [
+  {
+    id: 'parking',
+    name: 'Parqueadero Real',
+    src: '/assets/parking_lot.mp4',
+    iconLabel: '🅿️',
+    badge: 'Vehículos en Parqueadero'
+  },
+  {
+    id: 'traffic',
+    name: 'Tráfico Urbano',
+    src: '/assets/car-detection.mp4',
+    iconLabel: '🚗',
+    badge: 'Flujo Continuo Vía Rápida'
+  },
+  {
+    id: 'night',
+    name: 'Tránsito Nocturno',
+    src: '/assets/night_traffic.mp4',
+    iconLabel: '🌙',
+    badge: 'Luces y Faros Nocturnos'
+  },
+  {
+    id: 'cross',
+    name: 'Avenida Principal',
+    src: '/assets/street_cross.mp4',
+    iconLabel: '🚦',
+    badge: 'Cruce Metropolitano'
+  }
+];
+
+interface RealTrafficBackgroundProps {
+  currentScene: VideoBackgroundOption;
+  blurLevel: number; // 0 = Nitido (0px), 1 = Suave (0.8px), 2 = Cinemático (1.5px)
+}
+
+const RealTrafficBackground: React.FC<RealTrafficBackgroundProps> = ({
+  currentScene,
+  blurLevel
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Asegurar reproducción fluida y continua del video al cambiar de escena
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 0.9;
+      videoRef.current.playbackRate = 1.0;
       videoRef.current.play().catch(() => {
-        // En caso de bloqueo por política de autoplay del navegador
+        // Autoplay manejado automáticamente por navegadores al estar muted
       });
     }
-  }, []);
+  }, [currentScene]);
+
+  // Cálculo del filtro de nitidez y contraste realista
+  const blurPx = blurLevel === 0 ? 0 : blurLevel === 1 ? 0.8 : 1.5;
+  const filterStyle = `blur(${blurPx}px) brightness(0.70) contrast(1.08) saturate(1.12)`;
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {/* Video real de vehículos y tránsito en movimiento nocturno */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-[#0B0F17]">
+      {/* 1. Video Real de Vehículos en Movimiento (Cámara Real) */}
       <video
         ref={videoRef}
+        key={currentScene.src}
         autoPlay
         loop
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
         style={{
-          filter: 'blur(1.8px) brightness(0.68) contrast(1.15) saturate(1.2)',
-          transform: 'scale(1.05)'
+          filter: filterStyle,
+          transform: 'scale(1.02)'
         }}
       >
-        <source src="/assets/night_traffic.mp4" type="video/mp4" />
-        <source src="/assets/car-detection.mp4" type="video/mp4" />
+        <source src={currentScene.src} type="video/mp4" />
       </video>
 
-      {/* Viñeta cinematográfica suave para garantizar 100% de legibilidad en la tarjeta */}
+      {/* 2. Viñeta Suave para Garantizar Legibilidad Superior sin Ocultar los Vehículos */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(circle at center, rgba(11, 15, 23, 0.78) 0%, rgba(11, 15, 23, 0.42) 55%, rgba(11, 15, 23, 0.9) 100%)'
+          background: 'radial-gradient(circle at center, rgba(11, 15, 23, 0.78) 0%, rgba(11, 15, 23, 0.42) 50%, rgba(11, 15, 23, 0.84) 100%)'
         }}
       />
 
-      {/* Difuminado superior e inferior para integración limpia */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F17] via-transparent to-[#0B0F17]/70 pointer-events-none" />
+      {/* 3. Gradiente Vertical Suave Superior e Inferior */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F17]/90 via-transparent to-[#0B0F17]/60 pointer-events-none" />
     </div>
   );
 };
@@ -86,6 +140,33 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Gestión de Escenas de Video Real y Nivel de Desenfoque
+  const [selectedSceneId, setSelectedSceneId] = useState<string>(() => {
+    return (typeof window !== 'undefined' && localStorage.getItem('pk_login_video_scene')) || 'parking';
+  });
+
+  const [blurLevel, setBlurLevel] = useState<number>(() => {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('pk_login_video_blur') : null;
+    return saved !== null ? parseInt(saved, 10) : 1; // Default: 1 (0.8px, suave y nítido)
+  });
+
+  const currentScene = VIDEO_SCENES.find(s => s.id === selectedSceneId) || VIDEO_SCENES[0];
+
+  const handleSelectScene = (id: string) => {
+    setSelectedSceneId(id);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pk_login_video_scene', id);
+    }
+  };
+
+  const handleCycleBlur = () => {
+    const nextBlur = (blurLevel + 1) % 3; // 0 = Nítido (0px), 1 = Suave (0.8px), 2 = Cinemático (1.5px)
+    setBlurLevel(nextBlur);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pk_login_video_blur', nextBlur.toString());
+    }
+  };
 
   // Determinar si opera como Servidor Central o Sucursal
   const workMode = typeof window !== 'undefined' ? localStorage.getItem('pk_work_mode') : null;
@@ -186,7 +267,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   return (
     <div className="min-h-screen w-full bg-[#0B0F17] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
       {/* Fondo de Video Realista de Tránsito y Vehículos en Movimiento */}
-      <RealTrafficBackground />
+      <RealTrafficBackground currentScene={currentScene} blurLevel={blurLevel} />
 
       {/* Tarjeta Central de Acceso Elegante y Sobria */}
       <motion.div 
@@ -336,6 +417,49 @@ export const LoginView: React.FC<LoginViewProps> = ({
           </span>
         </div>
       </motion.div>
+
+      {/* Controles Discretos de Fondo de Video Real (Escenas y Enfoque) */}
+      <div className="absolute bottom-3 left-4 right-4 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-auto">
+        {/* Selector Rápido de Cámaras / Escenas de Video Real */}
+        <div className="flex items-center gap-1 p-1 rounded-full bg-slate-950/80 border border-slate-800/80 backdrop-blur-md shadow-lg text-[11px] font-mono text-slate-300">
+          <div className="flex items-center gap-1 px-2.5 py-1 text-slate-400">
+            <Video className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Cámara Real:</span>
+          </div>
+          {VIDEO_SCENES.map((scene) => {
+            const isActive = scene.id === selectedSceneId;
+            return (
+              <button
+                key={scene.id}
+                type="button"
+                onClick={() => handleSelectScene(scene.id)}
+                title={scene.badge}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                }`}
+              >
+                <span>{scene.iconLabel}</span>
+                <span className="hidden md:inline">{scene.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Selector de Nivel de Nitidez / Desenfoque */}
+        <button
+          type="button"
+          onClick={handleCycleBlur}
+          title="Ajustar nitidez del video de fondo en tiempo real"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-slate-800/80 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-mono backdrop-blur-md shadow-lg transition-all cursor-pointer"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+          <span>
+            {blurLevel === 0 ? 'Nitidez: 100% Nítido (0px)' : blurLevel === 1 ? 'Nitidez: Suave (0.8px)' : 'Nitidez: Desenfoque (1.5px)'}
+          </span>
+        </button>
+      </div>
     </div>
   );
 };
