@@ -5869,9 +5869,11 @@ if __name__ == '__main__':
     
     // Parámetros de git con bypass seguro de SSL para evitar errores de certificados CAfile en Linux
     const gitOpts = '-c http.sslVerify=false';
-    const command = force
+    const gitCmd = force
       ? `git ${gitOpts} fetch --all && (git reset --hard origin/main || git reset --hard origin/master || git reset --hard) && (git ${gitOpts} pull origin main || git ${gitOpts} pull origin master || git ${gitOpts} pull)`
       : `git ${gitOpts} pull origin main || git ${gitOpts} pull origin master || git ${gitOpts} pull`;
+
+    const command = `${gitCmd} && npm run build`;
       
     console.log(`[Actualización] Iniciando comando: ${command}`);
     
