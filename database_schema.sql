@@ -84,8 +84,11 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(150),
     pin VARCHAR(50),
     permissions JSONB DEFAULT '{}'::jsonb,
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 

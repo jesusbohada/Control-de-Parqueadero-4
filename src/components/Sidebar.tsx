@@ -357,8 +357,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* 1. Header / Brand Area */}
       <div className="p-4 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 shadow-md shadow-indigo-600/20 text-white flex items-center justify-center font-black text-sm shrink-0">
-            <Car className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-indigo-600/20 text-white flex items-center justify-center font-black text-sm shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-900">
+            <img 
+              src={businessInfo.logoUrl || "/assets/wolfzone_logo_farmanorte.jpg"} 
+              alt="Logo Farmanorte" 
+              className="w-full h-full object-cover" 
+            />
           </div>
 
           {!isCollapsed && (

@@ -15,7 +15,7 @@ echo.
 cd /d "%~dp0"
 set "TARGET_DIR=%~dp0"
 set "LAUNCHER_VBS=%TARGET_DIR%Iniciar-Parqueadero-Silencioso.vbs"
-set "LAUNCHER_BAT=%TARGET_DIR%Iniciar-Parqueadero.bat"
+set "LAUNCHER_BAT=%TARGET_DIR%INICIAR_PARQUEADERO.bat"
 set "RESTART_BAT=%TARGET_DIR%Reiniciar-Parqueadero.bat"
 set "STOP_BAT=%TARGET_DIR%Detener-Parqueadero.bat"
 set "ICON_PATH=%TARGET_DIR%public\favicon.ico"

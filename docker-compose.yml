@@ -1,0 +1,53 @@
+name: wolfzonepos
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. MOTOR DE BASE DE DATOS POSTGRESQL 16
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: wolfzone_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: wolfzonepos_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database_schema.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wolfzonepos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ----------------------------------------------------------------------------
+  # 2. SERVIDOR PRINCIPAL WOLFZONE POS (NODE.JS 20 + EXPRESS + VITE)
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wolfzone_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/wolfzonepos_db
+      DISABLE_HMR: "true"
+    ports:
+      - "3000:3000"  # Acceso LAN para taquillas
+      - "3001:3001"  # Acceso WAN para sucursales remotas
+      - "9050:9050"  # FarmaDesk Hub de señalización y soporte
+    volumes:
+      - ./backups:/app/backups
+      - ./logs:/app/logs
+      - ./data:/app/data
+
+volumes:
+  postgres_data:
+    driver: local

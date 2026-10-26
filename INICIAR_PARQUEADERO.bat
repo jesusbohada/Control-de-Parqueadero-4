@@ -43,17 +43,29 @@ if /i "%~1"=="--headless" set "OPEN_BROWSER=0"
 if /i "%~1"=="--silent" set "OPEN_BROWSER=0"
 if /i "%~1"=="--server-only" set "OPEN_BROWSER=0"
 
-REM 1. Limpieza preventiva y verificacion del servicio de PostgreSQL
+REM 1. Verificacion y arranque inteligente de PostgreSQL (puertos 5433 / 5432)
 echo [*] Verificando base de datos PostgreSQL...
-for %%v in (18 17 16 15 14 13 12) do (
-    if exist "C:\Program Files\PostgreSQL\%%v\data\postmaster.pid" (
-        del /f /q "C:\Program Files\PostgreSQL\%%v\data\postmaster.pid" >nul 2>&1
-    )
-)
-netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1 || netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
+netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
 if %ERRORLEVEL% EQU 0 goto :postgres_ok
-echo [!] Servicio de PostgreSQL detenido. Iniciando base de datos...
-net start postgresql-x64-18 >nul 2>&1 || net start postgresql-x64-16 || net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
+netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1
+if %ERRORLEVEL% EQU 0 goto :postgres_ok
+
+echo [!] Servicio de PostgreSQL no detectado en puertos 5433/5432. Iniciando base de datos...
+net start postgresql-x64-18 >nul 2>&1
+if %ERRORLEVEL% EQU 0 goto :wait_postgres
+net start postgresql-x64-16 >nul 2>&1
+if %ERRORLEVEL% EQU 0 goto :wait_postgres
+net start postgresql-x64-17 >nul 2>&1
+if %ERRORLEVEL% EQU 0 goto :wait_postgres
+
+REM Si no hay permisos de servicio de Windows, arrancar motor PostgreSQL en segundo plano
+if exist "C:\Program Files\PostgreSQL\18\bin\postgres.exe" (
+    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process 'C:\Program Files\PostgreSQL\18\bin\postgres.exe' -ArgumentList '-D \"C:\Program Files\PostgreSQL\18\data\"' -WindowStyle Hidden" >nul 2>&1
+) else if exist "C:\Program Files\PostgreSQL\16\bin\postgres.exe" (
+    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process 'C:\Program Files\PostgreSQL\16\bin\postgres.exe' -ArgumentList '-D \"C:\Program Files\PostgreSQL\16\data\"' -WindowStyle Hidden" >nul 2>&1
+)
+
+:wait_postgres
 ping 127.0.0.1 -n 3 >nul
 
 :postgres_ok

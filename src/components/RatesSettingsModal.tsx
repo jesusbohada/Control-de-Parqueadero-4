@@ -257,9 +257,9 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
 
   // Logo preset icons/images
   const logoPresets = [
-    { label: 'WolfZone POS', url: 'https://images.unsplash.com/photo-1546182990-dffeafbe841d?w=120&auto=format&fit=crop&q=60' },
-    { label: 'Park Blue', url: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=120&auto=format&fit=crop&q=60' },
-    { label: 'Smart Parking', url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=120&auto=format&fit=crop&q=60' },
+    { label: 'Farmanorte (Oficial)', url: '/assets/wolfzone_logo_farmanorte.jpg' },
+    { label: 'WolfZone Vigilante', url: '/assets/wolfzone_logo_mascot.jpg' },
+    { label: 'Logo Compacto', url: '/logo_compacto.png' },
   ];
 
   // Quick simulation calculation using full business billing rules

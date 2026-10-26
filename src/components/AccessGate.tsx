@@ -124,9 +124,9 @@ export const AccessGate: React.FC<AccessGateProps> = ({
         {/* Top Security Icon & Brand */}
         <div className="flex items-center gap-4 border-b border-slate-800 pb-5">
           <img
-            src="/logo_compacto.png"
-            alt="WolfZone POS"
-            className="w-14 h-14 object-contain rounded-2xl bg-amber-500/10 border border-amber-500/30 p-1 shadow-inner"
+            src="/assets/wolfzone_logo_farmanorte.jpg"
+            alt="WolfZone POS Farmanorte"
+            className="w-14 h-14 object-cover rounded-full border border-amber-500/40 p-0.5 shadow-md shadow-amber-500/20"
             referrerPolicy="no-referrer"
           />
           <div>

@@ -165,7 +165,7 @@ const AnimatedWolfzoneScene: React.FC<{ onMascotClick: () => void }> = ({ onMasc
       >
         <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-20 left-12 bg-slate-950/90 border border-cyan-400/60 rounded-2xl px-4 py-2 text-xs font-mono text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.4)] pointer-events-none flex items-center gap-2 backdrop-blur-md">
           <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-          <span>¡Bienvenido a Wolfzone Checkpoint! 🐺 Turno operativo.</span>
+          <span>¡Bienvenido a Wolfzone! 🐺 Turno operativo.</span>
         </div>
       </motion.div>
     </div>
@@ -333,12 +333,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
         <div className="mb-6 flex flex-col items-center text-center">
           {/* Logo Oficial Wolfzone con Resplandor */}
           <div className="relative mb-3.5 group cursor-pointer" onClick={handleMascotClick}>
-            <div className="absolute inset-0 bg-cyan-400/20 blur-md rounded-2xl" />
-            <div className="w-18 h-18 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-cyan-400/60 p-2 shadow-xl relative z-10 flex items-center justify-center">
+            <div className="absolute inset-0 bg-cyan-400/30 blur-md rounded-full" />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-900 to-slate-950 border border-cyan-400/70 p-1 shadow-2xl relative z-10 flex items-center justify-center overflow-hidden">
               <img
-                src="/assets/wolf_logo_login_1790375008175.jpg"
-                alt="Logo Parqueadero Wolfzone"
-                className="w-full h-full object-contain rounded-xl"
+                src="/assets/wolfzone_logo_farmanorte.jpg"
+                alt="Logo Oficial Farmanorte Wolfzone"
+                className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </div>
@@ -350,12 +350,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
           >
             WOLFZONE PARKING
           </h1>
-          <p 
-            className="wolfzone-subtitle text-xs font-mono font-bold text-cyan-300 tracking-wider uppercase mt-1 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
-            style={{ color: '#67e8f9', WebkitTextFillColor: '#67e8f9' }}
-          >
-            Checkpoint • Terminal POS
-          </p>
 
           {/* Badge de Estado y Sucursal */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
@@ -395,7 +389,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           {/* Campo de Usuario */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">
-              Usuario / Username
+              Usuario
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-cyan-400/60 group-focus-within:text-cyan-300 transition-colors">
@@ -417,7 +411,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           {/* Campo de Contraseña */}
           <div className="space-y-1.5">
             <label className="block text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">
-              Contraseña / Password
+              Contraseña
             </label>
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-cyan-400/60 group-focus-within:text-cyan-300 transition-colors">
@@ -460,7 +454,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             ) : (
               <>
                 <LogIn className="w-4.5 h-4.5 stroke-[2.5]" />
-                <span>Iniciar Sesión / Log In</span>
+                <span>Iniciar Sesión</span>
               </>
             )}
           </motion.button>
