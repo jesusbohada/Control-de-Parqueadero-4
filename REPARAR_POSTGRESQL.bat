@@ -5,6 +5,14 @@ title Asistente de Reparacion y Recuperacion de PostgreSQL - WolfZone POS
 color 0E
 cls
 
+REM Auto-elevacion a permisos de Administrador si no los tiene
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INFO] Solicitando permisos de Administrador para gestionar el servicio PostgreSQL...
+    powershell -Command "Start-Process cmd -ArgumentList '/c call \"%~dp0%~nx0\"' -Verb RunAs"
+    exit /b
+)
+
 echo =====================================================================
 echo    HERRAMIENTA DE REPARACION Y RECUPERACION DE POSTGRESQL (DATA)
 echo =====================================================================
@@ -13,12 +21,12 @@ echo Este asistente repara bloqueos de archivos, 'postmaster.pid' trabados,
 echo fallos de arranque tras cortes de luz y corrupcion de la carpeta 'data'.
 echo.
 
-:: 1. Detectar directorio de instalacion de PostgreSQL
+REM 1. Detectar directorio de instalacion de PostgreSQL
 set "PG_DIR="
 set "PG_DATA="
 set "PG_BIN="
 
-for %%v in (17 16 15 14 13 12) do (
+for %%v in (18 17 16 15 14 13 12) do (
     if exist "C:\Program Files\PostgreSQL\%%v\bin\pg_ctl.exe" (
         set "PG_DIR=C:\Program Files\PostgreSQL\%%v"
         set "PG_BIN=C:\Program Files\PostgreSQL\%%v\bin"
@@ -41,7 +49,7 @@ echo =====================================================================
 echo   [1] Reparacion Rapida (Eliminar postmaster.pid trabado y reiniciar servicio)
 echo   [2] Reparacion Profunda (Resetear registros WAL con pg_resetwal tras corte de luz)
 echo   [3] Recrear Carpeta Data Limpia (Si los archivos estan totalmente destruidos)
-echo   [4] Restaurar Datos desde la Carpeta de Backups (C:\wolfzonepos\backups\)
+echo   [4] Restaurar Datos desde la Carpeta de Backups (backups)
 echo   [5] Salir
 echo =====================================================================
 echo.
@@ -62,7 +70,7 @@ taskkill /F /IM pg_ctl.exe >nul 2>&1
 ping 127.0.0.1 -n 2 >nul
 
 echo [2/3] Eliminando posibles archivos de bloqueo postmaster.pid...
-for %%v in (17 16 15 14 13 12) do (
+for %%v in (18 17 16 15 14 13 12) do (
     if exist "C:\Program Files\PostgreSQL\%%v\data\postmaster.pid" (
         del /f /q "C:\Program Files\PostgreSQL\%%v\data\postmaster.pid" >nul 2>&1
         echo [OK] Archivo postmaster.pid eliminado en PostgreSQL %%v.
@@ -73,27 +81,29 @@ for %%v in (17 16 15 14 13 12) do (
 )
 
 echo [3/3] Iniciando servicio de PostgreSQL...
-net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql-x64-14 >nul 2>&1 || net start postgresql >nul 2>&1
+net start postgresql-x64-18 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
 
 ping 127.0.0.1 -n 3 >nul
+netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo.
+    echo =====================================================================
+    echo   [EXITO] PostgreSQL ha sido reparado e iniciado en puerto 5433.
+    echo =====================================================================
+    goto FINISH_REPAIR
+)
 netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1
 if %errorlevel% equ 0 (
     echo.
     echo =====================================================================
     echo   [EXITO] PostgreSQL ha sido reparado e iniciado en puerto 5432.
     echo =====================================================================
-) else (
-    netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
-    if !errorlevel! equ 0 (
-        echo.
-        echo =====================================================================
-        echo   [EXITO] PostgreSQL ha sido reparado e iniciado en puerto 5433.
-        echo =====================================================================
-    ) else (
-        echo.
-        echo [INFO] Si persiste el fallo, prueba la opcion [2] Reparacion Profunda (pg_resetwal).
-    )
+    goto FINISH_REPAIR
 )
+echo.
+echo [INFO] Si persiste el fallo, prueba la opcion [2] Reparacion Profunda (pg_resetwal).
+
+:FINISH_REPAIR
 echo.
 pause
 exit /b
@@ -109,7 +119,7 @@ if defined PG_BIN (
         "!PG_BIN!\pg_resetwal.exe" -f "!PG_DATA!"
         echo.
         echo Iniciando servicio reparado...
-        net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
+        net start postgresql-x64-18 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
     )
 ) else (
     echo [ERROR] No se pudo localizar la ruta de pg_resetwal automaticamente.
@@ -122,7 +132,7 @@ exit /b
 echo.
 echo =====================================================================
 echo  ATENCION: Esta opcion crea un nuevo cluster de datos limpio en PostgreSQL.
-echo  Tus datos podran ser re-cargados inmediatamente desde C:\wolfzonepos\backups\
+echo  Tus datos podran ser re-cargados inmediatamente desde la carpeta backups
 echo =====================================================================
 set /p confirm="Deseas continuar? [S/N]: "
 if /i "!confirm!" neq "S" exit /b
@@ -136,9 +146,9 @@ if defined PG_DATA (
     
     if defined PG_BIN (
         echo Inicializando nuevo cluster limpio con contrasena 'password'...
-        "!PG_BIN!\initdb.exe" -D "!PG_DATA!" -U postgres -A md5 --pwfile=<(echo password) >nul 2>&1 || "!PG_BIN!\initdb.exe" -D "!PG_DATA!" -U postgres
+        "!PG_BIN!\initdb.exe" -D "!PG_DATA!" -U postgres
         echo [OK] Nueva carpeta data creada exitosamente.
-        net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql >nul 2>&1
+        net start postgresql-x64-18 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql >nul 2>&1
     )
 )
 echo.

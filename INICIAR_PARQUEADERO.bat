@@ -45,7 +45,7 @@ if /i "%~1"=="--server-only" set "OPEN_BROWSER=0"
 
 REM 1. Limpieza preventiva y verificacion del servicio de PostgreSQL
 echo [*] Verificando base de datos PostgreSQL...
-for %%v in (17 16 15 14 13 12) do (
+for %%v in (18 17 16 15 14 13 12) do (
     if exist "C:\Program Files\PostgreSQL\%%v\data\postmaster.pid" (
         del /f /q "C:\Program Files\PostgreSQL\%%v\data\postmaster.pid" >nul 2>&1
     )
@@ -53,7 +53,7 @@ for %%v in (17 16 15 14 13 12) do (
 netstat -ano | findstr LISTENING | findstr ":5432" >nul 2>&1 || netstat -ano | findstr LISTENING | findstr ":5433" >nul 2>&1
 if %ERRORLEVEL% EQU 0 goto :postgres_ok
 echo [!] Servicio de PostgreSQL detenido. Iniciando base de datos...
-net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-16 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
+net start postgresql-x64-18 >nul 2>&1 || net start postgresql-x64-16 || net start postgresql-x64-17 >nul 2>&1 || net start postgresql-x64-15 >nul 2>&1 || net start postgresql >nul 2>&1
 ping 127.0.0.1 -n 3 >nul
 
 :postgres_ok
