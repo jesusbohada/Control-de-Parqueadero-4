@@ -26,20 +26,33 @@ echo ""
 
 # 1. Verificar si Docker está instalado
 if ! command -v docker &> /dev/null; then
-    echo "[*] Docker no detectado. Instalando Docker Engine para Kubuntu/Ubuntu..."
-    apt-get update
-    apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
+    echo "[*] Docker no detectado. Preparando instalacion de Docker..."
+
+    # Limpiar repositorios obsoletos de terceros que puedan bloquear apt (ej. megasync viejo)
+    if [ -d "/etc/apt/sources.list.d" ]; then
+        for f in /etc/apt/sources.list.d/*mega* /etc/apt/sources.list.d/*MEGA*; do
+            if [ -f "$f" ]; then
+                echo "[INFO] Moviendo repositorio obsoleto que bloqueaba apt: $f"
+                mkdir -p /tmp/apt-obsoletos
+                mv "$f" /tmp/apt-obsoletos/ 2>/dev/null || true
+            fi
+        done
+    fi
+
+    # Actualizar listas de paquetes tolerando advertencias de repositorios antiguos
+    apt-get update || true
+    apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release || true
     
     # Agregar llave GPG oficial de Docker
     mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes 2>/dev/null || true
     
     # Agregar repositorio según la distribución (bionic, focal, jammy, etc.)
-    UBUNTU_CODENAME=$(lsb_release -cs)
+    UBUNTU_CODENAME=$(lsb_release -cs 2>/dev/null || echo "bionic")
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${UBUNTU_CODENAME} stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
     
-    # Instalar Docker Engine (si falla el plugin moderno por ser 18.04, instala docker estándar)
-    apt-get update
+    # Instalar Docker Engine (si falla Docker CE oficial por versiones descontinuadas de bionic, usa docker.io oficial de Ubuntu)
+    apt-get update || true
     apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin 2>/dev/null || \
     apt-get install -y docker-ce docker-ce-cli containerd.io 2>/dev/null || \
     apt-get install -y docker.io
