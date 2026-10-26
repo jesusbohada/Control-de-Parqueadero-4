@@ -41,8 +41,10 @@ import {
   Keyboard,
   Sparkles,
   AlertOctagon,
-  RotateCcw
+  RotateCcw,
+  Clock
 } from 'lucide-react';
+import { formatDateTimeNice } from './SoftwareUpdaterModal';
 import { 
   barcodeScannerService, 
   BarcodeScannerConfig, 
@@ -240,7 +242,22 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
   const [updatingApp, setUpdatingApp] = useState(false);
   const [forceUpdate, setForceUpdate] = useState(false);
   const [updateOutput, setUpdateOutput] = useState<string | null>(null);
-  const [gitStatus, setGitStatus] = useState<{ installed: boolean; isRepo?: boolean; remoteUrl?: string | null; version: string | null; platform: string; message: string } | null>(null);
+  const [gitStatus, setGitStatus] = useState<{
+    installed: boolean;
+    isRepo?: boolean;
+    remoteUrl?: string | null;
+    version: string | null;
+    platform: string;
+    message: string;
+    latestCommit?: { hash: string; shortHash: string; message: string; date: string } | null;
+  } | null>(null);
+  const [installedDate, setInstalledDate] = useState<string>(() => {
+    try {
+      return localStorage.getItem('pk_installed_date') || new Date().toISOString();
+    } catch {
+      return new Date().toISOString();
+    }
+  });
   const [checkingGit, setCheckingGit] = useState(false);
   const [installingGit, setInstallingGit] = useState(false);
   const [gitRepoUrl, setGitRepoUrl] = useState('');
@@ -1392,6 +1409,11 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
       if (!res.ok) {
         throw new Error(data.error || 'Error al actualizar el sistema.');
       }
+      const now = new Date().toISOString();
+      setInstalledDate(now);
+      try {
+        localStorage.setItem('pk_installed_date', now);
+      } catch (e) {}
       setMessage({ type: 'success', text: '¡Excelente! La aplicación se ha actualizado con éxito desde la nube.' });
       setUpdateOutput(data.output || 'Sincronizado correctamente.');
     } catch (err: any) {
@@ -1421,6 +1443,11 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
       if (!res.ok) {
         throw new Error(data.error || 'Error al actualizar el sistema.');
       }
+      const now = new Date().toISOString();
+      setInstalledDate(now);
+      try {
+        localStorage.setItem('pk_installed_date', now);
+      } catch (e) {}
       setMessage({ type: 'success', text: '¡Excelente! La aplicación se ha actualizado por completo con los últimos cambios de la nube.' });
       setUpdateOutput(data.message || 'Sincronizado correctamente.');
       await checkGitStatus();
@@ -1465,6 +1492,12 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
           if (!res.ok) {
             throw new Error(data.error || 'Error al actualizar el sistema desde el archivo ZIP.');
           }
+
+          const now = new Date().toISOString();
+          setInstalledDate(now);
+          try {
+            localStorage.setItem('pk_installed_date', now);
+          } catch (e) {}
 
           setMessage({ type: 'success', text: '¡Excelente! La aplicación se ha actualizado con éxito utilizando el archivo ZIP.' });
           setUpdateOutput(data.message || 'Sincronizado correctamente.');
@@ -2774,6 +2807,22 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                                 </button>
                               </div>
                             )}
+
+                            {/* Fecha y Hora de la última versión en Git y de la instalación en este equipo */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1">
+                              <div className="flex items-center gap-1.5 p-2 rounded-lg bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-200">
+                                <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                                <span>
+                                  Última en Repo: <strong className="font-mono">{gitStatus?.latestCommit ? `${gitStatus.latestCommit.shortHash} (${formatDateTimeNice(gitStatus.latestCommit.date)})` : 'Sincronizado'}</strong>
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 p-2 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/50 text-emerald-900 dark:text-emerald-200">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                <span>
+                                  Instalada en este equipo: <strong className="font-mono">{formatDateTimeNice(installedDate)}</strong>
+                                </span>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Panel desplegable para cambiar o modificar el repositorio de GitHub */}

@@ -886,6 +886,9 @@ export interface SoftwareReleaseBuild {
   targetScope?: 'all' | 'specific';
   targetBranchIds?: string[];
   lastDispatchedDate?: string;
+  commitHash?: string;                    // Hash corto de commit Git (ej. '9cd1a65')
+  commitDate?: string;                    // Fecha y hora exacta del commit en el repositorio
+  installedAt?: string;                   // Fecha y hora en la que se instaló en esta terminal
 }
 
 export interface BranchSyncAuditRecord {

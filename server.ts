@@ -5442,7 +5442,42 @@ if __name__ == '__main__':
         fs.writeFileSync(softwareReleasesPath, JSON.stringify(defaultReleasesData, null, 2), 'utf8');
       }
 
-      res.json({ success: true, ...releasesData });
+      // Enriquecer dinámicamente con los commits reales del repositorio (fecha y hora exacta de subida)
+      exec('git log -5 --pretty=format:"%H|%h|%s|%ad" --date=iso', (gitErr, gitStdout) => {
+        if (!gitErr && gitStdout) {
+          const commits = gitStdout.trim().split('\n').map(l => {
+            const parts = l.split('|');
+            return {
+              hash: parts[0] || '',
+              shortHash: parts[1] || '',
+              message: parts[2] || '',
+              date: parts[3] || ''
+            };
+          }).filter(c => c.hash.length > 0);
+
+          if (commits.length > 0 && Array.isArray(releasesData.releases)) {
+            // Actualizar la versión activa con el commit más reciente de Git
+            const latestCommit = commits[0];
+            const activeBuild = releasesData.releases.find((r: any) => r.status === 'installed') || releasesData.releases[0];
+            if (activeBuild) {
+              activeBuild.commitHash = latestCommit.shortHash;
+              activeBuild.commitDate = latestCommit.date;
+              activeBuild.releaseDate = latestCommit.date;
+            }
+
+            // Sincronizar fechas y horas de commits anteriores para las versiones previas
+            commits.slice(1).forEach((commit, idx) => {
+              if (releasesData.releases[idx + 1]) {
+                releasesData.releases[idx + 1].commitHash = commit.shortHash;
+                releasesData.releases[idx + 1].commitDate = commit.date;
+                releasesData.releases[idx + 1].releaseDate = commit.date;
+              }
+            });
+          }
+        }
+
+        res.json({ success: true, ...releasesData });
+      });
     } catch (err: any) {
       console.error('[Sync] Error leyendo software-releases:', err);
       res.status(500).json({ success: false, error: err.message });
@@ -6008,16 +6043,30 @@ if __name__ == '__main__':
           });
         }
 
-        // Get remote origin URL
+        // Get remote origin URL and latest commit info with exact date and time
         exec('git remote get-url origin', (remoteError, remoteStdout) => {
           const remoteUrl = !remoteError ? remoteStdout.trim() : null;
-          res.json({
-            installed: true,
-            isRepo: true,
-            remoteUrl,
-            version: versionStdout.trim(),
-            platform: process.platform,
-            message: 'Git está listo y configurado.'
+          exec('git log -1 --pretty=format:"%H|%h|%s|%ad" --date=iso', (logErr, logStdout) => {
+            let latestCommit = null;
+            if (!logErr && logStdout) {
+              const parts = logStdout.trim().split('|');
+              latestCommit = {
+                hash: parts[0] || '',
+                shortHash: parts[1] || '',
+                message: parts[2] || '',
+                date: parts[3] || ''
+              };
+            }
+
+            res.json({
+              installed: true,
+              isRepo: true,
+              remoteUrl,
+              version: versionStdout.trim(),
+              platform: process.platform,
+              latestCommit,
+              message: 'Git está listo y configurado.'
+            });
           });
         });
       });

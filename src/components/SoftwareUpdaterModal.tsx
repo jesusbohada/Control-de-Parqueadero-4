@@ -42,6 +42,38 @@ interface SoftwareUpdaterModalProps {
   embedded?: boolean;
 }
 
+export function formatDateTimeNice(dateStr?: string): string {
+  if (!dateStr) return 'No registrada';
+  try {
+    let d: Date;
+    const trimmed = String(dateStr).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      d = new Date(`${trimmed}T12:00:00`);
+    } else {
+      d = new Date(trimmed);
+    }
+    
+    if (isNaN(d.getTime())) {
+      return dateStr;
+    }
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'p. m.' : 'a. m.';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const strHours = String(hours).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${strHours}:${minutes} ${ampm}`;
+  } catch {
+    return dateStr;
+  }
+}
+
 export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
   isOpen,
   onClose,
@@ -62,6 +94,24 @@ export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
     commit?: { hash: string; shortHash: string; message: string; date: string };
     serverTime?: string;
   } | null>(null);
+
+  // Fecha y hora de instalación de la versión activa en esta máquina
+  const [installedAt, setInstalledAt] = useState<string>(() => {
+    try {
+      const savedInfo = localStorage.getItem('pk_installed_build_info');
+      if (savedInfo) {
+        const parsed = JSON.parse(savedInfo);
+        if (parsed.installedAt) return parsed.installedAt;
+      }
+      const savedDate = localStorage.getItem('pk_installed_date');
+      if (savedDate) return savedDate;
+      const initial = new Date().toISOString();
+      localStorage.setItem('pk_installed_date', initial);
+      return initial;
+    } catch {
+      return new Date().toISOString();
+    }
+  });
   
   // Updating State (Forward Upgrade)
   const [updatingBuildId, setUpdatingBuildId] = useState<string | null>(null);
@@ -125,7 +175,8 @@ export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
 
       if (showNotification) {
         const count = (releasesRes.releases || []).length;
-        setCheckMessage(`¡Repositorio Central conectado! ${count} versiones catalogadas. Último commit en servidor: ${liveVersionRes.commit?.shortHash || 'v2.5.0'}`);
+        const commitDateText = liveVersionRes.commit?.date ? ` (${formatDateTimeNice(liveVersionRes.commit.date)})` : '';
+        setCheckMessage(`¡Repositorio Central conectado! ${count} versiones catalogadas. Último commit en servidor: ${liveVersionRes.commit?.shortHash || 'v2.5.0'}${commitDateText}`);
       }
     } catch (e: any) {
       if (showNotification) {
@@ -188,7 +239,18 @@ export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
       setUpdateProgress(90);
       await new Promise(r => setTimeout(r, 600));
 
-      // Mark locally as installed
+      // Mark locally as installed with timestamp
+      const nowIso = new Date().toISOString();
+      setInstalledAt(nowIso);
+      try {
+        localStorage.setItem('pk_installed_date', nowIso);
+        localStorage.setItem('pk_installed_build_info', JSON.stringify({
+          buildId: build.id,
+          version: build.version,
+          installedAt: nowIso
+        }));
+      } catch (e) {}
+
       await onInstallBuild(build.id);
 
       // Report to server if possible
@@ -255,6 +317,18 @@ export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
           body: JSON.stringify({ version: rollbackTargetBuild.version })
         });
       } catch { /* ignore fallback */ }
+
+      // Mark locally as rolled back with timestamp
+      const nowIso = new Date().toISOString();
+      setInstalledAt(nowIso);
+      try {
+        localStorage.setItem('pk_installed_date', nowIso);
+        localStorage.setItem('pk_installed_build_info', JSON.stringify({
+          buildId: rollbackTargetBuild.id,
+          version: rollbackTargetBuild.version,
+          installedAt: nowIso
+        }));
+      } catch (e) {}
 
       await onInstallBuild(rollbackTargetBuild.id);
 
@@ -342,10 +416,18 @@ export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
+                <div className="text-[11px] text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
                   <span>Canal: <strong className="text-slate-800 dark:text-slate-200 uppercase font-mono">{currentInstalledBuild.channel}</strong></span>
                   <span>•</span>
-                  <span>Lanzamiento: {currentInstalledBuild.releaseDate}</span>
+                  <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                    Subida al Repo: <strong className="font-mono text-slate-900 dark:text-slate-100">{formatDateTimeNice(currentInstalledBuild.commitDate || currentInstalledBuild.releaseDate || serverLiveInfo?.commit?.date)}</strong>
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1 text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 font-medium">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    Instalada en este equipo: <strong className="font-mono">{formatDateTimeNice(installedAt)}</strong>
+                  </span>
                   {serverLiveInfo?.commit && (
                     <>
                       <span>•</span>
@@ -749,12 +831,21 @@ export const SoftwareUpdaterModal: React.FC<SoftwareUpdaterModalProps> = ({
                   {/* Footer Card Actions */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
                     <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 font-mono flex-wrap">
-                      <span>Lanzamiento: {build.releaseDate}</span>
+                      <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                        Subida al Repo: <strong className="font-mono text-slate-900 dark:text-slate-100">{formatDateTimeNice(build.commitDate || build.releaseDate)}</strong>
+                      </span>
+                      {isInstalled && (
+                        <span className="flex items-center gap-1 text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800 font-medium">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          Instalada el: <strong className="font-mono">{formatDateTimeNice(installedAt)}</strong>
+                        </span>
+                      )}
                       <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                        SHA256: {build.checksumSha256.slice(0, 10)}...
+                        {build.commitHash ? `Commit: ${build.commitHash}` : `SHA256: ${build.checksumSha256.slice(0, 10)}...`}
                       </span>
                       {build.databaseMigrationRequired && (
-                        <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                        <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
                           <Database className="w-3 h-3" />
                           Requiere migración de BD
                         </span>
