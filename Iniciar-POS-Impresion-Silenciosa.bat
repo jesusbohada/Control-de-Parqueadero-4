@@ -18,7 +18,7 @@ set URL=http://localhost:%PORT%
 netstat -ano | findstr /R /C:":3000.*LISTENING" >nul
 if %ERRORLEVEL% NEQ 0 (
     echo [*] El servidor POS no esta activo. Iniciando servidor automaticamente...
-    call "%~dp0Iniciar-Parqueadero.bat"
+    call "%~dp0INICIAR_PARQUEADERO.bat"
     exit
 )
 
