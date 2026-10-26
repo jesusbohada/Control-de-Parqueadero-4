@@ -22,17 +22,24 @@ import {
   FileText, 
   Zap,
   HardDrive,
-  Users
+  Users,
+  Edit3,
+  Trash2,
+  Warehouse as WarehouseIcon,
+  Check
 } from 'lucide-react';
-import { SystemNodeConfig, SystemWorkMode, BillingSystemMode, BranchLocation, SystemUser } from '../types';
+import { SystemNodeConfig, SystemWorkMode, BillingSystemMode, BranchLocation, SystemUser, Warehouse } from '../types';
 
 interface SystemWorkModeConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
   config: SystemNodeConfig;
   branches: BranchLocation[];
+  warehouses?: Warehouse[];
   onSaveConfig: (updatedConfig: SystemNodeConfig) => void;
   onAddNewBranch?: (branch: Partial<BranchLocation>) => void;
+  onSaveWarehouse?: (warehouse: Warehouse) => void;
+  onDeleteWarehouse?: (warehouseId: string) => void;
   currentUser?: SystemUser;
   embedded?: boolean;
   initialTab?: TabType;
@@ -45,8 +52,11 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
   onClose,
   config,
   branches,
+  warehouses = [],
   onSaveConfig,
   onAddNewBranch,
+  onSaveWarehouse,
+  onDeleteWarehouse,
   currentUser,
   embedded = false,
   initialTab = 'servers'
@@ -72,6 +82,114 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
   const [newBranchName, setNewBranchName] = useState('');
   const [newBranchCode, setNewBranchCode] = useState('');
   const [newBranchCity, setNewBranchCity] = useState('');
+
+  // Gestión de Bodegas y Patios
+  const [localWarehouses, setLocalWarehouses] = useState<Warehouse[]>(() => {
+    if (warehouses && warehouses.length > 0) return warehouses;
+    try {
+      const saved = localStorage.getItem('pk_warehouses');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
+
+  React.useEffect(() => {
+    if (warehouses && warehouses.length > 0) {
+      setLocalWarehouses(warehouses);
+    }
+  }, [warehouses]);
+
+  const [isAddingNewWarehouse, setIsAddingNewWarehouse] = useState(false);
+  const [editingWarehouseId, setEditingWarehouseId] = useState<string | null>(null);
+  const [warehouseForm, setWarehouseForm] = useState<{
+    code: string;
+    name: string;
+    type: 'general' | 'parking_yard' | 'insumos' | 'vip';
+    capacity: number;
+    address: string;
+    notes: string;
+  }>({
+    code: '',
+    name: '',
+    type: 'general',
+    capacity: 50,
+    address: '',
+    notes: ''
+  });
+
+  const handleOpenNewWarehouse = () => {
+    setEditingWarehouseId(null);
+    setWarehouseForm({
+      code: `PAT-${String(localWarehouses.length + 1).padStart(2, '0')}`,
+      name: '',
+      type: 'general',
+      capacity: 50,
+      address: '',
+      notes: ''
+    });
+    setIsAddingNewWarehouse(true);
+  };
+
+  const handleEditWarehouse = (wh: Warehouse) => {
+    setEditingWarehouseId(wh.id);
+    setWarehouseForm({
+      code: wh.code,
+      name: wh.name,
+      type: (wh.type as any) || 'general',
+      capacity: wh.capacity || 50,
+      address: wh.address || '',
+      notes: wh.notes || ''
+    });
+    setIsAddingNewWarehouse(true);
+  };
+
+  const handleSaveWarehouseAction = () => {
+    if (!warehouseForm.name.trim() || !warehouseForm.code.trim()) return;
+
+    const currentBranch = branches.find(b => b.id === formData.selectedBranchId) || branches[0];
+    const whToSave: Warehouse = {
+      id: editingWarehouseId || `bod-${Date.now()}`,
+      code: warehouseForm.code.trim().toUpperCase(),
+      name: warehouseForm.name.trim(),
+      type: warehouseForm.type,
+      branchId: currentBranch?.id || 'suc-001',
+      branchName: currentBranch?.name || 'Sede Principal',
+      address: warehouseForm.address.trim() || currentBranch?.address || 'Sede Principal',
+      capacity: warehouseForm.capacity || 50,
+      manager: 'Administrador',
+      phone: '',
+      isActive: true,
+      itemsCount: 0,
+      notes: warehouseForm.notes.trim() || 'Patio / Bodega de operaciones.',
+      createdAt: new Date().toISOString()
+    };
+
+    if (onSaveWarehouse) {
+      onSaveWarehouse(whToSave);
+    }
+
+    setLocalWarehouses(prev => {
+      const exists = prev.some(w => w.id === whToSave.id);
+      const updated = exists ? prev.map(w => w.id === whToSave.id ? whToSave : w) : [...prev, whToSave];
+      try { localStorage.setItem('pk_warehouses', JSON.stringify(updated)); } catch(e){}
+      return updated;
+    });
+
+    handleInputChange('defaultWarehouseOrYard', whToSave.name);
+    setIsAddingNewWarehouse(false);
+    setEditingWarehouseId(null);
+  };
+
+  const handleDeleteWarehouseAction = (whId: string) => {
+    if (onDeleteWarehouse) {
+      onDeleteWarehouse(whId);
+    }
+    setLocalWarehouses(prev => {
+      const updated = prev.filter(w => w.id !== whId);
+      try { localStorage.setItem('pk_warehouses', JSON.stringify(updated)); } catch(e){}
+      return updated;
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -448,22 +566,113 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
 
                   {/* Bodega / Patio Predeterminado */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
-                      Bodega Predeterminada / Patio o Zona Base
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                        Bodega Predeterminada / Patio o Zona Base
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleOpenNewWarehouse}
+                        className="text-[11px] font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        Registrar Nuevo Patio / Bodega
+                      </button>
+                    </div>
                     <select
                       id="select-default-warehouse"
                       value={formData.defaultWarehouseOrYard}
                       onChange={(e) => handleInputChange('defaultWarehouseOrYard', e.target.value)}
                       className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 dark:text-slate-200 bg-white"
                     >
-                      <option value="PATIO PRINCIPAL">PATIO PRINCIPAL (NIVEL 1)</option>
-                      <option value="ZONA VIP SUBTERRÁNEA">ZONA VIP SUBTERRÁNEA (NIVEL -1)</option>
-                      <option value="DEPÓSITO CÚCUTA">DEPÓSITO CÚCUTA</option>
-                      <option value="BOD. FARMANORTE 03">BOD. FARMANORTE 03</option>
-                      <option value="PATIO BAHÍA EXTERIOR">PATIO BAHÍA EXTERIOR</option>
+                      {localWarehouses.map(wh => (
+                        <option key={wh.id} value={wh.name}>
+                          {wh.name} {wh.capacity ? `(${wh.capacity} plazas)` : ''}
+                        </option>
+                      ))}
+                      {!localWarehouses.some(w => w.name === formData.defaultWarehouseOrYard) && (
+                        <option value={formData.defaultWarehouseOrYard}>
+                          {formData.defaultWarehouseOrYard}
+                        </option>
+                      )}
                     </select>
                   </div>
+
+                  {/* Quick Form to Register or Edit Warehouse / Yard */}
+                  {isAddingNewWarehouse && activeTab === 'pos' && (
+                    <div 
+                      id="quick-warehouse-register-panel"
+                      className="md:col-span-2 p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-3 animate-in fade-in"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <WarehouseIcon className="w-4 h-4 text-amber-700" />
+                          <h4 className="text-xs font-bold text-amber-900 uppercase">
+                            {editingWarehouseId ? 'Editar Patio o Bodega' : 'Registrar Nuevo Patio, Nivel o Bodega'}
+                          </h4>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
+                          className="text-slate-400 hover:text-slate-600 text-xs"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Código</label>
+                          <input
+                            type="text"
+                            placeholder="Ej. PAT-02"
+                            value={warehouseForm.code}
+                            onChange={(e) => setWarehouseForm(prev => ({ ...prev, code: e.target.value }))}
+                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded uppercase font-bold"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Nombre del Patio / Nivel / Bodega</label>
+                          <input
+                            type="text"
+                            placeholder="Ej. Sótano Nivel -1 o Patio Bahía 2"
+                            value={warehouseForm.name}
+                            onChange={(e) => setWarehouseForm(prev => ({ ...prev, name: e.target.value }))}
+                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Capacidad (Plazas)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="50"
+                            value={warehouseForm.capacity}
+                            onChange={(e) => setWarehouseForm(prev => ({ ...prev, capacity: parseInt(e.target.value) || 0 }))}
+                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
+                          className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800 font-medium"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSaveWarehouseAction}
+                          className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Save className="w-3.5 h-3.5" />
+                          {editingWarehouseId ? 'Actualizar Patio / Bodega' : 'Guardar y Asignar'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Quick Form to Register New Branch */}
                   {isAddingNewBranch && (
@@ -885,13 +1094,179 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 3: ZONAS / PATIOS BASE                                                */}
+          {/* TAB 3: ZONAS / PATIOS BASE & GESTIÓN DE BODEGAS                          */}
           {/* ========================================================================= */}
           {activeTab === 'zones' && (
-            <div className="space-y-5">
+            <div className="space-y-6">
+              {/* PANEL DE GESTIÓN Y CREACIÓN DE PATIOS / BODEGAS */}
+              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
+                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded flex items-center gap-1.5">
+                  <WarehouseIcon className="w-3.5 h-3.5 text-amber-600" />
+                  Catálogo de Patios, Niveles y Bodegas
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-1 pb-4 border-b border-slate-100">
+                  <p className="text-xs text-slate-500">
+                    Crea y administra los diferentes patios, pisos, sótanos o bodegas disponibles en el parqueadero o sucursal.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleOpenNewWarehouse}
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Registrar Nuevo Patio / Bodega
+                  </button>
+                </div>
+
+                {/* Formulario de Registro o Edición de Bodega / Patio */}
+                {isAddingNewWarehouse && (
+                  <div className="mt-4 p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-3 animate-in fade-in">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <WarehouseIcon className="w-4 h-4 text-amber-700" />
+                        <h4 className="text-xs font-bold text-amber-900 uppercase">
+                          {editingWarehouseId ? 'Editar Patio / Bodega' : 'Crear Nuevo Patio, Nivel o Bodega'}
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
+                        className="text-slate-400 hover:text-slate-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Código</label>
+                        <input
+                          type="text"
+                          placeholder="Ej. PAT-02"
+                          value={warehouseForm.code}
+                          onChange={(e) => setWarehouseForm(prev => ({ ...prev, code: e.target.value }))}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded uppercase font-bold bg-white"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Nombre del Patio / Nivel / Bodega</label>
+                        <input
+                          type="text"
+                          placeholder="Ej. Sótano Nivel -1 o Patio Bahía 2"
+                          value={warehouseForm.name}
+                          onChange={(e) => setWarehouseForm(prev => ({ ...prev, name: e.target.value }))}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium bg-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Capacidad (Plazas)</label>
+                        <input
+                          type="number"
+                          min="1"
+                          placeholder="50"
+                          value={warehouseForm.capacity}
+                          onChange={(e) => setWarehouseForm(prev => ({ ...prev, capacity: parseInt(e.target.value) || 0 }))}
+                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
+                        className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800 font-medium cursor-pointer"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSaveWarehouseAction}
+                        className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        {editingWarehouseId ? 'Guardar Cambios' : 'Registrar Patio / Bodega'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Listado de Patios y Bodegas Registrados */}
+                <div className="mt-4 space-y-2">
+                  {localWarehouses.map((wh) => {
+                    const isDefault = formData.defaultWarehouseOrYard === wh.name;
+                    return (
+                      <div
+                        key={wh.id}
+                        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border transition-all ${
+                          isDefault 
+                            ? 'bg-blue-50/60 border-blue-300 shadow-xs' 
+                            : 'bg-slate-50/50 hover:bg-slate-50 border-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${isDefault ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                            <WarehouseIcon className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
+                                {wh.code}
+                              </span>
+                              <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                                {wh.name}
+                              </span>
+                              {isDefault && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                  <Check className="w-3 h-3 text-blue-600" />
+                                  Predeterminada en esta Caja
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              Capacidad: <span className="font-semibold text-slate-700">{wh.capacity || 50} plazas</span> | Sede: {wh.branchName || 'Sede Principal'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-2 sm:mt-0 self-end sm:self-center">
+                          {!isDefault && (
+                            <button
+                              type="button"
+                              onClick={() => handleInputChange('defaultWarehouseOrYard', wh.name)}
+                              className="px-2.5 py-1 text-xs text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded font-medium cursor-pointer"
+                            >
+                              Asignar como Predeterminada
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleEditWarehouse(wh)}
+                            title="Editar Patio o Bodega"
+                            className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded cursor-pointer"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteWarehouseAction(wh.id)}
+                            title="Eliminar Patio o Bodega"
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Zonas Base Asignadas */}
               <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
                 <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
-                  Configuración de Zonas y Patios de Estacionamiento
+                  Configuración de Zonas de Estacionamiento
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">

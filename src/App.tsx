@@ -4689,8 +4689,11 @@ export default function App() {
             onClose={() => handleSwitchView('operations')}
             config={systemNodeConfig}
             branches={branches}
+            warehouses={warehouses}
             onSaveConfig={handleSaveSystemNodeConfig}
             onAddNewBranch={handleAddNewBranchFromConfig}
+            onSaveWarehouse={handleSaveWarehouse}
+            onDeleteWarehouse={handleDeleteWarehouse}
             currentUser={currentUser}
           />
         )}
