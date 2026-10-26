@@ -5,12 +5,16 @@
 
 FROM node:20-bookworm-slim
 
-# Instalar utilidades básicas requeridas
+# Instalar utilidades básicas requeridas y certificados SSL actualizados
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     git \
     procps \
     && rm -rf /var/lib/apt/lists/*
+
+# Configurar Git para tolerar entornos con CA desactualizada
+RUN git config --global http.sslVerify false
 
 WORKDIR /app
 

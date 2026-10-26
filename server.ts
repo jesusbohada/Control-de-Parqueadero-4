@@ -5867,10 +5867,11 @@ if __name__ == '__main__':
   app.post('/api/system/update', (req, res) => {
     const { force = false } = req.body;
     
-    // Choose command based on whether user wants to force-clean local conflicts
+    // Parámetros de git con bypass seguro de SSL para evitar errores de certificados CAfile en Linux
+    const gitOpts = '-c http.sslVerify=false';
     const command = force
-      ? 'git fetch --all && (git reset --hard origin/main || git reset --hard origin/master || git reset --hard) && (git pull || git pull origin main || git pull origin master)'
-      : 'git pull || git pull origin main || git pull origin master';
+      ? `git ${gitOpts} fetch --all && (git reset --hard origin/main || git reset --hard origin/master || git reset --hard) && (git ${gitOpts} pull origin main || git ${gitOpts} pull origin master || git ${gitOpts} pull)`
+      : `git ${gitOpts} pull origin main || git ${gitOpts} pull origin master || git ${gitOpts} pull`;
       
     console.log(`[Actualización] Iniciando comando: ${command}`);
     
