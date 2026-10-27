@@ -1269,6 +1269,15 @@ export default function App() {
   };
 
   const saveGlobalConfigToServer = async (customPackage?: any) => {
+    // STRICT GUARD: If this machine has a remote Central Server configured or is running as a branch,
+    // it MUST NEVER push its local configuration to the Central Server!
+    const serverConfig = getServerDataConfig();
+    const isRemoteBranch = serverConfig?.nodeRole === 'branch' || Boolean(serverConfig?.remoteDbHost && serverConfig.remoteDbHost !== 'localhost' && serverConfig.remoteDbHost !== '127.0.0.1');
+    if (isRemoteBranch || systemNodeConfig?.workMode === 'pos' || (currentBranchId && currentBranchId !== 'suc-001' && currentBranchId !== 'branch-01')) {
+      console.log('[Sync Security] Terminal de sucursal detectada: Protegiendo servidor central, se bloquea el guardado de global-config.');
+      return;
+    }
+
     try {
       const configToSave = customPackage || {
         branches,
@@ -1282,12 +1291,16 @@ export default function App() {
         lastUpdated: new Date().toISOString()
       };
 
-      await fetchWithSyncFallback('/api/sync/global-config', {
+      await fetch('/api/sync/global-config', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ config: configToSave })
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-wolf-node-role': 'central',
+          'x-wolf-branch-id': 'suc-001'
+        },
+        body: JSON.stringify({ config: configToSave, nodeRole: 'central', branchId: 'suc-001' })
       });
-      console.log('[Sync] Configuración global sincronizada en el servidor.');
+      console.log('[Sync] Configuración global sincronizada en el servidor central.');
     } catch (e) {
       console.error('[Sync] Error al guardar config en el servidor:', e);
     }
@@ -1825,6 +1838,14 @@ export default function App() {
   };
 
   const handlePublishCentralPackage = async (packageData: Partial<CentralUpdatePackage>) => {
+    // STRICT GUARD: Only the Central Server (suc-001) can issue packages
+    const serverConfig = getServerDataConfig();
+    const isRemoteBranch = serverConfig?.nodeRole === 'branch' || Boolean(serverConfig?.remoteDbHost && serverConfig.remoteDbHost !== 'localhost' && serverConfig.remoteDbHost !== '127.0.0.1');
+    if (isRemoteBranch || systemNodeConfig?.workMode === 'pos' || (currentBranchId && currentBranchId !== 'suc-001' && currentBranchId !== 'branch-01')) {
+      console.warn('[Sync Security] ⛔ Operación bloqueada: Solo el Servidor Central puede publicar paquetes a la red.');
+      return;
+    }
+
     const newPackage: CentralUpdatePackage = {
       id: `pkg-${Date.now()}`,
       packageNumber: `PKG-${(centralPackages.length + 101).toString()}`,
@@ -1835,7 +1856,13 @@ export default function App() {
       targetBranchIds: packageData.targetBranchIds || [],
       createdAt: new Date().toISOString(),
       author: currentUser?.name || 'Administrador Central',
-      appliedByBranches: [],
+      appliedByBranches: [
+        {
+          branchId: 'suc-001',
+          branchName: 'Sede Principal (Servidor Central)',
+          appliedAt: new Date().toISOString()
+        }
+      ],
       payload: packageData.payload || {}
     };
 
@@ -4731,6 +4758,12 @@ export default function App() {
             onSwitchBranch={(branchId: string) => setCurrentBranchId(branchId)}
             onForceSyncBranch={async (branchId: string) => {
               await saveGlobalConfigToServer();
+              try {
+                const refreshedPkgs = await fetchCentralPackages(currentBranchId);
+                if (refreshedPkgs && refreshedPkgs.length > 0) {
+                  setCentralPackages(refreshedPkgs);
+                }
+              } catch (e) {}
               const b = branches.find(item => item.id === branchId);
               if (b) {
                 const auditRecord: BranchSyncAuditRecord = {

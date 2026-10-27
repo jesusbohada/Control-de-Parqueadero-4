@@ -219,11 +219,24 @@ export async function fetchCentralPackages(branchId?: string, customBaseUrl?: st
  * Servidor Central: Emitir y publicar un nuevo paquete a la red de sucursales
  */
 export async function publishCentralPackage(pkg: CentralUpdatePackage): Promise<{ success: boolean; message: string; package: CentralUpdatePackage }> {
+  const serverConfig = getServerDataConfig();
+  const remoteUrl = getRemoteBaseUrlFromConfig();
+
+  // STRICT GUARD: Satellite branches or terminals connected to a remote Central cannot push packages to Central
+  if (remoteUrl || serverConfig?.nodeRole === 'branch') {
+    console.warn('[SyncService] ⛔ Bloqueado: Las terminales o sucursales no tienen autorización para emitir paquetes hacia el Servidor Central.');
+    return { success: false, message: 'Operación bloqueada por seguridad: Solo el Servidor Central matriz puede emitir paquetes.', package: pkg };
+  }
+
   try {
     const res = await fetch('/api/sync/central-packages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ package: pkg })
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-wolf-node-role': 'central',
+        'x-wolf-branch-id': 'suc-001'
+      },
+      body: JSON.stringify({ package: pkg, nodeRole: 'central', branchId: 'suc-001' })
     });
     if (res.ok) {
       const json = await res.json();
@@ -934,27 +947,27 @@ export async function publishCentralGlobalVersion(payload: {
   targetScope?: 'all' | 'specific';
   targetBranchIds?: string[];
 }, customBaseUrl?: string): Promise<{ success: boolean; message: string; data?: any }> {
+  const serverConfig = getServerDataConfig();
   const remoteUrl = customBaseUrl || getRemoteBaseUrlFromConfig();
-  if (remoteUrl) {
-    try {
-      const fullUrl = `${remoteUrl.replace(/\/+$/, '')}/api/sync/global-version`;
-      const res = await fetch(fullUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(6000)
-      });
-      if (res.ok) {
-        return await res.json();
-      }
-    } catch (e) {}
+
+  // STRICT GUARD: Satellite branches or terminals connected to a remote Central cannot push global versions to Central
+  if (remoteUrl || serverConfig?.nodeRole === 'branch') {
+    console.warn('[SyncService] ⛔ Bloqueado: Esta máquina está configurada como sucursal / terminal remota y tiene prohibido emitir o sobreescribir Globales hacia el Servidor Central.');
+    return {
+      success: false,
+      message: 'Operación bloqueada por seguridad: Las terminales o sucursales no tienen autorización para emitir ni sobreescribir Globales en el Servidor Central.'
+    };
   }
 
   try {
     const res = await fetch('/api/sync/global-version', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-wolf-node-role': 'central',
+        'x-wolf-branch-id': 'suc-001'
+      },
+      body: JSON.stringify({ ...payload, nodeRole: 'central', branchId: 'suc-001' })
     });
     if (res.ok) {
       return await res.json();

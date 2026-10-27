@@ -800,6 +800,15 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                         </div>
                       </label>
                     </div>
+
+                    {/* Nota de Blindaje de Seguridad Multi-Sede */}
+                    <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex items-start gap-2.5">
+                      <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                      <div className="text-[11px] leading-relaxed">
+                        <strong className="text-slate-900 block font-semibold">Blindaje de Seguridad Multi-Sede:</strong>
+                        Solo la máquina física autorizada como Servidor Central Matriz puede emitir y propagar Globales a la red. Si una terminal o sucursal se marca como servidor local, sus datos quedan aislados y el sistema bloquea automáticamente cualquier envío o sobreescritura de parámetros hacia el Servidor Central.
+                      </div>
+                    </div>
                   </div>
 
                   {/* MODO DE FACTURACIÓN */}

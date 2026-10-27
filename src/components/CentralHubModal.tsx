@@ -71,7 +71,9 @@ import {
   fetchLiveServerVersion,
   fetchCentralGlobalVersion,
   publishCentralGlobalVersion,
-  fetchBranchesOperations
+  fetchBranchesOperations,
+  setInstalledGlobalVersionAndDate,
+  getServerDataConfig
 } from '../services/centralSyncService';
 import { parseAndIncrementVersion } from '../utils/versionUtils';
 import { formatDateTimeNice } from './SoftwareUpdaterModal';
@@ -154,6 +156,10 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
   const [newGlobalTargetScope, setNewGlobalTargetScope] = useState<'all' | 'specific'>('all');
   const [newGlobalSelectedBranchIds, setNewGlobalSelectedBranchIds] = useState<string[]>([]);
 
+  // Detección de rol de red para blindaje: Si esta máquina es sucursal, bloquea el envío de globales
+  const serverConfig = getServerDataConfig();
+  const isRemoteBranchNode = serverConfig?.nodeRole === 'branch' || Boolean(serverConfig?.remoteDbHost && serverConfig.remoteDbHost !== 'localhost' && serverConfig.remoteDbHost !== '127.0.0.1');
+
   const loadCentralGlobalStatus = async () => {
     try {
       const res = await fetchCentralGlobalVersion();
@@ -178,6 +184,10 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
   }, [isOpen]);
 
   const handlePublishNewGlobalVersion = async () => {
+    if (isRemoteBranchNode) {
+      alert('Operación Bloqueada por Seguridad: Esta máquina está configurada como Punto de Venta / Sucursal remota y tiene prohibido emitir o sobreescribir Globales hacia el Servidor Central.');
+      return;
+    }
     if (!newGlobalVersionCode.trim()) return;
     setIsPublishingGlobal(true);
     setGlobalPublishSuccess(null);
@@ -206,8 +216,18 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
         const publishedDateIso = result.data?.publishedAt || new Date().toISOString();
         setActiveGlobalVer(newGlobalVersionCode.trim());
         setActiveGlobalPublishedAt(publishedDateIso);
+        
+        // Auto-marcar inmediatamente en la terminal local del Servidor Central para que no muestre "Actualización pendiente":
+        setInstalledGlobalVersionAndDate(newGlobalVersionCode.trim(), publishedDateIso);
+
         setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente el ${formatDateTimeNice(publishedDateIso)}! Se empaquetaron ${branches.length} sedes, ${warehouses.length} bodegas, ${posPoints.length} terminales POS, tarifas vigentes, cajeros y datos comerciales para las sucursales.`);
         await loadCentralGlobalStatus();
+
+        if (onForceSyncBranch) {
+          try {
+            await onForceSyncBranch('suc-001');
+          } catch (e) {}
+        }
       }
     } catch (e: any) {
       console.error('[CentralHubModal] Error publicando Globales:', e);
@@ -1189,6 +1209,23 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                   </span>
                 </div>
 
+                {/* Blindaje de Red: Advertencia para Terminales de Sucursal */}
+                {isRemoteBranchNode && (
+                  <div className="p-3.5 rounded-xl bg-rose-500/10 border-2 border-rose-500/40 text-rose-700 dark:text-rose-300 flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                    <div className="text-xs space-y-1">
+                      <p className="font-black uppercase tracking-wide">
+                        Terminal de Sucursal Protegida (Modo Seguro)
+                      </p>
+                      <p className="leading-relaxed">
+                        Esta máquina está configurada como Punto de Venta / Sucursal remota conectada al Servidor Central ({serverConfig?.remoteDbHost || 'remoto'}). 
+                        Por directriz de seguridad e integridad del negocio, <strong>esta máquina tiene estrictamente prohibido emitir o sobreescribir Globales hacia la Central</strong>. 
+                        Las versiones globales oficiales deben publicarse exclusivamente desde la máquina física del Servidor Central.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Identificación de la Versión */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
@@ -1464,11 +1501,22 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                   <button
                     type="button"
                     onClick={handlePublishNewGlobalVersion}
-                    disabled={isPublishingGlobal}
-                    className="px-6 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap"
+                    disabled={isPublishingGlobal || isRemoteBranchNode}
+                    title={isRemoteBranchNode ? 'Bloqueado por seguridad: Esta máquina es una sucursal y no puede emitir Globales hacia la Central' : 'Publicar nueva versión de Globales'}
+                    className={`px-6 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-md transition-all whitespace-nowrap ${
+                      isRemoteBranchNode
+                        ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                        : 'bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 cursor-pointer disabled:opacity-50'
+                    }`}
                   >
                     <Send className={`w-3.5 h-3.5 ${isPublishingGlobal ? 'animate-bounce' : ''}`} />
-                    <span>{isPublishingGlobal ? 'Publicando...' : `Publicar Versión ${newGlobalVersionCode}`}</span>
+                    <span>
+                      {isRemoteBranchNode 
+                        ? 'Emisión Bloqueada (Modo Sucursal)' 
+                        : isPublishingGlobal 
+                        ? 'Publicando...' 
+                        : `Publicar Versión ${newGlobalVersionCode}`}
+                    </span>
                   </button>
                 </div>
               </div>

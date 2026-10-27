@@ -4656,9 +4656,34 @@ if __name__ == '__main__':
   // 5. POST /api/sync/central-packages (Central publishes update package)
   app.post('/api/sync/central-packages', (req, res) => {
     try {
+      const clientIp = extractClientIp(req);
+      const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
+      const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
+
+      // STRICT PROTECTION: Reject external branches from publishing packages to the Central Server
+      if (senderRole === 'branch' || (senderBranchId && senderBranchId !== 'suc-001' && senderBranchId !== 'branch-01')) {
+        console.warn(`[Sync Security] ⛔ Intento bloqueado: Terminal en IP ${clientIp} (Sede: ${senderBranchId}, Rol: ${senderRole}) intentó publicar paquete hacia el Servidor Central.`);
+        return res.status(403).json({
+          success: false,
+          error: 'Seguridad Central: Ninguna terminal o sucursal externa puede generar paquetes hacia el Servidor Central.'
+        });
+      }
+
       const { package: newPkg } = req.body;
       if (!newPkg || !newPkg.id) {
         return res.status(400).json({ success: false, error: 'Paquete de datos inválido.' });
+      }
+
+      // Auto-mark Central Server (suc-001) as having applied this package immediately
+      if (!Array.isArray(newPkg.appliedByBranches)) {
+        newPkg.appliedByBranches = [];
+      }
+      if (!newPkg.appliedByBranches.some((a: any) => a.branchId === 'suc-001')) {
+        newPkg.appliedByBranches.push({
+          branchId: 'suc-001',
+          branchName: 'Sede Principal (Servidor Central)',
+          appliedAt: new Date().toISOString()
+        });
       }
 
       let packages: any[] = [];
@@ -4958,6 +4983,19 @@ if __name__ == '__main__':
   // 7c. POST /api/sync/global-version (Servidor Central sube/publica manualmente una nueva versión de Globales)
   app.post('/api/sync/global-version', (req, res) => {
     try {
+      const clientIp = extractClientIp(req);
+      const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
+      const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
+
+      // STRICT PROTECTION: Reject external branches from publishing global versions to the Central Server
+      if (senderRole === 'branch' || (senderBranchId && senderBranchId !== 'suc-001' && senderBranchId !== 'branch-01')) {
+        console.warn(`[Sync Security] ⛔ Intento bloqueado: Terminal en IP ${clientIp} (Sede: ${senderBranchId}, Rol: ${senderRole}) intentó publicar Globales hacia el Servidor Central.`);
+        return res.status(403).json({
+          success: false,
+          error: 'Seguridad Central: Ninguna terminal o sucursal externa puede generar ni sobreescribir versiones de Globales en el Servidor Central.'
+        });
+      }
+
       const {
         version,
         title,
@@ -5051,7 +5089,13 @@ if __name__ == '__main__':
           warehouses: newGlobalVersion.warehouses,
           posPoints: newGlobalVersion.posPoints
         },
-        appliedByBranches: []
+        appliedByBranches: [
+          {
+            branchId: 'suc-001',
+            branchName: 'Sede Principal (Servidor Central)',
+            appliedAt: new Date().toISOString()
+          }
+        ]
       };
 
       packages.unshift(newPkg);
@@ -5901,6 +5945,19 @@ if __name__ == '__main__':
   // API to save global configuration on the server
   app.post('/api/sync/global-config', (req, res) => {
     try {
+      const clientIp = extractClientIp(req);
+      const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
+      const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
+
+      // STRICT PROTECTION: Reject external branches or non-master nodes from modifying global-config.json
+      if (senderRole === 'branch' || (senderBranchId && senderBranchId !== 'suc-001' && senderBranchId !== 'branch-01')) {
+        console.warn(`[Sync Security] ⛔ Intento bloqueado: Terminal en IP ${clientIp} (Sede: ${senderBranchId}, Rol: ${senderRole}) intentó sobreescribir 'global-config.json' en el Servidor Central.`);
+        return res.status(403).json({
+          success: false,
+          error: 'Seguridad Central: Ninguna terminal o sucursal externa puede generar ni sobreescribir la configuración global (global-config) del Servidor Central.'
+        });
+      }
+
       const { config } = req.body;
       if (!config) {
         return res.status(400).json({ success: false, error: 'No se recibió configuración válida.' });
