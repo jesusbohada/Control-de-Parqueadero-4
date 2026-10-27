@@ -64,7 +64,8 @@ import {
 import {
   reportBranchHeartbeatAndIp,
   detectCurrentPublicIp,
-  fetchBranchesTelemetry
+  fetchBranchesTelemetry,
+  deleteBranchFromServer
 } from './services/centralSyncService';
 import { 
   loadTerminalDatabaseData,
@@ -853,11 +854,17 @@ export default function App() {
   // --- Multi-Branch, Central Hub & OTA Updater States ---
   const [branches, setBranches] = useState<BranchLocation[]>(() => {
     try {
+      let deletedSet = new Set<string>();
+      try {
+        const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+        if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+      } catch (e) {}
+
       const saved = localStorage.getItem('pk_branches');
       if (saved) {
         const list = JSON.parse(saved);
         if (Array.isArray(list) && list.length > 0) {
-          const validList = list.filter(b => b && typeof b === 'object' && b.id && b.id !== 'branch-01');
+          const validList = list.filter(b => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && !deletedSet.has(b.id));
           if (validList.length > 0) {
             const hasMain = validList.some(b => b.id === 'suc-001');
             const merged = hasMain ? validList : [...INITIAL_BRANCHES, ...validList];
@@ -998,6 +1005,16 @@ export default function App() {
 
   // Handlers para Sucursales, Bodegas y POS
   const handleSaveBranch = (branchToSave: BranchLocation) => {
+    // Si la sucursal estaba marcada como eliminada previamente, desmarcarla
+    try {
+      const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+      if (savedDeleted) {
+        const deletedIds: string[] = JSON.parse(savedDeleted);
+        const filtered = deletedIds.filter(id => id !== branchToSave.id);
+        localStorage.setItem('pk_deleted_branch_ids', JSON.stringify(filtered));
+      }
+    } catch (e) {}
+
     let updated: BranchLocation[] = [];
     setBranches(prev => {
       const exists = prev.some(b => b.id === branchToSave.id);
@@ -1018,12 +1035,33 @@ export default function App() {
       alert('No se puede eliminar la única sucursal existente.');
       return;
     }
+    if (branchId === 'suc-001' || branchId === 'branch-01') {
+      alert('No se puede eliminar la Sede Principal.');
+      return;
+    }
+
+    // 1. Marcar inmediatamente en el registro local de sucursales eliminadas para evitar resurrecciones
+    try {
+      const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+      const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+      if (!deletedIds.includes(branchId)) {
+        deletedIds.push(branchId);
+        localStorage.setItem('pk_deleted_branch_ids', JSON.stringify(deletedIds));
+      }
+    } catch (e) {}
+
+    // 2. Eliminar del estado React y de LocalStorage
     let updated: BranchLocation[] = [];
     setBranches(prev => {
       updated = prev.filter(b => b.id !== branchId);
       localStorage.setItem('pk_branches', JSON.stringify(updated));
       return updated;
     });
+
+    // 3. Eliminar de raíz en el servidor backend (telemetría y memoria)
+    deleteBranchFromServer(branchId).catch(console.warn);
+
+    // 4. Guardar inmediatamente la lista reducida en global-config.json
     saveGlobalConfigToServer({ branches: updated }).catch(console.warn);
   };
 
@@ -1342,7 +1380,13 @@ export default function App() {
         } = result.data;
 
         if (sBranches && Array.isArray(sBranches) && sBranches.length > 0) {
-          const validBranches = sBranches.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01');
+          let deletedSet = new Set<string>();
+          try {
+            const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+            if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+          } catch (e) {}
+
+          const validBranches = sBranches.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && !deletedSet.has(b.id));
           if (validBranches.length > 0) {
             const withMain = validBranches.some(b => b.id === 'suc-001') ? validBranches : [...INITIAL_BRANCHES, ...validBranches];
             const finalBranches = ensureUniqueBranchFarmadeskCredentials(withMain);
@@ -1647,9 +1691,18 @@ export default function App() {
       try {
         const telemetryList = await fetchBranchesTelemetry();
         if (isMounted && Array.isArray(telemetryList) && telemetryList.length > 0) {
+          let deletedSet = new Set<string>();
+          try {
+            const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+            if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+          } catch (e) {}
+
           setBranches(prev => {
-            let hasChanges = false;
-            const updated = prev.map(branch => {
+            // Filtrar cualquier sede que haya sido eliminada por el usuario
+            const activePrev = prev.filter(b => !deletedSet.has(b.id));
+            let hasChanges = activePrev.length !== prev.length;
+
+            const updated = activePrev.map(branch => {
               const telemetry = telemetryList.find(t => t.id === branch.id);
               if (telemetry) {
                 const newPublicIp = telemetry.publicIp || telemetry.reportedPublicIp || telemetry.ipAddress || branch.ipAddress;
@@ -1722,13 +1775,6 @@ export default function App() {
               }
               return branch;
             });
-            // Incorporar cualquier sucursal válida descubierta en la telemetría que no esté aún en el estado local
-            const existingIds = new Set(prev.map(b => b.id));
-            const missingFromPrev = telemetryList.filter(t => t && t.id && t.id !== 'branch-01' && !existingIds.has(t.id));
-            if (missingFromPrev.length > 0) {
-              hasChanges = true;
-              return ensureUniqueBranchFarmadeskCredentials([...updated, ...missingFromPrev]);
-            }
 
             return hasChanges ? updated : prev;
           });
@@ -1785,6 +1831,15 @@ export default function App() {
       pendingUpdatesCount: 0,
       ...newBranchData
     } as BranchLocation;
+
+    try {
+      const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+      if (savedDeleted) {
+        const deletedIds: string[] = JSON.parse(savedDeleted);
+        const filtered = deletedIds.filter(id => id !== newBranch.id);
+        localStorage.setItem('pk_deleted_branch_ids', JSON.stringify(filtered));
+      }
+    } catch (e) {}
 
     let updatedList: BranchLocation[] = [];
     setBranches(prev => {
@@ -1844,6 +1899,15 @@ export default function App() {
       pendingUpdatesCount: 0,
       ...newBranchData
     } as BranchLocation;
+
+    try {
+      const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+      if (savedDeleted) {
+        const deletedIds: string[] = JSON.parse(savedDeleted);
+        const filtered = deletedIds.filter(id => id !== newBranch.id);
+        localStorage.setItem('pk_deleted_branch_ids', JSON.stringify(filtered));
+      }
+    } catch (e) {}
 
     let updatedList: BranchLocation[] = [];
     setBranches(prev => {
@@ -2522,6 +2586,12 @@ export default function App() {
         return filtered;
       });
       setBranches(prev => {
+        let deletedSet = new Set<string>();
+        try {
+          const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+          if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+        } catch (e) {}
+
         const list = Array.isArray(prev) && prev.length > 0 ? prev : (() => {
           try {
             const saved = localStorage.getItem('pk_branches');
@@ -2530,7 +2600,7 @@ export default function App() {
             return INITIAL_BRANCHES;
           }
         })();
-        const valid = list.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01');
+        const valid = list.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && !deletedSet.has(b.id));
         const finalB = valid.length > 0 ? (valid.some((b: any) => b.id === 'suc-001') ? valid : [...INITIAL_BRANCHES, ...valid]) : INITIAL_BRANCHES;
         localStorage.setItem('pk_branches', JSON.stringify(finalB));
         return finalB;
@@ -4773,7 +4843,15 @@ export default function App() {
             onRefreshBranches={async () => {
               const refreshed = await fetchBranchesTelemetry();
               if (refreshed && refreshed.length > 0) {
-                setBranches(refreshed);
+                let deletedSet = new Set<string>();
+                try {
+                  const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+                  if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+                } catch (e) {}
+                setBranches(prev => {
+                  const prevIds = new Set(prev.map(p => p.id));
+                  return refreshed.filter(r => prevIds.has(r.id) && !deletedSet.has(r.id));
+                });
               }
             }}
             pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
@@ -4860,7 +4938,15 @@ export default function App() {
               onRefresh={async () => {
                 const refreshed = await fetchBranchesTelemetry();
                 if (refreshed && refreshed.length > 0) {
-                  setBranches(refreshed);
+                  let deletedSet = new Set<string>();
+                  try {
+                    const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+                    if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+                  } catch (e) {}
+                  setBranches(prev => {
+                    const prevIds = new Set(prev.map(p => p.id));
+                    return refreshed.filter(r => prevIds.has(r.id) && !deletedSet.has(r.id));
+                  });
                 }
               }}
               isDarkMode={isDarkMode}

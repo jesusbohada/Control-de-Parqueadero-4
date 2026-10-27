@@ -426,6 +426,40 @@ export async function pushBranchTelemetry(branch: Partial<BranchLocation>, custo
 }
 
 /**
+ * Servidor Central: Eliminar una sucursal permanentemente del servidor y telemetría
+ */
+export async function deleteBranchFromServer(branchId: string): Promise<boolean> {
+  if (!branchId || branchId === 'suc-001' || branchId === 'branch-01') return false;
+  try {
+    const res = await fetch(`/api/sync/branches/${encodeURIComponent(branchId)}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-wolf-node-role': 'central',
+        'x-wolf-branch-id': 'suc-001'
+      }
+    });
+    if (!res.ok) {
+      // Fallback POST
+      const fallbackRes = await fetch('/api/sync/branches/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-wolf-node-role': 'central',
+          'x-wolf-branch-id': 'suc-001'
+        },
+        body: JSON.stringify({ branchId, nodeRole: 'central' })
+      });
+      return fallbackRes.ok;
+    }
+    return res.ok;
+  } catch (err) {
+    console.warn('[SyncService] Error al eliminar sucursal en el servidor:', err);
+    return false;
+  }
+}
+
+/**
  * Validador de estructura de datos para telemetría de sucursal
  * Asegura que el contenido cumpla con el esquema requerido antes de procesarlo en el sistema
  */

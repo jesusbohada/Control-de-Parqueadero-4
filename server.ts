@@ -5418,6 +5418,75 @@ if __name__ == '__main__':
     }
   });
 
+  // 9.5 DELETE /api/sync/branches/:id & POST /api/sync/branches/delete (Central permanently deletes a branch)
+  const removeBranchPermanently = (targetBranchId: string) => {
+    if (!targetBranchId || targetBranchId === 'suc-001' || targetBranchId === 'branch-01') return false;
+    const telemetryMap = loadAndValidateBranchesTelemetry();
+    delete telemetryMap[targetBranchId];
+    delete memoryTelemetryCache[targetBranchId];
+    saveBranchesTelemetry(telemetryMap);
+
+    if (fs.existsSync(globalConfigPath)) {
+      try {
+        const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+        if (gConf && Array.isArray(gConf.branches)) {
+          gConf.branches = gConf.branches.filter((b: any) => b.id !== targetBranchId);
+          gConf.lastUpdated = new Date().toISOString();
+          fs.writeFileSync(globalConfigPath, JSON.stringify(gConf, null, 2), 'utf8');
+        }
+      } catch (e) {
+        console.warn('[Sync] Advertencia eliminando sede de global-config.json:', e);
+      }
+    }
+    return true;
+  };
+
+  app.delete('/api/sync/branches/:id', (req, res) => {
+    try {
+      const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
+      const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
+      const targetBranchId = req.params.id;
+
+      if (senderRole === 'branch' || (senderBranchId && senderBranchId !== 'suc-001' && senderBranchId !== 'branch-01')) {
+        return res.status(403).json({ success: false, error: 'Solo el Servidor Central puede eliminar sucursales.' });
+      }
+
+      const ok = removeBranchPermanently(targetBranchId);
+      if (!ok) {
+        return res.status(400).json({ success: false, error: 'No se puede eliminar la Sede Principal o ID inválido.' });
+      }
+
+      console.log(`[Sync Central] Sede ${targetBranchId} eliminada permanentemente.`);
+      res.json({ success: true, message: `Sede ${targetBranchId} eliminada correctamente del Servidor Central.` });
+    } catch (err: any) {
+      console.error('[Sync] Error al eliminar sede:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/sync/branches/delete', (req, res) => {
+    try {
+      const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
+      const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
+      const targetBranchId = req.body?.branchId || req.body?.id;
+
+      if (senderRole === 'branch' || (senderBranchId && senderBranchId !== 'suc-001' && senderBranchId !== 'branch-01')) {
+        return res.status(403).json({ success: false, error: 'Solo el Servidor Central puede eliminar sucursales.' });
+      }
+
+      const ok = removeBranchPermanently(targetBranchId);
+      if (!ok) {
+        return res.status(400).json({ success: false, error: 'No se puede eliminar la Sede Principal o ID inválido.' });
+      }
+
+      console.log(`[Sync Central] Sede ${targetBranchId} eliminada permanentemente.`);
+      res.json({ success: true, message: `Sede ${targetBranchId} eliminada correctamente del Servidor Central.` });
+    } catch (err: any) {
+      console.error('[Sync] Error al eliminar sede:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
   // 10. GET /api/sync/software-releases (Branches & Central read released builds & beta authorizations)
   app.get('/api/sync/software-releases', (req, res) => {
     try {
