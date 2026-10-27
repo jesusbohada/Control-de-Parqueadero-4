@@ -101,6 +101,16 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   const [isSavingTemplateModalOpen, setIsSavingTemplateModalOpen] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateDesc, setNewTemplateDesc] = useState('');
+
+  // Profile Management CRUD State (Crear, Editar, Eliminar y Restaurar)
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<UserPermissionTemplate | null>(null);
+  const [templateFormName, setTemplateFormName] = useState('');
+  const [templateFormDesc, setTemplateFormDesc] = useState('');
+  const [templateFormRole, setTemplateFormRole] = useState<UserRole>('cashier');
+  const [templateFormBaseTemplateId, setTemplateFormBaseTemplateId] = useState<string>('');
+  const [templateToDelete, setTemplateToDelete] = useState<UserPermissionTemplate | null>(null);
+  const [isRestoreDefaultsModalOpen, setIsRestoreDefaultsModalOpen] = useState(false);
   
   // Form State
   const [formName, setFormName] = useState('');
@@ -703,13 +713,126 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     setTimeout(() => setSuccessMessage(null), 4000);
   };
 
+  const handleOpenCreateTemplate = () => {
+    setEditingTemplate(null);
+    setTemplateFormName('');
+    setTemplateFormDesc('');
+    setTemplateFormRole('cashier');
+    setTemplateFormBaseTemplateId(templates.length > 0 ? templates[0].id : '');
+    setIsTemplateModalOpen(true);
+  };
+
+  const handleOpenEditTemplate = (tmpl: UserPermissionTemplate) => {
+    setEditingTemplate(tmpl);
+    setTemplateFormName(tmpl.name);
+    setTemplateFormDesc(tmpl.description || '');
+    setTemplateFormRole(tmpl.role || 'cashier');
+    setTemplateFormBaseTemplateId(tmpl.id);
+    setIsTemplateModalOpen(true);
+  };
+
+  const handleSaveTemplateForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanName = templateFormName.trim();
+    if (!cleanName) return;
+
+    try {
+      if (editingTemplate) {
+        // Modo Edición: Actualizar nombre, descripción y rol
+        const updated: UserPermissionTemplate = {
+          ...editingTemplate,
+          name: cleanName,
+          description: templateFormDesc.trim() || 'Perfil de usuario del sistema',
+          role: templateFormRole,
+        };
+        await dbSaveUserTemplate(updated);
+        setTemplates(prev => prev.map(t => t.id === updated.id ? updated : t));
+        await dbAddAuditLog('USER_UPDATE', `Perfil de usuario editado: ${updated.name}`, currentUser?.name || 'Maestro');
+        setSuccessMessage(`¡Perfil "${updated.name}" actualizado exitosamente!`);
+      } else {
+        // Modo Creación: Crear perfil a partir de plantilla base seleccionada
+        let basePerms = { ...DEFAULT_CASHIER_PERMISSIONS };
+        let baseVis = { ...DEFAULT_CASHIER_UI_VISIBILITY };
+        if (templateFormBaseTemplateId) {
+          const base = templates.find(t => t.id === templateFormBaseTemplateId);
+          if (base) {
+            basePerms = { ...base.permissions };
+            baseVis = { ...base.uiVisibility };
+          }
+        } else if (templateFormRole === 'supervisor') {
+          basePerms = { ...DEFAULT_SUPERVISOR_PERMISSIONS };
+          baseVis = { ...DEFAULT_SUPERVISOR_UI_VISIBILITY };
+        } else if (templateFormRole === 'master') {
+          basePerms = { ...DEFAULT_MASTER_PERMISSIONS };
+          baseVis = { ...DEFAULT_MASTER_UI_VISIBILITY };
+        }
+
+        const newTmpl: UserPermissionTemplate = {
+          id: `tmpl-custom-${Date.now()}`,
+          name: cleanName,
+          description: templateFormDesc.trim() || 'Plantilla personalizada creada por Administrador',
+          role: templateFormRole,
+          permissions: basePerms,
+          uiVisibility: baseVis,
+          isSystem: false,
+          createdAt: new Date().toISOString(),
+        };
+        await dbSaveUserTemplate(newTmpl);
+        setTemplates(prev => [...prev, newTmpl]);
+        setSelectedMatrixProfileId(newTmpl.id);
+        setSelectedTemplateId(newTmpl.id);
+        await dbAddAuditLog('USER_UPDATE', `Nuevo perfil de usuario creado: ${newTmpl.name}`, currentUser?.name || 'Maestro');
+        setSuccessMessage(`¡Perfil "${newTmpl.name}" creado con éxito! Puedes configurar sus permisos en la pestaña "3. Permisos por Perfil".`);
+      }
+      setIsTemplateModalOpen(false);
+      setTimeout(() => setSuccessMessage(null), 4000);
+    } catch (err: any) {
+      setErrorMessage(`Error guardando perfil: ${err.message || 'Error desconocido'}`);
+    }
+  };
+
+  const handleConfirmDeleteTemplate = async () => {
+    if (!templateToDelete) return;
+    const deletedId = templateToDelete.id;
+    const deletedName = templateToDelete.name;
+    try {
+      await dbDeleteUserTemplate(deletedId);
+      setTemplates(prev => prev.filter(t => t.id !== deletedId));
+      if (selectedMatrixProfileId === deletedId) {
+        setSelectedMatrixProfileId('supervisor');
+      }
+      if (selectedTemplateId === deletedId) {
+        setSelectedTemplateId('');
+      }
+      await dbAddAuditLog('USER_UPDATE', `Perfil de usuario eliminado: ${deletedName}`, currentUser?.name || 'Maestro');
+      setSuccessMessage(`¡Perfil "${deletedName}" eliminado correctamente del catálogo!`);
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err: any) {
+      setErrorMessage(`Error al eliminar el perfil: ${err.message || 'Error desconocido'}`);
+    } finally {
+      setTemplateToDelete(null);
+    }
+  };
+
+  const handleConfirmRestoreDefaults = async () => {
+    try {
+      const customTemplates = templates.filter(t => !DEFAULT_USER_TEMPLATES.some(d => d.id === t.id));
+      const restored = [...DEFAULT_USER_TEMPLATES, ...customTemplates];
+      await dbSaveUserTemplates(restored);
+      setTemplates(restored);
+      await dbAddAuditLog('USER_UPDATE', 'Perfiles oficiales de fábrica restaurados', currentUser?.name || 'Maestro');
+      setSuccessMessage('¡Perfiles oficiales de fábrica restaurados con éxito!');
+      setTimeout(() => setSuccessMessage(null), 3500);
+    } catch (err: any) {
+      setErrorMessage(`Error restaurando perfiles: ${err.message || 'Error desconocido'}`);
+    } finally {
+      setIsRestoreDefaultsModalOpen(false);
+    }
+  };
+
   const handleDeleteCustomTemplate = (templateId: string) => {
     const tmpl = templates.find(t => t.id === templateId);
-    dbDeleteUserTemplate(templateId).catch(console.error);
-    refreshTemplates();
-    if (tmpl) {
-      dbAddAuditLog('USER_UPDATE', `Perfil de permisos eliminado: ${tmpl.name}`, currentUser?.name || 'Maestro').catch(console.error);
-    }
+    if (tmpl) setTemplateToDelete(tmpl);
   };
 
   const handleConfirmDelete = async () => {
@@ -911,14 +1034,25 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
             )}
 
             {activeTab === 'profiles' && (
-              <button
-                type="button"
-                onClick={() => setIsSavingTemplateModalOpen(true)}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Crear Nuevo Perfil</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsRestoreDefaultsModalOpen(true)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  title="Restablecer perfiles originales de fábrica"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Restaurar Fábrica</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenCreateTemplate}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Crear Nuevo Perfil</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -1129,14 +1263,25 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     Un Perfil agrupa las reglas de acceso a los módulos. Crea o edita perfiles y luego asígnalos directamente a los empleados.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsSavingTemplateModalOpen(true)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Crear Nuevo Perfil</span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsRestoreDefaultsModalOpen(true)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                    title="Restablecer perfiles predeterminados de fábrica"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Restaurar Fábrica</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOpenCreateTemplate}
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Crear Nuevo Perfil</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1207,21 +1352,28 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                        {!tmpl.isSystem ? (
+                      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => handleDeleteCustomTemplate(tmpl.id)}
-                            className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1 cursor-pointer transition-colors"
+                            onClick={() => handleOpenEditTemplate(tmpl)}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Editar nombre, descripción y rol del perfil"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            Eliminar Perfil
+                            <Edit className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                            <span>Editar</span>
                           </button>
-                        ) : (
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                            Perfil Oficial de Fábrica
-                          </span>
-                        )}
+
+                          <button
+                            type="button"
+                            onClick={() => setTemplateToDelete(tmpl)}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Eliminar este perfil del catálogo"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                            <span>Eliminar</span>
+                          </button>
+                        </div>
 
                         <button
                           type="button"
@@ -1230,10 +1382,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             setSelectedMatrixProfileId(tmpl.id);
                             setActiveTab('permissions');
                           }}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-800 dark:text-amber-300 hover:text-slate-950 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-800 dark:text-amber-300 hover:text-slate-950 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
                         >
                           <ShieldCheck className="w-3.5 h-3.5" />
-                          <span>Configurar Permisos de este Perfil</span>
+                          <span>Permisos y Módulos</span>
                         </button>
                       </div>
                     </div>
@@ -1399,6 +1551,17 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         </button>
                       );
                     })}
+                    {/* Button to add new profile directly from matrix */}
+                    <button
+                      type="button"
+                      onClick={handleOpenCreateTemplate}
+                      className="p-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-900/30 text-left transition-all flex flex-col items-center justify-center text-center cursor-pointer min-h-[85px] group"
+                    >
+                      <Plus className="w-5 h-5 text-slate-400 group-hover:text-amber-500 mb-1 transition-colors" />
+                      <span className="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-amber-500 transition-colors">
+                        + Crear Nuevo Perfil
+                      </span>
+                    </button>
                   </div>
                 </div>
 
@@ -1413,7 +1576,36 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {templates.some(t => t.id === selectedMatrixProfileId) && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tmpl = templates.find(t => t.id === selectedMatrixProfileId);
+                            if (tmpl) handleOpenEditTemplate(tmpl);
+                          }}
+                          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          title="Editar nombre, descripción y rol base de este perfil"
+                        >
+                          <Edit className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                          <span>Editar Datos</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tmpl = templates.find(t => t.id === selectedMatrixProfileId);
+                            if (tmpl) setTemplateToDelete(tmpl);
+                          }}
+                          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          title="Eliminar este perfil"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                          <span>Eliminar Perfil</span>
+                        </button>
+                      </>
+                    )}
+
                     <button
                       type="button"
                       onClick={handleResetRoleDefaults}
@@ -3365,6 +3557,304 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   className="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/20 transition-colors cursor-pointer"
                 >
                   Confirmar Eliminación
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal for Creating or Editing a User Profile */}
+        {isTemplateModalOpen && (
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <form 
+              onSubmit={handleSaveTemplateForm}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-lg w-full shadow-2xl space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
+                  {editingTemplate ? <Edit className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    {editingTemplate ? 'Editar Perfil de Usuario' : 'Crear Nuevo Perfil de Usuario'}
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    {editingTemplate 
+                      ? 'Modifica los datos generales y el rol base de este perfil.' 
+                      : 'Define un nuevo perfil de acceso para asignar fácilmente a tus empleados.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Nombre del Perfil *
+                  </label>
+                  <input
+                    type="text"
+                    value={templateFormName}
+                    onChange={(e) => setTemplateFormName(e.target.value)}
+                    placeholder="ej. Cajero Turno Nocturno, Supervisor de Patio, etc."
+                    required
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Rol Base / Nivel de Acceso *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setTemplateFormRole('cashier')}
+                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                        templateFormRole === 'cashier'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 ring-1 ring-emerald-500/40'
+                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                      }`}
+                    >
+                      <Briefcase className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">Solo Caja</div>
+                        <div className="text-[10px] text-slate-500">Cobro y entradas</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTemplateFormRole('supervisor')}
+                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                        templateFormRole === 'supervisor'
+                          ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 ring-1 ring-blue-500/40'
+                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                      }`}
+                    >
+                      <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">Supervisor</div>
+                        <div className="text-[10px] text-slate-500">Arqueos y reportes</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTemplateFormRole('custom')}
+                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                        templateFormRole === 'custom'
+                          ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-500 ring-1 ring-purple-500/40'
+                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                      }`}
+                    >
+                      <Sliders className="w-4 h-4 text-purple-600 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">Personalizado</div>
+                        <div className="text-[10px] text-slate-500">Reglas a medida</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTemplateFormRole('master')}
+                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                        templateFormRole === 'master'
+                          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 ring-1 ring-amber-500/40'
+                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                      }`}
+                    >
+                      <Crown className="w-4 h-4 text-amber-600 shrink-0" />
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">Maestro / Admin</div>
+                        <div className="text-[10px] text-slate-500">Control total</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {!editingTemplate && templates.length > 0 && (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Copiar permisos iniciales de:
+                    </label>
+                    <select
+                      value={templateFormBaseTemplateId}
+                      onChange={(e) => setTemplateFormBaseTemplateId(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    >
+                      <option value="">-- Usar permisos por defecto del rol seleccionado --</option>
+                      {templates.map(t => (
+                        <option key={t.id} value={t.id}>
+                          📑 {t.name} ({t.role})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Descripción Breve (opcional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={templateFormDesc}
+                    onChange={(e) => setTemplateFormDesc(e.target.value)}
+                    placeholder="ej. Arqueo ciego obligatorio, sin acceso a anulación de tickets ni reportes"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                {editingTemplate ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsTemplateModalOpen(false);
+                      refreshTemplates();
+                      setSelectedMatrixProfileId(editingTemplate.id);
+                      setActiveTab('permissions');
+                    }}
+                    className="text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Configurar Permisos Detallados</span>
+                  </button>
+                ) : <div />}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsTemplateModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10 transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{editingTemplate ? 'Guardar Cambios' : 'Crear Perfil'}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Modal for Confirming Profile Deletion */}
+        {templateToDelete && (
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">¿Eliminar este perfil?</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    Estás a punto de retirar este perfil del catálogo de la aplicación.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">{templateToDelete.name}</span>
+                  {getRoleBadge(templateToDelete.role)}
+                </div>
+                {templateToDelete.description && (
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{templateToDelete.description}</p>
+                )}
+              </div>
+
+              {(() => {
+                const affectedUsers = users.filter(u => u.role === templateToDelete.role);
+                if (affectedUsers.length > 0) {
+                  return (
+                    <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="text-[11px] leading-relaxed">
+                        <strong>Atención:</strong> Hay <strong>{affectedUsers.length} usuario(s)</strong> con este rol asignado ({affectedUsers.map(u => u.name).join(', ')}). Al eliminar el perfil, dichos usuarios <strong>mantendrán sus permisos actuales</strong> en la terminal, pero el perfil se retirará del catálogo para futuras asignaciones.
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    ¿Confirmas que deseas eliminar el perfil <strong>"{templateToDelete.name}"</strong>?
+                  </p>
+                );
+              })()}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setTemplateToDelete(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteTemplate}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/20 transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Sí, Eliminar Perfil</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal for Restoring Factory Default Profiles */}
+        {isRestoreDefaultsModalOpen && (
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
+                  <RotateCcw className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">¿Restaurar Perfiles de Fábrica?</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    Recupera las 5 plantillas oficiales originales del sistema.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 space-y-2">
+                <p className="font-semibold text-slate-900 dark:text-white">Se restaurarán los siguientes perfiles:</p>
+                <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
+                  <li>Cajero Estándar (Arqueo Ciego)</li>
+                  <li>Cajero Avanzado / Confianza</li>
+                  <li>Operador de Patio / Valet (Solo Entrada)</li>
+                  <li>Auditor / Revisor Fiscal (Solo Lectura)</li>
+                  <li>Supervisor Operativo Integral</li>
+                </ul>
+                <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">
+                  ✓ Los perfiles personalizados que hayas creado manualmente se conservarán intactos.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsRestoreDefaultsModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmRestoreDefaults}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10 transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Restaurar Perfiles</span>
                 </button>
               </div>
             </div>
