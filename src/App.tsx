@@ -670,8 +670,31 @@ export default function App() {
   });
 
   const [vehicleCategories, setVehicleCategories] = useState<VehicleCategoryConfig[]>(() => {
-    const saved = localStorage.getItem('pk_vehicle_categories');
-    return saved ? JSON.parse(saved) : INITIAL_VEHICLE_CATEGORIES;
+    try {
+      const saved = localStorage.getItem('pk_vehicle_categories');
+      if (saved) {
+        const list = JSON.parse(saved);
+        if (Array.isArray(list) && list.length > 0) {
+          // Si la ranura 'bicycle' fue alterada por el texto viejo "Bicicleta / Patineta",
+          // restaurar inmediatamente 'BUS' con ícono 'Bus' para garantizar la operatividad de buses
+          const restored = list.map(c => {
+            if (c.id === 'bicycle' && (c.name.toLowerCase().includes('bici') || c.name.toLowerCase().includes('patineta'))) {
+              return {
+                ...c,
+                name: 'BUS',
+                icon: 'Bus',
+                description: 'Buses, Busetas y Transporte Colectivo'
+              };
+            }
+            return c;
+          });
+          return restored;
+        }
+      }
+      return INITIAL_VEHICLE_CATEGORIES;
+    } catch {
+      return INITIAL_VEHICLE_CATEGORIES;
+    }
   });
 
   useEffect(() => {
@@ -1933,7 +1956,12 @@ export default function App() {
         prev.forEach(c => map.set(c.id, c));
         pkg.payload.vehicleCategories.forEach((c: VehicleCategoryConfig) => {
           const existing = map.get(c.id);
-          map.set(c.id, existing ? { ...existing, ...c } : c);
+          // Proteger la configuración personalizada: si existing es BUS y c viene con 'Bicicleta', respetar BUS
+          if (existing && existing.name.toUpperCase() === 'BUS' && c.name.toLowerCase().includes('bici')) {
+            map.set(c.id, existing);
+          } else {
+            map.set(c.id, existing ? { ...existing, ...c } : c);
+          }
         });
         const combined = Array.from(map.values());
         localStorage.setItem('pk_vehicle_categories', JSON.stringify(combined));
@@ -2140,8 +2168,19 @@ export default function App() {
         appliedSummaryDetails.push('Directiva de tarifas centrales actualizada');
       }
       if (centralData.globalConfig?.vehicleCategories) {
-        setVehicleCategories(centralData.globalConfig.vehicleCategories);
-        localStorage.setItem('pk_vehicle_categories', JSON.stringify(centralData.globalConfig.vehicleCategories));
+        const incomingCats = centralData.globalConfig.vehicleCategories;
+        setVehicleCategories(prev => {
+          const healed = incomingCats.map(c => {
+            const existing = prev.find(p => p.id === c.id);
+            // Proteger si el usuario tiene BUS y desde la central viene el antiguo 'Bicicleta'
+            if (existing && existing.name.toUpperCase() === 'BUS' && c.name.toLowerCase().includes('bici')) {
+              return existing;
+            }
+            return c;
+          });
+          localStorage.setItem('pk_vehicle_categories', JSON.stringify(healed));
+          return healed;
+        });
       }
       if (centralData.globalConfig?.expenseConcepts) {
         setExpenseConcepts(centralData.globalConfig.expenseConcepts);

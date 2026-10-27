@@ -75,17 +75,17 @@ export const INITIAL_VEHICLE_CATEGORIES: VehicleCategoryConfig[] = [
   },
   {
     id: 'bicycle',
-    name: 'Bicicleta / Patineta',
-    icon: 'Bicycle',
+    name: 'BUS',
+    icon: 'Bus',
     enabled: true,
     color: '#8b5cf6',
     rate: {
-      minuteRate: 15,
-      hourRate: 1000,
-      dayRate: 7000,
+      minuteRate: 100,
+      hourRate: 6000,
+      dayRate: 40000,
       gracePeriodMinutes: 15,
-      minimumChargeMinutes: 0,
-      lostTicketFee: 5000,
+      minimumChargeMinutes: 30,
+      lostTicketFee: 25000,
     }
   },
 ];

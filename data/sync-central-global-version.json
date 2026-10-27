@@ -96,22 +96,22 @@
       },
       {
         "id": "bicycle",
-        "icon": "Bicycle",
-        "name": "Bicicleta / Patineta",
+        "icon": "Bus",
+        "name": "BUS",
         "rate": {
-          "dayRate": 7000,
-          "hourRate": 1000,
-          "minuteRate": 15,
-          "lostTicketFee": 5000,
+          "dayRate": 40000,
+          "hourRate": 6000,
+          "minuteRate": 100,
+          "lostTicketFee": 25000,
           "gracePeriodMinutes": 15,
-          "minimumChargeMinutes": 0
+          "minimumChargeMinutes": 30
         },
         "enabled": true,
         "isActive": true,
-        "description": "",
-        "defaultDailyRate": 7000,
-        "defaultHourlyRate": 1000,
-        "defaultMinuteRate": 15,
+        "description": "Buses, Busetas y Transporte Colectivo",
+        "defaultDailyRate": 40000,
+        "defaultHourlyRate": 6000,
+        "defaultMinuteRate": 100,
         "gracePeriodMinutes": 15
       }
     ],
