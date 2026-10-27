@@ -2756,39 +2756,146 @@ export default function App() {
     }
   }, [activeView, isUsersModalOpen, users, currentUser]);
 
+  // Helper exhaustivo para verificar si la vista está permitida para el usuario actual
+  const isViewAllowedForUser = (view: ActiveWorkspaceView, user: SystemUser | null): { allowed: boolean; name: string } => {
+    if (!user) return { allowed: true, name: '' };
+    if (user.role === 'master') return { allowed: true, name: '' };
+
+    const perms = user.permissions;
+    const vis = perms.uiVisibility;
+
+    switch (view) {
+      case 'operations':
+        if ((!perms.canRegisterEntry && !perms.canRegisterExit) || vis?.showTabOperations === false) {
+          return { allowed: false, name: 'Taquilla Patio POS' };
+        }
+        break;
+      case 'map':
+        if (!perms.canViewMap || vis?.showTabMap === false) {
+          return { allowed: false, name: 'Mapa de Plazas' };
+        }
+        break;
+      case 'spots':
+        if ((!perms.canManageSpots && !perms.canEditRates) || vis?.showSpotsManagementButton === false) {
+          return { allowed: false, name: 'Gestión de Plazas' };
+        }
+        break;
+      case 'subscribers':
+        if ((perms.canViewSubscribers === false && user.role !== 'master' && user.role !== 'supervisor') || vis?.showSubscribersModule === false) {
+          return { allowed: false, name: 'Abonados y Mensualidades' };
+        }
+        break;
+      case 'anpr_camera':
+        if (!perms.canViewANPRCameraModule && user.role !== 'master' && user.role !== 'supervisor') {
+          return { allowed: false, name: 'Cámara ANPR' };
+        }
+        break;
+      case 'cash':
+        if (!perms.canManageCashShift || vis?.showTabCash === false) {
+          return { allowed: false, name: 'Turno & Caja' };
+        }
+        break;
+      case 'cash_history':
+        if (perms.canViewCashShiftsHistory === false || vis?.showCashShiftsHistory === false) {
+          return { allowed: false, name: 'Histórico de Cierres de Turno' };
+        }
+        break;
+      case 'expense_concepts':
+        if (!perms.canManageExpenseConcepts || vis?.showTabCash === false) {
+          return { allowed: false, name: 'Conceptos de Gastos' };
+        }
+        break;
+      case 'reports':
+        if (!perms.canViewReports || vis?.showTabReports === false) {
+          return { allowed: false, name: 'Reportes y Analíticas' };
+        }
+        break;
+      case 'rates':
+        if (!perms.canEditRates || vis?.showTabSettings === false) {
+          return { allowed: false, name: 'Tarifas del Sistema' };
+        }
+        break;
+      case 'agreements':
+        if ((perms.canManageAgreements === false && !perms.canEditRates) || vis?.showTabSettings === false) {
+          return { allowed: false, name: 'Convenios Comerciales' };
+        }
+        break;
+      case 'vehicle_categories':
+        if ((perms.canManageVehicleCategories === false && !perms.canEditRates) || vis?.showTabSettings === false) {
+          return { allowed: false, name: 'Tipos y Categorías de Vehículos' };
+        }
+        break;
+      case 'printer_config':
+        if ((perms.canConfigurePrinters === false && !perms.canEditBusinessInfo && user.role !== 'master') || vis?.showPrinterConfigModule === false) {
+          return { allowed: false, name: 'Configuración de Impresoras Térmicas' };
+        }
+        break;
+      case 'users':
+        if (!perms.canManageUsers || vis?.showUsersManagementButton === false) {
+          return { allowed: false, name: 'Gestión de Usuarios y Perfiles' };
+        }
+        break;
+      case 'database':
+        if (!perms.canManageDatabase || vis?.showDatabaseButton === false) {
+          return { allowed: false, name: 'Base de Datos y Respaldo' };
+        }
+        break;
+      case 'central_hub':
+      case 'central_dashboard':
+        if (perms.canAccessCentralHub === false || vis?.showCentralHubButton === false) {
+          return { allowed: false, name: 'Matriz Central y Sedes' };
+        }
+        break;
+      case 'branches':
+        if ((perms.canManageBranchLocations === false && user.role !== 'master') || vis?.showBranchesGrid === false) {
+          return { allowed: false, name: 'Sedes y Sucursales' };
+        }
+        break;
+      case 'vnc_remote':
+        if (perms.canViewVncRemoteDesktop === false || vis?.showVncRemoteDesktopButton === false) {
+          return { allowed: false, name: 'FarmaDesk Acceso Remoto' };
+        }
+        break;
+      case 'work_mode':
+        if ((perms.canConfigureTechnicalTerminalProps === false && user.role !== 'master') || vis?.showWorkModeBadge === false) {
+          return { allowed: false, name: 'Modo de Red y Terminal' };
+        }
+        break;
+      case 'branch_sync':
+        if (perms.canSyncWithCentralServer === false || vis?.showBranchSyncButton === false) {
+          return { allowed: false, name: 'Sincronización con Servidor Central' };
+        }
+        break;
+      case 'software_updater':
+        if (perms.canPerformAppUpdates === false || vis?.showAppUpdaterButton === false) {
+          return { allowed: false, name: 'Actualizador de Software' };
+        }
+        break;
+    }
+
+    return { allowed: true, name: '' };
+  };
+
+  // Guard current activeView against user permissions on login/role change
+  useEffect(() => {
+    if (!currentUser) return;
+    const access = isViewAllowedForUser(activeView, currentUser);
+    if (!access.allowed) {
+      const candidateViews: ActiveWorkspaceView[] = ['operations', 'map', 'cash', 'reports'];
+      const fallback = candidateViews.find(v => isViewAllowedForUser(v, currentUser).allowed) || 'operations';
+      console.warn(`[RouteGuard] Vista actual "${activeView}" no permitida para ${currentUser.username}. Redirigiendo a "${fallback}".`);
+      setActiveView(fallback);
+      setActiveCategory(fallback === 'cash' ? 'finance' : fallback === 'reports' ? 'reports' : 'operations');
+    }
+  }, [currentUser, activeView]);
+
   // Sync URL query params whenever activeView changes
   const handleSwitchView = (newView: ActiveWorkspaceView, newCategory?: WorkspaceCategory) => {
-    // Verificación de Permisos de Seguridad
+    // Verificación Rigurosa de Permisos de Seguridad
     if (currentUser && currentUser.role !== 'master') {
-      const perms = currentUser.permissions;
-      let hasAccess = true;
-      let requiredName = '';
-
-      if (newView === 'users' && !perms.canManageUsers) {
-        hasAccess = false;
-        requiredName = 'Gestión de Usuarios y Cajeros';
-      } else if (newView === 'database' && !perms.canManageDatabase) {
-        hasAccess = false;
-        requiredName = 'Base de Datos y Respaldo';
-      } else if (newView === 'rates' && !perms.canEditRates) {
-        hasAccess = false;
-        requiredName = 'Configuración de Tarifas';
-      } else if (newView === 'reports' && !perms.canViewReports) {
-        hasAccess = false;
-        requiredName = 'Reportes y Analíticas';
-      } else if (newView === 'cash' && !perms.canManageCashShift) {
-        hasAccess = false;
-        requiredName = 'Gestión y Cierre de Turnos de Caja';
-      } else if (newView === 'expense_concepts' && !perms.canManageExpenseConcepts) {
-        hasAccess = false;
-        requiredName = 'Conceptos de Gastos';
-      } else if (newView === 'map' && !perms.canViewMap) {
-        hasAccess = false;
-        requiredName = 'Mapa de Plazas';
-      }
-
-      if (!hasAccess) {
-        alert(`⛔ Acceso Restringido: Tu perfil (${currentUser.role}) no tiene permisos para acceder a "${requiredName}".`);
+      const accessCheck = isViewAllowedForUser(newView, currentUser);
+      if (!accessCheck.allowed) {
+        alert(`⛔ Acceso Restringido: Tu perfil (${currentUser.role}) no tiene permisos para acceder a "${accessCheck.name}".`);
         return;
       }
     }

@@ -319,6 +319,12 @@ export const DEFAULT_MASTER_UI_VISIBILITY: UserUIVisibility = {
   showTechnicalNetworkParams: true,
   showBranchesGrid: true,
   showPosPointsGrid: true,
+
+  // Módulos Específicos & Accesos Directos
+  showSubscribersModule: true,
+  showSubscribersTopButton: true,
+  showPrinterConfigModule: true,
+  showWorkModeBadge: true,
 };
 
 export const DEFAULT_SUPERVISOR_UI_VISIBILITY: UserUIVisibility = {
@@ -372,6 +378,12 @@ export const DEFAULT_SUPERVISOR_UI_VISIBILITY: UserUIVisibility = {
   showTechnicalNetworkParams: false,
   showBranchesGrid: false,
   showPosPointsGrid: false,
+
+  // Módulos Específicos & Accesos Directos
+  showSubscribersModule: true,
+  showSubscribersTopButton: true,
+  showPrinterConfigModule: true,
+  showWorkModeBadge: false,
 };
 
 export const DEFAULT_CASHIER_UI_VISIBILITY: UserUIVisibility = {
@@ -425,6 +437,12 @@ export const DEFAULT_CASHIER_UI_VISIBILITY: UserUIVisibility = {
   showTechnicalNetworkParams: false,
   showBranchesGrid: false,
   showPosPointsGrid: false,
+
+  // Módulos Específicos & Accesos Directos
+  showSubscribersModule: false,
+  showSubscribersTopButton: false,
+  showPrinterConfigModule: false,
+  showWorkModeBadge: false,
 };
 
 // --- Default Permissions Configuration ---
@@ -456,6 +474,10 @@ export const DEFAULT_MASTER_PERMISSIONS: UserPermissions = {
   canReserveSpots: true,
   canViewVncRemoteDesktop: true,
   canExecuteRemoteOrders: true,
+  canViewSubscribers: true,
+  canCreateSubscribers: true,
+  canRenewSubscribers: true,
+  canCancelSubscribers: true,
 
   // Caja y Movimientos
   canManageCashShift: true,
@@ -489,6 +511,7 @@ export const DEFAULT_MASTER_PERMISSIONS: UserPermissions = {
   canEditRates: true,
   canManageVehicleCategories: true,
   canEditBusinessInfo: true,
+  canConfigurePrinters: true,
   canConfigureDianInvoicing: true,
   canManageDatabase: true,
   canManageUsers: true,
@@ -531,6 +554,10 @@ export const DEFAULT_SUPERVISOR_PERMISSIONS: UserPermissions = {
   canReserveSpots: true,
   canViewVncRemoteDesktop: true,
   canExecuteRemoteOrders: true,
+  canViewSubscribers: true,
+  canCreateSubscribers: true,
+  canRenewSubscribers: true,
+  canCancelSubscribers: false,
 
   // Caja y Movimientos
   canManageCashShift: true,
@@ -564,6 +591,7 @@ export const DEFAULT_SUPERVISOR_PERMISSIONS: UserPermissions = {
   canEditRates: false,
   canManageVehicleCategories: false,
   canEditBusinessInfo: false,
+  canConfigurePrinters: true,
   canConfigureDianInvoicing: false,
   canManageDatabase: false,
   canManageUsers: false,
@@ -606,6 +634,10 @@ export const DEFAULT_CASHIER_PERMISSIONS: UserPermissions = {
   canReserveSpots: false,
   canViewVncRemoteDesktop: false,
   canExecuteRemoteOrders: false,
+  canViewSubscribers: false,
+  canCreateSubscribers: false,
+  canRenewSubscribers: false,
+  canCancelSubscribers: false,
 
   // Caja y Movimientos
   canManageCashShift: true,
@@ -639,6 +671,7 @@ export const DEFAULT_CASHIER_PERMISSIONS: UserPermissions = {
   canEditRates: false,
   canManageVehicleCategories: false,
   canEditBusinessInfo: false,
+  canConfigurePrinters: false,
   canConfigureDianInvoicing: false,
   canManageDatabase: false,
   canManageUsers: false,
@@ -691,6 +724,10 @@ export const normalizeUserPermissions = (perms?: Partial<UserPermissions>, role?
     canReserveSpots: perms.canReserveSpots ?? fallback.canReserveSpots ?? (role === 'master' || role === 'supervisor'),
     canViewVncRemoteDesktop: perms.canViewVncRemoteDesktop ?? fallback.canViewVncRemoteDesktop ?? (role === 'master' || role === 'supervisor'),
     canExecuteRemoteOrders: perms.canExecuteRemoteOrders ?? fallback.canExecuteRemoteOrders ?? (role === 'master' || role === 'supervisor'),
+    canViewSubscribers: perms.canViewSubscribers ?? fallback.canViewSubscribers ?? (role === 'master' || role === 'supervisor'),
+    canCreateSubscribers: perms.canCreateSubscribers ?? fallback.canCreateSubscribers ?? (role === 'master' || role === 'supervisor'),
+    canRenewSubscribers: perms.canRenewSubscribers ?? fallback.canRenewSubscribers ?? (role === 'master' || role === 'supervisor'),
+    canCancelSubscribers: perms.canCancelSubscribers ?? fallback.canCancelSubscribers ?? (role === 'master'),
 
     canManageCashShift: perms.canManageCashShift ?? fallback.canManageCashShift,
     canWithdrawCash: perms.canWithdrawCash ?? fallback.canWithdrawCash,
@@ -721,6 +758,7 @@ export const normalizeUserPermissions = (perms?: Partial<UserPermissions>, role?
     canEditRates: perms.canEditRates ?? fallback.canEditRates,
     canManageVehicleCategories: perms.canManageVehicleCategories ?? fallback.canManageVehicleCategories ?? (role === 'master'),
     canEditBusinessInfo: perms.canEditBusinessInfo ?? fallback.canEditBusinessInfo ?? (role === 'master'),
+    canConfigurePrinters: perms.canConfigurePrinters ?? fallback.canConfigurePrinters ?? (role === 'master' || role === 'supervisor'),
     canConfigureDianInvoicing: perms.canConfigureDianInvoicing ?? fallback.canConfigureDianInvoicing ?? (role === 'master'),
     canManageDatabase: perms.canManageDatabase ?? fallback.canManageDatabase,
     canManageUsers: perms.canManageUsers ?? fallback.canManageUsers,
@@ -777,6 +815,11 @@ export const normalizeUserPermissions = (perms?: Partial<UserPermissions>, role?
       showTechnicalNetworkParams: userUi.showTechnicalNetworkParams ?? fallbackUi.showTechnicalNetworkParams ?? (role === 'master'),
       showBranchesGrid: userUi.showBranchesGrid ?? fallbackUi.showBranchesGrid ?? (role === 'master'),
       showPosPointsGrid: userUi.showPosPointsGrid ?? fallbackUi.showPosPointsGrid ?? (role === 'master'),
+
+      showSubscribersModule: userUi.showSubscribersModule ?? fallbackUi.showSubscribersModule ?? (role === 'master' || role === 'supervisor'),
+      showSubscribersTopButton: userUi.showSubscribersTopButton ?? fallbackUi.showSubscribersTopButton ?? (role === 'master' || role === 'supervisor'),
+      showPrinterConfigModule: userUi.showPrinterConfigModule ?? fallbackUi.showPrinterConfigModule ?? (role === 'master' || role === 'supervisor'),
+      showWorkModeBadge: userUi.showWorkModeBadge ?? fallbackUi.showWorkModeBadge ?? (role === 'master'),
     }
   };
 };

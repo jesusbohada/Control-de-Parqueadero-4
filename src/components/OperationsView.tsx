@@ -671,6 +671,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
         e.preventDefault();
         searchInputRef.current?.focus();
       } else if (e.key === 'F8') {
+        if (currentUser?.permissions?.canReprintTickets === false) return;
         if (lastPaidExitTicket) {
           e.preventDefault();
           onPrintTicket(lastPaidExitTicket, 'exit');
@@ -1413,15 +1414,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             <span>Última salida cobrada: <strong className="font-mono text-emerald-950 dark:text-white underline">{lastPaidExitTicket.plate}</strong> (#{lastPaidExitTicket.ticketNumber}) · Total: <strong>{formatCurrency(lastPaidExitTicket.totalAmount, rates.currencySymbol)}</strong> ({lastPaidExitTicket.paymentMethod})</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => onPrintTicket(lastPaidExitTicket, 'exit')}
-              className="pk-pos-key px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border-b-2 border-slate-950 shadow-xs"
-              title="Reimprimir último recibo de salida por atasco de papel (F8)"
-            >
-              <Printer className="w-3.5 h-3.5 text-amber-400" />
-              <span>Reimprimir Factura (F8)</span>
-            </button>
+            {currentUser?.permissions?.canReprintTickets !== false && (
+              <button
+                type="button"
+                onClick={() => onPrintTicket(lastPaidExitTicket, 'exit')}
+                className="pk-pos-key px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border-b-2 border-slate-950 shadow-xs"
+                title="Reimprimir último recibo de salida por atasco de papel (F8)"
+              >
+                <Printer className="w-3.5 h-3.5 text-amber-400" />
+                <span>Reimprimir Factura (F8)</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setLastPaidExitTicket(null)}
@@ -1467,7 +1470,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                   <span className="font-bold">{entrySuccessMessage}</span>
                 </div>
-                {lastGeneratedTicket && (
+                {lastGeneratedTicket && currentUser?.permissions?.canReprintTickets !== false && (
                   <button
                     type="button"
                     onClick={() => onPrintTicket(lastGeneratedTicket, 'entry')}
@@ -2255,16 +2258,25 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* SALIDA SIN TICKET / TARJETA DE PROPIEDAD                */}
                 {/* ======================================================= */}
                 <div className="p-3 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 rounded-xl space-y-2.5 text-xs">
-                  <label className="flex items-center justify-between cursor-pointer select-none">
+                  <label className={`flex items-center justify-between select-none ${currentUser?.permissions?.canProcessLostTicket === false ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
                     <span className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                       <span>Salida sin ticket físico</span>
+                      {currentUser?.permissions?.canProcessLostTicket === false && (
+                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono font-bold flex items-center gap-1">
+                          <Lock className="w-3 h-3" /> (Restringido)
+                        </span>
+                      )}
                     </span>
                     <input
                       type="checkbox"
                       checked={isNoTicketPresented}
-                      onChange={(e) => setIsNoTicketPresented(e.target.checked)}
-                      className="w-4 h-4 text-amber-600 rounded border-amber-300 focus:ring-amber-500 cursor-pointer"
+                      disabled={currentUser?.permissions?.canProcessLostTicket === false}
+                      onChange={(e) => {
+                        if (currentUser?.permissions?.canProcessLostTicket === false) return;
+                        setIsNoTicketPresented(e.target.checked);
+                      }}
+                      className="w-4 h-4 text-amber-600 rounded border-amber-300 focus:ring-amber-500 cursor-pointer disabled:cursor-not-allowed"
                     />
                   </label>
 
@@ -2493,15 +2505,22 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         </button>
                       )}
                     </div>
-                    <input
-                      type="number"
-                      min="0"
-                      step="any"
-                      value={discountInput}
-                      onChange={(e) => setDiscountInput(e.target.value)}
-                      placeholder="0"
-                      className="w-24 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold outline-none focus:border-amber-500"
-                    />
+                    {currentUser?.permissions?.canApplyDiscounts === false ? (
+                      <div className="flex items-center gap-1 text-[11px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 select-none" title="Descuentos manuales restringidos para su perfil">
+                        <Lock className="w-3 h-3 text-slate-400" />
+                        <span>$0 (Bloqueado)</span>
+                      </div>
+                    ) : (
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={discountInput}
+                        onChange={(e) => setDiscountInput(e.target.value)}
+                        placeholder="0"
+                        className="w-24 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold outline-none focus:border-amber-500"
+                      />
+                    )}
                   </div>
 
                   {/* PANTALLA DIGITAL VFD / CONSOLA DE COBRO EN VIVO */}
@@ -2563,16 +2582,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {/* 2. Tarjeta */}
                     <button
                       type="button"
+                      disabled={currentUser?.permissions?.canChangePaymentMethod === false}
                       aria-selected={exitPaymentMethod === 'card'}
                       onClick={() => {
+                        if (currentUser?.permissions?.canChangePaymentMethod === false) return;
                         setExitPaymentMethod('card');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        exitPaymentMethod === 'card'
-                          ? 'bg-sky-600 text-white border-sky-700 border-b-sky-800 shadow-md ring-2 ring-sky-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                        currentUser?.permissions?.canChangePaymentMethod === false
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          : exitPaymentMethod === 'card'
+                          ? 'bg-sky-600 text-white border-sky-700 border-b-sky-800 shadow-md ring-2 ring-sky-500/30 cursor-pointer'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
                       }`}
+                      title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Pago con Tarjeta Débito/Crédito'}
                     >
                       <CreditCard className={`w-5 h-5 ${exitPaymentMethod === 'card' ? 'text-white' : 'text-sky-500'}`} />
                       <span>Tarjeta</span>
@@ -2581,16 +2605,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {/* 3. Billeteras */}
                     <button
                       type="button"
+                      disabled={currentUser?.permissions?.canChangePaymentMethod === false}
                       aria-selected={exitPaymentMethod === 'wallet'}
                       onClick={() => {
+                        if (currentUser?.permissions?.canChangePaymentMethod === false) return;
                         setExitPaymentMethod('wallet');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        exitPaymentMethod === 'wallet'
-                          ? 'bg-purple-600 text-white border-purple-700 border-b-purple-800 shadow-md ring-2 ring-purple-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                        currentUser?.permissions?.canChangePaymentMethod === false
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          : exitPaymentMethod === 'wallet'
+                          ? 'bg-purple-600 text-white border-purple-700 border-b-purple-800 shadow-md ring-2 ring-purple-500/30 cursor-pointer'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
                       }`}
+                      title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Billeteras Digitales (Nequi, Daviplata, etc.)'}
                     >
                       <Smartphone className={`w-5 h-5 ${exitPaymentMethod === 'wallet' ? 'text-white' : 'text-purple-500'}`} />
                       <span>Billeteras</span>
@@ -2599,16 +2628,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {/* 4. Códigos QR */}
                     <button
                       type="button"
+                      disabled={currentUser?.permissions?.canChangePaymentMethod === false}
                       aria-selected={exitPaymentMethod === 'qr'}
                       onClick={() => {
+                        if (currentUser?.permissions?.canChangePaymentMethod === false) return;
                         setExitPaymentMethod('qr');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        exitPaymentMethod === 'qr'
-                          ? 'bg-amber-600 text-white border-amber-700 border-b-amber-800 shadow-md ring-2 ring-amber-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                        currentUser?.permissions?.canChangePaymentMethod === false
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          : exitPaymentMethod === 'qr'
+                          ? 'bg-amber-600 text-white border-amber-700 border-b-amber-800 shadow-md ring-2 ring-amber-500/30 cursor-pointer'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
                       }`}
+                      title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'QR Bancario / Redeban'}
                     >
                       <QrCode className={`w-5 h-5 ${exitPaymentMethod === 'qr' ? 'text-white' : 'text-amber-500'}`} />
                       <span>QR Bancario</span>
@@ -2617,16 +2651,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {/* 5. Llave Bre-B */}
                     <button
                       type="button"
+                      disabled={currentUser?.permissions?.canChangePaymentMethod === false}
                       aria-selected={exitPaymentMethod === 'bre_b'}
                       onClick={() => {
+                        if (currentUser?.permissions?.canChangePaymentMethod === false) return;
                         setExitPaymentMethod('bre_b');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        exitPaymentMethod === 'bre_b'
-                          ? 'bg-teal-600 text-white border-teal-700 border-b-teal-800 shadow-md ring-2 ring-teal-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                        currentUser?.permissions?.canChangePaymentMethod === false
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          : exitPaymentMethod === 'bre_b'
+                          ? 'bg-teal-600 text-white border-teal-700 border-b-teal-800 shadow-md ring-2 ring-teal-500/30 cursor-pointer'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
                       }`}
+                      title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Llave Interbancaria Bre-B'}
                     >
                       <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-amber-300' : 'text-teal-500'}`} />
                       <span>Llave Bre-B</span>
@@ -2635,16 +2674,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {/* 6. Transferencia Bancaria */}
                     <button
                       type="button"
+                      disabled={currentUser?.permissions?.canChangePaymentMethod === false}
                       aria-selected={exitPaymentMethod === 'transfer'}
                       onClick={() => {
+                        if (currentUser?.permissions?.canChangePaymentMethod === false) return;
                         setExitPaymentMethod('transfer');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        exitPaymentMethod === 'transfer'
-                          ? 'bg-cyan-700 text-white border-cyan-800 border-b-cyan-900 shadow-md ring-2 ring-cyan-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                        currentUser?.permissions?.canChangePaymentMethod === false
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          : exitPaymentMethod === 'transfer'
+                          ? 'bg-cyan-700 text-white border-cyan-800 border-b-cyan-900 shadow-md ring-2 ring-cyan-500/30 cursor-pointer'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
                       }`}
+                      title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Transferencia Bancaria'}
                     >
                       <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-white' : 'text-cyan-500'}`} />
                       <span>Transferencia</span>
@@ -2653,16 +2697,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     {/* 7. Pago Mixto */}
                     <button
                       type="button"
+                      disabled={currentUser?.permissions?.canChangePaymentMethod === false}
                       aria-selected={exitPaymentMethod === 'mixed'}
                       onClick={() => {
+                        if (currentUser?.permissions?.canChangePaymentMethod === false) return;
                         setExitPaymentMethod('mixed');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
-                        exitPaymentMethod === 'mixed'
-                          ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-amber-700 shadow-md ring-2 ring-amber-400/40'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                        currentUser?.permissions?.canChangePaymentMethod === false
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          : exitPaymentMethod === 'mixed'
+                          ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-amber-700 shadow-md ring-2 ring-amber-400/40 cursor-pointer'
+                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
                       }`}
+                      title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Dividir pago entre varios métodos'}
                     >
                       <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-slate-950' : 'text-amber-500'}`} />
                       <span>Pago Mixto</span>

@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: Car,
           badge: activeTicketsCount > 0 ? activeTicketsCount : undefined,
           badgeColor: 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-mono font-bold',
-          requiredPermission: currentUser.permissions.canRegisterEntry || currentUser.permissions.canRegisterExit,
+          requiredPermission: (currentUser.permissions.canRegisterEntry || currentUser.permissions.canRegisterExit) && (currentUser.permissions.uiVisibility?.showTabOperations !== false),
         },
         {
           id: 'map',
@@ -123,6 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Mapa de Plazas',
           shortLabel: 'Mapa',
           icon: LayoutGrid,
+          requiredPermission: (currentUser.permissions.canViewMap !== false) && (currentUser.permissions.uiVisibility?.showTabMap !== false),
         },
         {
           id: 'subscribers',
@@ -130,6 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Abonados / Mensualidades',
           shortLabel: 'Abonados',
           icon: UserCheck,
+          requiredPermission: (currentUser.permissions.canViewSubscribers ?? (currentUser.role === 'master' || currentUser.role === 'supervisor')) && (currentUser.permissions.uiVisibility?.showSubscribersModule !== false),
         },
       ],
     },
@@ -142,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Turno & Caja',
           shortLabel: 'Caja',
           icon: DollarSign,
-          requiredPermission: currentUser.permissions.canManageCashShift,
+          requiredPermission: (currentUser.permissions.canManageCashShift !== false) && (currentUser.permissions.uiVisibility?.showTabCash !== false),
         },
         {
           id: 'cash_history',
@@ -150,7 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Histórico de Cierres',
           shortLabel: 'Histórico',
           icon: History,
-          requiredPermission: true,
+          requiredPermission: (currentUser.permissions.canViewCashShiftsHistory !== false) && (currentUser.permissions.uiVisibility?.showCashShiftsHistory !== false),
         },
         {
           id: 'expense_concepts',
@@ -158,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Conceptos Gasto',
           shortLabel: 'Gastos',
           icon: FileText,
-          requiredPermission: currentUser.permissions.canManageExpenseConcepts,
+          requiredPermission: (currentUser.permissions.canManageExpenseConcepts !== false) && (currentUser.permissions.uiVisibility?.showTabCash !== false),
         },
         {
           id: 'reports',
@@ -166,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Reportes & Ventas',
           shortLabel: 'Reportes',
           icon: BarChart3,
-          requiredPermission: currentUser.permissions.canViewReports,
+          requiredPermission: (currentUser.permissions.canViewReports !== false) && (currentUser.permissions.uiVisibility?.showTabReports !== false),
         },
       ],
     },
@@ -179,7 +181,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Tarifas & Cobro',
           shortLabel: 'Tarifas',
           icon: Sliders,
-          requiredPermission: currentUser.permissions.canEditRates,
+          requiredPermission: (currentUser.permissions.canEditRates !== false) && (currentUser.permissions.uiVisibility?.showTabSettings !== false),
         },
         ...(businessInfo?.enableCommercialAgreements ? [
           {
@@ -188,7 +190,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label: 'Convenios & Alianzas',
             shortLabel: 'Convenios',
             icon: Handshake,
-            requiredPermission: currentUser.permissions.canManageAgreements ?? currentUser.permissions.canEditRates,
+            requiredPermission: (currentUser.permissions.canManageAgreements ?? currentUser.permissions.canEditRates) && (currentUser.permissions.uiVisibility?.showTabSettings !== false),
           }
         ] : []),
         {
@@ -197,6 +199,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Categorías Vehículo',
           shortLabel: 'Vehículos',
           icon: Tag,
+          requiredPermission: (currentUser.permissions.canManageVehicleCategories ?? currentUser.permissions.canEditRates) && (currentUser.permissions.uiVisibility?.showTabSettings !== false),
         },
         {
           id: 'spots',
@@ -204,7 +207,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Capacidad de Plazas',
           shortLabel: 'Plazas',
           icon: Layers,
-          requiredPermission: currentUser.permissions.canManageSpots || currentUser.permissions.canEditRates,
+          requiredPermission: (currentUser.permissions.canManageSpots || currentUser.permissions.canEditRates) && (currentUser.permissions.uiVisibility?.showSpotsManagementButton !== false),
         },
         {
           id: 'users',
@@ -212,7 +215,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Usuarios & Cajeros',
           shortLabel: 'Usuarios',
           icon: Users,
-          requiredPermission: currentUser.permissions.canManageUsers,
+          requiredPermission: (currentUser.permissions.canManageUsers !== false) && (currentUser.permissions.uiVisibility?.showUsersManagementButton !== false),
         },
         {
           id: 'printer_config',
@@ -220,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Impresoras & Tickets',
           shortLabel: 'Impresión',
           icon: Printer,
-          requiredPermission: currentUser.permissions.canEditBusinessInfo ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
+          requiredPermission: (currentUser.permissions.canConfigurePrinters ?? currentUser.permissions.canEditBusinessInfo ?? (currentUser.role === 'master' || currentUser.role === 'supervisor')) && (currentUser.permissions.uiVisibility?.showPrinterConfigModule !== false),
         },
       ],
     },
@@ -235,6 +238,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: Server,
           badge: 'Consolidado',
           badgeColor: 'bg-sky-500/20 text-sky-800 dark:text-sky-300 font-mono font-bold',
+          requiredPermission: (currentUser.permissions.canAccessCentralHub !== false) && (currentUser.permissions.uiVisibility?.showCentralHubButton !== false),
         },
         {
           id: 'branches',
@@ -242,6 +246,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Red de Sedes & Sucursales',
           shortLabel: 'Sedes',
           icon: Building2,
+          requiredPermission: (currentUser.permissions.canManageBranchLocations ?? (currentUser.role === 'master')) && (currentUser.permissions.uiVisibility?.showBranchesGrid !== false),
         },
         {
           id: 'vnc_remote',
@@ -253,7 +258,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           badgeColor: activeRemoteSession
             ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 font-mono font-bold animate-pulse'
             : 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 font-mono font-bold',
-          requiredPermission: currentUser.permissions.canSyncWithCentralServer ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
+          requiredPermission: (currentUser.permissions.canViewVncRemoteDesktop !== false) && (currentUser.permissions.uiVisibility?.showVncRemoteDesktopButton !== false),
         },
         {
           id: 'work_mode',
@@ -265,7 +270,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           badgeColor: systemNodeConfig?.workMode === 'server'
             ? 'bg-sky-500/20 text-sky-800 dark:text-sky-300 font-mono font-bold'
             : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-mono font-bold',
-          requiredPermission: currentUser.permissions.canSyncWithCentralServer ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
+          requiredPermission: (currentUser.permissions.canConfigureTechnicalTerminalProps ?? (currentUser.role === 'master')) && (currentUser.permissions.uiVisibility?.showWorkModeBadge !== false),
         },
         {
           id: 'branch_sync',
@@ -275,7 +280,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: RefreshCw,
           badge: pendingCentralUpdatesCount > 0 ? pendingCentralUpdatesCount : undefined,
           badgeColor: 'bg-amber-500/20 text-amber-800 dark:text-amber-300 font-mono font-bold',
-          requiredPermission: currentUser.permissions.canSyncWithCentralServer ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
+          requiredPermission: (currentUser.permissions.canSyncWithCentralServer !== false) && (currentUser.permissions.uiVisibility?.showBranchSyncButton !== false),
         },
         {
           id: 'software_updater',
@@ -285,7 +290,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: Sparkles,
           badge: softwareUpdateAvailable ? 'Nueva' : undefined,
           badgeColor: 'bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 font-mono font-bold animate-pulse',
-          requiredPermission: currentUser.permissions.canPerformAppUpdates ?? (currentUser.role === 'master' || currentUser.role === 'supervisor'),
+          requiredPermission: (currentUser.permissions.canPerformAppUpdates !== false) && (currentUser.permissions.uiVisibility?.showAppUpdaterButton !== false),
         },
         {
           id: 'database',
@@ -293,7 +298,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: 'Base de Datos & Backup',
           shortLabel: 'Datos',
           icon: Database,
-          requiredPermission: currentUser.permissions.canManageDatabase,
+          requiredPermission: (currentUser.permissions.canManageDatabase !== false) && (currentUser.permissions.uiVisibility?.showDatabaseButton !== false),
         },
       ],
     },

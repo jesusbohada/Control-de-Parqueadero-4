@@ -245,19 +245,21 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           </button>
 
           {/* Quick Home action */}
-          <button
-            type="button"
-            onClick={() => handleSwitchView('operations')}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs ${
-              activeView === 'operations'
-                ? 'bg-indigo-600 text-white shadow-indigo-600/25 ring-2 ring-indigo-500/30'
-                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
-            }`}
-            title="Ir a Taquilla Patio POS"
-          >
-            <Car className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Patio POS</span>
-          </button>
+          {((currentUser.permissions?.canRegisterEntry || currentUser.permissions?.canRegisterExit) && currentUser.permissions?.uiVisibility?.showTabOperations !== false) && (
+            <button
+              type="button"
+              onClick={() => handleSwitchView('operations')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs ${
+                activeView === 'operations'
+                  ? 'bg-indigo-600 text-white shadow-indigo-600/25 ring-2 ring-indigo-500/30'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+              }`}
+              title="Ir a Taquilla Patio POS"
+            >
+              <Car className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Patio POS</span>
+            </button>
+          )}
 
           {/* Unboxed Breadcrumb Trail */}
           <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-medium truncate">
@@ -270,48 +272,84 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
 
           {/* Sede & Turno context */}
           <div className="hidden xl:flex items-center gap-2 pl-3 border-l border-slate-200 dark:border-slate-800 text-[11px] font-mono text-slate-700 dark:text-slate-300">
-            {currentBranch && (
-              <span className="flex items-center gap-1 font-semibold truncate max-w-[130px]">
-                <MapPin className="w-3 h-3 text-sky-500 shrink-0" />
-                <span className="truncate">{currentBranch.name}</span>
-              </span>
+            {currentBranch && currentUser.permissions?.uiVisibility?.showBranchIdentifierBadge !== false && (
+              <>
+                <span className="flex items-center gap-1 font-semibold truncate max-w-[130px]">
+                  <MapPin className="w-3 h-3 text-sky-500 shrink-0" />
+                  <span className="truncate">{currentBranch.name}</span>
+                </span>
+                <span className="text-slate-400 dark:text-slate-600">·</span>
+              </>
             )}
-            <span className="text-slate-400 dark:text-slate-600">·</span>
-            <button
-              type="button"
-              onClick={() => setActiveView('cash', 'finance')}
-              className="flex items-center gap-1 font-semibold hover:text-amber-500 transition-colors cursor-pointer"
-              title="Ver turno en caja"
-            >
-              <Calendar className="w-3 h-3 text-amber-500 shrink-0" />
-              <span>{operationalDateStr}</span>
-              <span className="font-mono font-bold text-amber-700 dark:text-amber-300">(T{shiftNum})</span>
-            </button>
-            <span className="text-slate-400 dark:text-slate-600">·</span>
-            <button
-              type="button"
-              onClick={() => handleSwitchView('work_mode')}
-              className={`flex items-center gap-1 font-bold px-2 py-0.5 rounded-lg border text-[10px] transition-all cursor-pointer ${
-                systemNodeConfig?.workMode === 'server'
-                  ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30 hover:bg-sky-500/20'
-                  : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
-              }`}
-              title="Configurar Modo de Trabajo & Enlace Central de este equipo"
-            >
-              <Server className="w-3 h-3" />
-              <span>
-                {systemNodeConfig?.workMode === 'server'
-                  ? 'Servidor'
-                  : 'Punto POS'}
-              </span>
-            </button>
+            {currentUser.permissions?.uiVisibility?.showOperationalDayBadge !== false && (
+              <>
+                {currentUser.permissions?.canManageCashShift !== false && currentUser.permissions?.uiVisibility?.showTabCash !== false ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('cash', 'finance')}
+                    className="flex items-center gap-1 font-semibold hover:text-amber-500 transition-colors cursor-pointer"
+                    title="Ver turno en caja"
+                  >
+                    <Calendar className="w-3 h-3 text-amber-500 shrink-0" />
+                    <span>{operationalDateStr}</span>
+                    <span className="font-mono font-bold text-amber-700 dark:text-amber-300">(T{shiftNum})</span>
+                  </button>
+                ) : (
+                  <span className="flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-400">
+                    <Calendar className="w-3 h-3 text-amber-500/70 shrink-0" />
+                    <span>{operationalDateStr}</span>
+                    <span className="font-mono font-bold text-amber-700/70 dark:text-amber-300/70">(T{shiftNum})</span>
+                  </span>
+                )}
+              </>
+            )}
+            {currentUser.permissions?.uiVisibility?.showWorkModeBadge !== false && (
+              <>
+                <span className="text-slate-400 dark:text-slate-600">·</span>
+                {(currentUser.permissions?.canConfigureTechnicalTerminalProps ?? (currentUser.role === 'master')) ? (
+                  <button
+                    type="button"
+                    onClick={() => handleSwitchView('work_mode')}
+                    className={`flex items-center gap-1 font-bold px-2 py-0.5 rounded-lg border text-[10px] transition-all cursor-pointer ${
+                      systemNodeConfig?.workMode === 'server'
+                        ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30 hover:bg-sky-500/20'
+                        : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20'
+                    }`}
+                    title="Configurar Modo de Trabajo & Enlace Central de este equipo"
+                  >
+                    <Server className="w-3 h-3" />
+                    <span>
+                      {systemNodeConfig?.workMode === 'server'
+                        ? 'Servidor'
+                        : 'Punto POS'}
+                    </span>
+                  </button>
+                ) : (
+                  <span
+                    className={`flex items-center gap-1 font-bold px-2 py-0.5 rounded-lg border text-[10px] ${
+                      systemNodeConfig?.workMode === 'server'
+                        ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30'
+                        : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                    }`}
+                    title="Modo de red asignado a este equipo"
+                  >
+                    <Server className="w-3 h-3" />
+                    <span>
+                      {systemNodeConfig?.workMode === 'server'
+                        ? 'Servidor'
+                        : 'Punto POS'}
+                    </span>
+                  </span>
+                )}
+              </>
+            )}
           </div>
         </div>
 
         {/* Zone 2: Live Operational Metrics Strip */}
         <div className="hidden lg:flex items-center gap-3">
           {/* Plazas Libres / Ocupadas */}
-          {currentUser.permissions.uiVisibility?.showOccupancyWidget !== false && (
+          {currentUser.permissions?.uiVisibility?.showOccupancyWidget !== false && currentUser.permissions?.canViewMap !== false && (
             <button
               type="button"
               onClick={() => setActiveView('map', 'operations')}
@@ -333,7 +371,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Recaudo del Turno */}
-          {currentUser.permissions.uiVisibility?.showTopRevenueMetrics !== false && (
+          {currentUser.permissions?.uiVisibility?.showTopRevenueMetrics !== false && currentUser.permissions?.canViewLiveFinancialBreakdown !== false && (
             <button
               type="button"
               onClick={() => setActiveView('cash', 'finance')}
@@ -389,13 +427,15 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Clock */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-mono tabular-nums font-bold text-slate-800 dark:text-slate-200">
-            <Clock className="w-3.5 h-3.5 text-indigo-500" />
-            <span>{formattedTime}</span>
-          </div>
+          {currentUser.permissions?.uiVisibility?.showLiveClockWidget !== false && (
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-mono tabular-nums font-bold text-slate-800 dark:text-slate-200">
+              <Clock className="w-3.5 h-3.5 text-indigo-500" />
+              <span>{formattedTime}</span>
+            </div>
+          )}
 
           {/* Active alerts icon */}
-          {onOpenSyncModal && (
+          {onOpenSyncModal && currentUser.permissions?.canSyncWithCentralServer !== false && currentUser.permissions?.uiVisibility?.showBranchSyncButton !== false && (
             <button
               type="button"
               onClick={onOpenSyncModal}
@@ -409,7 +449,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Acceso Directo a Configuración de Impresora y Papel Térmico */}
-          {onOpenPrinterModal && (
+          {onOpenPrinterModal && (currentUser.permissions?.canConfigurePrinters ?? currentUser.permissions?.canEditBusinessInfo ?? (currentUser.role === 'master')) && currentUser.permissions?.uiVisibility?.showPrinterConfigModule !== false && (
             <button
               type="button"
               onClick={onOpenPrinterModal}
@@ -422,7 +462,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Acceso Directo a Apertura de Cajón Monedero / Gaveta */}
-          {onOpenCashDrawer && (currentUser.permissions?.canOpenCashDrawerWithoutSale ?? (currentUser.role === 'master' || currentUser.role === 'supervisor')) && (
+          {onOpenCashDrawer && currentUser.permissions?.canOpenCashDrawerWithoutSale !== false && currentUser.permissions?.uiVisibility?.showOpenCashDrawerButton !== false && (
             <button
               type="button"
               onClick={onOpenCashDrawer}
@@ -435,7 +475,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Acceso Directo a Mensualidades y Abonados */}
-          {onOpenSubscribersModal && (
+          {onOpenSubscribersModal && (currentUser.permissions?.canViewSubscribers ?? (currentUser.role === 'master' || currentUser.role === 'supervisor')) && currentUser.permissions?.uiVisibility?.showSubscribersTopButton !== false && (
             <button
               type="button"
               onClick={onOpenSubscribersModal}
@@ -448,7 +488,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Acceso Directo a Paquetes de Sincronización si hay cambios pendientes */}
-          {pendingCentralUpdatesCount > 0 && (
+          {pendingCentralUpdatesCount > 0 && currentUser.permissions?.canSyncWithCentralServer !== false && currentUser.permissions?.uiVisibility?.showBranchSyncButton !== false && (
             <button
               type="button"
               onClick={() => setActiveView('branch_sync', 'central')}
@@ -461,7 +501,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Acceso Directo a Actualización de Software si hay versión nueva */}
-          {softwareUpdateAvailable && (
+          {softwareUpdateAvailable && currentUser.permissions?.canPerformAppUpdates !== false && currentUser.permissions?.uiVisibility?.showAppUpdaterButton !== false && (
             <button
               type="button"
               onClick={() => setActiveView('software_updater', 'updates')}
@@ -474,7 +514,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
           )}
 
           {/* Acceso Directo a FarmaDesk / Escritorio Remoto */}
-          {(currentUser.role === 'master' || currentUser.role === 'supervisor') && (
+          {currentUser.permissions?.canViewVncRemoteDesktop !== false && currentUser.permissions?.uiVisibility?.showVncRemoteDesktopButton !== false && (
             <button
               type="button"
               onClick={() => handleSwitchView('vnc_remote')}

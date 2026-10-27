@@ -580,6 +580,16 @@ export interface UserUIVisibility {
   showTechnicalNetworkParams?: boolean;    // Mostrar parámetros de red avanzados LAN/WAN
   showBranchesGrid?: boolean;              // Mostrar tabla de Sucursales en Sede Central
   showPosPointsGrid?: boolean;             // Mostrar tabla de Puntos de Venta / Taquillas en Configuración
+
+  // Módulo de Abonados y Mensualidades
+  showSubscribersModule?: boolean;         // Ver módulo de Abonados y Mensualidades en el menú lateral
+  showSubscribersTopButton?: boolean;      // Ver acceso directo a Abonados en la barra superior
+
+  // Módulo de Impresoras y Tickets
+  showPrinterConfigModule?: boolean;       // Ver acceso a configuración de Impresoras Térmicas y Tickets
+
+  // Modo de Red y Servidor
+  showWorkModeBadge?: boolean;             // Ver selector/insignia de Modo de Red y Servidor en barra superior
 }
 
 export interface UserPermissions {
@@ -610,6 +620,12 @@ export interface UserPermissions {
   canReserveSpots?: boolean;               // Reservar plazas exclusivas para convenios/abonados
   canViewVncRemoteDesktop?: boolean;       // Acceder al escritorio remoto VNC de sucursales
   canExecuteRemoteOrders?: boolean;        // Emitir órdenes y comandos de ejecución remota
+
+  // Gestión de Abonados y Mensualidades
+  canViewSubscribers?: boolean;            // Ver y consultar lista de abonados / mensualidades
+  canCreateSubscribers?: boolean;          // Registrar nuevos abonados y vehículos asociados
+  canRenewSubscribers?: boolean;           // Cobrar y renovar mensualidades de abonados
+  canCancelSubscribers?: boolean;          // Cancelar o pausar contratos de abonados
 
   // Caja y Movimientos
   canManageCashShift: boolean;             // Abrir y cerrar turnos de caja (realizar arqueos)
@@ -644,6 +660,7 @@ export interface UserPermissions {
   canManageVehicleCategories?: boolean;    // Crear y editar tipos/categorías de vehículos
   canManageAgreements?: boolean;           // Crear y editar convenios comerciales y sellos de descuento
   canEditBusinessInfo?: boolean;           // Modificar datos de la empresa (NIT, nombre, pie de ticket)
+  canConfigurePrinters?: boolean;          // Configurar impresora térmica, encabezado y formato de ticket
   canConfigureDianInvoicing?: boolean;     // Modificar parámetros de Facturación Electrónica DIAN
   canManageDatabase: boolean;              // Gestionar BD local, backups y restauración
   canManageUsers: boolean;                 // Administrar usuarios y permisos (Exclusivo Maestro)

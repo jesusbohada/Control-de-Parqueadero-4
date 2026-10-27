@@ -28,7 +28,12 @@ import {
   Save,
   Layers,
   ArrowRight,
-  RotateCcw
+  RotateCcw,
+  Search,
+  Server,
+  Radio,
+  FileText,
+  Printer
 } from 'lucide-react';
 import { 
   SystemUser, 
@@ -127,6 +132,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   
   // Advanced Individual Permission Overrides Toggle
   const [showAdvancedCustomization, setShowAdvancedCustomization] = useState(false);
+  const [permissionSearchQuery, setPermissionSearchQuery] = useState('');
   
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -263,7 +269,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   };
 
   const handleSetModulePermissionsForRole = (
-    moduleKey: 'caja' | 'turnos' | 'mapa' | 'reportes' | 'config',
+    moduleKey: 'caja' | 'mapa' | 'subscribers' | 'turnos' | 'reportes' | 'config' | 'central',
     enable: boolean
   ) => {
     const active = getActiveProfileConfig();
@@ -276,21 +282,50 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
       vis.showTabOperations = enable;
       vis.showDailySummaryCards = enable;
       vis.showPaidTicketsHistory = enable;
+      vis.showVehiclesInYardMetric = enable;
+      vis.showTurnRevenueMetric = enable;
+      vis.showAnprCameraWidget = enable;
+      vis.showOpenCashDrawerButton = enable;
       perms.canRegisterEntry = enable;
       perms.canRegisterExit = enable;
       perms.canCancelTicket = enable;
       perms.canApplyDiscounts = enable;
       perms.canWaiveFee = enable;
       perms.canReprintTickets = enable;
+      perms.canManualSpotSelect = enable;
       perms.canChangePaymentMethod = enable;
       perms.canProcessLostTicket = enable;
+      perms.canApplyLostTicketFee = enable;
       perms.canIssueElectronicInvoice = enable;
+      perms.canOpenCashDrawerWithoutSale = enable;
+      perms.canEditActiveTicketPlate = enable;
+      perms.canApplyManualRateOverride = enable;
+      perms.canForceRegisterExit = enable;
+      perms.canViewANPRCameraModule = enable;
+    } else if (moduleKey === 'mapa') {
+      vis.showTabMap = enable;
+      vis.showOccupancyWidget = enable;
+      vis.showSpotsManagementButton = enable;
+      perms.canViewMap = enable;
+      perms.canChangeSpotStatus = enable;
+      perms.canForceReleaseSpot = enable;
+      perms.canManageSpots = enable;
+      perms.canReserveSpots = enable;
+    } else if (moduleKey === 'subscribers') {
+      vis.showSubscribersModule = enable;
+      vis.showSubscribersTopButton = enable;
+      perms.canViewSubscribers = enable;
+      perms.canCreateSubscribers = enable;
+      perms.canRenewSubscribers = enable;
+      perms.canCancelSubscribers = enable;
     } else if (moduleKey === 'turnos') {
       vis.showTabCash = enable;
       vis.showCashDrawerBalance = enable;
       vis.showLivePaymentBreakdown = enable;
       vis.showCashPickupOption = enable;
       vis.showCashShiftsHistory = enable;
+      vis.showWarehousesGrid = enable;
+      vis.showOperationalDayBadge = enable;
       perms.canManageCashShift = enable;
       perms.canWithdrawCash = enable;
       perms.canDepositCash = enable;
@@ -298,33 +333,61 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
       perms.canViewLiveFinancialBreakdown = enable;
       perms.canCloseOperationalDay = enable;
       perms.canAuditCashShifts = enable;
-    } else if (moduleKey === 'mapa') {
-      vis.showTabMap = enable;
-      vis.showSpotsManagementButton = enable;
-      perms.canViewMap = enable;
-      perms.canChangeSpotStatus = enable;
-      perms.canForceReleaseSpot = enable;
-      perms.canManageSpots = enable;
-      perms.canManualSpotSelect = enable;
+      perms.canManageExpenseConcepts = enable;
+      perms.canConfigureExpenseCategories = enable;
+      perms.canManageWarehouses = enable;
+      perms.canManagePosPoints = enable;
+      perms.canViewShiftClosingDiscrepancies = enable;
+      perms.canViewOperationalDayInHistory = enable;
+      perms.canViewConsecutiveInHistory = enable;
+      perms.canEditClosedShifts = enable;
     } else if (moduleKey === 'reportes') {
       vis.showTabReports = enable;
       vis.showFinancialKpisInReports = enable;
       vis.showTrafficChartsInReports = enable;
+      vis.showAuditLogsPanel = enable;
+      vis.showEmployeeKpiWidget = enable;
       perms.canViewReports = enable;
       perms.canExportReports = enable;
       perms.canViewAuditLogs = enable;
       perms.canFilterReportDates = enable;
+      perms.canDeleteAuditLogs = enable;
+      perms.canViewEmployeePerformanceKpi = enable;
+      perms.canViewGeneralProfitMargin = enable;
     } else if (moduleKey === 'config') {
       vis.showTabSettings = enable;
       vis.showDatabaseButton = enable;
-      vis.showCentralHubButton = enable;
+      vis.showPrinterConfigModule = enable;
+      vis.showInvoiceDianParams = enable;
+      vis.showUsersManagementButton = enable;
       perms.canEditRates = enable;
       perms.canManageVehicleCategories = enable;
-      perms.canConfigurePaymentMethods = enable;
+      perms.canManageAgreements = enable;
       perms.canEditBusinessInfo = enable;
+      perms.canConfigurePrinters = enable;
+      perms.canConfigureDianInvoicing = enable;
+      perms.canConfigurePaymentMethods = enable;
       perms.canManageDatabase = enable;
       perms.canManageUsers = enable;
+      perms.canConfigureSystemTheme = enable;
+    } else if (moduleKey === 'central') {
+      vis.showCentralHubButton = enable;
+      vis.showBranchSyncButton = enable;
+      vis.showAppUpdaterButton = enable;
+      vis.showWorkModeBadge = enable;
+      vis.showBranchesGrid = enable;
+      vis.showVncRemoteDesktopButton = enable;
+      vis.showTechnicalNetworkParams = enable;
+      vis.showBranchIdentifierBadge = enable;
       perms.canAccessCentralHub = enable;
+      perms.canPublishCentralUpdates = enable;
+      perms.canSyncWithCentralServer = enable;
+      perms.canPerformAppUpdates = enable;
+      perms.canManageBranchLocations = enable;
+      perms.canViewVncRemoteDesktop = enable;
+      perms.canExecuteRemoteOrders = enable;
+      perms.canConfigureTechnicalTerminalProps = enable;
+      perms.canSwitchBranchSimulation = enable;
     }
 
     updateActiveProfileConfig(perms, vis);
@@ -560,6 +623,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
       canConfigureDianInvoicing: value,
       canManageDatabase: value,
       canManageUsers: value,
+      canViewSubscribers: value,
+      canCreateSubscribers: value,
+      canRenewSubscribers: value,
+      canCancelSubscribers: value,
+      canConfigurePrinters: value,
       canAccessCentralHub: value,
       canPublishCentralUpdates: value,
       canSyncWithCentralServer: value,
@@ -585,11 +653,15 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
       showBranchSyncButton: value,
       showAppUpdaterButton: value,
       showBranchIdentifierBadge: value,
+      showWorkModeBadge: value,
+      showSubscribersTopButton: value,
       showTabOperations: true,
       showTabMap: value,
       showTabReports: value,
       showTabCash: value,
       showTabSettings: value,
+      showSubscribersModule: value,
+      showPrinterConfigModule: value,
       showDailySummaryCards: value,
       showVehiclesInYardMetric: value,
       showTurnRevenueMetric: value,
@@ -1628,958 +1700,865 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   </div>
                 </div>
 
-                {/* Modules Matrix Cards */}
-                <div className="space-y-6">
-                  {/* MODULE 1: CAJA Y OPERACIONES POS */}
-                  {(() => {
-                    const moduleEnabled = roleConfig.uiVisibility.showTabOperations;
-
-                    return (
-                      <div className={`p-5 rounded-2xl border transition-all ${
-                        moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
-                      }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold shrink-0">
-                              <Car className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                Módulo 1: Caja y Operaciones POS (Ingreso / Salida / Cobros)
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                  moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                                }`}>
-                                  {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
-                                </span>
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                                Permite operar la pantalla principal de vehículos, registrar tiques, aplicar cobros y emitir comprobantes.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              disabled={isMaster}
-                              onClick={() => handleSetModulePermissionsForRole('caja', !moduleEnabled)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                                moduleEnabled
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                              }`}
-                            >
-                              {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {moduleEnabled && (
-                          <div className="mt-4 space-y-5">
-                            {/* Vista Section */}
-                            <div className="space-y-2">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
-                                <Eye className="w-3.5 h-3.5" />
-                                👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <VisibilityCheckbox
-                                  label="Ver Pestaña Operaciones"
-                                  desc="Acceso al menú principal de vehículos"
-                                  checked={roleConfig.uiVisibility.showTabOperations}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTabOperations')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Resumen de Ventas Diarias"
-                                  desc="Tarjetas de consolidación de dinero en la vista"
-                                  checked={roleConfig.uiVisibility.showDailySummaryCards}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showDailySummaryCards')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Contador en Patio"
-                                  desc="Indicador numérico de carros parqueados actualmente"
-                                  checked={roleConfig.uiVisibility.showVehiclesInYardMetric ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showVehiclesInYardMetric')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Métrica Recaudo Turno"
-                                  desc="Contador de dinero recaudado en el turno actual"
-                                  checked={roleConfig.uiVisibility.showTurnRevenueMetric ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTurnRevenueMetric')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Historial de Tickets Cobrados"
-                                  desc="Cinta inferior con lista de salidas recientes"
-                                  checked={roleConfig.uiVisibility.showPaidTicketsHistory}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showPaidTicketsHistory')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Widget de Cámara ANPR"
-                                  desc="Mostrar visor de reconocimiento de placas en vivo"
-                                  checked={roleConfig.uiVisibility.showAnprCameraWidget ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showAnprCameraWidget')}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Ejecución Section */}
-                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                                <Sliders className="w-3.5 h-3.5" />
-                                ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <PermissionCheckbox
-                                  label="Registrar Ingreso"
-                                  desc="Generar nuevos tiques y tickets de entrada"
-                                  checked={roleConfig.permissions.canRegisterEntry}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canRegisterEntry')}
-                                />
-                                <PermissionCheckbox
-                                  label="Registrar Salidas y Cobrar"
-                                  desc="Liquidar tiempo de estadía y cobrar tarifas"
-                                  checked={roleConfig.permissions.canRegisterExit}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canRegisterExit')}
-                                />
-                                <PermissionCheckbox
-                                  label="Anular Tickets Activos"
-                                  desc="Cancelar vehículos en patio por error/salida inmediata"
-                                  checked={roleConfig.permissions.canCancelTicket}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canCancelTicket')}
-                                />
-                                <PermissionCheckbox
-                                  label="Aplicar Descuentos"
-                                  desc="Modificar el valor calculado con rebajas manuales"
-                                  checked={roleConfig.permissions.canApplyDiscounts}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canApplyDiscounts')}
-                                />
-                                <PermissionCheckbox
-                                  label="Exonerar Cortesías ($0)"
-                                  desc="Generar salidas libres de pago con registro de justificación"
-                                  checked={roleConfig.permissions.canWaiveFee ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canWaiveFee')}
-                                />
-                                <PermissionCheckbox
-                                  label="Reimprimir Tiques y Recibos"
-                                  desc="Duplicar tique de ingreso y recibos térmicos"
-                                  checked={roleConfig.permissions.canReprintTickets ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canReprintTickets')}
-                                />
-                                <PermissionCheckbox
-                                  label="Selección Manual de Plazas"
-                                  desc="Elegir puesto manualmente al registrar ingreso"
-                                  checked={roleConfig.permissions.canManualSpotSelect ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManualSpotSelect')}
-                                />
-                                <PermissionCheckbox
-                                  label="Salida Sin Tique (Extravío)"
-                                  desc="Procesar egreso con Tarjeta de Propiedad"
-                                  checked={roleConfig.permissions.canProcessLostTicket ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canProcessLostTicket')}
-                                />
-                                <PermissionCheckbox
-                                  label="Aplicar Multa Tique Perdido"
-                                  desc="Cobrar el recargo legal/establecido por pérdida"
-                                  checked={roleConfig.permissions.canApplyLostTicketFee ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canApplyLostTicketFee')}
-                                />
-                                <PermissionCheckbox
-                                  label="Cambiar Método de Pago"
-                                  desc="Permitir elegir tarjeta, QR, BreB, transfer o efectivo"
-                                  checked={roleConfig.permissions.canChangePaymentMethod ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canChangePaymentMethod')}
-                                />
-                                <PermissionCheckbox
-                                  label="Abrir Cajón en Vacío"
-                                  desc="Abrir el cajón monedero sin registrar una venta"
-                                  checked={roleConfig.permissions.canOpenCashDrawerWithoutSale ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canOpenCashDrawerWithoutSale')}
-                                />
-                                <PermissionCheckbox
-                                  label="Editar Placa de Tique Activo"
-                                  desc="Corregir errores de digitación de placa en patio"
-                                  checked={roleConfig.permissions.canEditActiveTicketPlate ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canEditActiveTicketPlate')}
-                                />
-                                <PermissionCheckbox
-                                  label="Modificación Manual de Tarifa"
-                                  desc="Sobrescribir el valor calculado del sistema de forma libre"
-                                  checked={roleConfig.permissions.canApplyManualRateOverride ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canApplyManualRateOverride')}
-                                />
-                                <PermissionCheckbox
-                                  label="Salida Forzada (Fuga/Cortesía)"
-                                  desc="Efectuar salida forzada sin registro de pago ni dinero"
-                                  checked={roleConfig.permissions.canForceRegisterExit ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canForceRegisterExit')}
-                                />
-                                <PermissionCheckbox
-                                  label="Interactuar con Lector ANPR"
-                                  desc="Operar con el detector de placas de inteligencia artificial"
-                                  checked={roleConfig.permissions.canViewANPRCameraModule ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewANPRCameraModule')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* MODULE 2: TURNOS Y ARQUEO DE CAJA */}
-                  {(() => {
-                    const moduleEnabled = roleConfig.uiVisibility.showTabCash;
-
-                    return (
-                      <div className={`p-5 rounded-2xl border transition-all ${
-                        moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
-                      }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
-                              <DollarSign className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                Módulo 2: Turnos, Arqueo & Movimientos de Caja
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                  moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                                }`}>
-                                  {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
-                                </span>
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                                Gestiona la apertura/cierre de caja, arqueos físicos, retiros de gastos, inyecciones de base y recogida de efectivo.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              disabled={isMaster}
-                              onClick={() => handleSetModulePermissionsForRole('turnos', !moduleEnabled)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                                moduleEnabled
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                              }`}
-                            >
-                              {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {moduleEnabled && (
-                          <div className="mt-4 space-y-5">
-                            {/* Vista Section */}
-                            <div className="space-y-2">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
-                                <Eye className="w-3.5 h-3.5" />
-                                👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <VisibilityCheckbox
-                                  label="Ver Pestaña de Caja"
-                                  desc="Acceso al botón para ver el asistente de arqueo"
-                                  checked={roleConfig.uiVisibility.showTabCash}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTabCash')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Saldo Teórico Gaveta"
-                                  desc="Ver dinero esperado durante el turno (Apagar para Arqueo Ciego)"
-                                  checked={roleConfig.uiVisibility.showCashDrawerBalance}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showCashDrawerBalance')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Desglose de Pagos en Vivo"
-                                  desc="Mostrar distribución de cobros (QR, Datáfono, Efectivo)"
-                                  checked={roleConfig.uiVisibility.showLivePaymentBreakdown ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showLivePaymentBreakdown')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Botón Recogida Efectivo"
-                                  desc="Visualizar opción de retiros parciales de dinero"
-                                  checked={roleConfig.uiVisibility.showCashPickupOption ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showCashPickupOption')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Histórico de Cierres de Turno"
-                                  desc="Ver botón para ver arqueos y cierres anteriores"
-                                  checked={roleConfig.uiVisibility.showCashShiftsHistory ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showCashShiftsHistory')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Tabla de Bodegas en Caja"
-                                  desc="Mostrar información de almacenes"
-                                  checked={roleConfig.uiVisibility.showWarehousesGrid ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showWarehousesGrid')}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Ejecución Section */}
-                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                                <Sliders className="w-3.5 h-3.5" />
-                                ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <PermissionCheckbox
-                                  label="Abrir y Cerrar Turnos de Caja"
-                                  desc="Operar caja, abrir jornada y arqueo final de cierre"
-                                  checked={roleConfig.permissions.canManageCashShift}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageCashShift')}
-                                />
-                                <PermissionCheckbox
-                                  label="Registrar Gastos / Egresos"
-                                  desc="Efectuar retiros de caja menor hacia gastos"
-                                  checked={roleConfig.permissions.canWithdrawCash}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canWithdrawCash')}
-                                />
-                                <PermissionCheckbox
-                                  label="Registrar Ingresos / Inyecciones"
-                                  desc="Adicionar dinero a la base de caja durante el turno"
-                                  checked={roleConfig.permissions.canDepositCash ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canDepositCash')}
-                                />
-                                <PermissionCheckbox
-                                  label="Realizar Recogidas Parciales"
-                                  desc="Liberación de efectivo excesivo hacia administración/banco"
-                                  checked={roleConfig.permissions.canPickupCash ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canPickupCash')}
-                                />
-                                <PermissionCheckbox
-                                  label="Crear Conceptos de Gasto"
-                                  desc="Gestionar catálogo de conceptos autorizados"
-                                  checked={roleConfig.permissions.canManageExpenseConcepts ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageExpenseConcepts')}
-                                />
-                                <PermissionCheckbox
-                                  label="Gestionar Categorías de Gasto"
-                                  desc="Crear/editar las categorías macro de egresos"
-                                  checked={roleConfig.permissions.canConfigureExpenseCategories ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canConfigureExpenseCategories')}
-                                />
-                                <PermissionCheckbox
-                                  label="Cierre Definitivo Día Operativo"
-                                  desc="Efectuar cierre fiscal y de negocio completo"
-                                  checked={roleConfig.permissions.canCloseOperationalDay ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canCloseOperationalDay')}
-                                />
-                                <PermissionCheckbox
-                                  label="Auditar y Reabrir Turnos"
-                                  desc="Modificar o corregir cierres guardados"
-                                  checked={roleConfig.permissions.canAuditCashShifts ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canAuditCashShifts')}
-                                />
-                                <PermissionCheckbox
-                                  label="🔒 Arqueo Ciego Obligatorio"
-                                  desc="Ocultar arqueo esperado antes del conteo físico"
-                                  checked={roleConfig.permissions.blindCashCount ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('blindCashCount')}
-                                />
-                                <PermissionCheckbox
-                                  label="Ver Desglose de Caja"
-                                  desc="Visualizar reportes analíticos del cuadre actual"
-                                  checked={roleConfig.permissions.canViewLiveFinancialBreakdown ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewLiveFinancialBreakdown')}
-                                />
-                                <PermissionCheckbox
-                                  label="Ver Día Operativo en Historial"
-                                  desc="Ver auditoría del día seleccionado"
-                                  checked={roleConfig.permissions.canViewOperationalDayInHistory ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewOperationalDayInHistory')}
-                                />
-                                <PermissionCheckbox
-                                  label="Ver Consecutivo ARQ-XXXXXX"
-                                  desc="Incluir código secuencial seguro en cada comprobante"
-                                  checked={roleConfig.permissions.canViewConsecutiveInHistory ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewConsecutiveInHistory')}
-                                />
-                                <PermissionCheckbox
-                                  label="Editar Movimientos de Turno Cerrado"
-                                  desc="Alterar egresos o ingresos de turnos ya finalizados"
-                                  checked={roleConfig.permissions.canEditClosedShifts ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canEditClosedShifts')}
-                                />
-                                <PermissionCheckbox
-                                  label="Gestionar Bodegas / Almacenes"
-                                  desc="Añadir, modificar y borrar almacenes físicos"
-                                  checked={roleConfig.permissions.canManageWarehouses ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageWarehouses')}
-                                />
-                                <PermissionCheckbox
-                                  label="Gestionar Puntos POS / Taquillas"
-                                  desc="Crear y administrar nodos y terminales de cobro"
-                                  checked={roleConfig.permissions.canManagePosPoints ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManagePosPoints')}
-                                />
-                                <PermissionCheckbox
-                                  label="Ver Descuadres en Cierres"
-                                  desc="Ver diferencias negativas o descuadres de dinero"
-                                  checked={roleConfig.permissions.canViewShiftClosingDiscrepancies ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewShiftClosingDiscrepancies')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* MODULE 3: MAPA DE PARQUEADERO Y ESPACIOS */}
-                  {(() => {
-                    const moduleEnabled = roleConfig.uiVisibility.showTabMap;
-
-                    return (
-                      <div className={`p-5 rounded-2xl border transition-all ${
-                        moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
-                      }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400 font-bold shrink-0">
-                              <MapPin className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                Módulo 3: Mapa de Parqueadero & Control de Espacios
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                  moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                                }`}>
-                                  {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
-                                </span>
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                                Supervisión visual de plazas, bloqueos por mantenimiento, reasignaciones y liberación forzada.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              disabled={isMaster}
-                              onClick={() => handleSetModulePermissionsForRole('mapa', !moduleEnabled)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                                moduleEnabled
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                              }`}
-                            >
-                              {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {moduleEnabled && (
-                          <div className="mt-4 space-y-5">
-                            {/* Vista Section */}
-                            <div className="space-y-2">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
-                                <Eye className="w-3.5 h-3.5" />
-                                👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <VisibilityCheckbox
-                                  label="Ver Pestaña de Mapa"
-                                  desc="Mostrar botón del mapa interactivo en la barra superior"
-                                  checked={roleConfig.uiVisibility.showTabMap}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTabMap')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Botón Gestión de Plazas"
-                                  desc="Mostrar acceso al panel de edición masiva de puestos"
-                                  checked={roleConfig.uiVisibility.showSpotsManagementButton ?? true}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showSpotsManagementButton')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Botón VNC Escritorio Remoto"
-                                  desc="Mostrar acceso directo a pantallas de otras sucursales"
-                                  checked={roleConfig.uiVisibility.showVncRemoteDesktopButton ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showVncRemoteDesktopButton')}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Ejecución Section */}
-                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                                <Sliders className="w-3.5 h-3.5" />
-                                ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <PermissionCheckbox
-                                  label="Ver Mapa Interactiva"
-                                  desc="Inspeccionar puestos visualmente"
-                                  checked={roleConfig.permissions.canViewMap}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewMap')}
-                                />
-                                <PermissionCheckbox
-                                  label="Cambiar Estado de Plazas"
-                                  desc="Bloquear puestos o enviarlos a mantenimiento"
-                                  checked={roleConfig.permissions.canChangeSpotStatus}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canChangeSpotStatus')}
-                                />
-                                <PermissionCheckbox
-                                  label="Forzar Liberación de Plaza"
-                                  desc="Liberar plaza ocupada omitiendo tique de salida"
-                                  checked={roleConfig.permissions.canForceReleaseSpot ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canForceReleaseSpot')}
-                                />
-                                <PermissionCheckbox
-                                  label="Administrar Plazas (Creación)"
-                                  desc="Añadir, remover y configurar plazas y categorías"
-                                  checked={roleConfig.permissions.canManageSpots ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageSpots')}
-                                />
-                                <PermissionCheckbox
-                                  label="Reservar Plazas"
-                                  desc="Apartar puestos para convenios, mensualidades o VIP"
-                                  checked={roleConfig.permissions.canReserveSpots ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canReserveSpots')}
-                                />
-                                <PermissionCheckbox
-                                  label="Acceso a VNC Sucursales"
-                                  desc="Visualizar control remoto VNC de otras terminales"
-                                  checked={roleConfig.permissions.canViewVncRemoteDesktop ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewVncRemoteDesktop')}
-                                />
-                                <PermissionCheckbox
-                                  label="Emitir Órdenes Remotas"
-                                  desc="Ejecutar comandos en terminales remotas (Reinicios, Bloqueos)"
-                                  checked={roleConfig.permissions.canExecuteRemoteOrders ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canExecuteRemoteOrders')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* MODULE 4: REPORTES Y AUDITORÍA */}
-                  {(() => {
-                    const moduleEnabled = roleConfig.uiVisibility.showTabReports;
-
-                    return (
-                      <div className={`p-5 rounded-2xl border transition-all ${
-                        moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
-                      }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-700 dark:text-purple-400 font-bold shrink-0">
-                              <BarChart3 className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                Módulo 4: Reportes, Consola & Auditoría
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                  moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                                }`}>
-                                  {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
-                                </span>
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                                Consultas analíticas en tiempo real, exportación a Excel/PDF, auditoría de eventos y registros históricos.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              disabled={isMaster}
-                              onClick={() => handleSetModulePermissionsForRole('reportes', !moduleEnabled)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                                moduleEnabled
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                              }`}
-                            >
-                              {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {moduleEnabled && (
-                          <div className="mt-4 space-y-5">
-                            {/* Vista Section */}
-                            <div className="space-y-2">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
-                                <Eye className="w-3.5 h-3.5" />
-                                👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <VisibilityCheckbox
-                                  label="Ver Pestaña de Reportes"
-                                  desc="Mostrar pestaña de análisis en el menú superior"
-                                  checked={roleConfig.uiVisibility.showTabReports}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTabReports')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver KPIs Financieros"
-                                  desc="Mostrar recuadro de utilidades, márgenes y egresos"
-                                  checked={roleConfig.uiVisibility.showFinancialKpisInReports ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showFinancialKpisInReports')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Gráficos de Tráfico"
-                                  desc="Mostrar distribución horaria y gráficos de flujos"
-                                  checked={roleConfig.uiVisibility.showTrafficChartsInReports ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTrafficChartsInReports')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Panel de Registros de Auditoría"
-                                  desc="Mostrar tabla detallada con bitácora interna"
-                                  checked={roleConfig.uiVisibility.showAuditLogsPanel ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showAuditLogsPanel')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver KPIs de Rendimiento de Cajeros"
-                                  desc="Estadísticas de eficiencia y cobros por operador"
-                                  checked={roleConfig.uiVisibility.showEmployeeKpiWidget ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showEmployeeKpiWidget')}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Ejecución Section */}
-                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                                <Sliders className="w-3.5 h-3.5" />
-                                ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <PermissionCheckbox
-                                  label="Ver Reportes en Vivo"
-                                  desc="Visualizar reportes en tiempo real"
-                                  checked={roleConfig.permissions.canViewReports}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewReports')}
-                                />
-                                <PermissionCheckbox
-                                  label="Exportar a Excel / CSV / PDF"
-                                  desc="Descargar consolidados e informes de auditoría"
-                                  checked={roleConfig.permissions.canExportReports}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canExportReports')}
-                                />
-                                <PermissionCheckbox
-                                  label="Consultar Logs de Auditoría"
-                                  desc="Ver bitácora de auditoría detallada de acciones"
-                                  checked={roleConfig.permissions.canViewAuditLogs ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewAuditLogs')}
-                                />
-                                <PermissionCheckbox
-                                  label="Filtrar por Rango de Fechas"
-                                  desc="Realizar búsquedas históricas con calendario libre"
-                                  checked={roleConfig.permissions.canFilterReportDates ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canFilterReportDates')}
-                                />
-                                <PermissionCheckbox
-                                  label="Borrar Auditoría / Purgar"
-                                  desc="Eliminar bitácoras del sistema local (Acción Crítica)"
-                                  checked={roleConfig.permissions.canDeleteAuditLogs ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canDeleteAuditLogs')}
-                                />
-                                <PermissionCheckbox
-                                  label="Ver Eficiencia de Cajeros"
-                                  desc="Analizar auditoría del desempeño individual del personal"
-                                  checked={roleConfig.permissions.canViewEmployeePerformanceKpi ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewEmployeePerformanceKpi')}
-                                />
-                                <PermissionCheckbox
-                                  label="Ver Margen de Utilidad General"
-                                  desc="Visualizar costos y balance de utilidades totales netas"
-                                  checked={roleConfig.permissions.canViewGeneralProfitMargin ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canViewGeneralProfitMargin')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* MODULE 5: CONFIGURACIÓN Y PARÁMETROS DEL SISTEMA */}
-                  {(() => {
-                    const moduleEnabled = roleConfig.uiVisibility.showTabSettings;
-
-                    return (
-                      <div className={`p-5 rounded-2xl border transition-all ${
-                        moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
-                      }`}>
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400 font-bold shrink-0">
-                              <Settings className="w-5 h-5" />
-                            </div>
-                            <div>
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                Módulo 5: Configuración & Administración del Sistema
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                  moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
-                                }`}>
-                                  {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
-                                </span>
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                                Edición de tarifas, medios de pago, datos de empresa, base de datos local y administración de usuarios.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              disabled={isMaster}
-                              onClick={() => handleSetModulePermissionsForRole('config', !moduleEnabled)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
-                                moduleEnabled
-                                  ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                              }`}
-                            >
-                              {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
-                            </button>
-                          </div>
-                        </div>
-
-                        {moduleEnabled && (
-                          <div className="mt-4 space-y-5">
-                            {/* Vista Section */}
-                            <div className="space-y-2">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
-                                <Eye className="w-3.5 h-3.5" />
-                                👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <VisibilityCheckbox
-                                  label="Ver Pestaña de Configuración"
-                                  desc="Mostrar acceso de configuración general en el menú"
-                                  checked={roleConfig.uiVisibility.showTabSettings}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTabSettings')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Parámetros DIAN"
-                                  desc="Mostrar sección de Facturación Electrónica DIAN"
-                                  checked={roleConfig.uiVisibility.showInvoiceDianParams ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showInvoiceDianParams')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Parámetros de Red / Sockets"
-                                  desc="Mostrar IPs, puertos de sockets y LAN/WAN de FarmaDesk Pro"
-                                  checked={roleConfig.uiVisibility.showTechnicalNetworkParams ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showTechnicalNetworkParams')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Tabla de Sucursales"
-                                  desc="Mostrar sucursales y estados en la sede central"
-                                  checked={roleConfig.uiVisibility.showBranchesGrid ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showBranchesGrid')}
-                                />
-                                <VisibilityCheckbox
-                                  label="Ver Tabla Puntos de Venta"
-                                  desc="Mostrar puntos POS configurados en el sistema"
-                                  checked={roleConfig.uiVisibility.showPosPointsGrid ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixVisibilityToggle('showPosPointsGrid')}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Ejecución Section */}
-                            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                              <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                                <Sliders className="w-3.5 h-3.5" />
-                                ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
-                              </h5>
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                                <PermissionCheckbox
-                                  label="Editar Tarifas & Tiempos"
-                                  desc="Editar los precios del parqueadero y tolerancias"
-                                  checked={roleConfig.permissions.canEditRates}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canEditRates')}
-                                />
-                                <PermissionCheckbox
-                                  label="Gestionar Tipos de Vehículo"
-                                  desc="Añadir categorías de vehículos y tarifas personalizadas"
-                                  checked={roleConfig.permissions.canManageVehicleCategories ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageVehicleCategories')}
-                                />
-                                <PermissionCheckbox
-                                  label="Editar Datos del Negocio"
-                                  desc="Modificar NIT, razón social y texto del tique"
-                                  checked={roleConfig.permissions.canEditBusinessInfo ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canEditBusinessInfo')}
-                                />
-                                <PermissionCheckbox
-                                  label="Configurar Factura Electrónica DIAN"
-                                  desc="Modificar parámetros fiscales de facturación DIAN"
-                                  checked={roleConfig.permissions.canConfigureDianInvoicing ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canConfigureDianInvoicing')}
-                                />
-                                <PermissionCheckbox
-                                  label="Configurar Medios de Pago & QR"
-                                  desc="Cuentas bancarias, billeteras, BreB y datáfonos"
-                                  checked={roleConfig.permissions.canConfigurePaymentMethods ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canConfigurePaymentMethods')}
-                                />
-                                <PermissionCheckbox
-                                  label="Gestionar Base de Datos Local"
-                                  desc="Exportar backups, restaurar copias de seguridad"
-                                  checked={roleConfig.permissions.canManageDatabase}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageDatabase')}
-                                />
-                                <PermissionCheckbox
-                                  label="Administrar Usuarios & Permisos"
-                                  desc="Crear/editar cuentas de empleados (Reservado Maestro)"
-                                  checked={roleConfig.permissions.canManageUsers}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageUsers')}
-                                />
-                                <PermissionCheckbox
-                                  label="Acceso a Servidor Central"
-                                  desc="Visualizar red de sucursales, telemetría y consolidación"
-                                  checked={roleConfig.permissions.canAccessCentralHub ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canAccessCentralHub')}
-                                />
-                                <PermissionCheckbox
-                                  label="Publicar Tarifas a Sucursales"
-                                  desc="Emitir cambios de precios y egresos a sedes"
-                                  checked={roleConfig.permissions.canPublishCentralUpdates ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canPublishCentralUpdates')}
-                                />
-                                <PermissionCheckbox
-                                  label="Sincronizar con Sede Central"
-                                  desc="Forzar sincronización bidireccional de la terminal"
-                                  checked={roleConfig.permissions.canSyncWithCentralServer ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canSyncWithCentralServer')}
-                                />
-                                <PermissionCheckbox
-                                  label="Actualizador de Software (OTA)"
-                                  desc="Descargar e instalar versiones, hotpatches y módulos"
-                                  checked={roleConfig.permissions.canPerformAppUpdates ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canPerformAppUpdates')}
-                                />
-                                <PermissionCheckbox
-                                  label="Conmutar Sucursal en Pruebas"
-                                  desc="Cambiar de sede activa en el entorno de simulación"
-                                  checked={roleConfig.permissions.canSwitchBranchSimulation ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canSwitchBranchSimulation')}
-                                />
-                                <PermissionCheckbox
-                                  label="Gestionar Sedes Físicas"
-                                  desc="Añadir, editar o eliminar sucursales en la red"
-                                  checked={roleConfig.permissions.canManageBranchLocations ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canManageBranchLocations')}
-                                />
-                                <PermissionCheckbox
-                                  label="Personalizar Tema & Neón"
-                                  desc="Configurar la visual del sistema y efectos visuales neón"
-                                  checked={roleConfig.permissions.canConfigureSystemTheme ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canConfigureSystemTheme')}
-                                />
-                                <PermissionCheckbox
-                                  label="Parámetros FarmaDesk LAN/WAN"
-                                  desc="Configurar IPs, puertos de sockets y parámetros técnicos"
-                                  checked={roleConfig.permissions.canConfigureTechnicalTerminalProps ?? false}
-                                  disabled={isMaster}
-                                  onChange={() => handleMatrixPermissionToggle('canConfigureTechnicalTerminalProps')}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
+                {/* Search / Filter for Permissions & Options */}
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={permissionSearchQuery}
+                    onChange={(e) => setPermissionSearchQuery(e.target.value)}
+                    placeholder="Buscar permiso, opción, botón o módulo (ej: descuento, cajón, abonados, arqueo ciego, impresora, tarifas)..."
+                    className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                  />
+                  {permissionSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setPermissionSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1"
+                      title="Limpiar búsqueda"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
+
+                {/* Modules Matrix Cards */}
+                {(() => {
+                  const query = permissionSearchQuery.trim().toLowerCase();
+                  const matches = (label: string, desc?: string) => {
+                    if (!query) return true;
+                    return label.toLowerCase().includes(query) || (desc ? desc.toLowerCase().includes(query) : false);
+                  };
+
+                  return (
+                    <div className="space-y-6">
+                      {/* ======================================================= */}
+                      {/* MODULE 1: PATIO POS & OPERACIONES VEHICULARES            */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.uiVisibility.showTabOperations;
+                        const visItems = [
+                          { key: 'showTabOperations', label: 'Ver Pestaña Operaciones', desc: 'Acceso al menú principal de vehículos' },
+                          { key: 'showDailySummaryCards', label: 'Ver Resumen de Ventas Diarias', desc: 'Tarjetas de consolidación de dinero en la vista' },
+                          { key: 'showVehiclesInYardMetric', label: 'Ver Contador en Patio', desc: 'Indicador numérico de carros parqueados actualmente', defaultVal: true },
+                          { key: 'showTurnRevenueMetric', label: 'Ver Métrica Recaudo Turno', desc: 'Contador de dinero recaudado en el turno actual', defaultVal: false },
+                          { key: 'showPaidTicketsHistory', label: 'Ver Historial de Tickets Cobrados', desc: 'Cinta inferior con lista de salidas recientes' },
+                          { key: 'showAnprCameraWidget', label: 'Ver Widget de Cámara ANPR', desc: 'Mostrar visor de reconocimiento de placas en vivo', defaultVal: false },
+                          { key: 'showOpenCashDrawerButton', label: 'Ver Botón Abrir Cajón', desc: 'Mostrar botón directo para abrir cajón monedero', defaultVal: false }
+                        ];
+                        const permItems = [
+                          { key: 'canRegisterEntry', label: 'Registrar Ingreso', desc: 'Generar nuevos tickets y tiques de entrada' },
+                          { key: 'canRegisterExit', label: 'Registrar Salidas y Cobrar', desc: 'Liquidar tiempo de estadía y cobrar tarifas' },
+                          { key: 'canCancelTicket', label: 'Anular Tickets Activos', desc: 'Cancelar vehículos en patio por error o salida inmediata' },
+                          { key: 'canApplyDiscounts', label: 'Aplicar Descuentos Manuales', desc: 'Modificar el valor calculado con rebajas manuales' },
+                          { key: 'canWaiveFee', label: 'Exonerar Cortesías ($0)', desc: 'Generar salidas libres de pago con justificación', defaultVal: false },
+                          { key: 'canReprintTickets', label: 'Reimprimir Tiques y Recibos', desc: 'Duplicar tique de ingreso y recibos térmicos (F8)', defaultVal: true },
+                          { key: 'canManualSpotSelect', label: 'Selección Manual de Plazas', desc: 'Elegir puesto manualmente al registrar ingreso', defaultVal: true },
+                          { key: 'canProcessLostTicket', label: 'Salida Sin Tique (Extravío)', desc: 'Procesar egreso con Tarjeta de Propiedad', defaultVal: false },
+                          { key: 'canApplyLostTicketFee', label: 'Aplicar Multa Tique Perdido', desc: 'Cobrar el recargo legal/establecido por pérdida', defaultVal: true },
+                          { key: 'canChangePaymentMethod', label: 'Cambiar Método de Pago', desc: 'Permitir elegir tarjeta, QR, BreB, transfer o efectivo', defaultVal: true },
+                          { key: 'canOpenCashDrawerWithoutSale', label: 'Abrir Cajón en Vacío', desc: 'Abrir el cajón monedero sin registrar una venta', defaultVal: false },
+                          { key: 'canEditActiveTicketPlate', label: 'Editar Placa de Tique Activo', desc: 'Corregir errores de digitación de placa en patio', defaultVal: false },
+                          { key: 'canApplyManualRateOverride', label: 'Modificación Manual de Tarifa', desc: 'Sobrescribir el valor calculado del sistema de forma libre', defaultVal: false },
+                          { key: 'canForceRegisterExit', label: 'Salida Forzada (Fuga/Cortesía)', desc: 'Efectuar salida forzada sin registro de pago ni dinero', defaultVal: false },
+                          { key: 'canViewANPRCameraModule', label: 'Interactuar con Lector ANPR', desc: 'Operar con el detector de placas de inteligencia artificial', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'patio pos operaciones vehículos'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold shrink-0">
+                                  <Car className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 1: Patio POS & Operaciones Vehiculares (Ingreso / Salida / Cobros)
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Permite operar la pantalla principal de vehículos, registrar tiques, aplicar cobros y emitir comprobantes.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('caja', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* ======================================================= */}
+                      {/* MODULE 2: MAPA DE PATIO & CONTROL DE ESPACIOS            */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.uiVisibility.showTabMap;
+                        const visItems = [
+                          { key: 'showTabMap', label: 'Ver Pestaña de Mapa', desc: 'Mostrar botón del mapa interactivo en la barra superior y menú lateral' },
+                          { key: 'showOccupancyWidget', label: 'Ver Widget Plazas Libres/Ocupadas', desc: 'Mostrar contador de plazas en la barra superior' },
+                          { key: 'showSpotsManagementButton', label: 'Ver Botón Gestión de Plazas', desc: 'Mostrar acceso al panel de edición masiva de puestos', defaultVal: true }
+                        ];
+                        const permItems = [
+                          { key: 'canViewMap', label: 'Ver Mapa Interactivo', desc: 'Inspeccionar puestos visualmente y filtrar por estado' },
+                          { key: 'canChangeSpotStatus', label: 'Cambiar Estado de Plazas', desc: 'Bloquear puestos o enviarlos a mantenimiento' },
+                          { key: 'canForceReleaseSpot', label: 'Forzar Liberación de Plaza', desc: 'Liberar plaza ocupada omitiendo tique de salida', defaultVal: false },
+                          { key: 'canManageSpots', label: 'Administrar Plazas (Creación Masiva)', desc: 'Añadir, remover y configurar plazas y nomenclaturas', defaultVal: false },
+                          { key: 'canReserveSpots', label: 'Reservar Plazas', desc: 'Apartar puestos para convenios, mensualidades o VIP', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'mapa de patio plazas espacios'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400 font-bold shrink-0">
+                                  <MapPin className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 2: Mapa de Patio & Gestión de Plazas (Control de Espacios)
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Supervisión visual de plazas, bloqueos por mantenimiento, reasignaciones y liberación forzada.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('mapa', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* ======================================================= */}
+                      {/* MODULE 3: ABONADOS & MENSUALIDADES                       */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.uiVisibility.showSubscribersModule !== false;
+                        const visItems = [
+                          { key: 'showSubscribersModule', label: 'Ver Módulo en Menú Lateral', desc: 'Acceso a la pantalla de Abonados en el menú lateral', defaultVal: true },
+                          { key: 'showSubscribersTopButton', label: 'Ver Botón en Barra Superior', desc: 'Acceso rápido con ícono de Abonados en la barra superior', defaultVal: true }
+                        ];
+                        const permItems = [
+                          { key: 'canViewSubscribers', label: 'Ver y Consultar Abonados', desc: 'Consultar contratos, clientes recurrentes y estados', defaultVal: true },
+                          { key: 'canCreateSubscribers', label: 'Registrar Nuevos Abonados', desc: 'Crear contratos de mensualidad, asociar clientes y placas', defaultVal: false },
+                          { key: 'canRenewSubscribers', label: 'Renovar y Cobrar Mensualidades', desc: 'Liquidar cobros periódicos de mensualidad y emitir recibos', defaultVal: false },
+                          { key: 'canCancelSubscribers', label: 'Cancelar / Pausar Contratos', desc: 'Finalizar o suspender afiliaciones de abonados', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'abonados mensualidades clientes recurrentes'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
+                                  <Users className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 3: Abonados & Mensualidades (Contratos Recurrentes)
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Gestión de clientes fijos, suscripciones de estacionamiento, cobro de mensualidades y control vehicular.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('subscribers', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* ======================================================= */}
+                      {/* MODULE 4: TURNOS, ARQUEO & MOVIMIENTOS DE CAJA           */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.uiVisibility.showTabCash;
+                        const visItems = [
+                          { key: 'showTabCash', label: 'Ver Pestaña de Caja', desc: 'Acceso al botón para ver el asistente de arqueo' },
+                          { key: 'showTopRevenueMetrics', label: 'Ver Métrica de Recaudo Superior', desc: 'Mostrar recuadro de recaudo acumulado en barra superior', defaultVal: true },
+                          { key: 'showCashDrawerBalance', label: 'Ver Saldo Teórico Gaveta', desc: 'Ver dinero esperado durante el turno (Apagar para Arqueo Ciego)' },
+                          { key: 'showLivePaymentBreakdown', label: 'Ver Desglose de Pagos en Vivo', desc: 'Mostrar distribución de cobros (QR, Datáfono, Efectivo)', defaultVal: false },
+                          { key: 'showCashPickupOption', label: 'Ver Botón Recogida Efectivo', desc: 'Visualizar opción de retiros parciales de dinero', defaultVal: true },
+                          { key: 'showCashShiftsHistory', label: 'Ver Histórico de Cierres de Turno', desc: 'Ver botón y acceso al histórico de arqueos cerrados', defaultVal: false },
+                          { key: 'showWarehousesGrid', label: 'Ver Tabla de Bodegas en Caja', desc: 'Mostrar almacenes y depósitos en el panel de caja', defaultVal: false },
+                          { key: 'showOperationalDayBadge', label: 'Ver Insignia Día Operativo', desc: 'Mostrar fecha operativa y turno activo en barra superior', defaultVal: true }
+                        ];
+                        const permItems = [
+                          { key: 'canManageCashShift', label: 'Abrir y Cerrar Turnos de Caja', desc: 'Operar caja, abrir jornada y arqueo final de cierre' },
+                          { key: 'blindCashCount', label: '🔒 Arqueo Ciego Obligatorio', desc: 'Ocultar arqueo esperado antes del conteo físico del cajero', defaultVal: false },
+                          { key: 'canWithdrawCash', label: 'Registrar Gastos / Egresos', desc: 'Efectuar retiros de caja menor hacia gastos operativos' },
+                          { key: 'canDepositCash', label: 'Registrar Ingresos / Inyecciones', desc: 'Adicionar dinero a la base de caja durante el turno', defaultVal: false },
+                          { key: 'canPickupCash', label: 'Realizar Recogidas Parciales', desc: 'Liberación de efectivo excesivo hacia administración/banco', defaultVal: false },
+                          { key: 'canManageExpenseConcepts', label: 'Crear Conceptos de Gasto', desc: 'Gestionar catálogo de conceptos autorizados de egreso', defaultVal: false },
+                          { key: 'canConfigureExpenseCategories', label: 'Gestionar Categorías de Gasto', desc: 'Crear/editar las categorías macro de egresos', defaultVal: false },
+                          { key: 'canCloseOperationalDay', label: 'Cierre Definitivo Día Operativo', desc: 'Efectuar cierre fiscal y de negocio completo', defaultVal: false },
+                          { key: 'canAuditCashShifts', label: 'Auditar y Reabrir Turnos', desc: 'Modificar, auditar o corregir cierres finalizados', defaultVal: false },
+                          { key: 'canEditClosedShifts', label: 'Editar Movimientos de Turno Cerrado', desc: 'Alterar egresos o ingresos de turnos ya finalizados', defaultVal: false },
+                          { key: 'canViewLiveFinancialBreakdown', label: 'Ver Desglose Financiero en Vivo', desc: 'Visualizar reportes analíticos del cuadre actual', defaultVal: false },
+                          { key: 'canViewOperationalDayInHistory', label: 'Ver Día Operativo en Historial', desc: 'Ver auditoría del día seleccionado en comprobantes', defaultVal: false },
+                          { key: 'canViewConsecutiveInHistory', label: 'Ver Consecutivo ARQ-XXXXXX', desc: 'Incluir código secuencial seguro en cada comprobante', defaultVal: false },
+                          { key: 'canViewShiftClosingDiscrepancies', label: 'Ver Descuadres en Cierres', desc: 'Ver diferencias de faltantes o sobrantes de dinero', defaultVal: false },
+                          { key: 'canManageWarehouses', label: 'Gestionar Bodegas / Almacenes', desc: 'Añadir, modificar y borrar almacenes físicos', defaultVal: false },
+                          { key: 'canManagePosPoints', label: 'Gestionar Puntos POS / Taquillas', desc: 'Crear y administrar nodos y terminales de cobro', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'turnos arqueo caja finanzas gastos egresos'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
+                                  <DollarSign className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 4: Turnos, Arqueo & Movimientos de Caja (Finanzas)
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Gestiona la apertura/cierre de caja, arqueos físicos, retiros de gastos, inyecciones de base y recogida de efectivo.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('turnos', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* ======================================================= */}
+                      {/* MODULE 5: REPORTES, CONSOLA & AUDITORÍA                  */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.uiVisibility.showTabReports;
+                        const visItems = [
+                          { key: 'showTabReports', label: 'Ver Pestaña de Reportes', desc: 'Mostrar pestaña de análisis en el menú superior y lateral' },
+                          { key: 'showFinancialKpisInReports', label: 'Ver KPIs Financieros', desc: 'Mostrar recuadro de utilidades, ingresos y egresos', defaultVal: false },
+                          { key: 'showTrafficChartsInReports', label: 'Ver Gráficos de Tráfico', desc: 'Mostrar distribución horaria y gráficos de flujos', defaultVal: false },
+                          { key: 'showAuditLogsPanel', label: 'Ver Panel de Registros de Auditoría', desc: 'Mostrar tabla detallada con bitácora interna', defaultVal: false },
+                          { key: 'showEmployeeKpiWidget', label: 'Ver KPIs Rendimiento Cajeros', desc: 'Estadísticas de eficiencia y cobros por operador', defaultVal: false }
+                        ];
+                        const permItems = [
+                          { key: 'canViewReports', label: 'Ver Reportes en Tiempo Real', desc: 'Visualizar reportes en tiempo real y gráficos' },
+                          { key: 'canExportReports', label: 'Exportar a Excel / CSV / PDF', desc: 'Descargar consolidados e informes de auditoría' },
+                          { key: 'canViewAuditLogs', label: 'Consultar Logs de Auditoría', desc: 'Ver bitácora de auditoría detallada de acciones', defaultVal: false },
+                          { key: 'canFilterReportDates', label: 'Filtrar por Rango de Fechas', desc: 'Realizar búsquedas históricas con calendario libre', defaultVal: false },
+                          { key: 'canDeleteAuditLogs', label: 'Borrar Auditoría / Purgar', desc: 'Eliminar bitácoras del sistema local (Acción Crítica)', defaultVal: false },
+                          { key: 'canViewEmployeePerformanceKpi', label: 'Ver Eficiencia de Cajeros', desc: 'Analizar auditoría del desempeño individual del personal', defaultVal: false },
+                          { key: 'canViewGeneralProfitMargin', label: 'Ver Margen de Utilidad General', desc: 'Visualizar costos y balance de utilidades totales netas', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'reportes auditoria consola estadisticas logs'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-700 dark:text-purple-400 font-bold shrink-0">
+                                  <BarChart3 className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 5: Reportes, Consola & Auditoría
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Consultas analíticas en tiempo real, exportación a Excel/PDF, auditoría de eventos y registros históricos.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('reportes', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* ======================================================= */}
+                      {/* MODULE 6: CONFIGURACIÓN DEL NEGOCIO, TARIFAS & FISCAL    */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.uiVisibility.showTabSettings;
+                        const visItems = [
+                          { key: 'showTabSettings', label: 'Ver Pestaña de Configuración', desc: 'Mostrar acceso de tarifas y configuración en el menú lateral' },
+                          { key: 'showInvoiceDianParams', label: 'Ver Parámetros DIAN', desc: 'Mostrar sección de Facturación Electrónica DIAN', defaultVal: false },
+                          { key: 'showPrinterConfigModule', label: 'Ver Configuración Impresoras', desc: 'Mostrar acceso al configurador de impresoras y tiques térmicos', defaultVal: false },
+                          { key: 'showUsersManagementButton', label: 'Ver Botón Control de Usuarios', desc: 'Mostrar botón de usuarios en barra superior y menú', defaultVal: false },
+                          { key: 'showDatabaseButton', label: 'Ver Botón Base de Datos', desc: 'Mostrar botón de BD local en barra superior y menú', defaultVal: false }
+                        ];
+                        const permItems = [
+                          { key: 'canEditRates', label: 'Editar Tarifas & Tiempos', desc: 'Editar los precios del parqueadero, fracciones y tolerancias' },
+                          { key: 'canManageVehicleCategories', label: 'Gestionar Tipos de Vehículo', desc: 'Añadir categorías de vehículos y tarifas personalizadas', defaultVal: false },
+                          { key: 'canManageAgreements', label: 'Gestionar Convenios Comerciales', desc: 'Crear sellos y acuerdos de descuento con aliados', defaultVal: false },
+                          { key: 'canEditBusinessInfo', label: 'Editar Datos del Negocio', desc: 'Modificar NIT, razón social y pie de texto del ticket', defaultVal: false },
+                          { key: 'canConfigurePrinters', label: 'Configurar Impresoras Térmicas', desc: 'Ajustar ancho de papel (80/58mm), logo y comandos de corte', defaultVal: false },
+                          { key: 'canConfigureDianInvoicing', label: 'Configurar Factura Electrónica DIAN', desc: 'Modificar rangos y parámetros fiscales DIAN', defaultVal: false },
+                          { key: 'canConfigurePaymentMethods', label: 'Configurar Medios de Pago & QR', desc: 'Cuentas bancarias, billeteras, BreB y datáfonos', defaultVal: false },
+                          { key: 'canManageDatabase', label: 'Gestionar Base de Datos Local', desc: 'Exportar backups, restaurar copias de seguridad' },
+                          { key: 'canManageUsers', label: 'Administrar Usuarios & Permisos', desc: 'Crear/editar cuentas de empleados (Reservado Maestro)' },
+                          { key: 'canConfigureSystemTheme', label: 'Personalizar Tema & Neón', desc: 'Configurar la visual del sistema y efectos visuales neón', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'configuración tarifas fiscal dian impresoras usuarios base de datos negocio'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400 font-bold shrink-0">
+                                  <Settings className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 6: Configuración del Negocio, Tarifas & Fiscal
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Edición de tarifas, medios de pago, datos de empresa, facturación DIAN, impresoras térmicas y usuarios.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('config', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* ======================================================= */}
+                      {/* MODULE 7: RED, SERVIDOR CENTRAL & SOPORTE REMOTO         */}
+                      {/* ======================================================= */}
+                      {(() => {
+                        const moduleEnabled = roleConfig.permissions.canAccessCentralHub !== false || roleConfig.uiVisibility.showCentralHubButton !== false;
+                        const visItems = [
+                          { key: 'showCentralHubButton', label: 'Ver Botón Servidor Central Hub', desc: 'Mostrar acceso al Servidor Central y Sedes en el menú', defaultVal: false },
+                          { key: 'showBranchSyncButton', label: 'Ver Botón Sincronización', desc: 'Mostrar botón de sincronización de datos con Central', defaultVal: false },
+                          { key: 'showAppUpdaterButton', label: 'Ver Botón Actualizador OTA', desc: 'Mostrar botón de actualizaciones de software', defaultVal: false },
+                          { key: 'showWorkModeBadge', label: 'Ver Insignia Modo Red Servidor/POS', desc: 'Mostrar indicador de modo de trabajo en barra superior', defaultVal: false },
+                          { key: 'showBranchesGrid', label: 'Ver Tabla de Sucursales', desc: 'Mostrar lista de sedes y estados en la sede central', defaultVal: false },
+                          { key: 'showVncRemoteDesktopButton', label: 'Ver Botón FarmaDesk Remoto', desc: 'Mostrar acceso directo a consola de escritorio remoto', defaultVal: false },
+                          { key: 'showTechnicalNetworkParams', label: 'Ver Parámetros LAN/WAN', desc: 'Mostrar IPs, puertos de sockets y topología de red', defaultVal: false },
+                          { key: 'showBranchIdentifierBadge', label: 'Ver Insignia Sede Actual', desc: 'Mostrar nombre de la sucursal actual en barra superior', defaultVal: true }
+                        ];
+                        const permItems = [
+                          { key: 'canAccessCentralHub', label: 'Acceso a Consola Central Hub', desc: 'Ver red nacional de sucursales, telemetría y consolidación', defaultVal: false },
+                          { key: 'canPublishCentralUpdates', label: 'Publicar Tarifas a Sucursales', desc: 'Crear y emitir paquetes de actualización hacia las sedes', defaultVal: false },
+                          { key: 'canSyncWithCentralServer', label: 'Sincronizar con Sede Central', desc: 'Forzar sincronización bidireccional y recibir parámetros', defaultVal: false },
+                          { key: 'canPerformAppUpdates', label: 'Actualizador de Software (OTA)', desc: 'Descargar e instalar versiones de software y módulos', defaultVal: false },
+                          { key: 'canManageBranchLocations', label: 'Gestionar Sedes Físicas', desc: 'Añadir, editar o eliminar sucursales en la red', defaultVal: false },
+                          { key: 'canViewVncRemoteDesktop', label: 'Acceso a FarmaDesk Remoto', desc: 'Visualizar control remoto VNC de otras terminales', defaultVal: false },
+                          { key: 'canExecuteRemoteOrders', label: 'Emitir Órdenes Remotas', desc: 'Ejecutar comandos en terminales remotas (reinicios, cierres)', defaultVal: false },
+                          { key: 'canConfigureTechnicalTerminalProps', label: 'Configurar Modo de Trabajo & Puertos', desc: 'Modificar modo Servidor/Punto POS y puertos', defaultVal: false },
+                          { key: 'canSwitchBranchSimulation', label: 'Conmutar Sucursal en Pruebas', desc: 'Cambiar de sede activa en el entorno de pruebas', defaultVal: false }
+                        ];
+
+                        const matchingVis = visItems.filter(i => matches(i.label, i.desc));
+                        const matchingPerms = permItems.filter(i => matches(i.label, i.desc));
+                        if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'red servidor central farmadesk vnc sincronizacion ota actualizaciones sucursales'.includes(query)) return null;
+
+                        return (
+                          <div className={`p-5 rounded-2xl border transition-all ${
+                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          }`}>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-700 dark:text-indigo-400 font-bold shrink-0">
+                                  <Server className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    Módulo 7: Red, Servidor Central, Sincronización & Soporte Remoto
+                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    }`}>
+                                      {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
+                                    </span>
+                                  </h4>
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                    Hub matriz, telemetría nacional, sincronización de sedes, consola FarmaDesk Pro y actualizaciones OTA.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  disabled={isMaster}
+                                  onClick={() => handleSetModulePermissionsForRole('central', !moduleEnabled)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                    moduleEnabled
+                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                  }`}
+                                >
+                                  {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
+                                </button>
+                              </div>
+                            </div>
+
+                            {moduleEnabled && (
+                              <div className="mt-4 space-y-5">
+                                {matchingVis.length > 0 && (
+                                  <div className="space-y-2">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                      <Eye className="w-3.5 h-3.5" />
+                                      👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingVis.map(item => (
+                                        <VisibilityCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.uiVisibility as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixVisibilityToggle(item.key as keyof UserUIVisibility)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {matchingPerms.length > 0 && (
+                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                      <Sliders className="w-3.5 h-3.5" />
+                                      ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
+                                    </h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                      {matchingPerms.map(item => (
+                                        <PermissionCheckbox
+                                          key={item.key}
+                                          label={item.label}
+                                          desc={item.desc}
+                                          checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
+                                          disabled={isMaster}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}
@@ -3032,6 +3011,46 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           />
                         </div>
 
+                        {/* Group: Abonados y Mensualidades */}
+                        <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
+                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                            <Users className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                            Abonados y Mensualidades
+                          </h4>
+
+                          <PermissionCheckbox
+                            label="Ver y Consultar Abonados"
+                            desc="Consultar contratos, clientes recurrentes y estados"
+                            checked={formPermissions.canViewSubscribers ?? true}
+                            disabled={formRole === 'master'}
+                            onChange={() => handlePermissionToggle('canViewSubscribers')}
+                          />
+
+                          <PermissionCheckbox
+                            label="Registrar Nuevos Abonados"
+                            desc="Crear contratos de mensualidad, asociar clientes y placas"
+                            checked={formPermissions.canCreateSubscribers ?? false}
+                            disabled={formRole === 'master'}
+                            onChange={() => handlePermissionToggle('canCreateSubscribers')}
+                          />
+
+                          <PermissionCheckbox
+                            label="Renovar y Cobrar Mensualidades"
+                            desc="Liquidar cobros periódicos de mensualidad y emitir recibos"
+                            checked={formPermissions.canRenewSubscribers ?? false}
+                            disabled={formRole === 'master'}
+                            onChange={() => handlePermissionToggle('canRenewSubscribers')}
+                          />
+
+                          <PermissionCheckbox
+                            label="Cancelar / Pausar Contratos"
+                            desc="Finalizar o suspender afiliaciones de abonados"
+                            checked={formPermissions.canCancelSubscribers ?? false}
+                            disabled={formRole === 'master'}
+                            onChange={() => handlePermissionToggle('canCancelSubscribers')}
+                          />
+                        </div>
+
                         <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
                           <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
                             <DollarSign className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
@@ -3235,15 +3254,15 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Group 1: Pestañas Principales */}
+                      {/* Modulo 1: Pestañas Principales y Navegación */}
                       <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
                         <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
                           <Eye className="w-3.5 h-3.5 text-sky-700 dark:text-sky-400" />
-                          Visibilidad de Pestañas Superiores
+                          1. Pestañas Principales y Menús
                         </h4>
 
                         <VisibilityCheckbox
-                          label="Mostrar Pestaña 'Operaciones'"
+                          label="Mostrar Pestaña 'Operaciones POS'"
                           desc="Módulo principal de entrada y cobro de vehículos"
                           checked={formUiVisibility.showTabOperations ?? true}
                           disabled={formRole === 'master'}
@@ -3256,6 +3275,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           checked={formUiVisibility.showTabMap ?? true}
                           disabled={formRole === 'master'}
                           onChange={() => handleUiVisibilityToggle('showTabMap')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Pestaña 'Abonados y Mensualidades'"
+                          desc="Permite ver el acceso al módulo de clientes abonados y mensualidades en el menú lateral"
+                          checked={formUiVisibility.showSubscribersModule ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showSubscribersModule')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Pestaña 'Caja & Turnos'"
+                          desc="Permite ver el botón para abrir el modal y vista de estado de caja"
+                          checked={formUiVisibility.showTabCash ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showTabCash')}
                         />
 
                         <VisibilityCheckbox
@@ -3275,23 +3310,23 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Botón de Turno y Caja"
-                          desc="Permite ver el botón para abrir el modal de estado de caja"
-                          checked={formUiVisibility.showTabCash ?? true}
+                          label="Mostrar Acceso 'Configuración de Impresoras'"
+                          desc="Permite visualizar el acceso para calibrar impresoras térmicas y formato de tickets"
+                          checked={formUiVisibility.showPrinterConfigModule ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showTabCash')}
+                          onChange={() => handleUiVisibilityToggle('showPrinterConfigModule')}
                         />
                       </div>
 
-                      {/* Group 2: Widgets del Header & Métricas de Dinero */}
+                      {/* Modulo 2: Widgets del Header & Barra Superior */}
                       <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
                         <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
                           <EyeOff className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
-                          Métricas y Seguridad en Pantalla
+                          2. Widgets y Accesos de Barra Superior
                         </h4>
 
                         <VisibilityCheckbox
-                          label="Mostrar Métrica de Dinero Recaudado en Encabezado"
+                          label="Mostrar Métrica de Dinero Recaudado"
                           desc="Si se oculta, el cajero NO verá el dinero acumulado total en la barra superior"
                           checked={formUiVisibility.showTopRevenueMetrics ?? true}
                           disabled={formRole === 'master'}
@@ -3307,59 +3342,43 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Acceso Rápido a Base de Datos"
-                          desc="Botón directo a la consola de base de datos en el encabezado"
-                          checked={formUiVisibility.showDatabaseButton ?? false}
+                          label="Mostrar Reloj Digital en Vivo"
+                          desc="Muestra la hora y fecha del sistema en tiempo real en la barra superior"
+                          checked={formUiVisibility.showLiveClockWidget ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showDatabaseButton')}
+                          onChange={() => handleUiVisibilityToggle('showLiveClockWidget')}
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Historial de Tickets Cobrados"
-                          desc="Visualizar tabla inferior de vehículos que ya pagaron y salieron"
-                          checked={formUiVisibility.showPaidTicketsHistory ?? true}
+                          label="Mostrar Insignia de Sucursal / Sede"
+                          desc="Muestra el distintivo con el código y nombre de la sucursal activa en la barra superior"
+                          checked={formUiVisibility.showBranchIdentifierBadge ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showPaidTicketsHistory')}
+                          onChange={() => handleUiVisibilityToggle('showBranchIdentifierBadge')}
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Tarjetas de Resumen de Recaudo Diario"
-                          desc="Oculta los recuadros de total en efectivo, tarjetas y transferencias"
-                          checked={formUiVisibility.showDailySummaryCards ?? false}
+                          label="Mostrar Insignia / Selector de Modo de Red"
+                          desc="Muestra el indicador de modo de red (Terminal Local / Servidor Remoto)"
+                          checked={formUiVisibility.showWorkModeBadge ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showDailySummaryCards')}
+                          onChange={() => handleUiVisibilityToggle('showWorkModeBadge')}
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Desglose de Medios de Pago en Vivo"
-                          desc="Si se apaga, no verá el desglose por medio de pago (Nequi, Tarjeta, Daviplata) hasta el arqueo final"
-                          checked={formUiVisibility.showLivePaymentBreakdown ?? true}
+                          label="Mostrar Botón Rápido 'Abonados' en Encabezado"
+                          desc="Acceso directo a la gestión de mensualidades desde la barra superior"
+                          checked={formUiVisibility.showSubscribersTopButton ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showLivePaymentBreakdown')}
+                          onChange={() => handleUiVisibilityToggle('showSubscribersTopButton')}
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Botón 'Configurar Medios' en Cobro"
-                          desc="Permite acceder al asistente de configuración de cuentas y QR desde el panel de cobro"
-                          checked={formUiVisibility.showConfigurePaymentMethodsButton ?? true}
+                          label="Mostrar Botón 'Abrir Cajón' sin Venta"
+                          desc="Muestra el botón de apertura manual del cajón monedero en la barra de utilidades"
+                          checked={formUiVisibility.showOpenCashDrawerButton ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showConfigurePaymentMethodsButton')}
-                        />
-
-                        <VisibilityCheckbox
-                          label="Mostrar Botón 'Gestión de Plazas' en Encabezado y Mapa"
-                          desc="Muestra el acceso al panel dedicado de creación y administración masiva de plazas de parqueo"
-                          checked={formUiVisibility.showSpotsManagementButton ?? true}
-                          disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showSpotsManagementButton')}
-                        />
-
-                        <VisibilityCheckbox
-                          label="Mostrar Opción 'Recogida de Dinero' en Caja y Turnos"
-                          desc="Muestra la opción para realizar salidas por concepto de recogida parcial de efectivo por seguridad"
-                          checked={formUiVisibility.showCashPickupOption ?? true}
-                          disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showCashPickupOption')}
+                          onChange={() => handleUiVisibilityToggle('showOpenCashDrawerButton')}
                         />
 
                         <VisibilityCheckbox
@@ -3387,20 +3406,100 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         />
 
                         <VisibilityCheckbox
-                          label="Mostrar Insignia de Sucursal / Sede en Encabezado"
-                          desc="Muestra el distintivo con el código y nombre de la sucursal activa en la parte superior"
-                          checked={formUiVisibility.showBranchIdentifierBadge ?? true}
+                          label="Mostrar Botón 'Soporte FarmaDesk (VNC)'"
+                          desc="Acceso directo para solicitar y lanzar sesión de escritorio remoto de asistencia"
+                          checked={formUiVisibility.showVncRemoteDesktopButton ?? true}
                           disabled={formRole === 'master'}
-                          onChange={() => handleUiVisibilityToggle('showBranchIdentifierBadge')}
+                          onChange={() => handleUiVisibilityToggle('showVncRemoteDesktopButton')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Acceso Rápido a Base de Datos"
+                          desc="Botón directo a la consola de base de datos en el encabezado"
+                          checked={formUiVisibility.showDatabaseButton ?? false}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showDatabaseButton')}
                         />
                       </div>
 
-                      {/* Group 3: Políticas de Caja / Arqueo Ciego */}
+                      {/* Modulo 3: Pantalla de Operaciones y Cobro */}
+                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                          <Car className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          3. Pantalla de Patio POS y Operaciones
+                        </h4>
+
+                        <VisibilityCheckbox
+                          label="Mostrar Tarjetas de Resumen de Recaudo Diario"
+                          desc="Oculta o muestra los recuadros de total en efectivo, tarjetas y transferencias"
+                          checked={formUiVisibility.showDailySummaryCards ?? false}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showDailySummaryCards')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Contador de Vehículos en Patio"
+                          desc="Métrica visual de la cantidad total de vehículos actualmente estacionados"
+                          checked={formUiVisibility.showVehiclesInYardMetric ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showVehiclesInYardMetric')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Contador de Recaudo del Turno"
+                          desc="Métrica del monto total recaudado durante el turno operativo actual"
+                          checked={formUiVisibility.showTurnRevenueMetric ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showTurnRevenueMetric')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Historial de Tickets Cobrados"
+                          desc="Visualizar tabla inferior de vehículos que ya pagaron y salieron del parqueadero"
+                          checked={formUiVisibility.showPaidTicketsHistory ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showPaidTicketsHistory')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Botón 'Configurar Medios' en Cobro"
+                          desc="Permite acceder al asistente de configuración de cuentas y QR desde el panel de cobro"
+                          checked={formUiVisibility.showConfigurePaymentMethodsButton ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showConfigurePaymentMethodsButton')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Widget de Cámara ANPR"
+                          desc="Muestra la vista en vivo de la cámara de reconocimiento automático de placas"
+                          checked={formUiVisibility.showAnprCameraWidget ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showAnprCameraWidget')}
+                        />
+                      </div>
+
+                      {/* Modulo 4: Pantalla de Mapa y Gestión de Plazas */}
+                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                          <MapPin className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
+                          4. Pantalla de Mapa y Plazas
+                        </h4>
+
+                        <VisibilityCheckbox
+                          label="Mostrar Botón 'Gestión de Plazas' en Encabezado y Mapa"
+                          desc="Muestra el acceso al panel dedicado de creación y administración masiva de plazas de parqueo"
+                          checked={formUiVisibility.showSpotsManagementButton ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showSpotsManagementButton')}
+                        />
+                      </div>
+
+                      {/* Modulo 5: Políticas de Caja & Turnos */}
                       <div className="col-span-1 md:col-span-2 bg-amber-500/5 p-4 rounded-xl border border-amber-500/20 space-y-3">
                         <div className="flex items-center gap-2">
                           <Lock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                           <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider font-mono">
-                            Políticas de Control de Caja para este Perfil
+                            5. Pantalla de Caja, Turnos y Políticas de Arqueo
                           </h4>
                         </div>
 
@@ -3420,7 +3519,119 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             disabled={formRole === 'master'}
                             onChange={() => handlePermissionToggle('blindCashCount')}
                           />
+
+                          <VisibilityCheckbox
+                            label="Mostrar Opción 'Recogida de Dinero' en Caja"
+                            desc="Muestra la opción para realizar salidas por concepto de recogida parcial de efectivo por seguridad"
+                            checked={formUiVisibility.showCashPickupOption ?? true}
+                            disabled={formRole === 'master'}
+                            onChange={() => handleUiVisibilityToggle('showCashPickupOption')}
+                          />
+
+                          <VisibilityCheckbox
+                            label="Mostrar Botón 'Histórico de Cierres' en Caja"
+                            desc="Permite consultar cierres pasados, actas de arqueo y reimprimir tirillas históricas"
+                            checked={formUiVisibility.showCashShiftsHistory ?? true}
+                            disabled={formRole === 'master'}
+                            onChange={() => handleUiVisibilityToggle('showCashShiftsHistory')}
+                          />
+
+                          <VisibilityCheckbox
+                            label="Mostrar Desglose de Medios de Pago en Vivo"
+                            desc="Si se apaga, no verá el desglose por medio de pago (Nequi, Tarjeta, Daviplata) hasta el arqueo final"
+                            checked={formUiVisibility.showLivePaymentBreakdown ?? true}
+                            disabled={formRole === 'master'}
+                            onChange={() => handleUiVisibilityToggle('showLivePaymentBreakdown')}
+                          />
                         </div>
+                      </div>
+
+                      {/* Modulo 6: Pantalla de Reportes y Auditoría */}
+                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                          <BarChart3 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                          6. Pantalla de Reportes y Auditoría
+                        </h4>
+
+                        <VisibilityCheckbox
+                          label="Mostrar Tarjetas de KPIs Financieros"
+                          desc="Muestra los totales consolidados de facturación, promedios y márgenes en la vista de reportes"
+                          checked={formUiVisibility.showFinancialKpisInReports ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showFinancialKpisInReports')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Gráficos de Tráfico y Ocupación"
+                          desc="Muestra las gráficas analíticas de afluencia por horas y distribución vehicular"
+                          checked={formUiVisibility.showTrafficChartsInReports ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showTrafficChartsInReports')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Panel de Registros de Auditoría"
+                          desc="Visualizar la bitácora de eventos del sistema dentro del módulo de reportes"
+                          checked={formUiVisibility.showAuditLogsPanel ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showAuditLogsPanel')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Estadísticas de Rendimiento de Cajeros"
+                          desc="Muestra el widget de velocidad de atención y volumen recaudado por operador"
+                          checked={formUiVisibility.showEmployeeKpiWidget ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showEmployeeKpiWidget')}
+                        />
+                      </div>
+
+                      {/* Modulo 7: Configuración del Negocio, Red y Fiscal */}
+                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
+                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                          <Settings className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                          7. Configuración del Negocio, Red y Fiscal
+                        </h4>
+
+                        <VisibilityCheckbox
+                          label="Mostrar Parámetros de Facturación Electrónica DIAN"
+                          desc="Visualizar claves técnicas, resolución, prefijos y tokens de emisión DIAN"
+                          checked={formUiVisibility.showInvoiceDianParams ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showInvoiceDianParams')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Parámetros Técnicos de Red LAN/WAN"
+                          desc="Visualizar configuración de puertos, sockets de comunicación y URL de servidor"
+                          checked={formUiVisibility.showTechnicalNetworkParams ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showTechnicalNetworkParams')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Tabla de Sucursales de la Red"
+                          desc="Permite visualizar la lista de sedes registradas en el sistema"
+                          checked={formUiVisibility.showBranchesGrid ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showBranchesGrid')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Tabla de Puntos de Venta / Taquillas"
+                          desc="Permite ver la lista de terminales y puntos de cobro físicos configurados"
+                          checked={formUiVisibility.showPosPointsGrid ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showPosPointsGrid')}
+                        />
+
+                        <VisibilityCheckbox
+                          label="Mostrar Tabla de Bodegas y Almacén"
+                          desc="Permite ver las bodegas e inventario auxiliar en el sistema"
+                          checked={formUiVisibility.showWarehousesGrid ?? true}
+                          disabled={formRole === 'master'}
+                          onChange={() => handleUiVisibilityToggle('showWarehousesGrid')}
+                        />
                       </div>
                     </div>
                   </div>
