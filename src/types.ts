@@ -788,6 +788,8 @@ export interface BranchLocation {
   diskUsage?: number;                     // Uso de disco (%)
   activeConnections?: number;             // Conexiones activas en la sede
   installedGlobalVersion?: string;        // Versión de globales/parámetros instalada en la sede (ej. 'G-1.0.3')
+  installedGlobalAt?: string;             // Fecha y hora en la que se aplicó la versión de globales en la sucursal
+  installedSoftwareAt?: string;           // Fecha y hora en la que se instaló la versión del software en la sucursal
   installedSoftwareVersion?: string;      // Versión del sistema / binario instalada en la sede (ej. 'v2.6.0-enterprise')
   isGlobalOutdated?: boolean;             // Si la versión de globales está desactualizada respecto a la Central
   isAppOutdated?: boolean;                // Si la versión del sistema está desactualizada respecto a la Central
@@ -802,6 +804,30 @@ export interface BranchLocation {
     cashInDrawer?: number;
     lastClosureDate?: string;
   };
+}
+
+export interface CentralGlobalVersionData {
+  activeVersion: string;
+  publishedAt: string;
+  publishedBy: string;
+  title: string;
+  description: string;
+  targetScope: 'all' | 'specific';
+  targetBranchIds: string[];
+  rates?: any;
+  users?: any[];
+  userTemplates?: any[];
+  roleMatrixConfig?: any;
+  vehicleCategories?: any[];
+  expenseConcepts?: any[];
+  expenseCategories?: any[];
+  parameters?: any;
+  history?: Array<{
+    version: string;
+    archivedAt: string;
+    title?: string;
+    description?: string;
+  }>;
 }
 
 export interface CentralUpdatePackage {

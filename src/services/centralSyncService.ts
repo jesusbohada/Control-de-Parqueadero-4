@@ -1,6 +1,7 @@
 import {
   ServerDataConnectionConfig,
   CentralUpdatePackage,
+  CentralGlobalVersionData,
   BranchLocation,
   RatesConfig,
   VehicleCategoryConfig,
@@ -504,9 +505,12 @@ export async function fetchBranchesTelemetry(): Promise<BranchLocation[]> {
  */
 export async function pullCentralData(branchId: string, customBaseUrl?: string): Promise<{
   success: boolean;
+  isRemote?: boolean;
   packages: CentralUpdatePackage[];
   pendingPackages: CentralUpdatePackage[];
   pendingCount: number;
+  activeGlobalVersion?: string;
+  globalVersionData?: CentralGlobalVersionData;
   globalConfig?: {
     rates?: RatesConfig;
     vehicleCategories?: VehicleCategoryConfig[];
@@ -522,20 +526,24 @@ export async function pullCentralData(branchId: string, customBaseUrl?: string):
   latencyMs: number;
 }> {
   const query = `?branchId=${encodeURIComponent(branchId)}`;
+  const remoteUrl = customBaseUrl || getRemoteBaseUrlFromConfig();
   
-  // Try custom URL if provided, with automatic fallback to local endpoint
-  if (customBaseUrl) {
+  // Try remote URL first if configured, with automatic fallback to local endpoint
+  if (remoteUrl) {
     try {
-      const fullUrl = `${customBaseUrl.replace(/\/+$/, '')}/api/sync/pull-central-data${query}`;
-      const res = await fetch(fullUrl, { signal: AbortSignal.timeout(3500) });
+      const fullUrl = `${remoteUrl.replace(/\/+$/, '')}/api/sync/pull-central-data${query}`;
+      const res = await fetch(fullUrl, { signal: AbortSignal.timeout(4000) });
       if (res.ok) {
         const json = await res.json();
         if (json.success) {
           return {
             success: true,
+            isRemote: true,
             packages: json.packages || [],
             pendingPackages: json.pendingPackages || [],
             pendingCount: json.pendingCount || 0,
+            activeGlobalVersion: json.activeGlobalVersion,
+            globalVersionData: json.globalVersionData,
             globalConfig: json.globalConfig || {},
             serverTime: json.serverTime || new Date().toISOString(),
             latencyMs: json.latencyMs || 18
@@ -543,7 +551,7 @@ export async function pullCentralData(branchId: string, customBaseUrl?: string):
         }
       }
     } catch (e) {
-      console.warn('[SyncService] Servidor remoto no accesible, intentando endpoint local:', e);
+      console.warn('[SyncService] Servidor remoto no accesible en pullCentralData, intentando endpoint local:', e);
     }
   }
 
@@ -554,9 +562,12 @@ export async function pullCentralData(branchId: string, customBaseUrl?: string):
       if (json.success) {
         return {
           success: true,
+          isRemote: false,
           packages: json.packages || [],
           pendingPackages: json.pendingPackages || [],
           pendingCount: json.pendingCount || 0,
+          activeGlobalVersion: json.activeGlobalVersion,
+          globalVersionData: json.globalVersionData,
           globalConfig: json.globalConfig || {},
           serverTime: json.serverTime || new Date().toISOString(),
           latencyMs: json.latencyMs || 18
@@ -569,6 +580,7 @@ export async function pullCentralData(branchId: string, customBaseUrl?: string):
 
   return {
     success: false,
+    isRemote: false,
     packages: [],
     pendingPackages: [],
     pendingCount: 0,
@@ -803,6 +815,14 @@ export function getInstalledGlobalVersion(): string {
 }
 
 /**
+ * Obtener la fecha y hora en que se aplicó la versión de Globales en esta sucursal
+ */
+export function getInstalledGlobalDate(): string {
+  if (typeof window === 'undefined') return '';
+  return localStorage.getItem('pk_installed_global_date') || '';
+}
+
+/**
  * Guardar la versión de Globales instalada localmente
  */
 export function setInstalledGlobalVersion(version: string): void {
@@ -811,53 +831,83 @@ export function setInstalledGlobalVersion(version: string): void {
 }
 
 /**
+ * Guardar la versión de Globales y su marca temporal de aplicación
+ */
+export function setInstalledGlobalVersionAndDate(version: string, dateStr?: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('pk_installed_global_version', version);
+  const now = dateStr || new Date().toISOString();
+  localStorage.setItem('pk_installed_global_date', now);
+}
+
+/**
  * Consultar la versión oficial vigente de Globales desde el Servidor Central
  */
 export async function fetchCentralGlobalVersion(customBaseUrl?: string): Promise<{
   success: boolean;
-  data?: {
-    activeVersion: string;
-    publishedAt: string;
-    publishedBy: string;
-    title: string;
-    description: string;
-    targetScope: 'all' | 'specific';
-    targetBranchIds: string[];
-    rates?: any;
-    users?: any[];
-    userTemplates?: any[];
-    roleMatrixConfig?: any;
-    vehicleCategories?: any[];
-    expenseConcepts?: any[];
-    expenseCategories?: any[];
-    parameters?: any;
-    history?: any[];
-  };
+  isRemote?: boolean;
+  remoteUrl?: string;
+  remoteError?: string;
+  data?: CentralGlobalVersionData;
   error?: string;
 }> {
   const remoteUrl = customBaseUrl || getRemoteBaseUrlFromConfig();
   if (remoteUrl) {
     try {
       const fullUrl = `${remoteUrl.replace(/\/+$/, '')}/api/sync/global-version`;
-      const res = await fetch(fullUrl, { signal: AbortSignal.timeout(3500) });
+      const res = await fetch(fullUrl, { signal: AbortSignal.timeout(4000) });
       if (res.ok) {
-        return await res.json();
+        const json = await res.json();
+        if (json.success && json.data) {
+          return {
+            success: true,
+            isRemote: true,
+            remoteUrl,
+            data: json.data
+          };
+        }
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn('[SyncService] Falló consulta remota de global-version:', e);
+      // Intento de respaldo con copia local, pero alertando de fallo en el enlace remoto
+      try {
+        const localRes = await fetch('/api/sync/global-version');
+        if (localRes.ok) {
+          const localJson = await localRes.json();
+          return {
+            success: true,
+            isRemote: false,
+            remoteUrl,
+            remoteError: `No se pudo conectar al Servidor Central (${remoteUrl}). Comprueba la IP o el puerto.`,
+            data: localJson.data
+          };
+        }
+      } catch (localErr) {}
+      return {
+        success: false,
+        isRemote: false,
+        remoteUrl,
+        remoteError: `No se pudo conectar al Servidor Central (${remoteUrl}).`,
+        error: e.message || 'Error de conexión remota'
+      };
     }
   }
 
   try {
     const res = await fetch('/api/sync/global-version');
     if (res.ok) {
-      return await res.json();
+      const json = await res.json();
+      return {
+        success: true,
+        isRemote: false,
+        data: json.data
+      };
     }
   } catch (err: any) {
     console.warn('[SyncService] Falló consulta local de global-version:', err);
   }
 
-  return { success: false, error: 'No se pudo obtener la versión de Globales' };
+  return { success: false, isRemote: false, error: 'No se pudo obtener la versión de Globales' };
 }
 
 /**
@@ -928,7 +978,12 @@ export async function pushBranchOperationsToCentral(payload: {
   systemVersions?: {
     appVersion: string;
     installedGlobalVersion: string;
+    installedGlobalAt?: string;
+    installedSoftwareAt?: string;
   };
+  installedGlobalVersion?: string;
+  installedGlobalAt?: string;
+  installedSoftwareAt?: string;
   timestamp?: string;
 }, customBaseUrl?: string): Promise<{
   success: boolean;

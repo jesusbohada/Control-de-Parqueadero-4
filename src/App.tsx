@@ -140,7 +140,9 @@ import {
   fetchCentralPackages,
   getServerDataConfig,
   getInstalledGlobalVersion,
+  getInstalledGlobalDate,
   setInstalledGlobalVersion,
+  setInstalledGlobalVersionAndDate,
   fetchCentralGlobalVersion,
   pushBranchOperationsToCentral,
   fetchBranchesOperations
@@ -2010,10 +2012,12 @@ export default function App() {
 
     // 8. Global Version Registration
     if (pkg.payload.globalVersion) {
-      setInstalledGlobalVersion(pkg.payload.globalVersion);
+      const nowApplied = new Date().toISOString();
+      setInstalledGlobalVersionAndDate(pkg.payload.globalVersion, nowApplied);
       setBranches(prev => prev.map(b => b.id === currentBranch.id ? {
         ...b,
         installedGlobalVersion: pkg.payload.globalVersion,
+        installedGlobalAt: nowApplied,
         isGlobalOutdated: false
       } : b));
       details.push(`Versión de Globales elevada a ${pkg.payload.globalVersion}`);
@@ -2131,6 +2135,19 @@ export default function App() {
         localStorage.setItem('pk_expense_categories', JSON.stringify(centralData.globalConfig.expenseCategories));
         dbSaveExpenseCategories(centralData.globalConfig.expenseCategories).catch(console.error);
       }
+
+      // If centralData returned direct activeGlobalVersion, update local version and date
+      if (centralData.activeGlobalVersion) {
+        const nowApplied = new Date().toISOString();
+        setInstalledGlobalVersionAndDate(centralData.activeGlobalVersion, nowApplied);
+        setBranches(prev => prev.map(b => b.id === currentBranch.id ? {
+          ...b,
+          installedGlobalVersion: centralData.activeGlobalVersion,
+          installedGlobalAt: nowApplied,
+          isGlobalOutdated: false
+        } : b));
+        appliedSummaryDetails.push(`Versión de Globales sincronizada a ${centralData.activeGlobalVersion}`);
+      }
     } catch (err) {
       console.warn('[Sync] Error en pullCentralData:', err);
     }
@@ -2209,7 +2226,9 @@ export default function App() {
       branchId: currentBranch.id,
       branchName: currentBranch.name,
       installedGlobalVersion: currentGlobalVer,
+      installedGlobalAt: getInstalledGlobalDate() || undefined,
       installedSoftwareVersion: installedSoftwareVer,
+      installedSoftwareAt: localStorage.getItem('pk_installed_date') || undefined,
       operationalDay: operationalDay,
       currentShift: currentShift,
       closedShiftsCount: closedShiftsHistory.length,

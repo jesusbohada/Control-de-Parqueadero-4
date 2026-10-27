@@ -72,6 +72,7 @@ import {
   fetchBranchesOperations
 } from '../services/centralSyncService';
 import { parseAndIncrementVersion } from '../utils/versionUtils';
+import { formatDateTimeNice } from './SoftwareUpdaterModal';
 import { CentralDashboard } from './CentralDashboard';
 
 interface CentralHubModalProps {
@@ -136,6 +137,7 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
 
   // Estados para Publicación Manual de Versión de Globales
   const [activeGlobalVer, setActiveGlobalVer] = useState<string>('G-1.0.0');
+  const [activeGlobalPublishedAt, setActiveGlobalPublishedAt] = useState<string>('');
   const [globalHistory, setGlobalHistory] = useState<any[]>([]);
   const [isPublishingGlobal, setIsPublishingGlobal] = useState<boolean>(false);
   const [globalPublishSuccess, setGlobalPublishSuccess] = useState<string | null>(null);
@@ -167,6 +169,9 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
       const res = await fetchCentralGlobalVersion();
       if (res && res.success && res.data?.activeVersion) {
         setActiveGlobalVer(res.data.activeVersion);
+        if (res.data.publishedAt) {
+          setActiveGlobalPublishedAt(res.data.publishedAt);
+        }
         setGlobalHistory(res.data.history || []);
         const incResult = parseAndIncrementVersion(res.data.activeVersion.replace('G-', 'v'));
         setNewGlobalVersionCode(incResult.nextPatchVersion.replace('v', 'G-').replace('-enterprise', ''));
@@ -235,8 +240,10 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
 
       const result = await publishCentralGlobalVersion(payload);
       if (result.success) {
+        const publishedDateIso = result.data?.publishedAt || new Date().toISOString();
         setActiveGlobalVer(newGlobalVersionCode.trim());
-        setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente! Las sucursales ya pueden descargar y aplicar los nuevos precios y parámetros.`);
+        setActiveGlobalPublishedAt(publishedDateIso);
+        setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente el ${formatDateTimeNice(publishedDateIso)}! Las sucursales ya pueden descargar y aplicar los nuevos precios y parámetros.`);
         if (onSaveRates) onSaveRates(updatedRates);
         if (onSaveBusinessInfo && businessInfo) {
           onSaveBusinessInfo({ ...businessInfo, ...updatedBusinessInfo });
@@ -1176,6 +1183,12 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 font-bold">
                           Versión Activa Central: {activeGlobalVer}
                         </span>
+                        {activeGlobalPublishedAt && (
+                          <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 font-medium flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                            Publicada el: <strong>{formatDateTimeNice(activeGlobalPublishedAt)}</strong>
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
                         Define cambios de precios, nuevos usuarios/cajeros y parámetros del sistema para despacharlos a las sucursales.
@@ -1513,7 +1526,7 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                       <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 font-mono text-[11px]">
                         <th className="py-2 px-3">Sede</th>
                         <th className="py-2 px-3">Ciudad</th>
-                        <th className="py-2 px-3">Versión Globales</th>
+                        <th className="py-2 px-3">Versión Globales & Aplicación</th>
                         <th className="py-2 px-3">Versión Sistema</th>
                         <th className="py-2 px-3">Estado</th>
                         <th className="py-2 px-3">Último Cierre / Arqueo</th>
@@ -1529,8 +1542,12 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                               {b.name} <span className="text-slate-400 font-mono text-[10px]">({b.code})</span>
                             </td>
                             <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">{b.city}</td>
-                            <td className="py-2.5 px-3 font-mono font-bold text-slate-800 dark:text-slate-200">
-                              {b.installedGlobalVersion || 'G-1.0.0'}
+                            <td className="py-2.5 px-3 font-mono">
+                              <span className="font-bold text-slate-800 dark:text-slate-200 block">{b.installedGlobalVersion || 'G-1.0.0'}</span>
+                              <span className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                                <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                                {b.installedGlobalAt ? `Aplicada: ${formatDateTimeNice(b.installedGlobalAt)}` : 'Versión base inicial'}
+                              </span>
                             </td>
                             <td className="py-2.5 px-3 font-mono text-slate-500">
                               {b.installedSoftwareVersion || b.currentAppVersion || 'v2.6.0-enterprise'}

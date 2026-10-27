@@ -67,6 +67,9 @@ async function startServer() {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Access-Control-Allow-Methods', '*');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(204);
+    }
     next();
   });
 
@@ -5154,6 +5157,8 @@ if __name__ == '__main__':
         currentCashier: currentShift?.cashierName ?? existingTel.currentCashier ?? 'Operador',
         currentAppVersion: installedAppVer,
         installedGlobalVersion: installedGlobalVer,
+        installedGlobalAt: req.body.installedGlobalAt || systemVersions?.installedGlobalAt || existingTel.installedGlobalAt || (installedGlobalVer ? new Date().toISOString() : undefined),
+        installedSoftwareAt: req.body.installedSoftwareAt || systemVersions?.installedSoftwareAt || existingTel.installedSoftwareAt,
         isGlobalOutdated: installedGlobalVer !== centralGlobalVer,
         isAppOutdated: installedAppVer !== centralAppVer,
         financialShiftSummary: currentShift ? {

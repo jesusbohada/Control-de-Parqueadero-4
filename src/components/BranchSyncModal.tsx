@@ -54,11 +54,15 @@ import {
 } from '../types';
 import { ServerDataConfigCard } from './ServerDataConfigCard';
 import { WebNotificationSettingsCard } from './WebNotificationSettingsCard';
+import { formatDateTimeNice } from './SoftwareUpdaterModal';
 import {
   getServerDataConfig,
   testServerConnection,
   getInstalledGlobalVersion,
-  fetchCentralGlobalVersion
+  getInstalledGlobalDate,
+  setInstalledGlobalVersionAndDate,
+  fetchCentralGlobalVersion,
+  DEFAULT_SERVER_DATA_CONFIG
 } from '../services/centralSyncService';
 import { getSyncMasterPolicy, SyncDomainItem } from '../services/syncDomainRegistry';
 import {
@@ -112,25 +116,116 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
   // Estados para Versión de Globales (Tarifas, Usuarios, Parámetros) y Telemetría Operativa
   const [installedGlobalVer, setInstalledGlobalVer] = useState<string>(() => currentBranch.installedGlobalVersion || getInstalledGlobalVersion());
+  const [installedGlobalDate, setInstalledGlobalDate] = useState<string>(() => currentBranch.installedGlobalAt || getInstalledGlobalDate());
   const [centralGlobalVer, setCentralGlobalVer] = useState<string>('G-1.0.0');
   const [centralGlobalData, setCentralGlobalData] = useState<any>(null);
+  const [remoteGlobalStatus, setRemoteGlobalStatus] = useState<{ isRemote?: boolean; remoteUrl?: string; remoteError?: string } | null>(null);
   const [isLoadingGlobalInfo, setIsLoadingGlobalInfo] = useState<boolean>(false);
   const [isPushingOperations, setIsPushingOperations] = useState<boolean>(false);
   const [operationsPushSuccess, setOperationsPushSuccess] = useState<string | null>(null);
 
-  const refreshGlobalVersions = async () => {
+  // Selector rápido de Host/IP Central
+  const [quickHostValue, setQuickHostValue] = useState<string>('');
+  const [isTestingHost, setIsTestingHost] = useState<boolean>(false);
+  const [hostFeedback, setHostFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const refreshGlobalVersions = async (customHost?: string) => {
     setIsLoadingGlobalInfo(true);
     try {
-      const res = await fetchCentralGlobalVersion();
+      const res = await fetchCentralGlobalVersion(customHost);
+      setRemoteGlobalStatus({
+        isRemote: res.isRemote,
+        remoteUrl: res.remoteUrl,
+        remoteError: res.remoteError
+      });
       if (res && res.success && res.data?.activeVersion) {
         setCentralGlobalVer(res.data.activeVersion);
         setCentralGlobalData(res.data);
       }
       setInstalledGlobalVer(currentBranch.installedGlobalVersion || getInstalledGlobalVersion());
-    } catch (e) {
+      setInstalledGlobalDate(currentBranch.installedGlobalAt || getInstalledGlobalDate());
+    } catch (e: any) {
       console.warn('[BranchSyncModal] Error fetching central global version:', e);
+      setRemoteGlobalStatus({
+        isRemote: false,
+        remoteError: e.message || 'Error de conexión'
+      });
     } finally {
       setIsLoadingGlobalInfo(false);
+    }
+  };
+
+  const handleTestAndSaveQuickHost = async () => {
+    const cleanHost = quickHostValue.trim();
+    if (!cleanHost) return;
+    setIsTestingHost(true);
+    setHostFeedback(null);
+    try {
+      const testRes = await testServerConnection({
+        ...serverConfig || DEFAULT_SERVER_DATA_CONFIG,
+        remoteDbHost: cleanHost
+      });
+      if (testRes.success) {
+        const updatedCfg: ServerDataConnectionConfig = {
+          ...serverConfig || DEFAULT_SERVER_DATA_CONFIG,
+          remoteDbHost: cleanHost,
+          remoteWebSocketsUrl: `ws://${cleanHost.replace(/^https?:\/\//, '')}/ws`
+        };
+        setServerConfig(updatedCfg);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('pk_server_data_config', JSON.stringify(updatedCfg));
+        }
+        if (onServerConfigSaved) {
+          onServerConfigSaved(updatedCfg);
+        }
+        setHostFeedback({
+          type: 'success',
+          text: `¡Conexión verificada con éxito con ${cleanHost}! Latencia: ${testRes.latencyMs || 15}ms.`
+        });
+        await refreshGlobalVersions(cleanHost);
+      } else {
+        setHostFeedback({
+          type: 'error',
+          text: testRes.message || 'No fue posible conectar con este host.'
+        });
+      }
+    } catch (err: any) {
+      setHostFeedback({
+        type: 'error',
+        text: err.message || 'Error al probar conexión.'
+      });
+    } finally {
+      setIsTestingHost(false);
+    }
+  };
+
+  const handleApplyGlobalVersionManual = async () => {
+    setIsSyncing(true);
+    setSyncErrorMsg(null);
+    setSyncSuccessMsg(null);
+    try {
+      setSyncStep(`[1/3] Descargando versión de Globales ${centralGlobalVer} desde Central...`);
+      await onPerformFullSync();
+
+      const now = new Date().toISOString();
+      setInstalledGlobalVersionAndDate(centralGlobalVer, now);
+      setInstalledGlobalVer(centralGlobalVer);
+      setInstalledGlobalDate(now);
+
+      setSyncStep(`[2/3] Notificando aplicación a Servidor Central...`);
+      if (onPushBranchOperations) {
+        await onPushBranchOperations();
+      }
+
+      setSyncStep(`[3/3] Confirmando sincronización...`);
+      setSyncSuccessMsg(`¡Excelente! Versión de Globales ${centralGlobalVer} aplicada con éxito en esta sede el ${formatDateTimeNice(now)}.`);
+      playSound('success');
+    } catch (err: any) {
+      setSyncErrorMsg(`Error al aplicar versión de Globales: ${err.message || 'Error desconocido'}`);
+    } finally {
+      setIsSyncing(false);
+      setSyncStep(null);
+      await refreshGlobalVersions();
     }
   };
 
@@ -1121,6 +1216,10 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                       {installedGlobalVer}
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">Terminal activa: {currentBranch.name}</span>
+                    <div className="flex items-center gap-1 text-emerald-800 dark:text-emerald-300 font-mono text-[10px] mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Aplicada el: <strong>{installedGlobalDate ? formatDateTimeNice(installedGlobalDate) : 'Versión base inicial'}</strong></span>
+                    </div>
                   </div>
 
                   <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
@@ -1133,37 +1232,114 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
                         <RefreshCw className="w-3 h-3 text-indigo-600 dark:text-indigo-400 animate-spin" />
                       )}
                     </div>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-                      {centralGlobalData?.activeVersionData?.description || 'Publicación manual desde la Central'}
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block truncate">
+                      {centralGlobalData?.description || centralGlobalData?.activeVersionData?.description || 'Parámetros del Servidor Central'}
                     </span>
+                    {remoteGlobalStatus?.remoteError ? (
+                      <div className="flex items-center gap-1 text-rose-700 dark:text-rose-400 text-[10px] mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800 font-medium" title={remoteGlobalStatus.remoteError}>
+                        <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
+                        <span className="truncate">Sin conexión con Central Remota</span>
+                      </div>
+                    ) : remoteGlobalStatus?.isRemote ? (
+                      <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 text-[10px] mt-1.5 pt-1.5 border-t border-slate-100 dark:border-slate-800 font-medium">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Enlace Central Remoto OK</span>
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Última Publicación Central:</span>
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-0.5 block">
-                      {centralGlobalData?.activeVersionData?.publishedAt 
-                        ? new Date(centralGlobalData.activeVersionData.publishedAt).toLocaleString('es-CO')
-                        : 'Vigente'}
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Publicación en Servidor Central:</span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-0.5 block flex items-center gap-1">
+                      <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
+                      {centralGlobalData?.publishedAt 
+                        ? formatDateTimeNice(centralGlobalData.publishedAt)
+                        : (centralGlobalData?.activeVersionData?.publishedAt ? formatDateTimeNice(centralGlobalData.activeVersionData.publishedAt) : 'Vigente')}
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
-                      Autor: {centralGlobalData?.activeVersionData?.author || 'Administrador Central'}
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block truncate">
+                      Autor: {centralGlobalData?.publishedBy || centralGlobalData?.activeVersionData?.author || 'Administrador Central'}
                     </span>
                   </div>
 
                   <div className="bg-white dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Acción Requerida:</span>
                     {installedGlobalVer !== centralGlobalVer ? (
-                      <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-1">
-                        Descargar {centralGlobalVer}
-                      </span>
+                      <div>
+                        <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-1 block">
+                          Descargar {centralGlobalVer}
+                        </span>
+                        <span className="text-[10px] text-amber-700 dark:text-amber-300">
+                          Nueva versión pendiente
+                        </span>
+                      </div>
                     ) : (
-                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                        Sin cambios pendientes
-                      </span>
+                      <div>
+                        <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 block">
+                          Sin cambios pendientes
+                        </span>
+                        <span className="text-[10px] text-emerald-700 dark:text-emerald-300">
+                          Terminal 100% al día
+                        </span>
+                      </div>
                     )}
                     <span className="text-[10px] text-slate-500 dark:text-slate-400 block">Sincronización manual protegida</span>
                   </div>
                 </div>
+
+                {/* Banner de Asistencia ante fallo de enlace con Central Remota */}
+                {remoteGlobalStatus?.remoteError && (
+                  <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-600/50 rounded-xl text-xs space-y-2 animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span>Atención: No se pudo contactar al Servidor Central en {remoteGlobalStatus.remoteUrl || serverConfig?.remoteDbHost || 'el host configurado'}</span>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-300 font-mono font-bold">
+                        DATOS LOCALES EN CACHÉ
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                      La sucursal está mostrando los datos registrados localmente ({centralGlobalVer}) porque la conexión de red hacia el Servidor Central ({serverConfig?.remoteDbHost || '186.180.74.35:3001'}) no responde. Si el servidor central (Kubuntu) está en tu misma red local / WiFi, ingresa su <strong>IP LAN</strong> (ejemplo: <code className="font-mono bg-white dark:bg-slate-900 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-bold">192.168.14.xxx:3000</code>).
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+                      <input
+                        type="text"
+                        value={quickHostValue}
+                        onChange={(e) => setQuickHostValue(e.target.value)}
+                        placeholder="Ej: 192.168.14.100:3000 o 186.180.74.35:3001"
+                        className="px-3 py-1.5 text-xs bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 rounded-lg text-slate-900 dark:text-white font-mono flex-1 focus:ring-1 focus:ring-amber-500 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleTestAndSaveQuickHost}
+                        disabled={isTestingHost || !quickHostValue.trim()}
+                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 whitespace-nowrap shadow-xs"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isTestingHost ? 'animate-spin' : ''}`} />
+                        <span>{isTestingHost ? 'Probando...' : 'Guardar y Conectar IP'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => refreshGlobalVersions()}
+                        disabled={isLoadingGlobalInfo}
+                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-lg cursor-pointer transition-all flex items-center justify-center gap-1.5 whitespace-nowrap border border-slate-300 dark:border-slate-700"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isLoadingGlobalInfo ? 'animate-spin' : ''}`} />
+                        <span>Reintentar</span>
+                      </button>
+                    </div>
+                    {hostFeedback && (
+                      <div className={`p-2.5 rounded-lg text-xs font-medium flex items-center gap-2 ${
+                        hostFeedback.type === 'success' 
+                          ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                          : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+                      }`}>
+                        {hostFeedback.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />}
+                        <span>{hostFeedback.text}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Acciones de Actualización de Globales y Envío de Operaciones */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
@@ -1186,10 +1362,7 @@ export const BranchSyncModal: React.FC<BranchSyncModalProps> = ({
 
                     <button
                       type="button"
-                      onClick={async () => {
-                        await handleFullSync();
-                        await refreshGlobalVersions();
-                      }}
+                      onClick={handleApplyGlobalVersionManual}
                       disabled={isSyncing}
                       className="px-4 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 cursor-pointer whitespace-nowrap"
                     >
