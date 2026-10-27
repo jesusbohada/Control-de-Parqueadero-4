@@ -44,6 +44,8 @@ import {
 } from 'lucide-react';
 import {
   BranchLocation,
+  Warehouse,
+  PosPoint,
   CentralUpdatePackage,
   BranchSyncAuditRecord,
   SystemUser,
@@ -80,6 +82,8 @@ interface CentralHubModalProps {
   onClose: () => void;
   currentUser: SystemUser;
   branches: BranchLocation[];
+  warehouses?: Warehouse[];
+  posPoints?: PosPoint[];
   centralPackages: CentralUpdatePackage[];
   syncLogs: BranchSyncAuditRecord[];
   currentRates?: RatesConfig;
@@ -105,6 +109,8 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
   onClose,
   currentUser,
   branches,
+  warehouses = [],
+  posPoints = [],
   centralPackages,
   syncLogs,
   currentRates,
@@ -144,25 +150,9 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
 
   // Formulario para Nueva Versión de Globales
   const [newGlobalVersionCode, setNewGlobalVersionCode] = useState<string>('G-1.0.1');
-  const [newGlobalDescription, setNewGlobalDescription] = useState<string>('Actualización de Tarifas generales, Cajeros autorizados y Parámetros comerciales');
+  const [newGlobalDescription, setNewGlobalDescription] = useState<string>('Actualización de Tarifas generales, Cajeros autorizados, Sucursales, Bodegas y Parámetros comerciales');
   const [newGlobalTargetScope, setNewGlobalTargetScope] = useState<'all' | 'specific'>('all');
   const [newGlobalSelectedBranchIds, setNewGlobalSelectedBranchIds] = useState<string[]>([]);
-  
-  // Tarifas configurables para la nueva versión de Globales
-  const [editCarMinuteRate, setEditCarMinuteRate] = useState<number>(currentRates?.car?.minuteRate || currentRates?.minuteRate || 70);
-  const [editCarHourRate, setEditCarHourRate] = useState<number>(currentRates?.car?.hourRate || currentRates?.hourRate || 4200);
-  const [editCarDayRate, setEditCarDayRate] = useState<number>(currentRates?.car?.dayRate || currentRates?.dayRate || 25000);
-  const [editMotoMinuteRate, setEditMotoMinuteRate] = useState<number>(currentRates?.motorcycle?.minuteRate || 35);
-  const [editMotoHourRate, setEditMotoHourRate] = useState<number>(currentRates?.motorcycle?.hourRate || 2100);
-  const [editMotoDayRate, setEditMotoDayRate] = useState<number>(currentRates?.motorcycle?.dayRate || 14000);
-  const [editGracePeriod, setEditGracePeriod] = useState<number>(currentRates?.gracePeriodMinutes || 15);
-  const [editLostTicketFee, setEditLostTicketFee] = useState<number>(currentRates?.lostTicketFee || 15000);
-
-  // Parámetros comerciales editables
-  const [editBusinessName, setEditBusinessName] = useState<string>(businessInfo?.name || 'WolfZone Parking System');
-  const [editBusinessNit, setEditBusinessNit] = useState<string>(businessInfo?.nit || '901.849.204-1');
-  const [editBusinessPhone, setEditBusinessPhone] = useState<string>(businessInfo?.phone || '+57 (601) 745-8890');
-  const [editBusinessAddress, setEditBusinessAddress] = useState<string>(businessInfo?.address || 'Av. Principal #45-12, Bogotá');
 
   const loadCentralGlobalStatus = async () => {
     try {
@@ -193,38 +183,6 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
     setGlobalPublishSuccess(null);
 
     try {
-      const updatedRates: RatesConfig = {
-        ...(currentRates || {} as RatesConfig),
-        minuteRate: editCarMinuteRate,
-        hourRate: editCarHourRate,
-        dayRate: editCarDayRate,
-        gracePeriodMinutes: editGracePeriod,
-        lostTicketFee: editLostTicketFee,
-        car: {
-          minuteRate: editCarMinuteRate,
-          hourRate: editCarHourRate,
-          dayRate: editCarDayRate,
-          gracePeriodMinutes: editGracePeriod,
-          minimumChargeMinutes: currentRates?.car?.minimumChargeMinutes || editGracePeriod,
-          lostTicketFee: editLostTicketFee,
-        },
-        motorcycle: {
-          minuteRate: editMotoMinuteRate,
-          hourRate: editMotoHourRate,
-          dayRate: editMotoDayRate,
-          gracePeriodMinutes: editGracePeriod,
-          minimumChargeMinutes: currentRates?.motorcycle?.minimumChargeMinutes || editGracePeriod,
-          lostTicketFee: editLostTicketFee,
-        }
-      };
-
-      const updatedBusinessInfo: Partial<ParkingBusinessInfo> = {
-        name: editBusinessName,
-        nit: editBusinessNit,
-        phone: editBusinessPhone,
-        address: editBusinessAddress
-      };
-
       const payload = {
         version: newGlobalVersionCode.trim(),
         title: `Actualización de Globales ${newGlobalVersionCode.trim()}`,
@@ -232,10 +190,15 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
         publishedBy: currentUser.name,
         targetScope: newGlobalTargetScope,
         targetBranchIds: newGlobalTargetScope === 'specific' ? newGlobalSelectedBranchIds : undefined,
-        rates: updatedRates,
+        rates: currentRates,
+        parameters: businessInfo,
+        branches: branches || [],
+        warehouses: warehouses || [],
+        posPoints: posPoints || [],
         users: users || [],
+        vehicleCategories: vehicleCategories || [],
         expenseConcepts: expenseConcepts || [],
-        parameters: updatedBusinessInfo
+        expenseCategories: expenseCategories || []
       };
 
       const result = await publishCentralGlobalVersion(payload);
@@ -243,11 +206,7 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
         const publishedDateIso = result.data?.publishedAt || new Date().toISOString();
         setActiveGlobalVer(newGlobalVersionCode.trim());
         setActiveGlobalPublishedAt(publishedDateIso);
-        setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente el ${formatDateTimeNice(publishedDateIso)}! Las sucursales ya pueden descargar y aplicar los nuevos precios y parámetros.`);
-        if (onSaveRates) onSaveRates(updatedRates);
-        if (onSaveBusinessInfo && businessInfo) {
-          onSaveBusinessInfo({ ...businessInfo, ...updatedBusinessInfo });
-        }
+        setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente el ${formatDateTimeNice(publishedDateIso)}! Se empaquetaron ${branches.length} sedes, ${warehouses.length} bodegas, ${posPoints.length} terminales POS, tarifas vigentes, cajeros y datos comerciales para las sucursales.`);
         await loadCentralGlobalStatus();
       }
     } catch (e: any) {
@@ -1311,163 +1270,169 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                   )}
                 </div>
 
-                {/* Sub-Sección 1: Editor de Tarifas y Precios */}
-                <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <h5 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                    <DollarSign className="w-3.5 h-3.5 text-amber-500" />
-                    1. Tarifas y Precios de Parqueadero (COP)
-                  </h5>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Carro - Minuto:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editCarMinuteRate}
-                          onChange={(e) => setEditCarMinuteRate(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Carro - Hora:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editCarHourRate}
-                          onChange={(e) => setEditCarHourRate(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Moto - Minuto:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editMotoMinuteRate}
-                          onChange={(e) => setEditMotoMinuteRate(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Moto - Hora:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editMotoHourRate}
-                          onChange={(e) => setEditMotoHourRate(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Carro - Día / 24h:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editCarDayRate}
-                          onChange={(e) => setEditCarDayRate(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Moto - Día / 24h:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editMotoDayRate}
-                          onChange={(e) => setEditMotoDayRate(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Tiempo Gracia:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <input
-                          type="number"
-                          value={editGracePeriod}
-                          onChange={(e) => setEditGracePeriod(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                        <span className="text-slate-400 text-[10px]">min</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] text-slate-500 font-medium block">Tiquete Perdido:</span>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="font-bold text-slate-400">$</span>
-                        <input
-                          type="number"
-                          value={editLostTicketFee}
-                          onChange={(e) => setEditLostTicketFee(Number(e.target.value))}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold text-slate-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
+                {/* Banner de Sincronización Automática Integral */}
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+                  <Info className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                  <div className="text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                    <p className="font-bold text-amber-700 dark:text-amber-400">
+                      Sincronización Operativa Centralizada y Directa
+                    </p>
+                    <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400">
+                      Las tarifas, sedes, bodegas, puntos de cobro y parámetros comerciales se gestionan directamente desde sus respectivos módulos especializados. Al despachar una versión de Globales, el sistema empaqueta automáticamente el estado completo de toda la operatividad para distribuirlo a las sucursales sin requerir edición manual repetida.
+                    </p>
                   </div>
                 </div>
 
-                {/* Sub-Sección 2: Parámetros Comerciales y Fiscales */}
-                <div className="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <h5 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                    <Sliders className="w-3.5 h-3.5 text-blue-500" />
-                    2. Parámetros del Sistema y Datos Comerciales
-                  </h5>
+                {/* Resumen del Contenido Operativo a Empaquetar */}
+                <div className="space-y-4 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                      <Boxes className="w-3.5 h-3.5 text-amber-500" />
+                      Inventario Operativo Empaquetado en esta Versión
+                    </h5>
+                    <span className="text-[11px] text-slate-500 font-mono">
+                      Consistencia Total en Red
+                    </span>
+                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                    <div>
-                      <label className="text-[11px] text-slate-500 block mb-1">Nombre Comercial:</label>
-                      <input
-                        type="text"
-                        value={editBusinessName}
-                        onChange={(e) => setEditBusinessName(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
-                      />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                    {/* Tarjeta 1: Sedes y Sucursales */}
+                    <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                          <Building2 className="w-4 h-4 text-blue-500" />
+                          <span>Sucursales y Sedes</span>
+                        </div>
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono">
+                          {branches.length} {branches.length === 1 ? 'Sede' : 'Sedes'}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pt-1">
+                        {branches.map(b => (
+                          <span key={b.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono text-slate-700 dark:text-slate-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            {b.name} <span className="text-slate-400 text-[10px]">({b.code})</span>
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-200/50 dark:border-slate-800/60">
+                        * Nuevas sedes, ediciones y bajas del módulo de Sucursales.
+                      </p>
                     </div>
-                    <div>
-                      <label className="text-[11px] text-slate-500 block mb-1">NIT / Identificación:</label>
-                      <input
-                        type="text"
-                        value={editBusinessNit}
-                        onChange={(e) => setEditBusinessNit(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white"
-                      />
+
+                    {/* Tarjeta 2: Bodegas y Almacenes */}
+                    <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                          <Boxes className="w-4 h-4 text-amber-500" />
+                          <span>Bodegas y Almacenes</span>
+                        </div>
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-mono">
+                          {warehouses.length} {warehouses.length === 1 ? 'Bodega' : 'Bodegas'}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pt-1">
+                        {warehouses.length > 0 ? (
+                          warehouses.map(w => (
+                            <span key={w.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono text-slate-700 dark:text-slate-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                              {w.name} {w.isMain ? <span className="text-amber-500 font-bold text-[9px]">[Matriz]</span> : ''}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[11px] text-slate-400 font-mono italic">Bodega general por defecto</span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-200/50 dark:border-slate-800/60">
+                        * Nuevas bodegas, modificaciones de stock y almacenes.
+                      </p>
                     </div>
-                    <div>
-                      <label className="text-[11px] text-slate-500 block mb-1">Teléfono Principal:</label>
-                      <input
-                        type="text"
-                        value={editBusinessPhone}
-                        onChange={(e) => setEditBusinessPhone(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
-                      />
+
+                    {/* Tarjeta 3: Puntos de Cobro POS */}
+                    <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                          <Terminal className="w-4 h-4 text-emerald-500" />
+                          <span>Cajas y Terminales POS</span>
+                        </div>
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-mono">
+                          {posPoints.length} {posPoints.length === 1 ? 'Caja' : 'Cajas'}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pt-1">
+                        {posPoints.length > 0 ? (
+                          posPoints.map(p => (
+                            <span key={p.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono text-slate-700 dark:text-slate-300">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                              {p.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-[11px] text-slate-400 font-mono italic">Terminales POS maestras</span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-400 italic pt-1 border-t border-slate-200/50 dark:border-slate-800/60">
+                        * Puntos de venta autorizados para cobro y arqueos.
+                      </p>
                     </div>
-                    <div>
-                      <label className="text-[11px] text-slate-500 block mb-1">Dirección Matriz:</label>
-                      <input
-                        type="text"
-                        value={editBusinessAddress}
-                        onChange={(e) => setEditBusinessAddress(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-900 dark:text-white"
-                      />
+
+                    {/* Tarjeta 4: Tarifas Vigentes */}
+                    <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 md:col-span-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                          <DollarSign className="w-4 h-4 text-amber-500" />
+                          <span>Tarifas y Precios Activos (COP)</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 italic">Módulo de Tarifas</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono">
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <span className="text-slate-400 text-[10px] block">Carro - Min / Hora:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            ${currentRates?.car?.minuteRate || currentRates?.minuteRate || 70} / ${currentRates?.car?.hourRate || currentRates?.hourRate || 4200}
+                          </span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <span className="text-slate-400 text-[10px] block">Carro - Día / 24h:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            ${(currentRates?.car?.dayRate || currentRates?.dayRate || 25000).toLocaleString('es-CO')}
+                          </span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <span className="text-slate-400 text-[10px] block">Moto - Min / Hora:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            ${currentRates?.motorcycle?.minuteRate || 35} / ${currentRates?.motorcycle?.hourRate || 2100}
+                          </span>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                          <span className="text-slate-400 text-[10px] block">Gracia / Tiquete Perdido:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">
+                            {currentRates?.gracePeriodMinutes || 15}m / ${(currentRates?.lostTicketFee || 15000).toLocaleString('es-CO')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tarjeta 5: Parámetros del Negocio */}
+                    <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+                          <Sliders className="w-4 h-4 text-purple-500" />
+                          <span>Datos Comerciales y Empresa</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 italic">Configuración General</span>
+                      </div>
+                      <div className="space-y-1 text-[11px] font-mono">
+                        <div className="text-slate-900 dark:text-white font-bold truncate">
+                          {businessInfo?.name || 'WolfZone Parking System'}
+                        </div>
+                        <div className="text-slate-500 text-[10px]">
+                          NIT: <span className="text-slate-700 dark:text-slate-300">{businessInfo?.nit || 'No configurado'}</span>
+                        </div>
+                        <div className="text-slate-500 text-[10px] truncate">
+                          Tel: <span className="text-slate-700 dark:text-slate-300">{businessInfo?.phone || 'No configurado'}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

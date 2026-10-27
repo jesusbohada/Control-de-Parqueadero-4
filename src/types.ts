@@ -822,6 +822,9 @@ export interface CentralGlobalVersionData {
   expenseConcepts?: any[];
   expenseCategories?: any[];
   parameters?: any;
+  branches?: BranchLocation[];
+  warehouses?: Warehouse[];
+  posPoints?: PosPoint[];
   history?: Array<{
     version: string;
     archivedAt: string;
@@ -855,6 +858,9 @@ export interface CentralUpdatePackage {
     businessInfoUpdates?: Partial<ParkingBusinessInfo>;
     newProducts?: { id: string; name: string; price: number; category: string; description?: string }[];
     featureFlags?: Record<string, boolean>;
+    branches?: BranchLocation[];
+    warehouses?: Warehouse[];
+    posPoints?: PosPoint[];
   };
   status?: 'published' | 'draft' | 'archived';
   appliedByBranches?: {

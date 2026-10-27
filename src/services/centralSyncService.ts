@@ -3,6 +3,8 @@ import {
   CentralUpdatePackage,
   CentralGlobalVersionData,
   BranchLocation,
+  Warehouse,
+  PosPoint,
   RatesConfig,
   VehicleCategoryConfig,
   ExpenseConcept,
@@ -926,6 +928,9 @@ export async function publishCentralGlobalVersion(payload: {
   expenseConcepts?: any[];
   expenseCategories?: any[];
   parameters?: any;
+  branches?: BranchLocation[];
+  warehouses?: Warehouse[];
+  posPoints?: PosPoint[];
   targetScope?: 'all' | 'specific';
   targetBranchIds?: string[];
 }, customBaseUrl?: string): Promise<{ success: boolean; message: string; data?: any }> {

@@ -2010,6 +2010,24 @@ export default function App() {
       }
     }
 
+    // 7b. Branches / Sedes
+    if (pkg.payload.branches && Array.isArray(pkg.payload.branches) && pkg.payload.branches.length > 0) {
+      setBranches(ensureUniqueBranchFarmadeskCredentials(pkg.payload.branches));
+      details.push(`${pkg.payload.branches.length} sucursales sincronizadas`);
+    }
+
+    // 7c. Warehouses / Bodegas
+    if (pkg.payload.warehouses && Array.isArray(pkg.payload.warehouses) && pkg.payload.warehouses.length > 0) {
+      setWarehouses(pkg.payload.warehouses);
+      details.push(`${pkg.payload.warehouses.length} bodegas/almacenes sincronizados`);
+    }
+
+    // 7d. POS Points / Cajas
+    if (pkg.payload.posPoints && Array.isArray(pkg.payload.posPoints) && pkg.payload.posPoints.length > 0) {
+      setPosPoints(pkg.payload.posPoints);
+      details.push(`${pkg.payload.posPoints.length} terminales POS sincronizadas`);
+    }
+
     // 8. Global Version Registration
     if (pkg.payload.globalVersion) {
       const nowApplied = new Date().toISOString();
@@ -2134,6 +2152,25 @@ export default function App() {
         setExpenseCategories(centralData.globalConfig.expenseCategories);
         localStorage.setItem('pk_expense_categories', JSON.stringify(centralData.globalConfig.expenseCategories));
         dbSaveExpenseCategories(centralData.globalConfig.expenseCategories).catch(console.error);
+      }
+
+      // Operational entities from Central (branches, warehouses, posPoints)
+      const centralBranches = centralData.globalVersionData?.branches || centralData.globalConfig?.branches;
+      if (centralBranches && Array.isArray(centralBranches) && centralBranches.length > 0) {
+        setBranches(ensureUniqueBranchFarmadeskCredentials(centralBranches));
+        appliedSummaryDetails.push(`${centralBranches.length} sucursales sincronizadas desde Central`);
+      }
+
+      const centralWarehouses = centralData.globalVersionData?.warehouses || centralData.globalConfig?.warehouses;
+      if (centralWarehouses && Array.isArray(centralWarehouses) && centralWarehouses.length > 0) {
+        setWarehouses(centralWarehouses);
+        appliedSummaryDetails.push(`${centralWarehouses.length} bodegas/almacenes sincronizados`);
+      }
+
+      const centralPosPoints = centralData.globalVersionData?.posPoints;
+      if (centralPosPoints && Array.isArray(centralPosPoints) && centralPosPoints.length > 0) {
+        setPosPoints(centralPosPoints);
+        appliedSummaryDetails.push(`${centralPosPoints.length} terminales POS sincronizadas`);
       }
 
       // If centralData returned direct activeGlobalVersion, update local version and date
@@ -4530,6 +4567,8 @@ export default function App() {
             onClose={() => setActiveView('branches')}
             currentUser={currentUser}
             branches={branches}
+            warehouses={warehouses}
+            posPoints={posPoints}
             centralPackages={centralPackages}
             syncLogs={syncAuditLogs}
             currentRates={rates}

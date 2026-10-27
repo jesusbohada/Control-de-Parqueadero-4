@@ -4858,6 +4858,9 @@ if __name__ == '__main__':
         gracePeriodMinutes: 15,
         allowManualRateOverride: true
       },
+      branches: [],
+      warehouses: [],
+      posPoints: [],
       history: []
     };
 
@@ -4968,6 +4971,9 @@ if __name__ == '__main__':
         expenseConcepts,
         expenseCategories,
         parameters,
+        branches,
+        warehouses,
+        posPoints,
         targetScope,
         targetBranchIds
       } = req.body;
@@ -4996,6 +5002,9 @@ if __name__ == '__main__':
         expenseConcepts: expenseConcepts || current.expenseConcepts,
         expenseCategories: expenseCategories || current.expenseCategories,
         parameters: parameters || current.parameters,
+        branches: Array.isArray(branches) ? branches : (current.branches || []),
+        warehouses: Array.isArray(warehouses) ? warehouses : (current.warehouses || []),
+        posPoints: Array.isArray(posPoints) ? posPoints : (current.posPoints || []),
         history: [
           {
             version: previousVersion,
@@ -5026,7 +5035,7 @@ if __name__ == '__main__':
         targetScope: targetScope || 'all',
         targetBranchIds: Array.isArray(targetBranchIds) ? targetBranchIds : [],
         type: 'global_parameters',
-        updateTypes: ['rates', 'users', 'global_parameters'],
+        updateTypes: ['rates', 'users', 'global_parameters', 'branches', 'warehouses', 'pos_points'],
         payload: {
           globalVersion: version,
           rates: newGlobalVersion.rates,
@@ -5036,7 +5045,11 @@ if __name__ == '__main__':
           users: newGlobalVersion.users,
           userTemplates: newGlobalVersion.userTemplates,
           roleMatrixConfig: newGlobalVersion.roleMatrixConfig,
-          businessInfoUpdates: newGlobalVersion.parameters
+          businessInfoUpdates: newGlobalVersion.parameters,
+          parameters: newGlobalVersion.parameters,
+          branches: newGlobalVersion.branches,
+          warehouses: newGlobalVersion.warehouses,
+          posPoints: newGlobalVersion.posPoints
         },
         appliedByBranches: []
       };
@@ -5053,6 +5066,10 @@ if __name__ == '__main__':
       if (vehicleCategories) globalConf.vehicleCategories = vehicleCategories;
       if (expenseConcepts) globalConf.expenseConcepts = expenseConcepts;
       if (expenseCategories) globalConf.expenseCategories = expenseCategories;
+      if (branches) globalConf.branches = branches;
+      if (warehouses) globalConf.warehouses = warehouses;
+      if (posPoints) globalConf.posPoints = posPoints;
+      if (parameters) globalConf.businessInfo = parameters;
       globalConf.lastGlobalVersion = version;
       globalConf.lastUpdated = new Date().toISOString();
       fs.writeFileSync(globalConfigPath, JSON.stringify(globalConf, null, 2), 'utf8');
