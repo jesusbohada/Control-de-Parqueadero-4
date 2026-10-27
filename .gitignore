@@ -15,3 +15,8 @@ test_script.html
 backups/*.json
 backups/*.zip
 backups/*.bak
+
+# Runtime operational database and sync telemetry (never touch business data in git)
+data/*.json
+data/*.backup.json
+!data/.gitkeep
