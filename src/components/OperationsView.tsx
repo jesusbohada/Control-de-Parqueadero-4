@@ -158,6 +158,148 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   const [isSubmittingEntry, setIsSubmittingEntry] = useState<boolean>(false);
   const plateInputRef = useRef<HTMLInputElement>(null);
 
+
+  // Configured vehicle categories combining standard & custom
+  const configuredCategories = useMemo(() => {
+    if (vehicleCategories && vehicleCategories.length > 0) {
+      const active = vehicleCategories.filter(vc => vc.isActive !== false && vc.enabled !== false);
+      if (active.length > 0) {
+        return active.map(vc => {
+          const r = vc.rate || rates[vc.id] || {
+            hourRate: vc.defaultHourlyRate || 4000,
+            minuteRate: vc.defaultMinuteRate || 70,
+            dayRate: vc.defaultDailyRate || 25000,
+            gracePeriodMinutes: vc.gracePeriodMinutes || 15,
+            minimumChargeMinutes: 15,
+            lostTicketFee: 15000,
+          };
+          return {
+            id: vc.id as VehicleType,
+            name: vc.name,
+            icon: vc.icon || 'Car',
+            rate: r,
+          };
+        });
+      }
+    }
+
+    return [
+      { id: 'car', name: 'Carro / Auto', icon: 'Car', rate: rates.car },
+      { id: 'motorcycle', name: 'Motocicleta', icon: 'Bike', rate: rates.motorcycle },
+      { id: 'suv', name: 'Camioneta / SUV', icon: 'Truck', rate: rates.suv },
+      { id: 'bicycle', name: 'Bicicleta', icon: 'Bike', rate: rates.bicycle },
+    ];
+  }, [rates, vehicleCategories]);
+
+  // Categoría de vehículo actualmente seleccionada en la terminal de entrada
+  const selectedEntryCategory = useMemo(() => {
+    return configuredCategories.find(c => c.id === entryVehicleType) || {
+      id: entryVehicleType,
+      name: entryVehicleType,
+      icon: 'Car'
+    };
+  }, [configuredCategories, entryVehicleType]);
+
+  // Detección contextual del tipo de vehículo seleccionado
+  const isNonMotorized = useMemo(() => {
+    const name = (selectedEntryCategory?.name || entryVehicleType || '').toLowerCase();
+    const icon = (selectedEntryCategory?.icon || '').toLowerCase();
+
+    // Si tiene palabras de vehículos automotores, NUNCA es no-motorizado
+    if (
+      name.includes('bus') ||
+      name.includes('auto') ||
+      name.includes('carro') ||
+      name.includes('moto') ||
+      name.includes('camion') ||
+      name.includes('camioneta') ||
+      name.includes('suv') ||
+      name.includes('carga') ||
+      name.includes('furgon') ||
+      name.includes('van') ||
+      name.includes('taxi') ||
+      name.includes('vehiculo') ||
+      icon.includes('bus') ||
+      icon.includes('car') ||
+      icon.includes('truck')
+    ) {
+      return false;
+    }
+
+    return (
+      entryVehicleType === 'bicycle' ||
+      entryVehicleType === 'scooter' ||
+      name.includes('bici') ||
+      name.includes('patineta') ||
+      name.includes('scooter') ||
+      name.includes('cicla') ||
+      name.includes('monopatin') ||
+      icon.includes('bike') ||
+      icon.includes('bicycle')
+    );
+  }, [selectedEntryCategory, entryVehicleType]);
+
+  const isBus = useMemo(() => {
+    const name = (selectedEntryCategory?.name || entryVehicleType || '').toLowerCase();
+    const icon = (selectedEntryCategory?.icon || '').toLowerCase();
+    return name.includes('bus') || icon.includes('bus');
+  }, [selectedEntryCategory, entryVehicleType]);
+
+  const isMotorcycle = useMemo(() => {
+    const name = (selectedEntryCategory?.name || entryVehicleType || '').toLowerCase();
+    const icon = (selectedEntryCategory?.icon || '').toLowerCase();
+    return (name.includes('moto') || icon.includes('motorcycle')) && !name.includes('automotor');
+  }, [selectedEntryCategory, entryVehicleType]);
+
+  const isTruck = useMemo(() => {
+    const name = (selectedEntryCategory?.name || entryVehicleType || '').toLowerCase();
+    const icon = (selectedEntryCategory?.icon || '').toLowerCase();
+    return name.includes('camion') || name.includes('carga') || name.includes('furgon') || icon.includes('truck');
+  }, [selectedEntryCategory, entryVehicleType]);
+
+  // Etiqueta oficial superior derecha de la placa metálica de la entrada
+  const plateCategoryBadgeLabel = useMemo(() => {
+    if (!selectedEntryCategory) return 'PARTICULAR';
+    const rawName = selectedEntryCategory.name.trim();
+    const lower = rawName.toLowerCase();
+
+    // 1. Detecciones específicas prioritarias
+    if (lower.includes('bus') || lower.includes('buseta') || lower.includes('microbús') || lower.includes('microbus')) {
+      return 'BUS';
+    }
+    if (lower.includes('moto') || lower.includes('motocicleta')) {
+      return 'MOTOCICLETA';
+    }
+    if (lower.includes('camioneta') || lower.includes('suv')) {
+      return 'CAMIONETA';
+    }
+    if (lower.includes('camión') || lower.includes('camion') || lower.includes('carga') || lower.includes('furgón') || lower.includes('furgon') || lower.includes('tracto')) {
+      return 'CARGA';
+    }
+    if (lower.includes('bici') || lower.includes('patineta') || lower.includes('cicla')) {
+      return 'BICICLETA';
+    }
+    if (lower.includes('taxi')) {
+      return 'TAXI';
+    }
+    if (lower.includes('carro') || lower.includes('auto') || lower.includes('sedan') || lower.includes('particular') || lower.includes('automóvil') || lower.includes('automovil')) {
+      return 'PARTICULAR';
+    }
+
+    // 2. Si el nombre es corto y directo (hasta 12 caracteres sin slashes)
+    if (rawName.length <= 12 && !rawName.includes('/')) {
+      return rawName.toUpperCase();
+    }
+
+    // 3. Si tiene slashes (ej. "Camión / Carga Pesada")
+    if (rawName.includes('/')) {
+      const first = rawName.split('/')[0].trim().toUpperCase();
+      if (first.length > 0 && first.length <= 12) return first;
+    }
+
+    return rawName.slice(0, 12).toUpperCase();
+  }, [selectedEntryCategory]);
+
   // --- Opción de Placa Extranjera / Internacional y Reglas por País ---
   const [isForeignPlate, setIsForeignPlate] = useState<boolean>(false);
   const [foreignCountry, setForeignCountry] = useState<string>('');
@@ -173,8 +315,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
   // Validación y reglas de placa y país
   const plateValidation = useMemo(() => {
-    return validatePlateData(entryPlate, isForeignPlate, foreignCountry, customForeignCountry, entryVehicleType);
-  }, [entryPlate, isForeignPlate, foreignCountry, customForeignCountry, entryVehicleType]);
+    return validatePlateData(
+      entryPlate, 
+      isForeignPlate, 
+      foreignCountry, 
+      customForeignCountry, 
+      entryVehicleType,
+      selectedEntryCategory?.name
+    );
+  }, [entryPlate, isForeignPlate, foreignCountry, customForeignCountry, entryVehicleType, selectedEntryCategory]);
 
   const cleanPlate = plateValidation.cleanPlate;
   const activeCountryRule = plateValidation.activeRule;
@@ -682,37 +831,6 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
     playSound('beep', soundEnabled);
   };
 
-  // Configured vehicle categories combining standard & custom
-  const configuredCategories = useMemo(() => {
-    if (vehicleCategories && vehicleCategories.length > 0) {
-      const active = vehicleCategories.filter(vc => vc.isActive !== false && vc.enabled !== false);
-      if (active.length > 0) {
-        return active.map(vc => {
-          const r = vc.rate || rates[vc.id] || {
-            hourRate: vc.defaultHourlyRate || 4000,
-            minuteRate: vc.defaultMinuteRate || 70,
-            dayRate: vc.defaultDailyRate || 25000,
-            gracePeriodMinutes: vc.gracePeriodMinutes || 15,
-            minimumChargeMinutes: 15,
-            lostTicketFee: 15000,
-          };
-          return {
-            id: vc.id as VehicleType,
-            name: vc.name,
-            icon: vc.icon || 'Car',
-            rate: r,
-          };
-        });
-      }
-    }
-
-    return [
-      { id: 'car', name: 'Carro / Auto', icon: 'Car', rate: rates.car },
-      { id: 'motorcycle', name: 'Motocicleta', icon: 'Bike', rate: rates.motorcycle },
-      { id: 'suv', name: 'Camioneta / SUV', icon: 'Truck', rate: rates.suv },
-      { id: 'bicycle', name: 'Bicicleta', icon: 'Bike', rate: rates.bicycle },
-    ];
-  }, [rates, vehicleCategories]);
 
   // Ensure current selected entry vehicle type exists in active categories
   useEffect(() => {
@@ -1598,15 +1716,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       ) : (
                         `Formato oficial: ${activeCountryRule?.example || 'Alfanumérico'}`
                       )
-                    ) : entryVehicleType === 'bicycle' || entryVehicleType === 'scooter' ? (
+                    ) : isNonMotorized ? (
                       isPlateFormatValid ? '✓ Identificador verificado' : 'Identificador interno (1-10 carac.)'
                     ) : (
                       isPlateInvalid ? (
                         `Formato no legal (${cleanPlate.length} carac.)`
                       ) : isPlateFormatValid ? (
                         '✓ Formato legal colombiano (RUNT)'
+                      ) : isBus ? (
+                        'Buses y Busetas (ABC123)'
+                      ) : isMotorcycle ? (
+                        'Motos (ABC12D / AB1234)'
+                      ) : isTruck ? (
+                        'Carga y Pesados (ABC123)'
                       ) : (
-                        'Carros (ABC123) / Motos (ABC12D)'
+                        'Carros y Automóviles (ABC123)'
                       )
                     )}
                   </span>
@@ -1626,7 +1750,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       {isForeignPlate ? (activeCountryRule ? `${activeCountryRule.flag} ${activeCountryRule.name}` : 'EXTRANJERO') : '🇨🇴 COLOMBIA'}
                     </span>
                     <span className="text-[9px] font-mono font-black text-black/80 bg-black/10 px-2 py-0.5 rounded border border-black/20">
-                      {entryVehicleType === 'motorcycle' ? 'MOTOCICLETA' : entryVehicleType === 'truck' ? 'CARGA' : entryVehicleType === 'bicycle' ? 'BICICLETA' : 'PARTICULAR'}
+                      {plateCategoryBadgeLabel}
                     </span>
                   </div>
 
@@ -1648,6 +1772,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       placeholder={
                         isCountrySelectionMissing
                           ? "SELECCIONE PAÍS..."
+                          : isNonMotorized
+                          ? "BICI01"
+                          : isMotorcycle
+                          ? "ABC 12D"
                           : "ABC 123"
                       }
                       maxLength={activeCountryRule ? activeCountryRule.maxLength : (isForeignPlate ? 10 : 6)}

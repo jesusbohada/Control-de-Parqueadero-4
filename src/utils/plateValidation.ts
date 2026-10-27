@@ -198,13 +198,36 @@ export function validatePlateData(
   isForeign: boolean,
   countryName: string,
   customCountryName?: string,
-  vehicleType?: string
+  vehicleType?: string,
+  categoryName?: string
 ): PlateValidationResult {
   const cleanPlate = rawPlate.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   const activeRule = getActivePlateRule(isForeign, countryName);
 
   // Soporte para bicicletas, patinetas o vehículos sin matrícula automotriz
-  const isNonMotorized = vehicleType === 'bicycle' || vehicleType === 'scooter';
+  const nameLower = (categoryName || '').toLowerCase();
+  const isExplicitlyMotorized = 
+    nameLower.includes('bus') || 
+    nameLower.includes('auto') || 
+    nameLower.includes('carro') || 
+    nameLower.includes('moto') || 
+    nameLower.includes('camion') || 
+    nameLower.includes('camioneta') || 
+    nameLower.includes('suv') || 
+    nameLower.includes('carga') || 
+    nameLower.includes('van') || 
+    nameLower.includes('taxi');
+
+  const isNonMotorized = !isExplicitlyMotorized && (
+    vehicleType === 'bicycle' || 
+    vehicleType === 'scooter' || 
+    nameLower.includes('bici') || 
+    nameLower.includes('patineta') || 
+    nameLower.includes('scooter') || 
+    nameLower.includes('cicla') ||
+    nameLower.includes('monopatin')
+  );
+
   if (isNonMotorized) {
     const isValid = cleanPlate.length >= 1 && cleanPlate.length <= 10;
     return {
@@ -214,7 +237,7 @@ export function validatePlateData(
       isCustomCountryMissing: false,
       activeRule: {
         id: 'BICI',
-        name: 'Identificador Libre / Bicicleta',
+        name: categoryName || 'Identificador Libre / Bicicleta',
         flag: '🚲',
         example: 'BICI01 o 01',
         description: 'Identificador de 1 a 10 caracteres para bicicletas o patinetas.',
@@ -223,7 +246,7 @@ export function validatePlateData(
         maxLength: 10,
         regex: /^[A-Z0-9]{1,10}$/
       },
-      errorMessage: isValid ? null : 'Ingrese un identificador o número para la bicicleta (1 a 10 caracteres).',
+      errorMessage: isValid ? null : 'Ingrese un identificador o número para el vehículo (1 a 10 caracteres).',
       successMessage: isValid ? `✓ Identificador verificado (${cleanPlate}). Listo para registrar.` : null
     };
   }
