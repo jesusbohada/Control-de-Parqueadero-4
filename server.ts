@@ -5279,7 +5279,7 @@ if __name__ == '__main__':
       const existing = telemetryMap[targetBranchId] || {};
       const reportedPublicIp = branch.publicIp || (detectedClientIp !== '127.0.0.1' ? detectedClientIp : (existing.publicIp || branch.ipAddress || detectedClientIp));
 
-      telemetryMap[targetBranchId] = {
+      const branchRecord = {
         ...existing,
         ...branch,
         id: targetBranchId,
@@ -5289,8 +5289,29 @@ if __name__ == '__main__':
         lastReportedAt: new Date().toISOString(),
         status: 'online'
       };
+      telemetryMap[targetBranchId] = branchRecord;
 
       saveBranchesTelemetry(telemetryMap);
+
+      // Sincronizar también con global-config.json para que las sedes nunca se pierdan
+      if (fs.existsSync(globalConfigPath)) {
+        try {
+          const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+          if (gConf) {
+            if (!Array.isArray(gConf.branches)) gConf.branches = [];
+            const bIdx = gConf.branches.findIndex((b: any) => b.id === targetBranchId);
+            if (bIdx >= 0) {
+              gConf.branches[bIdx] = { ...gConf.branches[bIdx], ...branchRecord };
+            } else {
+              gConf.branches.push(branchRecord);
+            }
+            gConf.lastUpdated = new Date().toISOString();
+            fs.writeFileSync(globalConfigPath, JSON.stringify(gConf, null, 2), 'utf8');
+          }
+        } catch (e) {
+          console.warn('[Sync Telemetría] Advertencia sincronizando con global-config.json:', e);
+        }
+      }
 
       // Notificar a administradores en tiempo real si el socket está activo
       try {
@@ -5887,29 +5908,31 @@ if __name__ == '__main__':
         try {
           const fileContent = fs.readFileSync(configPath, 'utf8');
           const gConfig = JSON.parse(fileContent);
-          if (gConfig && Array.isArray(gConfig.branches)) {
-            gConfig.branches = gConfig.branches.map((b: any) => {
-              if (b.id === branchId) {
-                return {
-                  ...b,
-                  ipAddress: resolvedPublicIp,
-                  publicIp: resolvedPublicIp,
-                  localIp: ipAddress || b.localIp,
-                  port: port || b.port || 3000,
-                  webSocketsUrl: webSocketsUrl || b.webSocketsUrl,
-                  systemUrl: systemUrl || `http://${resolvedPublicIp}:${port || b.port || 3000}/wolfzonepos?branchId=${branchId}`,
-                  farmadeskId: farmadeskId || b.farmadeskId || anydeskId || b.anydeskId,
-                  farmadeskPort: 9050,
-                  farmadeskPassword: farmadeskPassword || b.farmadeskPassword || vncPassword || b.vncPassword,
-                  anydeskId: anydeskId || b.anydeskId,
-                  rustdeskId: rustdeskId || b.rustdeskId,
-                  vncPassword: vncPassword || b.vncPassword,
-                  status: 'online',
-                  lastSyncTimestamp: new Date().toISOString()
-                };
-              }
-              return b;
-            });
+          if (gConfig) {
+            if (!Array.isArray(gConfig.branches)) gConfig.branches = [];
+            const bIdx = gConfig.branches.findIndex((b: any) => b.id === targetBranchId);
+            const branchNetData = {
+              ipAddress: resolvedPublicIp,
+              publicIp: resolvedPublicIp,
+              localIp: ipAddress || (bIdx >= 0 ? gConfig.branches[bIdx].localIp : '192.168.1.100'),
+              port: port || (bIdx >= 0 ? gConfig.branches[bIdx].port : 3000),
+              webSocketsUrl: webSocketsUrl || `ws://${resolvedPublicIp}:${port || 3000}/ws`,
+              systemUrl: systemUrl || `http://${resolvedPublicIp}:${port || 3000}/wolfzonepos?branchId=${targetBranchId}`,
+              farmadeskId: farmadeskId || (bIdx >= 0 ? gConfig.branches[bIdx].farmadeskId : anydeskId),
+              farmadeskPort: 9050,
+              farmadeskPassword: farmadeskPassword || (bIdx >= 0 ? gConfig.branches[bIdx].farmadeskPassword : (vncPassword || 'FARMA_PASS_SECURE')),
+              anydeskId: anydeskId || (bIdx >= 0 ? gConfig.branches[bIdx].anydeskId : undefined),
+              rustdeskId: rustdeskId || (bIdx >= 0 ? gConfig.branches[bIdx].rustdeskId : undefined),
+              vncPassword: vncPassword || (bIdx >= 0 ? gConfig.branches[bIdx].vncPassword : undefined),
+              status: 'online',
+              lastSyncTimestamp: new Date().toISOString()
+            };
+            if (bIdx >= 0) {
+              gConfig.branches[bIdx] = { ...gConfig.branches[bIdx], ...branchNetData };
+            } else {
+              gConfig.branches.push({ id: targetBranchId, name: `Sucursal ${targetBranchId}`, code: targetBranchId.toUpperCase(), ...branchNetData });
+            }
+            gConfig.lastUpdated = new Date().toISOString();
             fs.writeFileSync(configPath, JSON.stringify(gConfig, null, 2), 'utf8');
           }
         } catch (err) {

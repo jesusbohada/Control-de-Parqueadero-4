@@ -857,9 +857,11 @@ export default function App() {
       if (saved) {
         const list = JSON.parse(saved);
         if (Array.isArray(list) && list.length > 0) {
-          const sanitized = list.filter(b => b && b.id === 'suc-001');
-          if (sanitized.length > 0) {
-            return ensureUniqueBranchFarmadeskCredentials(sanitized);
+          const validList = list.filter(b => b && typeof b === 'object' && b.id && b.id !== 'branch-01');
+          if (validList.length > 0) {
+            const hasMain = validList.some(b => b.id === 'suc-001');
+            const merged = hasMain ? validList : [...INITIAL_BRANCHES, ...validList];
+            return ensureUniqueBranchFarmadeskCredentials(merged);
           }
         }
       }
@@ -875,7 +877,7 @@ export default function App() {
 
   const [currentBranchId, setCurrentBranchId] = useState<string>(() => {
     const saved = localStorage.getItem('pk_current_branch_id');
-    return (!saved || saved === 'branch-01' || saved !== 'suc-001') ? 'suc-001' : saved;
+    return (!saved || saved === 'branch-01') ? 'suc-001' : saved;
   });
 
   useEffect(() => {
@@ -996,9 +998,9 @@ export default function App() {
 
   // Handlers para Sucursales, Bodegas y POS
   const handleSaveBranch = (branchToSave: BranchLocation) => {
+    let updated: BranchLocation[] = [];
     setBranches(prev => {
       const exists = prev.some(b => b.id === branchToSave.id);
-      let updated: BranchLocation[];
       if (exists) {
         updated = prev.map(b => b.id === branchToSave.id ? branchToSave : b);
       } else {
@@ -1008,6 +1010,7 @@ export default function App() {
       return updated;
     });
     pushBranchTelemetry(branchToSave).catch(console.warn);
+    saveGlobalConfigToServer({ branches: updated }).catch(console.warn);
   };
 
   const handleDeleteBranch = (branchId: string) => {
@@ -1015,7 +1018,13 @@ export default function App() {
       alert('No se puede eliminar la única sucursal existente.');
       return;
     }
-    setBranches(prev => prev.filter(b => b.id !== branchId));
+    let updated: BranchLocation[] = [];
+    setBranches(prev => {
+      updated = prev.filter(b => b.id !== branchId);
+      localStorage.setItem('pk_branches', JSON.stringify(updated));
+      return updated;
+    });
+    saveGlobalConfigToServer({ branches: updated }).catch(console.warn);
   };
 
   const handleSaveWarehouse = (whToSave: Warehouse) => {
@@ -1279,7 +1288,7 @@ export default function App() {
     }
 
     try {
-      const configToSave = customPackage || {
+      const baseConfig = {
         branches,
         warehouses,
         rates,
@@ -1290,6 +1299,7 @@ export default function App() {
         businessInfo,
         lastUpdated: new Date().toISOString()
       };
+      const configToSave = customPackage ? { ...baseConfig, ...customPackage, lastUpdated: new Date().toISOString() } : baseConfig;
 
       await fetch('/api/sync/global-config', {
         method: 'POST',
@@ -1331,21 +1341,23 @@ export default function App() {
           businessInfo: sBusinessInfo
         } = result.data;
 
-        if (sBranches && JSON.stringify(sBranches) !== JSON.stringify(branches)) {
-          const sanitized = Array.isArray(sBranches) 
-            ? sBranches.filter((b: any) => b && (b.id === 'suc-001' || !b.id.startsWith('suc-00')))
-            : INITIAL_BRANCHES;
-          const finalBranches = sanitized.length > 0 ? sanitized : INITIAL_BRANCHES;
-          setBranches(finalBranches);
-          localStorage.setItem('pk_branches', JSON.stringify(finalBranches));
+        if (sBranches && Array.isArray(sBranches) && sBranches.length > 0) {
+          const validBranches = sBranches.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01');
+          if (validBranches.length > 0) {
+            const withMain = validBranches.some(b => b.id === 'suc-001') ? validBranches : [...INITIAL_BRANCHES, ...validBranches];
+            const finalBranches = ensureUniqueBranchFarmadeskCredentials(withMain);
+            if (JSON.stringify(finalBranches) !== JSON.stringify(branches)) {
+              setBranches(finalBranches);
+              localStorage.setItem('pk_branches', JSON.stringify(finalBranches));
+            }
+          }
         }
-        if (sWarehouses && JSON.stringify(sWarehouses) !== JSON.stringify(warehouses)) {
-          const sanitizedW = Array.isArray(sWarehouses)
-            ? sWarehouses.filter((w: any) => w && (w.id === 'bod-001' || !w.id.startsWith('bod-00')))
-            : INITIAL_WAREHOUSES;
-          const finalW = sanitizedW.length > 0 ? sanitizedW : INITIAL_WAREHOUSES;
-          setWarehouses(finalW);
-          localStorage.setItem('pk_warehouses', JSON.stringify(finalW));
+        if (sWarehouses && Array.isArray(sWarehouses) && sWarehouses.length > 0) {
+          const validW = sWarehouses.filter((w: any) => w && typeof w === 'object' && w.id && w.id !== 'bod-01');
+          if (validW.length > 0 && JSON.stringify(validW) !== JSON.stringify(warehouses)) {
+            setWarehouses(validW);
+            localStorage.setItem('pk_warehouses', JSON.stringify(validW));
+          }
         }
         if (sRates && JSON.stringify(sRates) !== JSON.stringify(rates)) {
           setRates(sRates);
@@ -1710,6 +1722,14 @@ export default function App() {
               }
               return branch;
             });
+            // Incorporar cualquier sucursal válida descubierta en la telemetría que no esté aún en el estado local
+            const existingIds = new Set(prev.map(b => b.id));
+            const missingFromPrev = telemetryList.filter(t => t && t.id && t.id !== 'branch-01' && !existingIds.has(t.id));
+            if (missingFromPrev.length > 0) {
+              hasChanges = true;
+              return ensureUniqueBranchFarmadeskCredentials([...updated, ...missingFromPrev]);
+            }
+
             return hasChanges ? updated : prev;
           });
         }
@@ -1766,13 +1786,20 @@ export default function App() {
       ...newBranchData
     } as BranchLocation;
 
-    setBranches(prev => [newBranch, ...prev]);
+    let updatedList: BranchLocation[] = [];
+    setBranches(prev => {
+      updatedList = ensureUniqueBranchFarmadeskCredentials([newBranch, ...prev.filter(b => b.id !== newBranch.id)]);
+      localStorage.setItem('pk_branches', JSON.stringify(updatedList));
+      return updatedList;
+    });
     setSystemNodeConfig(prev => ({
       ...prev,
       selectedBranchId: newBranch.id,
       establishmentName: newBranch.name
     }));
     setCurrentBranchId(newBranch.id);
+    pushBranchTelemetry(newBranch).catch(console.warn);
+    saveGlobalConfigToServer({ branches: updatedList }).catch(console.warn);
   };
 
   // Compute pending updates for current branch
@@ -1818,7 +1845,12 @@ export default function App() {
       ...newBranchData
     } as BranchLocation;
 
-    setBranches(prev => ensureUniqueBranchFarmadeskCredentials([newBranch, ...prev]));
+    let updatedList: BranchLocation[] = [];
+    setBranches(prev => {
+      updatedList = ensureUniqueBranchFarmadeskCredentials([newBranch, ...prev.filter(b => b.id !== newBranch.id)]);
+      localStorage.setItem('pk_branches', JSON.stringify(updatedList));
+      return updatedList;
+    });
     
     // Add sync log
     const auditRecord: BranchSyncAuditRecord = {
@@ -1835,6 +1867,7 @@ export default function App() {
     };
     setSyncAuditLogs(prev => [auditRecord, ...prev]);
     pushBranchTelemetry(newBranch).catch(console.warn);
+    saveGlobalConfigToServer({ branches: updatedList }).catch(console.warn);
   };
 
   const handlePublishCentralPackage = async (packageData: Partial<CentralUpdatePackage>) => {
@@ -2489,14 +2522,30 @@ export default function App() {
         return filtered;
       });
       setBranches(prev => {
-        const filtered = Array.isArray(prev) ? prev.filter(b => b && (b.id === 'suc-001' || !b.id.startsWith('suc-00'))) : INITIAL_BRANCHES;
-        const finalB = filtered.length > 0 ? filtered : INITIAL_BRANCHES;
+        const list = Array.isArray(prev) && prev.length > 0 ? prev : (() => {
+          try {
+            const saved = localStorage.getItem('pk_branches');
+            return saved ? JSON.parse(saved) : INITIAL_BRANCHES;
+          } catch {
+            return INITIAL_BRANCHES;
+          }
+        })();
+        const valid = list.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01');
+        const finalB = valid.length > 0 ? (valid.some((b: any) => b.id === 'suc-001') ? valid : [...INITIAL_BRANCHES, ...valid]) : INITIAL_BRANCHES;
         localStorage.setItem('pk_branches', JSON.stringify(finalB));
         return finalB;
       });
       setWarehouses(prev => {
-        const filtered = Array.isArray(prev) ? prev.filter(w => w && (w.id === 'bod-001' || !w.id.startsWith('bod-00'))) : INITIAL_WAREHOUSES;
-        const finalW = filtered.length > 0 ? filtered : INITIAL_WAREHOUSES;
+        const list = Array.isArray(prev) && prev.length > 0 ? prev : (() => {
+          try {
+            const saved = localStorage.getItem('pk_warehouses');
+            return saved ? JSON.parse(saved) : INITIAL_WAREHOUSES;
+          } catch {
+            return INITIAL_WAREHOUSES;
+          }
+        })();
+        const validW = list.filter((w: any) => w && typeof w === 'object' && w.id && w.id !== 'bod-01');
+        const finalW = validW.length > 0 ? validW : INITIAL_WAREHOUSES;
         localStorage.setItem('pk_warehouses', JSON.stringify(finalW));
         return finalW;
       });
