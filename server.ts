@@ -5114,6 +5114,9 @@ if __name__ == '__main__':
       if (warehouses) globalConf.warehouses = warehouses;
       if (posPoints) globalConf.posPoints = posPoints;
       if (parameters) globalConf.businessInfo = parameters;
+      if (users) globalConf.users = users;
+      if (userTemplates) globalConf.userTemplates = userTemplates;
+      if (roleMatrixConfig) globalConf.roleMatrixConfig = roleMatrixConfig;
       globalConf.lastGlobalVersion = version;
       globalConf.lastUpdated = new Date().toISOString();
       fs.writeFileSync(globalConfigPath, JSON.stringify(globalConf, null, 2), 'utf8');

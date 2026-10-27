@@ -78,6 +78,7 @@ import {
 import { parseAndIncrementVersion } from '../utils/versionUtils';
 import { formatDateTimeNice } from './SoftwareUpdaterModal';
 import { CentralDashboard } from './CentralDashboard';
+import { dbGetUserTemplates, dbGetRoleMatrix } from '../db/terminalDatabase';
 
 interface CentralHubModalProps {
   isOpen: boolean;
@@ -93,6 +94,8 @@ interface CentralHubModalProps {
   expenseCategories?: ExpenseCategory[];
   vehicleCategories?: VehicleCategoryConfig[];
   users?: SystemUser[];
+  userTemplates?: any[];
+  roleMatrix?: any;
   businessInfo?: ParkingBusinessInfo;
   onSaveRates?: (rates: RatesConfig) => void;
   onSaveBusinessInfo?: (info: ParkingBusinessInfo) => void;
@@ -120,6 +123,8 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
   expenseCategories = [],
   vehicleCategories = [],
   users = [],
+  userTemplates,
+  roleMatrix,
   businessInfo,
   onSaveRates,
   onSaveBusinessInfo,
@@ -193,6 +198,20 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
     setGlobalPublishSuccess(null);
 
     try {
+      const resolvedUserTemplates = userTemplates || (() => {
+        try {
+          const t = localStorage.getItem('pk_user_templates');
+          return t ? JSON.parse(t) : dbGetUserTemplates();
+        } catch { return dbGetUserTemplates(); }
+      })();
+
+      const resolvedRoleMatrix = roleMatrix || (() => {
+        try {
+          const m = localStorage.getItem('pk_role_matrix_config') || localStorage.getItem('farmadesk_role_matrix_config');
+          return m ? JSON.parse(m) : dbGetRoleMatrix();
+        } catch { return dbGetRoleMatrix(); }
+      })();
+
       const payload = {
         version: newGlobalVersionCode.trim(),
         title: `Actualización de Globales ${newGlobalVersionCode.trim()}`,
@@ -206,6 +225,8 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
         warehouses: warehouses || [],
         posPoints: posPoints || [],
         users: users || [],
+        userTemplates: resolvedUserTemplates || [],
+        roleMatrixConfig: resolvedRoleMatrix || {},
         vehicleCategories: vehicleCategories || [],
         expenseConcepts: expenseConcepts || [],
         expenseCategories: expenseCategories || []
@@ -220,7 +241,7 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
         // Auto-marcar inmediatamente en la terminal local del Servidor Central para que no muestre "Actualización pendiente":
         setInstalledGlobalVersionAndDate(newGlobalVersionCode.trim(), publishedDateIso);
 
-        setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente el ${formatDateTimeNice(publishedDateIso)}! Se empaquetaron ${branches.length} sedes, ${warehouses.length} bodegas, ${posPoints.length} terminales POS, tarifas vigentes, cajeros y datos comerciales para las sucursales.`);
+        setGlobalPublishSuccess(`✅ ¡Versión de Globales ${newGlobalVersionCode} publicada exitosamente el ${formatDateTimeNice(publishedDateIso)}! Se empaquetaron ${branches.length} sedes, ${warehouses.length} bodegas, ${posPoints.length} terminales POS, tarifas vigentes, ${users.length} usuarios/cajeros, ${resolvedUserTemplates.length} perfiles de permisos y la matriz de roles para las sucursales.`);
         await loadCentralGlobalStatus();
 
         if (onForceSyncBranch) {
@@ -1474,14 +1495,21 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                   </div>
                 </div>
 
-                {/* Sub-Sección 3: Usuarios y Perfiles Incluidos */}
+                {/* Sub-Sección 3: Usuarios, Perfiles y Matriz de Permisos Incluidos */}
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-1">
                     <h5 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5 font-mono">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                      3. Usuarios y Cajeros Empaquetados ({users.length})
+                      3. Módulo de Usuarios y Perfiles Empaquetados ({users.length} Usuarios, {(() => {
+                        try {
+                          const t = localStorage.getItem('pk_user_templates');
+                          return t ? JSON.parse(t).length : dbGetUserTemplates().length;
+                        } catch { return dbGetUserTemplates().length; }
+                      })()} Perfiles)
                     </h5>
-                    <span className="text-[11px] text-slate-500">Se sincronizan automáticamente con las terminales</span>
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> Matriz de Permisos 100% Empaquetada
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {users.map(u => (
@@ -1490,6 +1518,18 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
                         {u.name} ({u.role})
                       </span>
                     ))}
+                    {(() => {
+                      try {
+                        const t = localStorage.getItem('pk_user_templates');
+                        const tmpls = t ? JSON.parse(t) : dbGetUserTemplates();
+                        return tmpls.map((tpl: any) => (
+                          <span key={tpl.id} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-mono">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            Perfil: {tpl.name}
+                          </span>
+                        ));
+                      } catch { return null; }
+                    })()}
                   </div>
                 </div>
 

@@ -567,8 +567,11 @@ export async function pullCentralData(branchId: string, customBaseUrl?: string):
     expenseCategories?: ExpenseCategory[];
     businessInfo?: any;
     users?: any[];
+    userTemplates?: any[];
+    roleMatrixConfig?: any;
     branches?: BranchLocation[];
     warehouses?: any[];
+    posPoints?: any[];
     lastUpdated?: string;
   };
   serverTime: string;

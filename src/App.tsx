@@ -91,7 +91,11 @@ import {
   dbSavePaymentGatewayConfig,
   dbSaveExpenseConcepts,
   dbSaveExpenseCategories,
-  dbSavePrinters
+  dbSavePrinters,
+  dbSaveUserTemplates,
+  dbGetUserTemplates,
+  dbSaveRoleMatrix,
+  dbGetRoleMatrix
 } from './db/terminalDatabase';
 import { Building2, XCircle, Monitor, Radio, Cpu, HardDrive, RefreshCw, Terminal, Keyboard, MousePointer, ShieldAlert, Wifi, Sliders, Send, Settings, User, ExternalLink, Car, Database, ShieldCheck, Printer, Layers } from 'lucide-react';
 import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
@@ -1326,6 +1330,19 @@ export default function App() {
     }
 
     try {
+      const savedUserTemplates = (() => {
+        try {
+          const t = localStorage.getItem('pk_user_templates');
+          return t ? JSON.parse(t) : dbGetUserTemplates();
+        } catch { return dbGetUserTemplates(); }
+      })();
+      const savedRoleMatrix = (() => {
+        try {
+          const m = localStorage.getItem('pk_role_matrix_config') || localStorage.getItem('farmadesk_role_matrix_config');
+          return m ? JSON.parse(m) : dbGetRoleMatrix();
+        } catch { return dbGetRoleMatrix(); }
+      })();
+
       const baseConfig = {
         branches,
         warehouses,
@@ -1334,6 +1351,8 @@ export default function App() {
         expenseCategories,
         expenseConcepts,
         users,
+        userTemplates: savedUserTemplates,
+        roleMatrixConfig: savedRoleMatrix,
         businessInfo,
         lastUpdated: new Date().toISOString()
       };
@@ -1376,6 +1395,8 @@ export default function App() {
           expenseCategories: sExpenseCategories,
           expenseConcepts: sExpenseConcepts,
           users: sUsers,
+          userTemplates: sUserTemplates,
+          roleMatrixConfig: sRoleMatrixConfig,
           businessInfo: sBusinessInfo
         } = result.data;
 
@@ -1444,6 +1465,14 @@ export default function App() {
           setUsers(sUsers);
           localStorage.setItem('pk_system_users', JSON.stringify(sUsers));
           dbSaveUsers(sUsers).catch(console.error);
+        }
+        if (sUserTemplates && Array.isArray(sUserTemplates) && sUserTemplates.length > 0) {
+          localStorage.setItem('pk_user_templates', JSON.stringify(sUserTemplates));
+          dbSaveUserTemplates(sUserTemplates).catch(console.error);
+        }
+        if (sRoleMatrixConfig && typeof sRoleMatrixConfig === 'object') {
+          localStorage.setItem('pk_role_matrix_config', JSON.stringify(sRoleMatrixConfig));
+          dbSaveRoleMatrix(sRoleMatrixConfig).catch(console.error);
         }
         if (sBusinessInfo && JSON.stringify(sBusinessInfo) !== JSON.stringify(businessInfo)) {
           setBusinessInfo(sBusinessInfo);
@@ -2125,7 +2154,7 @@ export default function App() {
       });
     }
 
-    // 5. Users, Cashiers and Role Matrix
+    // 5. Users, Cashiers, User Templates and Role Matrix
     if (pkg.payload.users && Array.isArray(pkg.payload.users) && pkg.payload.users.length > 0) {
       setUsers(prev => {
         const map = new Map<string, SystemUser>();
@@ -2138,7 +2167,19 @@ export default function App() {
         dbSaveUsers(combined).catch(console.error);
         return combined;
       });
-      details.push(`${pkg.payload.users.length} usuarios/perfiles sincronizados desde Central`);
+      details.push(`${pkg.payload.users.length} usuarios/cajeros sincronizados desde Central`);
+    }
+
+    if (pkg.payload.userTemplates && Array.isArray(pkg.payload.userTemplates) && pkg.payload.userTemplates.length > 0) {
+      localStorage.setItem('pk_user_templates', JSON.stringify(pkg.payload.userTemplates));
+      dbSaveUserTemplates(pkg.payload.userTemplates).catch(console.error);
+      details.push(`${pkg.payload.userTemplates.length} perfiles/plantillas sincronizadas`);
+    }
+
+    if (pkg.payload.roleMatrixConfig && typeof pkg.payload.roleMatrixConfig === 'object') {
+      localStorage.setItem('pk_role_matrix_config', JSON.stringify(pkg.payload.roleMatrixConfig));
+      dbSaveRoleMatrix(pkg.payload.roleMatrixConfig).catch(console.error);
+      details.push('Matriz de permisos de roles sincronizada');
     }
 
     // 6. Business Information and Commercial Parameters
@@ -2334,6 +2375,29 @@ export default function App() {
       if (centralPosPoints && Array.isArray(centralPosPoints) && centralPosPoints.length > 0) {
         setPosPoints(centralPosPoints);
         appliedSummaryDetails.push(`${centralPosPoints.length} terminales POS sincronizadas`);
+      }
+
+      // Users, User Templates & Role Matrix
+      const centralUsers = centralData.globalVersionData?.users || centralData.globalConfig?.users;
+      if (centralUsers && Array.isArray(centralUsers) && centralUsers.length > 0) {
+        setUsers(centralUsers);
+        localStorage.setItem('pk_system_users', JSON.stringify(centralUsers));
+        dbSaveUsers(centralUsers).catch(console.error);
+        appliedSummaryDetails.push(`${centralUsers.length} usuarios/cajeros sincronizados`);
+      }
+
+      const centralUserTemplates = (centralData.globalVersionData as any)?.userTemplates || (centralData.globalConfig as any)?.userTemplates;
+      if (centralUserTemplates && Array.isArray(centralUserTemplates) && centralUserTemplates.length > 0) {
+        localStorage.setItem('pk_user_templates', JSON.stringify(centralUserTemplates));
+        dbSaveUserTemplates(centralUserTemplates).catch(console.error);
+        appliedSummaryDetails.push(`${centralUserTemplates.length} perfiles sincronizados`);
+      }
+
+      const centralRoleMatrix = (centralData.globalVersionData as any)?.roleMatrixConfig || (centralData.globalConfig as any)?.roleMatrixConfig;
+      if (centralRoleMatrix && typeof centralRoleMatrix === 'object') {
+        localStorage.setItem('pk_role_matrix_config', JSON.stringify(centralRoleMatrix));
+        dbSaveRoleMatrix(centralRoleMatrix).catch(console.error);
+        appliedSummaryDetails.push('Matriz de permisos de roles sincronizada');
       }
 
       // If centralData returned direct activeGlobalVersion, update local version and date
@@ -3185,18 +3249,18 @@ export default function App() {
     });
 
     await dbSaveUser(userToSave);
+    let nextUsersList: SystemUser[] = [];
     setUsers(prev => {
       const idx = prev.findIndex(u => u.id === userToSave.id);
-      let nextUsers: SystemUser[];
       if (idx >= 0) {
-        nextUsers = [...prev];
-        nextUsers[idx] = userToSave;
-        console.log(`✏️ [LOG DETALLADO - EDITAR USUARIO] ID: ${userToSave.id}, Username: ${userToSave.username}. Total actual: ${nextUsers.length}`);
+        nextUsersList = [...prev];
+        nextUsersList[idx] = userToSave;
+        console.log(`✏️ [LOG DETALLADO - EDITAR USUARIO] ID: ${userToSave.id}, Username: ${userToSave.username}. Total actual: ${nextUsersList.length}`);
       } else {
-        nextUsers = [userToSave, ...prev];
-        console.log(`➕ [LOG DETALLADO - NUEVO USUARIO] ID: ${userToSave.id}, Username: ${userToSave.username}. Total actual: ${nextUsers.length}`);
+        nextUsersList = [userToSave, ...prev];
+        console.log(`➕ [LOG DETALLADO - NUEVO USUARIO] ID: ${userToSave.id}, Username: ${userToSave.username}. Total actual: ${nextUsersList.length}`);
       }
-      return nextUsers;
+      return nextUsersList;
     });
 
     if (currentUser && currentUser.id === userToSave.id) {
@@ -3205,6 +3269,9 @@ export default function App() {
       localStorage.setItem('pk_current_user', JSON.stringify(userToSave));
     }
     dbAddAuditLog('USER_UPDATE', `Usuario modificado o creado: ${userToSave.username}`, currentUser?.name || 'Maestro').catch(console.error);
+
+    // Persistir inmediatamente en la configuración global del Servidor Central
+    saveGlobalConfigToServer({ users: nextUsersList }).catch(console.warn);
   };
 
   const handleDeleteUser = async (userId: string) => {
@@ -3215,14 +3282,18 @@ export default function App() {
       usersCountBeforeDelete: users.length
     });
     await dbDeleteUser(userId);
+    let remainingUsersList: SystemUser[] = [];
     setUsers(prev => {
-      const remaining = prev.filter(u => u.id !== userId);
-      console.log(`🗑️ [LOG DETALLADO - USUARIO ELIMINADO] Quedan ${remaining.length} usuario(s) en estado.`);
-      return remaining;
+      remainingUsersList = prev.filter(u => u.id !== userId);
+      console.log(`🗑️ [LOG DETALLADO - USUARIO ELIMINADO] Quedan ${remainingUsersList.length} usuario(s) en estado.`);
+      return remainingUsersList;
     });
     if (toDelete) {
       dbAddAuditLog('USER_DELETE', `Usuario eliminado: ${toDelete.username}`, currentUser?.name || 'Maestro').catch(console.error);
     }
+
+    // Persistir inmediatamente en la configuración global del Servidor Central
+    saveGlobalConfigToServer({ users: remainingUsersList }).catch(console.warn);
   };
 
   // Modal ticket print
@@ -5118,7 +5189,10 @@ export default function App() {
           <UsersManagementModal
             embedded={true}
             isOpen={true}
-            onClose={() => setActiveView('operations')}
+            onClose={() => {
+              saveGlobalConfigToServer().catch(console.warn);
+              setActiveView('operations');
+            }}
             users={users}
             currentUser={currentUser!}
             onSaveUser={handleSaveUser}
