@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Users, 
   Crown, 
@@ -830,13 +830,25 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
           if (base) {
             basePerms = { ...base.permissions };
             baseVis = { ...base.uiVisibility };
+          } else if (templateFormBaseTemplateId === 'supervisor') {
+            basePerms = { ...(roleMatrix.supervisor?.permissions || DEFAULT_SUPERVISOR_PERMISSIONS) };
+            baseVis = { ...(roleMatrix.supervisor?.uiVisibility || DEFAULT_SUPERVISOR_UI_VISIBILITY) };
+          } else if (templateFormBaseTemplateId === 'cashier') {
+            basePerms = { ...(roleMatrix.cashier?.permissions || DEFAULT_CASHIER_PERMISSIONS) };
+            baseVis = { ...(roleMatrix.cashier?.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY) };
+          } else if (templateFormBaseTemplateId === 'master') {
+            basePerms = { ...(roleMatrix.master?.permissions || DEFAULT_MASTER_PERMISSIONS) };
+            baseVis = { ...(roleMatrix.master?.uiVisibility || DEFAULT_MASTER_UI_VISIBILITY) };
           }
         } else if (templateFormRole === 'supervisor') {
-          basePerms = { ...DEFAULT_SUPERVISOR_PERMISSIONS };
-          baseVis = { ...DEFAULT_SUPERVISOR_UI_VISIBILITY };
+          basePerms = { ...(roleMatrix.supervisor?.permissions || DEFAULT_SUPERVISOR_PERMISSIONS) };
+          baseVis = { ...(roleMatrix.supervisor?.uiVisibility || DEFAULT_SUPERVISOR_UI_VISIBILITY) };
         } else if (templateFormRole === 'master') {
-          basePerms = { ...DEFAULT_MASTER_PERMISSIONS };
-          baseVis = { ...DEFAULT_MASTER_UI_VISIBILITY };
+          basePerms = { ...(roleMatrix.master?.permissions || DEFAULT_MASTER_PERMISSIONS) };
+          baseVis = { ...(roleMatrix.master?.uiVisibility || DEFAULT_MASTER_UI_VISIBILITY) };
+        } else if (templateFormRole === 'cashier') {
+          basePerms = { ...(roleMatrix.cashier?.permissions || DEFAULT_CASHIER_PERMISSIONS) };
+          baseVis = { ...(roleMatrix.cashier?.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY) };
         }
 
         const newTmpl: UserPermissionTemplate = {
@@ -861,6 +873,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     } catch (err: any) {
       setErrorMessage(`Error guardando perfil: ${err.message || 'Error desconocido'}`);
     }
+  };
+
+  const handleCloneProfile = (prof: {
+    id: string;
+    name: string;
+    description: string;
+    role: UserRole;
+    permissions: UserPermissions;
+    uiVisibility: UserUIVisibility;
+  }) => {
+    setEditingTemplate(null);
+    setTemplateFormName(`${prof.name} (Copia)`);
+    setTemplateFormDesc(`Copia personalizada basada en ${prof.name}`);
+    setTemplateFormRole(prof.role);
+    setTemplateFormBaseTemplateId(prof.id);
+    setIsTemplateModalOpen(true);
   };
 
   const handleConfirmDeleteTemplate = async () => {
@@ -986,6 +1014,95 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     return Object.values(vis).filter(Boolean).length;
   };
 
+  const allProfilesList = useMemo(() => {
+    const baseSystemProfiles = [
+      {
+        id: 'master',
+        name: 'Maestro / Admin',
+        description: 'Control Total Ilimitado. Acceso a todas las funciones del sistema, auditoría y configuraciones.',
+        role: 'master' as UserRole,
+        isSystem: true,
+        permissions: roleMatrix.master?.permissions || DEFAULT_MASTER_PERMISSIONS,
+        uiVisibility: roleMatrix.master?.uiVisibility || DEFAULT_MASTER_UI_VISIBILITY,
+        icon: Crown,
+        badgeBg: 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40',
+        badgeText: 'Sistema Protegido',
+        canDelete: false,
+        canEdit: false,
+        canClone: true,
+        usersCount: users.filter(u => u.role === 'master').length,
+        actionsCount: 62,
+        visCount: 37,
+      },
+      {
+        id: 'supervisor',
+        name: 'Supervisor Base',
+        description: 'Operación, Reportes & Arqueo. Supervisión de patio, turnos, cancelaciones y arqueos de caja.',
+        role: 'supervisor' as UserRole,
+        isSystem: true,
+        permissions: roleMatrix.supervisor?.permissions || DEFAULT_SUPERVISOR_PERMISSIONS,
+        uiVisibility: roleMatrix.supervisor?.uiVisibility || DEFAULT_SUPERVISOR_UI_VISIBILITY,
+        icon: ShieldCheck,
+        badgeBg: 'bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40',
+        badgeText: 'Oficial Sistema',
+        canDelete: false,
+        canEdit: true,
+        canClone: true,
+        usersCount: users.filter(u => u.role === 'supervisor').length,
+        actionsCount: countActiveActions(roleMatrix.supervisor?.permissions || DEFAULT_SUPERVISOR_PERMISSIONS),
+        visCount: countVisibleUI(roleMatrix.supervisor?.uiVisibility || DEFAULT_SUPERVISOR_UI_VISIBILITY),
+      },
+      {
+        id: 'cashier',
+        name: 'Cajero Solo Caja Base',
+        description: 'Ingresos, Cobros & Arqueo Ciego. Liquidación de tarifas y registro en terminal POS.',
+        role: 'cashier' as UserRole,
+        isSystem: true,
+        permissions: roleMatrix.cashier?.permissions || DEFAULT_CASHIER_PERMISSIONS,
+        uiVisibility: roleMatrix.cashier?.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY,
+        icon: Briefcase,
+        badgeBg: 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40',
+        badgeText: 'Oficial Sistema',
+        canDelete: false,
+        canEdit: true,
+        canClone: true,
+        usersCount: users.filter(u => u.role === 'cashier').length,
+        actionsCount: countActiveActions(roleMatrix.cashier?.permissions || DEFAULT_CASHIER_PERMISSIONS),
+        visCount: countVisibleUI(roleMatrix.cashier?.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY),
+      }
+    ];
+
+    const templateProfiles = templates.map((tmpl) => {
+      const actionsCount = countActiveActions(tmpl.permissions);
+      const visCount = countVisibleUI(tmpl.uiVisibility);
+      const usersCount = users.filter(u => u.role === tmpl.role).length;
+
+      return {
+        id: tmpl.id,
+        name: tmpl.name,
+        description: tmpl.description || 'Perfil de usuario personalizado',
+        role: tmpl.role,
+        isSystem: Boolean(tmpl.isSystem),
+        permissions: tmpl.permissions,
+        uiVisibility: tmpl.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY,
+        icon: Bookmark,
+        badgeBg: tmpl.isSystem 
+          ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+          : 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60',
+        badgeText: tmpl.isSystem ? 'Plantilla Base' : 'Personalizado ✨',
+        canDelete: !tmpl.isSystem,
+        canEdit: true,
+        canClone: true,
+        usersCount,
+        actionsCount,
+        visCount,
+        rawTemplate: tmpl,
+      };
+    });
+
+    return [...baseSystemProfiles, ...templateProfiles];
+  }, [roleMatrix, templates, users]);
+
   if (!isOpen && !embedded) return null;
 
   return (
@@ -1052,7 +1169,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               }`}
             >
               <Bookmark className="w-3.5 h-3.5" />
-              <span>2. Perfiles de Usuario ({templates.length + 3})</span>
+              <span>2. Perfiles de Usuario ({allProfilesList.length})</span>
             </button>
 
             {/* TAB 3: PERMISOS POR PERFIL */}
@@ -1070,7 +1187,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
-              <span>3. Permisos por Perfil ({templates.length + 3})</span>
+              <span>3. Permisos por Perfil ({allProfilesList.length})</span>
             </button>
 
             {(activeTab === 'create_user' || activeTab === 'edit_user') && (
@@ -1357,67 +1474,77 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {templates.map((tmpl) => {
-                  const actionsCount = countActiveActions(tmpl.permissions);
-                  const visCount = countVisibleUI(tmpl.uiVisibility);
-                  const usersCountWithRole = users.filter(u => u.role === tmpl.role).length;
+                {allProfilesList.map((prof) => {
+                  const Icon = prof.icon;
 
                   return (
                     <div
-                      key={tmpl.id}
+                      key={prof.id}
                       className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl p-4 flex flex-col justify-between transition-all shadow-xs"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="text-sm font-bold text-slate-900 dark:text-white">{tmpl.name}</h4>
-                              {tmpl.isSystem ? (
-                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
-                                  Sistema
-                                </span>
-                              ) : (
-                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-medium">
-                                  Personalizado
-                                </span>
-                              )}
+                          <div className="flex items-start gap-2.5">
+                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                              prof.id === 'master'
+                                ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
+                                : prof.id === 'supervisor'
+                                ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20'
+                                : prof.id === 'cashier'
+                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                                : 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20'
+                            }`}>
+                              <Icon className="w-4 h-4" />
                             </div>
-                            <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
-                              {tmpl.description}
-                            </p>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">{prof.name}</h4>
+                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-medium ${prof.badgeBg}`}>
+                                  {prof.badgeText}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                                {prof.description}
+                              </p>
+                            </div>
                           </div>
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
-                            👤 {usersCountWithRole} usuarios
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0">
+                            👤 {prof.usersCount} usuarios
                           </span>
                         </div>
 
                         <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
                           <div className="flex items-center justify-between text-xs">
-                            <div>{getRoleBadge(tmpl.role)}</div>
+                            <div>{getRoleBadge(prof.role)}</div>
                             <div className="flex items-center gap-2 font-mono text-[11px]">
                               <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
-                                🛠️ {actionsCount}/62 Acciones
+                                🛠️ {prof.actionsCount}/62 Acciones
                               </span>
                               <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
-                                👁️ {visCount}/37 Visibles
+                                👁️ {prof.visCount}/37 Visibles
                               </span>
                             </div>
                           </div>
 
                           <div className="flex flex-wrap gap-1.5 pt-1">
-                            {tmpl.permissions.blindCashCount && (
+                            {prof.permissions.blindCashCount && (
                               <span className="text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">
                                 🔒 Arqueo Ciego
                               </span>
                             )}
-                            {tmpl.uiVisibility.showTopRevenueMetrics === false && (
+                            {prof.uiVisibility.showTopRevenueMetrics === false && (
                               <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
                                 🚫 Recaudo Oculto
                               </span>
                             )}
-                            {tmpl.permissions.canWaiveFee && (
+                            {prof.permissions.canWaiveFee && (
                               <span className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 px-2 py-0.5 rounded">
                                 🎟️ Exonerar Cortesía
+                              </span>
+                            )}
+                            {prof.id === 'master' && (
+                              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">
+                                👑 Control Total Ilimitado
                               </span>
                             )}
                           </div>
@@ -1426,35 +1553,61 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
                       <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
+                          {/* Botón Clonar Perfil */}
                           <button
                             type="button"
-                            onClick={() => handleOpenEditTemplate(tmpl)}
-                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
-                            title="Editar nombre, descripción y rol del perfil"
+                            onClick={() => handleCloneProfile(prof)}
+                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Crear un nuevo perfil duplicando este"
                           >
-                            <Edit className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
-                            <span>Editar</span>
+                            <Copy className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                            <span>Clonar</span>
                           </button>
 
-                          <button
-                            type="button"
-                            onClick={() => setTemplateToDelete(tmpl)}
-                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 transition-colors cursor-pointer"
-                            title="Eliminar este perfil del catálogo"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-                            <span>Eliminar</span>
-                          </button>
+                          {/* Botón Editar para plantillas */}
+                          {prof.rawTemplate && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditTemplate(prof.rawTemplate!)}
+                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title="Editar nombre, descripción y rol del perfil"
+                            >
+                              <Edit className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                              <span>Editar</span>
+                            </button>
+                          )}
+
+                          {/* Botón Eliminar solo para perfiles no protegidos */}
+                          {prof.canDelete && prof.rawTemplate ? (
+                            <button
+                              type="button"
+                              onClick={() => setTemplateToDelete(prof.rawTemplate!)}
+                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title="Eliminar este perfil del catálogo"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                              <span>Eliminar</span>
+                            </button>
+                          ) : (
+                            <span 
+                              className="text-[11px] text-slate-400 dark:text-slate-500 font-mono flex items-center gap-1 px-1.5 py-0.5"
+                              title="Perfil oficial protegido por el sistema"
+                            >
+                              <Lock className="w-3 h-3 text-slate-400" />
+                              <span>Fijo</span>
+                            </span>
+                          )}
                         </div>
 
                         <button
                           type="button"
                           onClick={() => {
                             refreshTemplates();
-                            setSelectedMatrixProfileId(tmpl.id);
+                            setSelectedMatrixProfileId(prof.id);
                             setActiveTab('permissions');
                           }}
                           className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-800 dark:text-amber-300 hover:text-slate-950 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
+                          title="Ajustar accesos a módulos, acciones y vistas"
                         >
                           <ShieldCheck className="w-3.5 h-3.5" />
                           <span>Permisos y Módulos</span>
@@ -1475,37 +1628,6 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               permissions: activeProfile.permissions,
               uiVisibility: activeProfile.uiVisibility
             };
-
-            // System base roles
-            const systemProfiles = [
-              {
-                id: 'master',
-                name: 'Maestro / Admin',
-                desc: 'Control Total Ilimitado',
-                icon: Crown,
-                role: 'master' as UserRole,
-                isSystem: true,
-                badgeBg: 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40'
-              },
-              {
-                id: 'supervisor',
-                name: 'Supervisor Base',
-                desc: 'Operación, Reportes & Arqueo',
-                icon: ShieldCheck,
-                role: 'supervisor' as UserRole,
-                isSystem: true,
-                badgeBg: 'bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40'
-              },
-              {
-                id: 'cashier',
-                name: 'Cajero Solo Caja Base',
-                desc: 'Ingresos, Cobros & Arqueo Ciego',
-                icon: Briefcase,
-                role: 'cashier' as UserRole,
-                isSystem: true,
-                badgeBg: 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-500/40'
-              }
-            ];
 
             return (
               <div className="space-y-5 animate-in fade-in duration-200">
@@ -1548,22 +1670,20 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       Selecciona el Perfil a Configurar:
                     </span>
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
-                      Total: {systemProfiles.length + templates.length} perfiles disponibles
+                      Total: {allProfilesList.length} perfiles disponibles
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
-                    {/* System Roles */}
-                    {systemProfiles.map((roleItem) => {
-                      const isSelected = selectedMatrixProfileId === roleItem.id;
-                      const roleUsersCount = users.filter(u => u.role === roleItem.role).length;
-                      const Icon = roleItem.icon;
+                    {allProfilesList.map((prof) => {
+                      const isSelected = selectedMatrixProfileId === prof.id;
+                      const Icon = prof.icon;
 
                       return (
                         <button
-                          key={roleItem.id}
+                          key={prof.id}
                           type="button"
-                          onClick={() => setSelectedMatrixProfileId(roleItem.id)}
+                          onClick={() => setSelectedMatrixProfileId(prof.id)}
                           className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden cursor-pointer shadow-xs ${
                             isSelected
                               ? 'bg-amber-500/10 dark:bg-amber-500/10 border-amber-500 ring-1 ring-amber-500/50'
@@ -1573,52 +1693,17 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           <div className="flex items-center justify-between gap-1 mb-1">
                             <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white truncate">
                               <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-amber-700 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`} />
-                              <span className="truncate">{roleItem.name}</span>
+                              <span className="truncate">{prof.name}</span>
                             </div>
-                            <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded border font-bold shrink-0 ${roleItem.badgeBg}`}>
-                              {roleUsersCount} u.
+                            <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded border font-bold shrink-0 ${prof.badgeBg}`}>
+                              {prof.usersCount} u.
                             </span>
                           </div>
                           <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                            {roleItem.desc}
+                            {prof.description}
                           </p>
-                          <span className="mt-1 block text-[9px] font-mono text-amber-800 dark:text-amber-300 font-bold">
-                            Oficial Sistema
-                          </span>
-                        </button>
-                      );
-                    })}
-
-                    {/* Custom and Template Profiles */}
-                    {templates.map((tmpl) => {
-                      const isSelected = selectedMatrixProfileId === tmpl.id;
-                      const tmplUsersCount = users.filter(u => u.role === tmpl.role).length;
-
-                      return (
-                        <button
-                          key={tmpl.id}
-                          type="button"
-                          onClick={() => setSelectedMatrixProfileId(tmpl.id)}
-                          className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden cursor-pointer shadow-xs ${
-                            isSelected
-                              ? 'bg-amber-500/10 dark:bg-amber-500/10 border-amber-500 ring-1 ring-amber-500/50'
-                              : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1 mb-1">
-                            <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white truncate">
-                              <Bookmark className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-amber-700 dark:text-amber-400' : 'text-purple-700 dark:text-purple-400'}`} />
-                              <span className="truncate">{tmpl.name}</span>
-                            </div>
-                            <span className="text-[9px] font-mono px-1.5 py-0.2 rounded border font-bold shrink-0 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60">
-                              {tmplUsersCount} u.
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
-                            {tmpl.description || 'Perfil de usuario personalizado'}
-                          </p>
-                          <span className="mt-1 block text-[9px] font-mono text-purple-700 dark:text-purple-300 font-bold">
-                            {tmpl.isSystem ? 'Plantilla Base' : 'Personalizado ✨'}
+                          <span className="mt-1 block text-[9px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                            {prof.badgeText}
                           </span>
                         </button>
                       );
@@ -1649,6 +1734,20 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
+                    {/* Botón Clonar Perfil en Matriz */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const prof = allProfilesList.find(p => p.id === selectedMatrixProfileId);
+                        if (prof) handleCloneProfile(prof);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Crear un nuevo perfil duplicando la configuración actual"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                      <span>Clonar Perfil</span>
+                    </button>
+
                     {templates.some(t => t.id === selectedMatrixProfileId) && (
                       <>
                         <button
@@ -3883,7 +3982,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   </div>
                 </div>
 
-                {!editingTemplate && templates.length > 0 && (
+                {!editingTemplate && (
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Copiar permisos iniciales de:
@@ -3894,6 +3993,9 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
                     >
                       <option value="">-- Usar permisos por defecto del rol seleccionado --</option>
+                      <option value="cashier">💼 Cajero Solo Caja Base (Oficial Sistema)</option>
+                      <option value="supervisor">🛡️ Supervisor Base (Oficial Sistema)</option>
+                      <option value="master">👑 Maestro / Admin (Oficial Sistema)</option>
                       {templates.map(t => (
                         <option key={t.id} value={t.id}>
                           📑 {t.name} ({t.role})
