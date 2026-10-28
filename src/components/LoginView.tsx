@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Lock, 
   User, 
@@ -239,7 +239,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   const handleMascotClick = () => {
-    playSound('click', true);
+    playSound('beep', true);
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
