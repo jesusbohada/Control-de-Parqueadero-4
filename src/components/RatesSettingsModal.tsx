@@ -61,7 +61,7 @@ interface RatesSettingsModalProps {
   onSavePaymentGatewayConfig?: (newConfig: PaymentGatewayConfig) => void;
   soundEnabled?: boolean;
   setSoundEnabled?: (enabled: boolean) => void;
-  initialTab?: 'rates' | 'payments' | 'electronic_invoice' | 'business' | 'printers';
+  initialTab?: 'rates' | 'payments' | 'electronic_invoice' | 'business' | 'printers' | 'ai_gemini';
   currentUser?: SystemUser;
   vehicleCategories?: VehicleCategoryConfig[];
   printers?: PrinterConfig[];
@@ -386,7 +386,7 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
       )}
 
       {/* Main Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-1">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
           type="button"
           aria-selected={activeTab === 'rates'}
@@ -461,15 +461,18 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
           type="button"
           aria-selected={activeTab === 'ai_gemini'}
           onClick={() => setActiveTab('ai_gemini')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer border ${
             activeTab === 'ai_gemini'
-              ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
-              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
+              ? 'active-tab-indicator bg-indigo-600 text-white shadow-md border-indigo-500'
+              : 'inactive-tab-indicator bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <Sparkles className="w-4 h-4 text-amber-400" />
           <span>Inteligencia Artificial (Gemini)</span>
-          <span className={`w-2 h-2 rounded-full ${isGeminiConfigured ? 'bg-emerald-500' : 'bg-rose-400'}`}></span>
+          <span className={`w-2 h-2 rounded-full ${isGeminiConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`}></span>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-amber-400/20 text-amber-700 dark:text-amber-300 border border-amber-400/30 font-black">
+            IA
+          </span>
         </button>
       </div>
 
