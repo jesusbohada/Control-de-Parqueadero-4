@@ -457,6 +457,9 @@ export class FarmaDeskSocketClient {
    * If WebSocket is down, uses HTTP fallback so IP and status reports are never lost.
    */
   public async reportNetworkTelemetry(telemetry: {
+    code?: string;
+    domain?: string;
+    ddnsDomain?: string;
     ipAddress: string;
     publicIp?: string;
     localIp?: string;

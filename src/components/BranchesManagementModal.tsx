@@ -80,8 +80,8 @@ interface BranchesManagementModalProps {
 export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = ({
   isOpen,
   onClose,
-  branches,
-  posPoints,
+  branches = [],
+  posPoints = [],
   onSaveBranch,
   onDeleteBranch,
   onSavePosPoint,
@@ -126,41 +126,56 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   const [inlineTestingIp, setInlineTestingIp] = useState(false);
   const [inlinePingMs, setInlinePingMs] = useState<number | null>(null);
 
+  const safeBranches = useMemo(() => Array.isArray(branches) ? branches.filter(Boolean) : [], [branches]);
+  const safePosPoints = useMemo(() => Array.isArray(posPoints) ? posPoints.filter(Boolean) : [], [posPoints]);
+
   // Ciudades únicas disponibles
   const cities = useMemo(() => {
     const set = new Set<string>();
-    branches.forEach(b => {
-      if (b.city) set.add(b.city.trim());
+    safeBranches.forEach(b => {
+      if (b && typeof b.city === 'string' && b.city.trim()) {
+        set.add(b.city.trim());
+      }
     });
     return Array.from(set).sort();
-  }, [branches]);
+  }, [safeBranches]);
 
   // Métricas globales
-  const totalBranches = branches.length;
-  const onlineBranches = branches.filter(b => b.status === 'online').length;
-  const totalPosPoints = posPoints.length;
-  const totalSpots = useMemo(() => branches.reduce((acc, b) => acc + (b.totalSpots || 0), 0), [branches]);
-  const totalOccupiedSpots = useMemo(() => branches.reduce((acc, b) => acc + (b.occupiedSpots || 0), 0), [branches]);
-  const totalRevenue = useMemo(() => branches.reduce((acc, b) => acc + (b.todayRevenue || 0), 0), [branches]);
+  const totalBranches = safeBranches.length;
+  const onlineBranches = safeBranches.filter(b => b.status === 'online').length;
+  const totalPosPoints = safePosPoints.length;
+  const totalSpots = useMemo(() => safeBranches.reduce((acc, b) => acc + (b.totalSpots || 0), 0), [safeBranches]);
+  const totalOccupiedSpots = useMemo(() => safeBranches.reduce((acc, b) => acc + (b.occupiedSpots || 0), 0), [safeBranches]);
+  const totalRevenue = useMemo(() => safeBranches.reduce((acc, b) => acc + (b.todayRevenue || 0), 0), [safeBranches]);
 
   // Sedes filtradas
   const filteredBranches = useMemo(() => {
-    return branches.filter(branch => {
-      const q = searchTerm.toLowerCase().trim();
-      const matchesSearch = !q || 
-        branch.name.toLowerCase().includes(q) ||
-        branch.code.toLowerCase().includes(q) ||
-        branch.city.toLowerCase().includes(q) ||
-        (branch.address && branch.address.toLowerCase().includes(q)) ||
-        (branch.ipAddress && branch.ipAddress.includes(q)) ||
-        (branch.publicIp && branch.publicIp.includes(q));
+    return safeBranches.filter(branch => {
+      if (!branch || typeof branch !== 'object') return false;
+      const q = (searchTerm || '').toLowerCase().trim();
+      const name = (branch.name || '').toLowerCase();
+      const code = (branch.code || '').toLowerCase();
+      const city = (branch.city || '').toLowerCase();
+      const address = (branch.address || '').toLowerCase();
+      const ip = branch.ipAddress || '';
+      const pubIp = branch.publicIp || '';
+      const domain = (branch.domain || '').toLowerCase();
 
-      const matchesCity = selectedCityFilter === 'all' || branch.city.trim() === selectedCityFilter;
+      const matchesSearch = !q || 
+        name.includes(q) ||
+        code.includes(q) ||
+        city.includes(q) ||
+        address.includes(q) ||
+        ip.includes(q) ||
+        pubIp.includes(q) ||
+        domain.includes(q);
+
+      const matchesCity = selectedCityFilter === 'all' || ((branch.city || '').trim() === selectedCityFilter);
       const matchesStatus = statusFilter === 'all' || branch.status === statusFilter;
 
-      return matchesSearch && matchesCity && matchesStatus;
+      return Boolean(matchesSearch && matchesCity && matchesStatus);
     });
-  }, [branches, searchTerm, selectedCityFilter, statusFilter]);
+  }, [safeBranches, searchTerm, selectedCityFilter, statusFilter]);
 
   // Manejo de conexión remota
   const handleConnect = (branch: BranchLocation, mode: 'system' | 'desktop') => {
@@ -352,7 +367,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
     try {
       // 1. Consultar si la Central ya tiene registrada la IP Pública reportada por esta sucursal
       const telemetryList = await fetchBranchesTelemetry();
-      const reported = telemetryList.find(t => t.id === branch.id || (branch.code && t.code === branch.code));
+      const reported = telemetryList.find(t => t.id === branch.id || (branch.code && t.code && t.code.toUpperCase() === branch.code.toUpperCase()));
       
       let ipToUse = reported?.reportedPublicIp || reported?.publicIp;
       let domainToUse = reported?.domain || reported?.ddnsDomain;
@@ -1162,7 +1177,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
             <div>
               <span className="text-[11px] text-sky-200/70 block uppercase font-mono font-semibold">Vehículos Totales</span>
               <span className="text-xl sm:text-2xl font-black text-white font-mono mt-0.5 block">
-                {branches.reduce((sum, b) => sum + (b.todayVehicles || 0), 0)}
+                {safeBranches.reduce((sum, b) => sum + (b.todayVehicles || 0), 0)}
               </span>
             </div>
             <div>
@@ -1193,7 +1208,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
               </p>
             </div>
             <span className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
-              {branches.length} Sedes Monitoreadas
+              {safeBranches.length} Sedes Monitoreadas
             </span>
           </div>
 
@@ -1213,17 +1228,17 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 font-mono">
-                {branches.map(branch => {
-                  const occPct = branch.totalSpots > 0 ? Math.round((branch.occupiedSpots / branch.totalSpots) * 100) : 0;
-                  const sharePct = totalRevenue > 0 ? Math.round((branch.todayRevenue / totalRevenue) * 100) : 0;
+                {safeBranches.map(branch => {
+                  const occPct = (branch.totalSpots || 0) > 0 ? Math.round(((branch.occupiedSpots || 0) / branch.totalSpots) * 100) : 0;
+                  const sharePct = totalRevenue > 0 ? Math.round(((branch.todayRevenue || 0) / totalRevenue) * 100) : 0;
 
                   return (
                     <tr key={branch.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white font-sans">{branch.name}</div>
-                        <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-bold">{branch.code}</div>
+                        <div className="font-bold text-slate-900 dark:text-white font-sans">{branch.name || branch.id}</div>
+                        <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-bold">{branch.code || branch.id}</div>
                       </td>
-                      <td className="py-3 px-4 font-sans text-slate-600 dark:text-slate-400">{branch.city}</td>
+                      <td className="py-3 px-4 font-sans text-slate-600 dark:text-slate-400">{branch.city || 'Sin ciudad'}</td>
                       <td className="py-3 px-4 text-center">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                           branch.status === 'online'
@@ -1235,7 +1250,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <div className="font-bold">{branch.occupiedSpots} / {branch.totalSpots}</div>
+                        <div className="font-bold">{branch.occupiedSpots || 0} / {branch.totalSpots || 0}</div>
                         <div className="w-20 bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full ml-auto mt-1 overflow-hidden">
                           <div
                             className={`h-full rounded-full ${
@@ -1278,7 +1293,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                 <tr>
                   <td className="py-3 px-4" colSpan={3}>TOTAL NACIONAL CONSOLIDADO</td>
                   <td className="py-3 px-4 text-right">{totalOccupiedSpots} / {totalSpots}</td>
-                  <td className="py-3 px-4 text-right">{branches.reduce((sum, b) => sum + (b.todayVehicles || 0), 0)}</td>
+                  <td className="py-3 px-4 text-right">{safeBranches.reduce((sum, b) => sum + (b.todayVehicles || 0), 0)}</td>
                   <td className="py-3 px-4 text-right text-emerald-600 dark:text-emerald-400 text-sm font-black">
                     {formatCurrency(totalRevenue)}
                   </td>

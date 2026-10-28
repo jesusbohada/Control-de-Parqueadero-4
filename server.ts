@@ -4777,7 +4777,7 @@ if __name__ == '__main__':
         const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
         if (gConf && Array.isArray(gConf.branches)) {
           for (const b of gConf.branches) {
-            if (!b || !b.id || b.id === 'branch-01') continue;
+            if (!b || !b.id || b.id === 'branch-01' || b.id === 'SERVER-CENTRAL') continue;
             cleanMap[b.id] = {
               ...b,
               id: b.id,
@@ -4806,7 +4806,7 @@ if __name__ == '__main__':
       if (!val || typeof val !== 'object' || key === 'branch-01') continue;
       const item = val as Record<string, any>;
       const id = item.id || key;
-      if (!id || id === 'branch-01') continue;
+      if (!id || id === 'branch-01' || id === 'SERVER-CENTRAL') continue;
 
       const base = cleanMap[id] || (GOLDEN_BRANCHES_TELEMETRY[id] || {});
 
@@ -5707,7 +5707,7 @@ if __name__ == '__main__':
                 status: 'online',
                 lastSyncTimestamp: new Date().toISOString()
               };
-            } else {
+            } else if (targetBranchId !== 'SERVER-CENTRAL' && targetBranchId !== 'CENTRAL') {
               gConf.branches.push(branchRecord);
             }
             gConf.lastUpdated = new Date().toISOString();
@@ -6615,8 +6615,8 @@ if __name__ == '__main__':
             };
             if (bIdx >= 0) {
               gConfig.branches[bIdx] = { ...gConfig.branches[bIdx], ...branchNetData };
-            } else {
-              gConfig.branches.push({ id: targetBranchId, name: `Sucursal ${targetBranchId}`, code: (branchCode || targetBranchId).toUpperCase(), ...branchNetData });
+            } else if (targetBranchId !== 'SERVER-CENTRAL' && targetBranchId !== 'CENTRAL') {
+              gConfig.branches.push({ id: targetBranchId, name: `Sucursal ${targetBranchId}`, code: (branchCode || targetBranchId).toUpperCase(), city: 'Principal', address: 'Dirección no registrada', ...branchNetData });
             }
             gConfig.lastUpdated = new Date().toISOString();
             fs.writeFileSync(configPath, JSON.stringify(gConfig, null, 2), 'utf8');

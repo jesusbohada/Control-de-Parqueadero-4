@@ -869,7 +869,20 @@ export default function App() {
       if (saved) {
         const list = JSON.parse(saved);
         if (Array.isArray(list) && list.length > 0) {
-          const validList = list.filter(b => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && !deletedSet.has(b.id));
+          const validList = list
+            .filter(b => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              code: b.code || b.id.toUpperCase(),
+              name: b.name || `Sucursal ${b.id}`,
+              city: b.city || 'Principal',
+              address: b.address || 'Dirección Principal',
+              status: b.status || 'online',
+              totalSpots: typeof b.totalSpots === 'number' ? b.totalSpots : 30,
+              occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
+              todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
+              todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
+            }));
           if (validList.length > 0) {
             const hasMain = validList.some(b => b.id === 'suc-001');
             const merged = hasMain ? validList : [...INITIAL_BRANCHES, ...validList];
@@ -1323,7 +1336,7 @@ export default function App() {
   const saveGlobalConfigToServer = async (customPackage?: any) => {
     // STRICT GUARD: If this machine has a remote Central Server configured or is running as a branch,
     // it MUST NEVER push its local configuration to the Central Server!
-    const serverConfig = getServerDataConfig();
+    const serverConfig = await getServerDataConfig();
     const isRemoteBranch = serverConfig?.nodeRole === 'branch' || Boolean(serverConfig?.remoteDbHost && serverConfig.remoteDbHost !== 'localhost' && serverConfig.remoteDbHost !== '127.0.0.1');
     if (isRemoteBranch || systemNodeConfig?.workMode === 'pos' || (currentBranchId && currentBranchId !== 'suc-001' && currentBranchId !== 'branch-01')) {
       console.log('[Sync Security] Terminal de sucursal detectada: Protegiendo servidor central, se bloquea el guardado de global-config.');
@@ -1408,7 +1421,20 @@ export default function App() {
             if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
           } catch (e) {}
 
-          const validBranches = sBranches.filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && !deletedSet.has(b.id));
+          const validBranches = sBranches
+            .filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id))
+            .map((b: any) => ({
+              ...b,
+              code: b.code || b.id.toUpperCase(),
+              name: b.name || `Sucursal ${b.id}`,
+              city: b.city || 'Principal',
+              address: b.address || 'Dirección Principal',
+              status: b.status || 'online',
+              totalSpots: typeof b.totalSpots === 'number' ? b.totalSpots : 30,
+              occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
+              todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
+              todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
+            }));
           if (validBranches.length > 0) {
             const withMain = validBranches.some(b => b.id === 'suc-001') ? validBranches : [...INITIAL_BRANCHES, ...validBranches];
             const finalBranches = ensureUniqueBranchFarmadeskCredentials(withMain);
@@ -1973,7 +1999,7 @@ export default function App() {
 
   const handlePublishCentralPackage = async (packageData: Partial<CentralUpdatePackage>) => {
     // STRICT GUARD: Only the Central Server (suc-001) can issue packages
-    const serverConfig = getServerDataConfig();
+    const serverConfig = await getServerDataConfig();
     const isRemoteBranch = serverConfig?.nodeRole === 'branch' || Boolean(serverConfig?.remoteDbHost && serverConfig.remoteDbHost !== 'localhost' && serverConfig.remoteDbHost !== '127.0.0.1');
     if (isRemoteBranch || systemNodeConfig?.workMode === 'pos' || (currentBranchId && currentBranchId !== 'suc-001' && currentBranchId !== 'branch-01')) {
       console.warn('[Sync Security] ⛔ Operación bloqueada: Solo el Servidor Central puede publicar paquetes a la red.');
@@ -4920,38 +4946,53 @@ export default function App() {
               handleSwitchView('central_hub', 'central');
             }}
             onRefreshBranches={async () => {
-              const refreshed = await fetchBranchesTelemetry();
-              if (refreshed && refreshed.length > 0) {
-                let deletedSet = new Set<string>();
-                try {
-                  const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
-                  if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
-                } catch (e) {}
-                setBranches(prev => {
-                  const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
-                  const updated = prev.map(p => {
-                    const t = telemetryMap.get(p.id) || refreshed.find(r => r.code && r.code.toUpperCase() === p.code?.toUpperCase());
-                    if (!t) return p;
-                    return {
-                      ...p,
-                      publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
-                      reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
-                      ipAddress: t.domain || t.ddnsDomain || t.reportedPublicIp || t.publicIp || p.ipAddress,
-                      domain: t.domain || t.ddnsDomain || p.domain,
-                      ddnsDomain: t.ddnsDomain || t.domain || p.ddnsDomain,
-                      status: t.status || p.status,
-                      latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs
-                    };
-                  });
-                  // Also include any branches from telemetry that are not yet in prev
-                  const prevIds = new Set(prev.map(p => p.id));
-                  for (const r of refreshed) {
-                    if (!prevIds.has(r.id) && !deletedSet.has(r.id)) {
-                      updated.push(r);
+              try {
+                const refreshed = await fetchBranchesTelemetry();
+                if (refreshed && refreshed.length > 0) {
+                  let deletedSet = new Set<string>();
+                  try {
+                    const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+                    if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+                  } catch (e) {}
+                  setBranches(prev => {
+                    const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
+                    const updated = prev.map(p => {
+                      const t = telemetryMap.get(p.id) || refreshed.find(r => r.code && p.code && r.code.toUpperCase() === p.code.toUpperCase());
+                      if (!t) return p;
+                      return {
+                        ...p,
+                        publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
+                        reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
+                        ipAddress: t.domain || t.ddnsDomain || t.reportedPublicIp || t.publicIp || p.ipAddress,
+                        domain: t.domain || t.ddnsDomain || p.domain,
+                        ddnsDomain: t.ddnsDomain || t.domain || p.ddnsDomain,
+                        status: t.status || p.status,
+                        latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs
+                      };
+                    });
+                    // Also include any branches from telemetry that are not yet in prev
+                    const prevIds = new Set(prev.map(p => p.id));
+                    for (const r of refreshed) {
+                      if (r && r.id && r.id !== 'SERVER-CENTRAL' && !prevIds.has(r.id) && !deletedSet.has(r.id)) {
+                        updated.push({
+                          ...r,
+                          code: r.code || r.id.toUpperCase(),
+                          name: r.name || `Sucursal ${r.id}`,
+                          city: r.city || 'Principal',
+                          address: r.address || 'Dirección Principal',
+                          status: r.status || 'online',
+                          totalSpots: typeof r.totalSpots === 'number' ? r.totalSpots : 30,
+                          occupiedSpots: typeof r.occupiedSpots === 'number' ? r.occupiedSpots : 0,
+                          todayRevenue: typeof r.todayRevenue === 'number' ? r.todayRevenue : 0,
+                          todayVehicles: typeof r.todayVehicles === 'number' ? r.todayVehicles : 0
+                        });
+                      }
                     }
-                  }
-                  return updated.filter(b => !deletedSet.has(b.id));
-                });
+                    return updated.filter(b => b && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id));
+                  });
+                }
+              } catch (err) {
+                console.warn('[App] Error en onRefreshBranches:', err);
               }
             }}
             pendingCentralUpdatesCount={pendingUpdatesForBranchCount}

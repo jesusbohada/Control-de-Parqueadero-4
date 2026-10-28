@@ -253,7 +253,7 @@ export async function fetchCentralPackages(branchId?: string, customBaseUrl?: st
  * Servidor Central: Emitir y publicar un nuevo paquete a la red de sucursales
  */
 export async function publishCentralPackage(pkg: CentralUpdatePackage): Promise<{ success: boolean; message: string; package: CentralUpdatePackage }> {
-  const serverConfig = getServerDataConfig();
+  const serverConfig = await getServerDataConfig();
   const remoteUrl = getRemoteBaseUrlFromConfig();
 
   // STRICT GUARD: Satellite branches or terminals connected to a remote Central cannot push packages to Central
@@ -1126,7 +1126,7 @@ export async function publishCentralGlobalVersion(payload: {
   targetScope?: 'all' | 'specific';
   targetBranchIds?: string[];
 }, customBaseUrl?: string): Promise<{ success: boolean; message: string; data?: any }> {
-  const serverConfig = getServerDataConfig();
+  const serverConfig = await getServerDataConfig();
   const remoteUrl = customBaseUrl || getRemoteBaseUrlFromConfig();
 
   // STRICT GUARD: Satellite branches or terminals connected to a remote Central cannot push global versions to Central
