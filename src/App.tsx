@@ -54,8 +54,10 @@ import {
   INITIAL_WAREHOUSES,
   INITIAL_POS_POINTS,
   INITIAL_REMOTE_ORDERS,
-  INITIAL_COMMERCIAL_AGREEMENTS
+  INITIAL_COMMERCIAL_AGREEMENTS,
+  normalizeUser
 } from './data/initialData';
+import { decodeSsoToken } from './utils/sso';
 import { 
   ensureUniqueBranchFarmadeskCredentials, 
   generateFarmadeskId, 
@@ -313,32 +315,21 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const ssoParam = params.get('sso') || params.get('authSession') || params.get('authUser');
       if (ssoParam) {
-        try {
-          const rawStr = decodeURIComponent(escape(atob(ssoParam)));
-          const decoded = JSON.parse(rawStr);
-          if (decoded && decoded.user && typeof decoded.user === 'object') {
-            const u: SystemUser = decoded.user;
-            const serialized = JSON.stringify(u);
-            localStorage.setItem('pk_current_user', serialized);
-            sessionStorage.setItem('pk_current_user', serialized);
-            localStorage.setItem('wolfzone_authorized_path', 'true');
-            sessionStorage.setItem('wolfzone_authorized_path', 'true');
-            console.log('🐺 [SSO Auto-Login] Sesión iniciada automáticamente desde Central para:', u.name, `(${u.role})`);
-            
-            // Limpiar parámetro de URL silenciosamente sin recargar la página
-            const cleanUrl = new URL(window.location.href);
-            cleanUrl.searchParams.delete('sso');
-            cleanUrl.searchParams.delete('authSession');
-            cleanUrl.searchParams.delete('authUser');
-            window.history.replaceState({}, '', cleanUrl.toString());
-
-            return u;
-          }
-        } catch (e) {
-          console.warn('[SSO Auth Error]', e);
+        const decoded = decodeSsoToken(ssoParam);
+        if (decoded) {
+          const u = normalizeUser(decoded);
+          const serialized = JSON.stringify(u);
+          localStorage.setItem('pk_current_user', serialized);
+          sessionStorage.setItem('pk_current_user', serialized);
+          localStorage.setItem('wolfzone_authorized_path', 'true');
+          sessionStorage.setItem('wolfzone_authorized_path', 'true');
+          console.log('🐺 [SSO Auto-Login] Sesión iniciada automáticamente desde Central para:', u.name, `(${u.role})`);
+          return u;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[SSO Auth Error in State]', e);
+    }
 
     const savedUser = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
     if (savedUser) {
@@ -348,13 +339,63 @@ export default function App() {
         localStorage.setItem('pk_current_user', savedUser);
         sessionStorage.setItem('pk_current_user', savedUser);
         localStorage.setItem('wolfzone_authorized_path', 'true');
-        return parsed;
+        return normalizeUser(parsed);
       } catch (e) {
         return null;
       }
     }
     return null;
   });
+
+  // Procesador reactivo de inicio de sesión SSO en montaje
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ssoParam = params.get('sso') || params.get('authSession') || params.get('authUser');
+      if (ssoParam) {
+        const decoded = decodeSsoToken(ssoParam);
+        if (decoded) {
+          const u = normalizeUser(decoded);
+          setCurrentUser(u);
+          const serialized = JSON.stringify(u);
+          localStorage.setItem('pk_current_user', serialized);
+          sessionStorage.setItem('pk_current_user', serialized);
+          localStorage.setItem('wolfzone_authorized_path', 'true');
+          sessionStorage.setItem('wolfzone_authorized_path', 'true');
+          setCurrentShift(prev => ({
+            ...prev,
+            operatorName: u.name
+          }));
+          setActiveView('operations');
+          playSound('success', true);
+          dbAddAuditLog('SSO_LOGIN', `Acceso unificado SSO desde Servidor Central: ${u.name} (@${u.username}) - Rol: ${u.role}`, u.name).catch(console.error);
+
+          // Asegurar presencia del usuario en la lista de usuarios del sistema
+          setUsers(prev => {
+            const exists = prev.some(usr => usr.id === u.id || usr.username.toLowerCase() === u.username.toLowerCase());
+            if (!exists) {
+              const updated = [u, ...prev];
+              try {
+                localStorage.setItem('pk_system_users', JSON.stringify(updated));
+              } catch (e) {}
+              return updated;
+            }
+            return prev;
+          });
+
+          // Limpiar parámetros sso de la URL conservando branchId
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete('sso');
+          cleanUrl.searchParams.delete('authSession');
+          cleanUrl.searchParams.delete('authUser');
+          window.history.replaceState({}, '', cleanUrl.toString());
+        }
+      }
+    } catch (err) {
+      console.warn('[SSO Auto-Login Effect Error]', err);
+    }
+  }, []);
 
   // Ensure any active currentUser is automatically propagated to localStorage for other tabs
   useEffect(() => {

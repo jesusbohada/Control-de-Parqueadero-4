@@ -38,7 +38,7 @@ import {
   TrendingUp,
   X
 } from 'lucide-react';
-import { BranchLocation } from '../types';
+import { BranchLocation, SystemUser } from '../types';
 import { 
   fetchBranchesTelemetry, 
   pingBranchesFromCentral, 
@@ -46,6 +46,8 @@ import {
 } from '../services/centralSyncService';
 import { formatCurrency } from '../utils/billing';
 import { playSound } from '../utils/audio';
+import { encodeSsoToken } from '../utils/sso';
+import { DEFAULT_MASTER_PERMISSIONS } from '../data/initialData';
 
 export interface CentralDashboardProps {
   branches?: BranchLocation[];
@@ -54,6 +56,7 @@ export interface CentralDashboardProps {
   isDarkMode?: boolean;
   embedded?: boolean;
   onClose?: () => void;
+  currentUser?: SystemUser;
 }
 
 // Bounding box geográfico de Colombia aproximado para proyección relativa
@@ -88,7 +91,8 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
   onRefresh,
   isDarkMode = true,
   embedded = false,
-  onClose
+  onClose,
+  currentUser
 }) => {
   const [branchesList, setBranchesList] = useState<BranchLocation[]>(() => initialBranches || []);
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
@@ -887,15 +891,29 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      let ssoParam = '';
-                      try {
-                        const saved = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
-                        if (saved) {
-                          const payload = JSON.stringify({ user: JSON.parse(saved), fromCentral: true, timestamp: Date.now() });
-                          ssoParam = `&sso=${encodeURIComponent(btoa(unescape(encodeURIComponent(payload))))}`;
-                        }
-                      } catch (e) {}
-                      const target = `${selectedBranch.systemUrl}${selectedBranch.systemUrl.includes('?') ? '' : '?'}${ssoParam}`;
+                      let activeUser = currentUser;
+                      if (!activeUser && typeof window !== 'undefined') {
+                        try {
+                          const saved = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
+                          if (saved) activeUser = JSON.parse(saved);
+                        } catch (e) {}
+                      }
+                      if (!activeUser) {
+                        activeUser = {
+                          id: 'user-master-01',
+                          username: 'admin',
+                          name: 'Administrador Central',
+                          role: 'master',
+                          password: '',
+                          isActive: true,
+                          permissions: { ...DEFAULT_MASTER_PERMISSIONS },
+                          createdAt: new Date().toISOString()
+                        };
+                      }
+                      const ssoToken = encodeSsoToken(activeUser);
+                      const base = selectedBranch.systemUrl.replace(/\/wolfzonepos/, '');
+                      const sep = base.includes('?') ? '&' : '?';
+                      const target = `${base}${sep}sso=${encodeURIComponent(ssoToken)}`;
                       window.open(target, '_blank');
                     }}
                     className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors shadow-xs cursor-pointer"

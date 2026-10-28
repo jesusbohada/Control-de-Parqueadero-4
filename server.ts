@@ -6769,9 +6769,11 @@ if __name__ == '__main__':
     }
   });
 
-  // Redirect /wolfzonepos to root / to prevent blank pages or 404s
+  // Redirect /wolfzonepos to root / while preserving full query string (branchId, sso, etc.)
   app.get(['/wolfzonepos', '/wolfzonepos/*'], (req, res) => {
-    res.redirect('/');
+    const qIdx = req.url.indexOf('?');
+    const query = qIdx >= 0 ? req.url.slice(qIdx) : '';
+    res.redirect(302, `/${query}`);
   });
 
   // API to update the application from Git
