@@ -140,34 +140,6 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   const [userToDelete, setUserToDelete] = useState<SystemUser | null>(null);
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
 
-  if (!isOpen) return null;
-
-  // Control de Seguridad: Solo usuarios con permiso canManageUsers o rol 'master' pueden acceder
-  if (!currentUser?.permissions?.canManageUsers && currentUser?.role !== 'master') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-        <div className="bg-white dark:bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
-          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mx-auto">
-            <Lock className="w-7 h-7" />
-          </div>
-          <div>
-            <h3 className="font-extrabold text-base text-slate-900 dark:text-white">Acceso Restringido</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Tu usuario (<strong>{currentUser?.name || 'Operador'}</strong>) con rol <strong>{currentUser?.role || 'cajero'}</strong> no cuenta con permisos administrativos para gestionar usuarios o modificar matrices de seguridad.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold text-xs cursor-pointer transition-colors"
-          >
-            Regresar a Operaciones
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   React.useEffect(() => {
     console.log('🔍 [LOG DETALLADO - USERS MANAGEMENT MODAL] Componente activo:', {
       timestamp: new Date().toISOString(),
@@ -1104,6 +1076,32 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   }, [roleMatrix, templates, users]);
 
   if (!isOpen && !embedded) return null;
+
+  // Control de Seguridad: Solo usuarios con permiso canManageUsers o rol 'master' pueden acceder
+  if (!currentUser?.permissions?.canManageUsers && currentUser?.role !== 'master') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="bg-white dark:bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
+          <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mx-auto">
+            <Lock className="w-7 h-7" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-base text-slate-900 dark:text-white">Acceso Restringido</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Tu usuario (<strong>{currentUser?.name || 'Operador'}</strong>) con rol <strong>{currentUser?.role || 'cajero'}</strong> no cuenta con permisos administrativos para gestionar usuarios o modificar matrices de seguridad.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold text-xs cursor-pointer transition-colors"
+          >
+            Regresar a Operaciones
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto"}>

@@ -30,6 +30,19 @@ export const TicketModal: React.FC<TicketModalProps> = ({
   const [isEscPosPrinting, setIsEscPosPrinting] = useState(false);
   const [escPosStatus, setEscPosStatus] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!isOpen || !ticket) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        e.stopPropagation();
+        handlePrint();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, ticket, mode, paperWidth, businessInfo, rates]);
+
   if (!isOpen || !ticket) return null;
 
   // Generate cryptographic anti-tamper security verification hash
@@ -93,19 +106,6 @@ export const TicketModal: React.FC<TicketModalProps> = ({
   const handlePrintEscPos = async () => {
     await handlePrint();
   };
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        e.stopPropagation();
-        handlePrint();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, ticket, mode, paperWidth, businessInfo, rates]);
 
   const getVehicleLabel = (type: string) => {
     const custom = vehicleCategories?.find(c => c.id === type);

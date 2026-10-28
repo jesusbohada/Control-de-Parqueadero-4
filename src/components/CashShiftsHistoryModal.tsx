@@ -351,8 +351,6 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   // Combine shifts and days into unified list for history table
   const historyList = useMemo(() => {
     const list: Array<{
@@ -921,6 +919,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
     setTimeout(() => setCopiedToast(false), 2500);
     setActiveMenuId(null);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-xs p-3 sm:p-6 animate-fadeIn">

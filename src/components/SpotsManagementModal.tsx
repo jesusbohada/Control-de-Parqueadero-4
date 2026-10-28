@@ -61,8 +61,6 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
   onGoToExitTicket,
   embedded = false
 }) => {
-  if (!isOpen && !embedded) return null;
-
   // Tabs: 'list' | 'create_single' | 'create_bulk'
   const [activeTab, setActiveTab] = useState<'list' | 'create_single' | 'create_bulk'>('list');
 
@@ -379,6 +377,8 @@ export const SpotsManagementModal: React.FC<SpotsManagementModalProps> = ({
     setSelectedSpotIds([]);
     showSuccess(`${orphanIds.length} plaza(s) huérfana(s) liberada(s) correctamente.`);
   };
+
+  if (!isOpen && !embedded) return null;
 
   return (
     <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/70 backdrop-blur-xs animate-in fade-in duration-150"}>
