@@ -910,6 +910,9 @@ export interface ServerDataConnectionConfig {
 
   // Parámetros de Operación y Estado
   nodeRole?: 'branch' | 'central';  // Rol de este equipo: Sucursal o Servidor Central
+  branchId?: string;                // ID canónico de la sucursal asignada a este equipo
+  branchCode?: string;              // Código de la sucursal (ej. 'OFI-001')
+  branchName?: string;              // Nombre de la sucursal (ej. 'DESARROLLO Y PRUEBAS')
   autoSyncEnabled?: boolean;
   autoSyncIntervalMinutes?: number;
   lastSyncTimestamp?: string;

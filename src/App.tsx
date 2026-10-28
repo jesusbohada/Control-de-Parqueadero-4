@@ -924,6 +924,36 @@ export default function App() {
   }, [branches]);
 
   const [currentBranchId, setCurrentBranchId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        // 1. Detectar parámetro explícito de sucursal en la URL (?branchId=... o ?branch=... o ?sede=...)
+        const params = new URLSearchParams(window.location.search);
+        const urlBranch = params.get('branchId') || params.get('branch') || params.get('sede');
+        if (urlBranch) {
+          return urlBranch;
+        }
+
+        // 2. Si se accede directamente por la IP privada de una sede (ej: 192.168.14.227)
+        const host = window.location.hostname;
+        if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
+          if (host === '192.168.14.227') {
+            return 'branch_1793114761863';
+          }
+        }
+      } catch (e) {}
+    }
+
+    // 3. Revisar si hay una sede fija asignada en el rol de nodo local (pk_system_node_config)
+    try {
+      const nodeSaved = localStorage.getItem('pk_system_node_config');
+      if (nodeSaved) {
+        const nodeCfg = JSON.parse(nodeSaved);
+        if (nodeCfg?.selectedBranchId && nodeCfg.selectedBranchId !== 'branch-01') {
+          return nodeCfg.selectedBranchId;
+        }
+      }
+    } catch (e) {}
+
     const saved = localStorage.getItem('pk_current_branch_id');
     return (!saved || saved === 'branch-01') ? 'suc-001' : saved;
   });
@@ -931,6 +961,62 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('pk_current_branch_id', currentBranchId);
   }, [currentBranchId]);
+
+  // Enrutador inteligente: Detección reactiva de sede por parámetro URL, Hostname de acceso o Configuración de Nodo
+  useEffect(() => {
+    if (typeof window === 'undefined' || !Array.isArray(branches) || branches.length === 0) return;
+
+    // A. Detectar por parámetro URL (?branchId=...)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlBranch = params.get('branchId') || params.get('branch') || params.get('sede');
+      if (urlBranch) {
+        const matched = branches.find(b => 
+          b.id === urlBranch || 
+          (b.code && b.code.toUpperCase() === urlBranch.toUpperCase())
+        );
+        if (matched && matched.id !== currentBranchId) {
+          console.log('[BranchRouter] Sede asignada por parámetro URL (?branchId):', matched.code, matched.name);
+          setCurrentBranchId(matched.id);
+          localStorage.setItem('pk_current_branch_id', matched.id);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    // B. Detectar por dirección IP / Hostname de acceso en el navegador (ej: 192.168.14.227)
+    try {
+      const host = window.location.hostname;
+      if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
+        const matchedByHost = branches.find(b => 
+          b.localIp === host ||
+          b.ipAddress === host ||
+          b.publicIp === host ||
+          b.reportedPublicIp === host ||
+          b.domain === host ||
+          b.ddnsDomain === host
+        );
+        if (matchedByHost && matchedByHost.id !== currentBranchId) {
+          console.log('[BranchRouter] Sede asignada por Hostname/IP de acceso:', host, '->', matchedByHost.code, matchedByHost.name);
+          setCurrentBranchId(matchedByHost.id);
+          localStorage.setItem('pk_current_branch_id', matchedByHost.id);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    // C. Detectar por configuración del backend local (/api/sync/server-config)
+    getServerDataConfig().then(cfg => {
+      if (cfg && cfg.branchId) {
+        const matchedCfg = branches.find(b => b.id === cfg.branchId || (cfg.branchCode && b.code === cfg.branchCode));
+        if (matchedCfg && matchedCfg.id !== currentBranchId) {
+          console.log('[BranchRouter] Sede asignada por configuración local de servidor:', matchedCfg.code, matchedCfg.name);
+          setCurrentBranchId(matchedCfg.id);
+          localStorage.setItem('pk_current_branch_id', matchedCfg.id);
+        }
+      }
+    }).catch(() => {});
+  }, [branches, currentBranchId]);
 
   const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
 
@@ -4576,6 +4662,11 @@ export default function App() {
         users={users}
         businessName={businessInfo.name}
         currentBranch={currentBranch}
+        branches={branches}
+        onSwitchBranch={(bId) => {
+          setCurrentBranchId(bId);
+          localStorage.setItem('pk_current_branch_id', bId);
+        }}
         onLogin={handleLoginSuccess}
         onLoginSuccess={handleLoginSuccess}
         onQuickLogin={handleLoginSuccess}

@@ -30,7 +30,8 @@ import {
   TrendingUp,
   BarChart3,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Home
 } from 'lucide-react';
 import { 
   BranchLocation, 
@@ -188,9 +189,27 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   }, [safeBranches, searchTerm, selectedCityFilter, statusFilter]);
 
   // Manejo de conexión remota
-  const handleConnect = (branch: BranchLocation, mode: 'system' | 'desktop') => {
+  const handleConnect = (branch: BranchLocation, mode: 'system' | 'system_lan' | 'system_wan' | 'desktop') => {
     playSound('beep');
-    if (mode === 'system') {
+    if (mode === 'system_lan') {
+      const lanHost = branch.localIp || (branch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100');
+      const lanPort = 3000;
+      const targetUrl = `http://${lanHost}:${lanPort}/wolfzonepos?branchId=${branch.id}`;
+      try {
+        window.open(targetUrl, '_blank');
+      } catch (err) {
+        console.warn('Popup bloqueado:', err);
+      }
+    } else if (mode === 'system_wan') {
+      const wanHost = branch.domain || branch.ddnsDomain || branch.publicIp || branch.reportedPublicIp || '152.200.144.62';
+      const wanPort = branch.port && branch.port !== 3000 ? branch.port : 3001;
+      const targetUrl = `http://${wanHost}:${wanPort}/wolfzonepos?branchId=${branch.id}`;
+      try {
+        window.open(targetUrl, '_blank');
+      } catch (err) {
+        console.warn('Popup bloqueado:', err);
+      }
+    } else if (mode === 'system') {
       const port = branch.port || 3000;
       const targetUrl = branch.systemUrl || `http://${branch.ipAddress || branch.publicIp || 'localhost'}:${port}/wolfzonepos?branchId=${branch.id}`;
       try {
@@ -1226,15 +1245,26 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                       </div>
 
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        {/* Botón Acceso POS Web */}
+                        {/* Botón Acceso POS Web LAN (Local) */}
                         <button
                           type="button"
-                          onClick={() => handleConnect(branch, 'system')}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-sm active:scale-98"
-                          title="Abrir taquilla web del sistema POS de esta sede"
+                          onClick={() => handleConnect(branch, 'system_lan')}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer shadow-sm active:scale-98"
+                          title={`Abrir terminal POS por red local interna (LAN: ${branch.localIp || (branch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100')}:3000)`}
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span>Abrir POS Web</span>
+                          <Home className="w-3.5 h-3.5" />
+                          <span>POS Web (LAN)</span>
+                        </button>
+
+                        {/* Botón Acceso POS Web WAN (Remoto) */}
+                        <button
+                          type="button"
+                          onClick={() => handleConnect(branch, 'system_wan')}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white transition-all cursor-pointer shadow-sm active:scale-98"
+                          title={`Abrir terminal POS por internet / acceso remoto (WAN: ${branch.domain || branch.ddnsDomain || branch.publicIp || branch.reportedPublicIp || '152.200.144.62'}:${branch.port && branch.port !== 3000 ? branch.port : 3001})`}
+                        >
+                          <Globe className="w-3.5 h-3.5" />
+                          <span>POS Web (WAN)</span>
                         </button>
 
                         {/* Botón Escritorio Remoto */}
