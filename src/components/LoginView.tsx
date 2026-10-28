@@ -12,8 +12,7 @@ import {
   Sparkles,
   Maximize2,
   Minimize2,
-  Radio,
-  ChevronDown
+  Radio
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SystemUser, BranchLocation } from '../types';
@@ -26,8 +25,6 @@ interface LoginViewProps {
   onQuickLogin?: (user: SystemUser) => void;
   businessName?: string;
   currentBranch?: BranchLocation;
-  branches?: BranchLocation[];
-  onSwitchBranch?: (branchId: string) => void;
 }
 
 // ============================================================================
@@ -184,8 +181,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
   onLoginSuccess,
   businessName = 'CONTROL DE PARQUEADERO POS',
   currentBranch,
-  branches = [],
-  onSwitchBranch,
 }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -193,7 +188,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isBranchPickerOpen, setIsBranchPickerOpen] = useState(false);
 
   // Detección de Pantalla Completa (F11 / Modo Quiosco POS)
   useEffect(() => {
@@ -217,7 +211,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const isServer = workMode === 'server';
   const stationLabel = currentBranch?.name 
     ? `Sucursal: ${currentBranch.name}` 
-    : (isServer ? 'Servidor Central (Matriz)' : 'Estación de Taquilla');
+    : (isServer ? 'Servidor Central (Matriz)' : 'Sucursal: DESARROLLO Y PRUEBAS');
 
   const performLogin = (userToLogin: SystemUser) => {
     playSound('success', true);
@@ -357,67 +351,16 @@ export const LoginView: React.FC<LoginViewProps> = ({
             WOLFZONE PARKING
           </h1>
 
-          {/* Badge de Estado y Sucursal (Interactivo si hay múltiples sedes) */}
+          {/* Badge de Estado y Sucursal (Estático, informativo, sin selector en login) */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-3 relative">
-            {branches && branches.length > 1 && onSwitchBranch ? (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsBranchPickerOpen(prev => !prev)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 hover:bg-slate-800/95 border border-cyan-500/40 hover:border-cyan-400 text-[11px] font-mono text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.25)] cursor-pointer transition-all active:scale-98"
-                  title="Haz clic para seleccionar o cambiar de sucursal en esta terminal"
-                >
-                  {isServer ? (
-                    <Server className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  ) : (
-                    <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  )}
-                  <span className="font-semibold">{stationLabel}</span>
-                  <ChevronDown className={`w-3 h-3 text-cyan-400 transition-transform ${isBranchPickerOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isBranchPickerOpen && (
-                  <div className="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 w-64 bg-slate-950/98 border border-cyan-500/60 rounded-2xl p-2 shadow-2xl z-50 backdrop-blur-2xl space-y-1">
-                    <p className="text-[10px] font-mono font-bold text-slate-400 px-2 py-1 uppercase tracking-wider border-b border-slate-800">
-                      Seleccionar Sede de Conexión:
-                    </p>
-                    {branches.map(b => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => {
-                          onSwitchBranch(b.id);
-                          setIsBranchPickerOpen(false);
-                          playSound('click');
-                        }}
-                        className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
-                          b.id === currentBranch?.id
-                            ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40'
-                            : 'hover:bg-slate-800 text-slate-300 hover:text-white'
-                        }`}
-                      >
-                        <div className="truncate">
-                          <span className="font-mono text-[10px] text-amber-400 mr-1.5">[{b.code}]</span>
-                          <span>{b.name}</span>
-                        </div>
-                        {b.id === currentBranch?.id && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-500/40 text-[11px] font-mono text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.25)]">
-                {isServer ? (
-                  <Server className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                ) : (
-                  <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                )}
-                <span className="font-semibold">{stationLabel}</span>
-              </div>
-            )}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-500/40 text-[11px] font-mono text-cyan-300 shadow-[0_0_10px_rgba(6,182,212,0.25)]">
+              {isServer ? (
+                <Server className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              ) : (
+                <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              )}
+              <span className="font-semibold">{stationLabel}</span>
+            </div>
 
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-[10px] font-mono text-emerald-300">
               <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />

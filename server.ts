@@ -4963,6 +4963,58 @@ if __name__ == '__main__':
     }
   });
 
+  // 1.5 GET /api/system/node-identity - Identidad autoritativa de sucursal de esta máquina
+  app.get('/api/system/node-identity', (req, res) => {
+    try {
+      let cfg: any = {};
+      if (fs.existsSync(serverConfigPath)) {
+        try {
+          cfg = JSON.parse(fs.readFileSync(serverConfigPath, 'utf8'));
+        } catch (e) {}
+      }
+
+      // Detectar la IP de red local activa
+      let detectedLocalIp = '192.168.14.227';
+      try {
+        const networkInterfaces = os.networkInterfaces();
+        for (const ifaceName of Object.keys(networkInterfaces)) {
+          const list = networkInterfaces[ifaceName] || [];
+          for (const item of list) {
+            if (item.family === 'IPv4' && !item.internal && item.address.startsWith('192.168.')) {
+              detectedLocalIp = item.address;
+              break;
+            }
+          }
+        }
+      } catch (e) {}
+
+      const branchId = cfg.branchId || 'branch_1793114761863';
+      const branchCode = cfg.branchCode || 'OFI-001';
+      const branchName = cfg.branchName || 'DESARROLLO Y PRUEBAS';
+      const nodeRole = cfg.nodeRole || 'branch';
+
+      return res.json({
+        success: true,
+        nodeRole,
+        branchId,
+        branchCode,
+        branchName,
+        localIp: detectedLocalIp,
+        publicIp: '152.200.144.62',
+        hostname: req.hostname,
+        port: PORT
+      });
+    } catch (err: any) {
+      return res.json({
+        success: false,
+        error: err.message,
+        branchId: 'branch_1793114761863',
+        branchCode: 'OFI-001',
+        branchName: 'DESARROLLO Y PRUEBAS'
+      });
+    }
+  });
+
   // 2. POST /api/sync/server-config
   app.post('/api/sync/server-config', (req, res) => {
     try {

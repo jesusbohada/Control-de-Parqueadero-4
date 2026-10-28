@@ -907,8 +907,11 @@ export default function App() {
               };
             });
           if (validList.length > 0) {
-            const hasMain = validList.some(b => b.id === 'suc-001');
-            const merged = hasMain ? validList : [...INITIAL_BRANCHES, ...validList];
+            // Blindaje de persistencia: Asegurar que todas las sedes esenciales de INITIAL_BRANCHES
+            // (especialmente 'branch_1793114761863' OFI-001) existan siempre en la lista
+            const existingIds = new Set(validList.map(b => b.id));
+            const missingInitial = INITIAL_BRANCHES.filter(ib => !existingIds.has(ib.id) && !deletedSet.has(ib.id));
+            const merged = [...validList, ...missingInitial];
             return ensureUniqueBranchFarmadeskCredentials(merged);
           }
         }
@@ -936,7 +939,7 @@ export default function App() {
         // 2. Si se accede directamente por la IP privada de una sede (ej: 192.168.14.227)
         const host = window.location.hostname;
         if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
-          if (host === '192.168.14.227') {
+          if (host === '192.168.14.227' || host.includes('14.227')) {
             return 'branch_1793114761863';
           }
         }
@@ -948,14 +951,30 @@ export default function App() {
       const nodeSaved = localStorage.getItem('pk_system_node_config');
       if (nodeSaved) {
         const nodeCfg = JSON.parse(nodeSaved);
-        if (nodeCfg?.selectedBranchId && nodeCfg.selectedBranchId !== 'branch-01') {
+        if (nodeCfg?.selectedBranchId && nodeCfg.selectedBranchId !== 'branch-01' && nodeCfg.selectedBranchId !== 'SERVER-CENTRAL') {
           return nodeCfg.selectedBranchId;
         }
       }
     } catch (e) {}
 
+    // 4. Revisar si hay una sede fija en la configuración de datos del servidor (pk_server_data_config)
+    try {
+      const srvSaved = localStorage.getItem('pk_server_data_config');
+      if (srvSaved) {
+        const srvCfg = JSON.parse(srvSaved);
+        if (srvCfg?.branchId && srvCfg.branchId !== 'branch-01') {
+          return srvCfg.branchId;
+        }
+      }
+    } catch (e) {}
+
     const saved = localStorage.getItem('pk_current_branch_id');
-    return (!saved || saved === 'branch-01') ? 'suc-001' : saved;
+    // Si estamos en 192.168.14.227 o localhost en este equipo de sucursal, asegurar OFI-001
+    if (typeof window !== 'undefined' && (window.location.hostname === '192.168.14.227' || window.location.hostname.includes('14.227'))) {
+      return 'branch_1793114761863';
+    }
+
+    return (!saved || saved === 'branch-01' || saved === 'SERVER-CENTRAL') ? 'branch_1793114761863' : saved;
   });
 
   useEffect(() => {
@@ -987,6 +1006,16 @@ export default function App() {
     // B. Detectar por dirección IP / Hostname de acceso en el navegador (ej: 192.168.14.227)
     try {
       const host = window.location.hostname;
+      if (host === '192.168.14.227' || host.includes('14.227')) {
+        const devBranch = branches.find(b => b.id === 'branch_1793114761863');
+        if (devBranch && devBranch.id !== currentBranchId) {
+          console.log('[BranchRouter] Sede asignada por IP LAN 192.168.14.227:', devBranch.code, devBranch.name);
+          setCurrentBranchId(devBranch.id);
+          localStorage.setItem('pk_current_branch_id', devBranch.id);
+          return;
+        }
+      }
+
       if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
         const matchedByHost = branches.find(b => 
           b.localIp === host ||
@@ -1005,20 +1034,62 @@ export default function App() {
       }
     } catch (e) {}
 
-    // C. Detectar por configuración del backend local (/api/sync/server-config)
-    getServerDataConfig().then(cfg => {
-      if (cfg && cfg.branchId) {
-        const matchedCfg = branches.find(b => b.id === cfg.branchId || (cfg.branchCode && b.code === cfg.branchCode));
-        if (matchedCfg && matchedCfg.id !== currentBranchId) {
-          console.log('[BranchRouter] Sede asignada por configuración local de servidor:', matchedCfg.code, matchedCfg.name);
-          setCurrentBranchId(matchedCfg.id);
-          localStorage.setItem('pk_current_branch_id', matchedCfg.id);
+    // C. Detectar por backend local (/api/system/node-identity o /api/sync/server-config)
+    fetch('/api/system/node-identity')
+      .then(res => res.json())
+      .then(node => {
+        if (node && node.success && node.branchId) {
+          const matched = branches.find(b => b.id === node.branchId || (node.branchCode && b.code === node.branchCode));
+          if (matched && matched.id !== currentBranchId) {
+            console.log('[BranchRouter] Sede asignada por node-identity:', matched.code, matched.name);
+            setCurrentBranchId(matched.id);
+            localStorage.setItem('pk_current_branch_id', matched.id);
+          }
         }
-      }
-    }).catch(() => {});
+      })
+      .catch(() => {
+        getServerDataConfig().then(cfg => {
+          if (cfg && cfg.branchId) {
+            const matchedCfg = branches.find(b => b.id === cfg.branchId || (cfg.branchCode && b.code === cfg.branchCode));
+            if (matchedCfg && matchedCfg.id !== currentBranchId) {
+              console.log('[BranchRouter] Sede asignada por configuración local de servidor:', matchedCfg.code, matchedCfg.name);
+              setCurrentBranchId(matchedCfg.id);
+              localStorage.setItem('pk_current_branch_id', matchedCfg.id);
+            }
+          }
+        }).catch(() => {});
+      });
   }, [branches, currentBranchId]);
 
-  const currentBranch = branches.find(b => b.id === currentBranchId) || branches[0];
+  const currentBranch = useMemo(() => {
+    // 1. Por ID directo si coincide en branches
+    const byId = branches.find(b => b.id === currentBranchId);
+    if (byId) return byId;
+
+    // 2. Si estamos en 192.168.14.227 (IP de Desarrollo y Pruebas)
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      if (host === '192.168.14.227' || host.includes('14.227')) {
+        const devBranch = branches.find(b => b.id === 'branch_1793114761863');
+        if (devBranch) return devBranch;
+      }
+      const byHost = branches.find(b => 
+        b.localIp === host ||
+        b.ipAddress === host ||
+        b.publicIp === host ||
+        b.reportedPublicIp === host ||
+        b.domain === host ||
+        b.ddnsDomain === host
+      );
+      if (byHost) return byHost;
+    }
+
+    // 3. Fallback inteligente: sede de desarrollo y pruebas si existe
+    const devFallback = branches.find(b => b.id === 'branch_1793114761863');
+    if (devFallback) return devFallback;
+
+    return branches[0];
+  }, [branches, currentBranchId]);
 
   const [centralPackages, setCentralPackages] = useState<CentralUpdatePackage[]>(() => {
     try {
@@ -4662,11 +4733,6 @@ export default function App() {
         users={users}
         businessName={businessInfo.name}
         currentBranch={currentBranch}
-        branches={branches}
-        onSwitchBranch={(bId) => {
-          setCurrentBranchId(bId);
-          localStorage.setItem('pk_current_branch_id', bId);
-        }}
         onLogin={handleLoginSuccess}
         onLoginSuccess={handleLoginSuccess}
         onQuickLogin={handleLoginSuccess}
