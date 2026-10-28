@@ -4962,15 +4962,28 @@ export default function App() {
                     setBranches(prev => {
                       const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
                       const updated = prev.map(p => {
-                        const t = telemetryMap.get(p.id) || refreshed.find(r => r.code && p.code && r.code.toUpperCase() === p.code.toUpperCase());
+                        const t = telemetryMap.get(p.id) || refreshed.find(r => 
+                          (r.code && p.code && r.code.toUpperCase() === p.code.toUpperCase()) ||
+                          (r.id && p.code && r.id.toUpperCase() === p.code.toUpperCase()) ||
+                          (r.code && p.id && r.code.toUpperCase() === p.id.toUpperCase())
+                        );
                         if (!t) return p;
+
+                        const effectivePublicIp = (t.reportedPublicIp && t.reportedPublicIp !== '127.0.0.1')
+                          ? t.reportedPublicIp
+                          : ((t.publicIp && t.publicIp !== '127.0.0.1') ? t.publicIp : p.publicIp);
+                        const effectiveDomain = t.domain || t.ddnsDomain || p.domain;
+                        const effectiveHost = effectiveDomain || effectivePublicIp || p.ipAddress;
+                        const port = p.port || t.port || 3000;
+
                         return {
                           ...p,
-                          publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
-                          reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
-                          ipAddress: t.domain || t.ddnsDomain || t.reportedPublicIp || t.publicIp || p.ipAddress,
-                          domain: t.domain || t.ddnsDomain || p.domain,
-                          ddnsDomain: t.ddnsDomain || t.domain || p.ddnsDomain,
+                          publicIp: effectivePublicIp || p.publicIp,
+                          reportedPublicIp: effectivePublicIp || p.reportedPublicIp,
+                          ipAddress: effectiveHost,
+                          domain: effectiveDomain,
+                          ddnsDomain: effectiveDomain,
+                          systemUrl: `http://${effectiveHost}:${port}/wolfzonepos?branchId=${p.id}`,
                           status: t.status || p.status,
                           latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs
                         };
@@ -4979,12 +4992,16 @@ export default function App() {
                       const prevIds = new Set(prev.map(p => p.id));
                       for (const r of refreshed) {
                         if (r && r.id && r.id !== 'SERVER-CENTRAL' && !prevIds.has(r.id) && !deletedSet.has(r.id)) {
+                          const rHost = r.domain || r.ddnsDomain || r.reportedPublicIp || r.publicIp || '127.0.0.1';
+                          const rPort = r.port || 3000;
                           updated.push({
                             ...r,
                             code: r.code || r.id.toUpperCase(),
                             name: r.name || `Sucursal ${r.id}`,
                             city: r.city || 'Principal',
                             address: r.address || 'Dirección Principal',
+                            ipAddress: rHost,
+                            systemUrl: `http://${rHost}:${rPort}/wolfzonepos?branchId=${r.id}`,
                             status: r.status || 'online',
                             totalSpots: typeof r.totalSpots === 'number' ? r.totalSpots : 30,
                             occupiedSpots: typeof r.occupiedSpots === 'number' ? r.occupiedSpots : 0,
@@ -4993,7 +5010,10 @@ export default function App() {
                           });
                         }
                       }
-                      return updated.filter(b => b && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id));
+                      const finalFiltered = updated.filter(b => b && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id));
+                      localStorage.setItem('pk_branches', JSON.stringify(finalFiltered));
+                      saveGlobalConfigToServer({ branches: finalFiltered }).catch(console.warn);
+                      return finalFiltered;
                     });
                   }
                 } catch (err) {

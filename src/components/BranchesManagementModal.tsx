@@ -126,6 +126,16 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   const [inlineTestingIp, setInlineTestingIp] = useState(false);
   const [inlinePingMs, setInlinePingMs] = useState<number | null>(null);
 
+  // Estados para autodetección y ping dentro del modal de edición de sede
+  const [isDetectingInBranchModal, setIsDetectingInBranchModal] = useState(false);
+  const [branchModalPingResult, setBranchModalPingResult] = useState<{
+    online: boolean;
+    latencyMs: number;
+    testedHost: string;
+    testedPort: number;
+  } | null>(null);
+  const [branchModalDetectMessage, setBranchModalDetectMessage] = useState<string | null>(null);
+
   const safeBranches = useMemo(() => Array.isArray(branches) ? branches.filter(Boolean) : [], [branches]);
   const safePosPoints = useMemo(() => Array.isArray(posPoints) ? posPoints.filter(Boolean) : [], [posPoints]);
 
@@ -223,19 +233,133 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
       farmadeskId: freshId,
       farmadeskPassword: freshPass
     });
+    setBranchModalPingResult(null);
+    setBranchModalDetectMessage(null);
     setIsBranchFormOpen(true);
     playSound('beep');
   };
 
   const handleEditBranch = (branch: BranchLocation) => {
-    setEditingBranch({ ...branch });
+    // Si la IP guardada es local/LAN (127.0.0.1 o 192.168.x.x) y hay una IP pública detectada o dominio, pre-aplicarla
+    const detectedPublic = branch.domain || branch.ddnsDomain || (branch.reportedPublicIp && branch.reportedPublicIp !== '127.0.0.1' ? branch.reportedPublicIp : '') || (branch.publicIp && branch.publicIp !== '127.0.0.1' ? branch.publicIp : '');
+    const isCurrentIpLocal = !branch.ipAddress || branch.ipAddress === '127.0.0.1' || branch.ipAddress.startsWith('192.168.') || branch.ipAddress.startsWith('10.') || branch.ipAddress === 'localhost';
+
+    const effectiveIp = (isCurrentIpLocal && detectedPublic) ? detectedPublic : (branch.ipAddress || detectedPublic || '127.0.0.1');
+
+    setEditingBranch({
+      ...branch,
+      ipAddress: effectiveIp,
+      publicIp: detectedPublic || branch.publicIp || effectiveIp,
+      port: branch.port || 3000
+    });
+    setBranchModalPingResult(null);
+    setBranchModalDetectMessage(
+      (isCurrentIpLocal && detectedPublic) 
+        ? `Se pre-seleccionó la IP Pública detectada: ${detectedPublic}` 
+        : null
+    );
     setIsBranchFormOpen(true);
     playSound('beep');
+  };
+
+  const handleDetectAndPingInBranchModal = async () => {
+    if (!editingBranch) return;
+    setIsDetectingInBranchModal(true);
+    setBranchModalDetectMessage(null);
+    playSound('beep');
+    try {
+      // 1. Consultar telemetría de la Central
+      const telemetryList = await fetchBranchesTelemetry();
+      const reported = telemetryList.find(t => 
+        t.id === editingBranch.id || 
+        (editingBranch.code && t.code && t.code.toUpperCase() === editingBranch.code.toUpperCase()) ||
+        (editingBranch.code && t.id && t.id.toUpperCase() === editingBranch.code.toUpperCase())
+      );
+
+      let ipToUse = reported?.reportedPublicIp || reported?.publicIp;
+      let domainToUse = reported?.domain || reported?.ddnsDomain;
+
+      // Si es la terminal local y no hay reporte previo, consultar la IP pública actual del entorno
+      if ((!ipToUse || ipToUse === '127.0.0.1') && editingBranch.isCurrentBranch) {
+        const detected = await detectCurrentPublicIp();
+        if (detected && detected !== '127.0.0.1') {
+          ipToUse = detected;
+        }
+      }
+
+      const hostToApply = domainToUse || ipToUse || editingBranch.ipAddress || '127.0.0.1';
+      const portToUse = Number(editingBranch.port) || 3000;
+
+      // Aplicar de inmediato al estado del formulario
+      setEditingBranch(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          ipAddress: hostToApply,
+          publicIp: ipToUse || prev.publicIp || hostToApply,
+          reportedPublicIp: ipToUse || prev.reportedPublicIp || hostToApply,
+          domain: domainToUse || prev.domain
+        };
+      });
+
+      // 2. Realizar Ping de comprobación en vivo
+      const pingRes = await pingSingleBranchFromCentral(editingBranch.id, hostToApply, portToUse);
+      setBranchModalPingResult({
+        online: pingRes.online,
+        latencyMs: pingRes.latencyMs,
+        testedHost: hostToApply,
+        testedPort: portToUse
+      });
+
+      if (pingRes.online) {
+        playSound('success');
+        setBranchModalDetectMessage(`¡Conectado! Host [${hostToApply}:${portToUse}] responde con ${pingRes.latencyMs}ms.`);
+      } else {
+        playSound('alert');
+        setBranchModalDetectMessage(`IP detectada: [${hostToApply}]. Nota: El puerto ${portToUse} no respondió (revisar firewall o NAT).`);
+      }
+    } catch (err: any) {
+      console.warn('[BranchesManagementModal] Error en autodetección y ping:', err);
+      setBranchModalDetectMessage('Error al consultar telemetría o ejecutar ping.');
+    } finally {
+      setIsDetectingInBranchModal(false);
+    }
+  };
+
+  const handleTestPingInBranchModal = async () => {
+    if (!editingBranch?.ipAddress) return;
+    setIsDetectingInBranchModal(true);
+    playSound('beep');
+    try {
+      const host = editingBranch.ipAddress.trim();
+      const port = Number(editingBranch.port) || 3000;
+      const pingRes = await pingSingleBranchFromCentral(editingBranch.id, host, port);
+      setBranchModalPingResult({
+        online: pingRes.online,
+        latencyMs: pingRes.latencyMs,
+        testedHost: host,
+        testedPort: port
+      });
+      if (pingRes.online) {
+        playSound('success');
+        setBranchModalDetectMessage(`✓ Host [${host}:${port}] responde correctamente (${pingRes.latencyMs}ms).`);
+      } else {
+        playSound('alert');
+        setBranchModalDetectMessage(`⚠️ Host [${host}:${port}] no respondió al sondeo.`);
+      }
+    } catch (err) {
+      console.warn('Error en ping:', err);
+    } finally {
+      setIsDetectingInBranchModal(false);
+    }
   };
 
   const handleSaveBranchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBranch || !editingBranch.name?.trim() || !editingBranch.code?.trim()) return;
+
+    const host = editingBranch.ipAddress?.trim() || '127.0.0.1';
+    const port = Number(editingBranch.port) || 3000;
 
     const branchToSave: BranchLocation = {
       id: editingBranch.id || `branch_${Date.now()}`,
@@ -245,25 +369,32 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
       address: editingBranch.address?.trim() || '',
       phone: editingBranch.phone?.trim() || '',
       managerName: editingBranch.managerName?.trim() || '',
-      status: (editingBranch.status as any) || 'online',
-      ipAddress: editingBranch.ipAddress?.trim() || '127.0.0.1',
-      publicIp: editingBranch.publicIp?.trim() || editingBranch.ipAddress?.trim() || '',
-      port: Number(editingBranch.port) || 3000,
+      status: branchModalPingResult ? (branchModalPingResult.online ? 'online' : 'offline') : ((editingBranch.status as any) || 'online'),
+      latencyMs: branchModalPingResult?.latencyMs !== undefined ? branchModalPingResult.latencyMs : editingBranch.latencyMs,
+      ipAddress: host,
+      publicIp: editingBranch.publicIp?.trim() || host,
+      reportedPublicIp: editingBranch.reportedPublicIp || editingBranch.publicIp?.trim() || host,
+      domain: editingBranch.domain?.trim() || undefined,
+      ddnsDomain: editingBranch.ddnsDomain?.trim() || editingBranch.domain?.trim() || undefined,
+      port: port,
       totalSpots: Number(editingBranch.totalSpots) || 50,
       occupiedSpots: Number(editingBranch.occupiedSpots) || 0,
       todayRevenue: Number(editingBranch.todayRevenue) || 0,
       todayVehicles: Number(editingBranch.todayVehicles) || 0,
       currentAppVersion: editingBranch.currentAppVersion || 'v4.0.0',
       lastSyncTimestamp: new Date().toISOString(),
-      farmadeskId: editingBranch.farmadeskId || generateFarmadeskId(),
-      farmadeskPassword: editingBranch.farmadeskPassword || generateFarmadeskPassword(editingBranch.code),
-      systemUrl: `http://${editingBranch.ipAddress || '127.0.0.1'}:${editingBranch.port || 3000}/wolfzonepos?branchId=${editingBranch.id}`,
+      farmadeskId: editingBranch.farmadeskId?.trim() || generateFarmadeskId(),
+      farmadeskPassword: editingBranch.farmadeskPassword?.trim() || generateFarmadeskPassword(editingBranch.code),
+      farmadeskPort: 9050,
+      systemUrl: `http://${host}:${port}/wolfzonepos?branchId=${editingBranch.id}`,
       isCurrentBranch: editingBranch.isCurrentBranch ?? false
     };
 
     onSaveBranch(branchToSave);
     setIsBranchFormOpen(false);
     setEditingBranch(null);
+    setBranchModalPingResult(null);
+    setBranchModalDetectMessage(null);
     playSound('success');
   };
 
@@ -1465,45 +1596,133 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                 </div>
 
                 {/* Conexión de Red & Remoto */}
-                <div className="p-3.5 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
-                  <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                    <Globe className="w-4 h-4 text-indigo-500" />
-                    <span>Conectividad de Red & Acceso Remoto</span>
-                  </h4>
+                <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800/80">
+                    <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 text-sm">
+                      <Globe className="w-4 h-4 text-indigo-500" />
+                      <span>Conectividad de Red & Acceso Remoto</span>
+                    </h4>
+                    <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                      WAN / LAN / DDNS
+                    </span>
+                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1">
-                        IP Pública / WAN / Dominio:
-                      </label>
-                      <input
-                        type="text"
-                        value={editingBranch.ipAddress || ''}
-                        onChange={(e) => setEditingBranch(prev => ({ ...prev, ipAddress: e.target.value, publicIp: e.target.value }))}
-                        placeholder="Ej: 190.158.12.44 ó sede.ddns.net"
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1">
-                        Puerto Web POS:
-                      </label>
-                      <input
-                        type="number"
-                        value={editingBranch.port || 3000}
-                        onChange={(e) => setEditingBranch(prev => ({ ...prev, port: Number(e.target.value) }))}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1 flex items-center justify-between">
-                        <span>ID Soporte Remoto:</span>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-slate-700 dark:text-slate-300 font-bold text-xs">
+                          IP Pública / WAN / Dominio:
+                        </label>
                         <button
                           type="button"
-                          onClick={() => setEditingBranch(prev => ({ ...prev, farmadeskId: generateFarmadeskId() }))}
-                          className="text-[10px] text-indigo-600 hover:underline"
+                          onClick={handleDetectAndPingInBranchModal}
+                          disabled={isDetectingInBranchModal}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                          title="Consultar la IP pública/dominio reportado por esta sucursal y ejecutar ping"
+                        >
+                          <Radio className={`w-3.5 h-3.5 text-white ${isDetectingInBranchModal ? 'animate-pulse' : ''}`} />
+                          <span>{isDetectingInBranchModal ? 'Sondeando...' : 'Autodetectar IP / Ping'}</span>
+                        </button>
+                      </div>
+
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={editingBranch.ipAddress || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setEditingBranch(prev => prev ? ({ 
+                              ...prev, 
+                              ipAddress: val, 
+                              publicIp: val,
+                              systemUrl: `http://${val}:${prev.port || 3000}/wolfzonepos?branchId=${prev.id}`
+                            }) : null);
+                          }}
+                          placeholder="Ej: 152.200.144.62 ó sede.ddns.net"
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono font-bold text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-slate-700 dark:text-slate-300 font-bold text-xs">
+                          Puerto Web POS (Ajuste Manual):
+                        </label>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingBranch(prev => prev ? ({ 
+                                ...prev, 
+                                port: 3000,
+                                systemUrl: `http://${prev.ipAddress || '127.0.0.1'}:3000/wolfzonepos?branchId=${prev.id}`
+                              }) : null);
+                            }}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                              (editingBranch.port || 3000) === 3000 
+                                ? 'bg-emerald-600 text-white shadow-xs' 
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300'
+                            }`}
+                            title="Puerto local estándar de taquilla POS"
+                          >
+                            LAN 3000
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingBranch(prev => prev ? ({ 
+                                ...prev, 
+                                port: 3001,
+                                systemUrl: `http://${prev.ipAddress || '127.0.0.1'}:3001/wolfzonepos?branchId=${prev.id}`
+                              }) : null);
+                            }}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                              editingBranch.port === 3001 
+                                ? 'bg-amber-600 text-white shadow-xs' 
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300'
+                            }`}
+                            title="Puerto WAN con reenvío de puertos NAT"
+                          >
+                            WAN 3001
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-1.5">
+                        <input
+                          type="number"
+                          value={editingBranch.port || 3000}
+                          onChange={(e) => {
+                            const newPort = Number(e.target.value) || 3000;
+                            setEditingBranch(prev => prev ? ({ 
+                              ...prev, 
+                              port: newPort,
+                              systemUrl: `http://${prev.ipAddress || '127.0.0.1'}:${newPort}/wolfzonepos?branchId=${prev.id}`
+                            }) : null);
+                          }}
+                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono font-bold text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleTestPingInBranchModal}
+                          disabled={isDetectingInBranchModal || !editingBranch.ipAddress}
+                          className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 shrink-0 cursor-pointer disabled:opacity-50"
+                          title="Probar Ping de respuesta al Host y Puerto configurados"
+                        >
+                          <RefreshCw className={`w-3.5 h-3.5 text-indigo-500 ${isDetectingInBranchModal ? 'animate-spin' : ''}`} />
+                          <span>Probar Ping</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1 flex items-center justify-between text-xs">
+                        <span>ID Soporte Remoto (FarmaDesk / AnyDesk):</span>
+                        <button
+                          type="button"
+                          onClick={() => setEditingBranch(prev => prev ? ({ ...prev, farmadeskId: generateFarmadeskId() }) : null)}
+                          className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
                         >
                           Generar
                         </button>
@@ -1511,19 +1730,19 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                       <input
                         type="text"
                         value={editingBranch.farmadeskId || ''}
-                        onChange={(e) => setEditingBranch(prev => ({ ...prev, farmadeskId: e.target.value }))}
+                        onChange={(e) => setEditingBranch(prev => prev ? ({ ...prev, farmadeskId: e.target.value }) : null)}
                         placeholder="770 130 282"
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono font-bold outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono font-bold text-xs outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1 flex items-center justify-between">
+                      <label className="block text-slate-600 dark:text-slate-400 font-medium mb-1 flex items-center justify-between text-xs">
                         <span>Clave Soporte Remoto:</span>
                         <button
                           type="button"
-                          onClick={() => setEditingBranch(prev => ({ ...prev, farmadeskPassword: generateFarmadeskPassword(editingBranch.code || 'pass') }))}
-                          className="text-[10px] text-indigo-600 hover:underline"
+                          onClick={() => setEditingBranch(prev => prev ? ({ ...prev, farmadeskPassword: generateFarmadeskPassword(prev.code || 'pass') }) : null)}
+                          className="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
                         >
                           Generar
                         </button>
@@ -1531,11 +1750,55 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                       <input
                         type="text"
                         value={editingBranch.farmadeskPassword || ''}
-                        onChange={(e) => setEditingBranch(prev => ({ ...prev, farmadeskPassword: e.target.value }))}
+                        onChange={(e) => setEditingBranch(prev => prev ? ({ ...prev, farmadeskPassword: e.target.value }) : null)}
                         placeholder="Clave de enlace seguro"
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono outline-none"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono text-xs outline-none"
                       />
                     </div>
+                  </div>
+
+                  {/* Feedback en vivo de Ping y URL */}
+                  {(branchModalPingResult || branchModalDetectMessage) && (
+                    <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between gap-2 ${
+                      branchModalPingResult
+                        ? (branchModalPingResult.online
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-300')
+                        : 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800 text-indigo-800 dark:text-indigo-300'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        {branchModalPingResult 
+                          ? (branchModalPingResult.online ? <Wifi className="w-4 h-4 text-emerald-500 shrink-0" /> : <WifiOff className="w-4 h-4 text-amber-500 shrink-0" />)
+                          : <Activity className="w-4 h-4 text-indigo-500 shrink-0" />
+                        }
+                        <span>{branchModalDetectMessage}</span>
+                      </div>
+                      {branchModalPingResult?.online && (
+                        <span className="font-mono font-black text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 shrink-0">
+                          {branchModalPingResult.latencyMs} ms RTT
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-1">
+                    <div className="truncate">
+                      <span className="font-bold text-slate-700 dark:text-slate-300">URL Acceso POS Web: </span>
+                      <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                        http://{editingBranch.ipAddress || '127.0.0.1'}:{editingBranch.port || 3000}/wolfzonepos?branchId={editingBranch.id}
+                      </span>
+                    </div>
+                    {editingBranch.ipAddress && (
+                      <a
+                        href={`http://${editingBranch.ipAddress}:${editingBranch.port || 3000}/wolfzonepos?branchId=${editingBranch.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-bold ml-auto"
+                      >
+                        <span>Probar en Navegador</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
                   </div>
                 </div>
 
