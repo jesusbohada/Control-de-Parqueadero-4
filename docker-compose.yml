@@ -39,6 +39,7 @@ services:
       PORT: 3000
       DATABASE_URL: postgresql://postgres:password@postgres:5432/wolfzonepos_db
       DISABLE_HMR: "true"
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports:
       - "3000:3000"  # Acceso LAN para taquillas
       - "3001:3001"  # Acceso WAN para sucursales remotas

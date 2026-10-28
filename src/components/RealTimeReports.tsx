@@ -38,7 +38,12 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Globe,
-  ExternalLink
+  ExternalLink,
+  Save,
+  Key,
+  Eye,
+  EyeOff,
+  X
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -562,6 +567,16 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [aiCustomQuestion, setAiCustomQuestion] = useState('');
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Gemini Configuration States
+  const [isGeminiConfigured, setIsGeminiConfigured] = useState(false);
+  const [geminiMaskedKey, setGeminiMaskedKey] = useState('');
+  const [isGeminiKeyModalOpen, setIsGeminiKeyModalOpen] = useState(false);
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState('');
+  const [isSavingGeminiKey, setIsSavingGeminiKey] = useState(false);
+  const [geminiSaveMessage, setGeminiSaveMessage] = useState<string | null>(null);
+  const [geminiSaveError, setGeminiSaveError] = useState<string | null>(null);
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
 
   // Helper to determine active date range
   const dateRangeBounds = useMemo(() => {
@@ -1317,6 +1332,78 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       setAiError(err.message || 'Error al generar el pronóstico con Gemini.');
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    if (activeTab === 'ai_forecast') {
+      fetch('/api/config/gemini')
+        .then(res => res.json())
+        .then(data => {
+          if (data.configured) {
+            setIsGeminiConfigured(true);
+            setGeminiMaskedKey(data.maskedKey || '');
+          } else {
+            setIsGeminiConfigured(false);
+            setGeminiMaskedKey('');
+          }
+        })
+        .catch(console.warn);
+    }
+  }, [activeTab]);
+
+  const handleSaveGeminiKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanKey = geminiApiKeyInput.trim();
+    if (!cleanKey) return;
+    setIsSavingGeminiKey(true);
+    setGeminiSaveMessage(null);
+    setGeminiSaveError(null);
+    try {
+      const res = await fetch('/api/config/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: cleanKey }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al guardar la clave.');
+      }
+      setIsGeminiConfigured(true);
+      setGeminiMaskedKey(data.maskedKey || '');
+      setGeminiSaveMessage(data.message || '¡Clave de Google Gemini guardada y verificada exitosamente!');
+      setAiError(null);
+      setTimeout(() => {
+        setIsGeminiKeyModalOpen(false);
+        setGeminiSaveMessage(null);
+        setGeminiApiKeyInput('');
+      }, 1800);
+    } catch (err: any) {
+      setGeminiSaveError(err.message || 'Error al validar la clave API con Google Gemini.');
+    } finally {
+      setIsSavingGeminiKey(false);
+    }
+  };
+
+  const handleDeleteGeminiKey = async () => {
+    if (!window.confirm('¿Estás seguro de que deseas desconectar y eliminar la clave de Google Gemini del servidor?')) return;
+    setIsSavingGeminiKey(true);
+    setGeminiSaveMessage(null);
+    setGeminiSaveError(null);
+    try {
+      const res = await fetch('/api/config/gemini', { method: 'DELETE' });
+      const data = await res.json();
+      setIsGeminiConfigured(false);
+      setGeminiMaskedKey('');
+      setGeminiSaveMessage('Clave eliminada correctamente.');
+      setTimeout(() => {
+        setIsGeminiKeyModalOpen(false);
+        setGeminiSaveMessage(null);
+      }, 1200);
+    } catch (err: any) {
+      setGeminiSaveError(err.message || 'Error al eliminar la clave.');
+    } finally {
+      setIsSavingGeminiKey(false);
     }
   };
 
@@ -2642,7 +2729,26 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGeminiSaveError(null);
+                      setGeminiSaveMessage(null);
+                      setIsGeminiKeyModalOpen(true);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
+                      isGeminiConfigured
+                        ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border-emerald-400/40'
+                        : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+                    }`}
+                    title="Configurar Clave API de Google Gemini"
+                  >
+                    <Key className="w-3.5 h-3.5 text-amber-300" />
+                    <span>{isGeminiConfigured ? 'Clave Conectada' : 'Conectar Clave API'}</span>
+                    <span className={`w-2 h-2 rounded-full ${isGeminiConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`}></span>
+                  </button>
+
                   <button
                     onClick={() => handleGenerateAiAnalysis('comprehensive')}
                     disabled={aiLoading}
@@ -2723,12 +2829,26 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* AI Response Display Card */}
           {aiError && (
-            <div className="p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-xs text-rose-800 dark:text-rose-200">
-              <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
-              <div>
-                <div className="font-bold">Aviso del Asistente Gemini:</div>
-                <div>{aiError}</div>
+            <div className="p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-800 dark:text-rose-200">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
+                <div>
+                  <div className="font-bold">Aviso del Asistente Gemini:</div>
+                  <div>{aiError}</div>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setGeminiSaveError(null);
+                  setGeminiSaveMessage(null);
+                  setIsGeminiKeyModalOpen(true);
+                }}
+                className="shrink-0 flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+              >
+                <Key className="w-3.5 h-3.5" />
+                <span>Configurar Clave API Ahora</span>
+              </button>
             </div>
           )}
 
@@ -3367,6 +3487,165 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
         currentUser={currentUser}
         initialSelectedRecord={selectedRecordForTicket}
       />
+
+      {/* Gemini AI Key Configuration Modal */}
+      <AnimatePresence>
+        {isGeminiKeyModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden"
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    <Key className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                      <span>Configurar Google Gemini API</span>
+                      <span className="text-[10px] bg-amber-400/20 text-amber-600 dark:text-amber-300 font-extrabold px-2 py-0.5 rounded-full border border-amber-400/30">
+                        IA Engine
+                      </span>
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Conexión para Business Intelligence y Visión ANPR de Placas
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsGeminiKeyModalOpen(false)}
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Form Content */}
+              <form onSubmit={handleSaveGeminiKey} className="p-6 space-y-4">
+                {/* Status card */}
+                <div className="p-3.5 rounded-2xl border bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="text-slate-500 block text-[11px]">Estado actual de la clave:</span>
+                    <span className="font-bold flex items-center gap-1.5 mt-0.5">
+                      <span className={`w-2.5 h-2.5 rounded-full ${isGeminiConfigured ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
+                      {isGeminiConfigured ? (
+                        <span className="text-emerald-700 dark:text-emerald-400">
+                          Conectada en Servidor ({geminiMaskedKey})
+                        </span>
+                      ) : (
+                        <span className="text-rose-700 dark:text-rose-400">No configurada en el servidor</span>
+                      )}
+                    </span>
+                  </div>
+                  {isGeminiConfigured && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteGeminiKey}
+                      disabled={isSavingGeminiKey}
+                      className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline cursor-pointer disabled:opacity-50"
+                    >
+                      Desconectar
+                    </button>
+                  )}
+                </div>
+
+                {/* Info & External Link to AI Studio */}
+                <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-3.5 space-y-2">
+                  <p>
+                    Para usar los pronósticos de ocupación, detección de fugas de dinero y lectura de placas con visión artificial, necesitas una clave gratuita de <strong>Google AI Studio</strong>.
+                  </p>
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                  >
+                    <span>Obtener clave gratis en Google AI Studio</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+
+                {/* Input Field */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Clave de API de Gemini (API Key)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showGeminiKey ? 'text' : 'password'}
+                      value={geminiApiKeyInput}
+                      onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                      placeholder={isGeminiConfigured ? 'Ingresa una nueva clave para reemplazar la actual...' : 'AIzaSy...'}
+                      required
+                      className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowGeminiKey(!showGeminiKey)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                      title={showGeminiKey ? 'Ocultar clave' : 'Mostrar clave'}
+                    >
+                      {showGeminiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Se almacena de forma persistente en el volumen <code>/app/data</code> y en la base de datos PostgreSQL, por lo que no se perderá al reiniciar o actualizar el servidor.
+                  </p>
+                </div>
+
+                {/* Messages */}
+                {geminiSaveMessage && (
+                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span>{geminiSaveMessage}</span>
+                  </div>
+                )}
+
+                {geminiSaveError && (
+                  <div className="p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-xs text-rose-800 dark:text-rose-200 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                    <span>{geminiSaveError}</span>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setIsGeminiKeyModalOpen(false)}
+                    disabled={isSavingGeminiKey}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  >
+                    Cerrar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingGeminiKey || !geminiApiKeyInput.trim()}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSavingGeminiKey ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Validando con Google...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Guardar y Validar Conexión</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

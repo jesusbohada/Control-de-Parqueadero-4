@@ -40,7 +40,10 @@ import {
   Eye,
   EyeOff,
   HelpCircle,
-  Send
+  Send,
+  Sparkles,
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react';
 import { RatesConfig, ParkingBusinessInfo, VehicleType, PaymentGatewayConfig, SystemUser, VehicleCategoryConfig, ExpenseConcept, ExpenseCategory, SystemNodeConfig, PrinterConfig } from '../types';
 import { DEFAULT_RATES, DEFAULT_BUSINESS_INFO } from '../data/initialData';
@@ -86,12 +89,82 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
   onOpenVehicleCategories,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<'rates' | 'payments' | 'electronic_invoice' | 'business' | 'printers'>(initialTab as any);
+  const [activeTab, setActiveTab] = useState<'rates' | 'payments' | 'electronic_invoice' | 'business' | 'printers' | 'ai_gemini'>(initialTab as any);
   const [localRates, setLocalRates] = useState<RatesConfig>(rates);
   const [localBusinessInfo, setLocalBusinessInfo] = useState<ParkingBusinessInfo>(businessInfo);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [dianTestResult, setDianTestResult] = useState<{ cufe: string; qrUrl: string; invoiceNum: string } | null>(null);
   const [isTestingDian, setIsTestingDian] = useState(false);
+
+  // Gemini AI Key Configuration States
+  const [isGeminiConfigured, setIsGeminiConfigured] = useState(false);
+  const [geminiMaskedKey, setGeminiMaskedKey] = useState('');
+  const [geminiApiKeyInput, setGeminiApiKeyInput] = useState('');
+  const [isSavingGeminiKey, setIsSavingGeminiKey] = useState(false);
+  const [geminiSaveMessage, setGeminiSaveMessage] = useState<string | null>(null);
+  const [geminiSaveError, setGeminiSaveError] = useState<string | null>(null);
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
+
+  React.useEffect(() => {
+    fetch('/api/config/gemini')
+      .then(res => res.json())
+      .then(data => {
+        if (data.configured) {
+          setIsGeminiConfigured(true);
+          setGeminiMaskedKey(data.maskedKey || '');
+        } else {
+          setIsGeminiConfigured(false);
+          setGeminiMaskedKey('');
+        }
+      })
+      .catch(console.warn);
+  }, []);
+
+  const handleSaveGeminiKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanKey = geminiApiKeyInput.trim();
+    if (!cleanKey) return;
+    setIsSavingGeminiKey(true);
+    setGeminiSaveMessage(null);
+    setGeminiSaveError(null);
+    try {
+      const res = await fetch('/api/config/gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: cleanKey }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Error al guardar la clave.');
+      }
+      setIsGeminiConfigured(true);
+      setGeminiMaskedKey(data.maskedKey || '');
+      setGeminiSaveMessage(data.message || '¡Clave de Google Gemini guardada y verificada exitosamente!');
+      setGeminiApiKeyInput('');
+    } catch (err: any) {
+      setGeminiSaveError(err.message || 'Error al validar la clave con Google Gemini.');
+    } finally {
+      setIsSavingGeminiKey(false);
+    }
+  };
+
+  const handleDeleteGeminiKey = async () => {
+    if (!window.confirm('¿Estás seguro de que deseas desconectar y eliminar la clave de Google Gemini del servidor?')) return;
+    setIsSavingGeminiKey(true);
+    setGeminiSaveMessage(null);
+    setGeminiSaveError(null);
+    try {
+      const res = await fetch('/api/config/gemini', { method: 'DELETE' });
+      const data = await res.json();
+      setIsGeminiConfigured(false);
+      setGeminiMaskedKey('');
+      setGeminiSaveMessage('Clave eliminada correctamente.');
+    } catch (err: any) {
+      setGeminiSaveError(err.message || 'Error al eliminar la clave.');
+    } finally {
+      setIsSavingGeminiKey(false);
+    }
+  };
 
   const handleTestDian = async () => {
     setIsTestingDian(true);
@@ -382,6 +455,21 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
         >
           <Printer className="w-4 h-4" />
           <span>Impresoras</span>
+        </button>
+
+        <button
+          type="button"
+          aria-selected={activeTab === 'ai_gemini'}
+          onClick={() => setActiveTab('ai_gemini')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'ai_gemini'
+              ? 'active-tab-indicator bg-amber-500 text-slate-950 shadow-sm'
+              : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/70'
+          }`}
+        >
+          <Sparkles className="w-4 h-4 text-indigo-500" />
+          <span>Inteligencia Artificial (Gemini)</span>
+          <span className={`w-2 h-2 rounded-full ${isGeminiConfigured ? 'bg-emerald-500' : 'bg-rose-400'}`}></span>
         </button>
       </div>
 
@@ -1571,6 +1659,147 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= TAB 6: GOOGLE GEMINI AI ================= */}
+      {activeTab === 'ai_gemini' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white p-6 rounded-2xl border border-indigo-800/40 relative overflow-hidden">
+            <div className="relative z-10 space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-200 text-xs font-bold border border-amber-400/30">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Google Gemini AI Engine (Modelos 3.8 Flash / 2.5 Flash)</span>
+              </div>
+              <h3 className="text-lg font-bold text-white">
+                Inteligencia Artificial y Business Intelligence para el Parqueadero
+              </h3>
+              <p className="text-xs text-indigo-200 max-w-2xl leading-relaxed">
+                Potencia tu sistema con capacidades avanzadas de inteligencia artificial: pronósticos financieros de recaudo para próximos turnos, detección de anomalías y fugas en caja, optimización de tarifas y reconocimiento inteligente de placas vehiculares (ANPR / LPR).
+              </p>
+            </div>
+          </div>
+
+          {/* Form & Status */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs space-y-5">
+            {/* Status Card */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800">
+              <div>
+                <span className="text-slate-500 block text-xs">Estado de conexión en el servidor:</span>
+                <span className="font-bold text-sm flex items-center gap-2 mt-0.5">
+                  <span className={`w-3 h-3 rounded-full ${isGeminiConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`}></span>
+                  {isGeminiConfigured ? (
+                    <span className="text-emerald-700 dark:text-emerald-400">
+                      Conectada y Operativa ({geminiMaskedKey})
+                    </span>
+                  ) : (
+                    <span className="text-rose-700 dark:text-rose-400">
+                      No configurada en el servidor
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              {isGeminiConfigured && (
+                <button
+                  type="button"
+                  onClick={handleDeleteGeminiKey}
+                  disabled={isSavingGeminiKey}
+                  className="px-3.5 py-1.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-800 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Desconectar Clave
+                </button>
+              )}
+            </div>
+
+            {/* How to get key */}
+            <div className="p-4 bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-800/60 rounded-xl text-xs text-indigo-950 dark:text-indigo-200 space-y-2">
+              <div className="font-bold flex items-center gap-2">
+                <Key className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <span>¿Cómo obtener una clave de Google Gemini gratuita?</span>
+              </div>
+              <p className="leading-relaxed">
+                Google ofrece una capa de uso gratuito para Gemini API a través de <strong>Google AI Studio</strong>. Solo inicia sesión con tu cuenta de Google, crea un API Key y pégala aquí.
+              </p>
+              <div>
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-colors"
+                >
+                  <span>Crear clave gratis en Google AI Studio</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Key Input Form */}
+            <form onSubmit={handleSaveGeminiKey} className="space-y-4 pt-2">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  {isGeminiConfigured ? 'Actualizar o reemplazar Clave API de Gemini' : 'Ingresar Clave API de Gemini'}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showGeminiKey ? 'text' : 'password'}
+                    value={geminiApiKeyInput}
+                    onChange={(e) => setGeminiApiKeyInput(e.target.value)}
+                    placeholder={isGeminiConfigured ? 'Ingresa una nueva clave para reemplazar la actual...' : 'AIzaSy...'}
+                    required
+                    className="w-full pl-4 pr-12 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-mono shadow-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowGeminiKey(!showGeminiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                    title={showGeminiKey ? 'Ocultar clave' : 'Mostrar clave'}
+                  >
+                    {showGeminiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  La clave se almacena de forma persistente en <code>/app/data/gemini_config.json</code> y en PostgreSQL, por lo que nunca se pierde al actualizar o reiniciar el servidor central.
+                </p>
+              </div>
+
+              {/* Messages */}
+              {geminiSaveMessage && (
+                <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span>{geminiSaveMessage}</span>
+                </div>
+              )}
+
+              {geminiSaveError && (
+                <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-xs text-rose-800 dark:text-rose-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                  <span>{geminiSaveError}</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={isSavingGeminiKey || !geminiApiKeyInput.trim()}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md disabled:opacity-50 cursor-pointer"
+                >
+                  {isSavingGeminiKey ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Validando y Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Guardar y Probar Conexión con Gemini</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
