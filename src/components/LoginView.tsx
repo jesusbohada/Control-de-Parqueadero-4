@@ -209,9 +209,25 @@ export const LoginView: React.FC<LoginViewProps> = ({
   // Determinar si opera como Servidor Central o Sucursal
   const workMode = typeof window !== 'undefined' ? localStorage.getItem('pk_work_mode') : null;
   const isServer = workMode === 'server';
-  const stationLabel = currentBranch?.name 
-    ? `Sucursal: ${currentBranch.name}` 
-    : (isServer ? 'Servidor Central (Matriz)' : 'Sucursal: DESARROLLO Y PRUEBAS');
+  const stationLabel = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      const bId = p.get('branchId') || p.get('branch') || p.get('sede');
+      if (bId === 'branch_1793114761863' || window.location.hostname === '192.168.14.227' || window.location.hostname.includes('14.227')) {
+        return 'Sucursal: DESARROLLO Y PRUEBAS';
+      }
+      if (bId === 'suc-001') {
+        return 'Sucursal: Sede Principal';
+      }
+      if (bId === 'branch_1793107096864') {
+        return 'Sucursal: PARQUEADERO DROMEDICAS';
+      }
+    }
+    if (currentBranch?.name) {
+      return `Sucursal: ${currentBranch.name}`;
+    }
+    return isServer ? 'Servidor Central (Matriz)' : 'Sucursal: DESARROLLO Y PRUEBAS';
+  }, [currentBranch, isServer]);
 
   const performLogin = (userToLogin: SystemUser) => {
     playSound('success', true);

@@ -884,15 +884,25 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
                   <span className="hidden sm:inline">Probar Ping</span>
                 </button>
                 {selectedBranch.systemUrl && (
-                  <a
-                    href={selectedBranch.systemUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors shadow-xs"
-                    title="Abrir consola de la sucursal"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      let ssoParam = '';
+                      try {
+                        const saved = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
+                        if (saved) {
+                          const payload = JSON.stringify({ user: JSON.parse(saved), fromCentral: true, timestamp: Date.now() });
+                          ssoParam = `&sso=${encodeURIComponent(btoa(unescape(encodeURIComponent(payload))))}`;
+                        }
+                      } catch (e) {}
+                      const target = `${selectedBranch.systemUrl}${selectedBranch.systemUrl.includes('?') ? '' : '?'}${ssoParam}`;
+                      window.open(target, '_blank');
+                    }}
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors shadow-xs cursor-pointer"
+                    title="Abrir consola de la sucursal con sesión iniciada (SSO)"
                   >
                     <ExternalLink className="w-4 h-4" />
-                  </a>
+                  </button>
                 )}
               </div>
             </div>

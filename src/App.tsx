@@ -201,6 +201,10 @@ export default function App() {
     const currentPath = window.location.pathname.toLowerCase();
     const sessionAuth = sessionStorage.getItem('wolfzone_authorized_path') || localStorage.getItem('wolfzone_authorized_path');
     
+    // Check if URL has SSO login token from Central
+    const params = new URLSearchParams(window.location.search);
+    const hasSso = !!(params.get('sso') || params.get('authSession') || params.get('authUser'));
+
     // Check if the current URL matches any configured protected route
     const currentRoutes = getStoredDynamicRoutes();
     const matchesConfiguredRoute = currentRoutes.some(route => {
@@ -209,7 +213,7 @@ export default function App() {
     });
 
     const isRoot = currentPath === '/' || currentPath === '';
-    if (matchesConfiguredRoute || sessionAuth === 'true' || isRoot) {
+    if (matchesConfiguredRoute || sessionAuth === 'true' || isRoot || hasSso) {
       return true;
     }
     return false;
@@ -303,6 +307,39 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useState<SystemUser | null>(() => {
     if (typeof window === 'undefined') return null;
+
+    // 1. Detectar inicio de sesión automático vía SSO desde Servidor Central (?sso=...)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ssoParam = params.get('sso') || params.get('authSession') || params.get('authUser');
+      if (ssoParam) {
+        try {
+          const rawStr = decodeURIComponent(escape(atob(ssoParam)));
+          const decoded = JSON.parse(rawStr);
+          if (decoded && decoded.user && typeof decoded.user === 'object') {
+            const u: SystemUser = decoded.user;
+            const serialized = JSON.stringify(u);
+            localStorage.setItem('pk_current_user', serialized);
+            sessionStorage.setItem('pk_current_user', serialized);
+            localStorage.setItem('wolfzone_authorized_path', 'true');
+            sessionStorage.setItem('wolfzone_authorized_path', 'true');
+            console.log('🐺 [SSO Auto-Login] Sesión iniciada automáticamente desde Central para:', u.name, `(${u.role})`);
+            
+            // Limpiar parámetro de URL silenciosamente sin recargar la página
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('sso');
+            cleanUrl.searchParams.delete('authSession');
+            cleanUrl.searchParams.delete('authUser');
+            window.history.replaceState({}, '', cleanUrl.toString());
+
+            return u;
+          }
+        } catch (e) {
+          console.warn('[SSO Auth Error]', e);
+        }
+      }
+    } catch (e) {}
+
     const savedUser = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
     if (savedUser) {
       try {
@@ -985,7 +1022,7 @@ export default function App() {
   useEffect(() => {
     if (typeof window === 'undefined' || !Array.isArray(branches) || branches.length === 0) return;
 
-    // A. Detectar por parámetro URL (?branchId=...)
+    // A. Detectar por parámetro URL (?branchId=... o ?branch=... o ?sede=...)
     try {
       const params = new URLSearchParams(window.location.search);
       const urlBranch = params.get('branchId') || params.get('branch') || params.get('sede');
@@ -994,11 +1031,13 @@ export default function App() {
           b.id === urlBranch || 
           (b.code && b.code.toUpperCase() === urlBranch.toUpperCase())
         );
-        if (matched && matched.id !== currentBranchId) {
-          console.log('[BranchRouter] Sede asignada por parámetro URL (?branchId):', matched.code, matched.name);
-          setCurrentBranchId(matched.id);
-          localStorage.setItem('pk_current_branch_id', matched.id);
-          return;
+        if (matched) {
+          if (matched.id !== currentBranchId) {
+            console.log('[BranchRouter] Sede fijada por parámetro URL (?branchId):', matched.code, matched.name);
+            setCurrentBranchId(matched.id);
+            localStorage.setItem('pk_current_branch_id', matched.id);
+          }
+          return; // SI HAY PARÁMETRO EN LA URL, ES ABSOLUTAMENTE PRIORITARIO Y FINAL
         }
       }
     } catch (e) {}
@@ -1006,85 +1045,87 @@ export default function App() {
     // B. Detectar por dirección IP / Hostname de acceso en el navegador (ej: 192.168.14.227)
     try {
       const host = window.location.hostname;
+      // 1. IP privada local de Desarrollo y Pruebas
       if (host === '192.168.14.227' || host.includes('14.227')) {
         const devBranch = branches.find(b => b.id === 'branch_1793114761863');
-        if (devBranch && devBranch.id !== currentBranchId) {
-          console.log('[BranchRouter] Sede asignada por IP LAN 192.168.14.227:', devBranch.code, devBranch.name);
-          setCurrentBranchId(devBranch.id);
-          localStorage.setItem('pk_current_branch_id', devBranch.id);
-          return;
+        if (devBranch) {
+          if (devBranch.id !== currentBranchId) {
+            console.log('[BranchRouter] Sede asignada por IP LAN 192.168.14.227:', devBranch.code, devBranch.name);
+            setCurrentBranchId(devBranch.id);
+            localStorage.setItem('pk_current_branch_id', devBranch.id);
+          }
+          return; // NUNCA CONTINUAR SI COINCIDE CON LA IP DE DESARROLLO Y PRUEBAS
         }
       }
 
-      if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
-        const matchedByHost = branches.find(b => 
-          b.localIp === host ||
-          b.ipAddress === host ||
-          b.publicIp === host ||
-          b.reportedPublicIp === host ||
-          b.domain === host ||
-          b.ddnsDomain === host
-        );
-        if (matchedByHost && matchedByHost.id !== currentBranchId) {
-          console.log('[BranchRouter] Sede asignada por Hostname/IP de acceso:', host, '->', matchedByHost.code, matchedByHost.name);
-          setCurrentBranchId(matchedByHost.id);
-          localStorage.setItem('pk_current_branch_id', matchedByHost.id);
-          return;
+      // Si es localhost o 127.0.0.1, no cambiar por IP genérica
+      if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+        return;
+      }
+
+      // 2. Solo coincidir por IP local específica de una sucursal (para no saltar con IPs públicas compartidas)
+      const matchedByLocal = branches.find(b => b.localIp === host);
+      if (matchedByLocal) {
+        if (matchedByLocal.id !== currentBranchId) {
+          console.log('[BranchRouter] Sede asignada por IP LAN interna:', host, '->', matchedByLocal.code, matchedByLocal.name);
+          setCurrentBranchId(matchedByLocal.id);
+          localStorage.setItem('pk_current_branch_id', matchedByLocal.id);
         }
+        return;
       }
     } catch (e) {}
+  }, [branches, currentBranchId]);
 
-    // C. Detectar por backend local (/api/system/node-identity o /api/sync/server-config)
+  // Consulta única de identidad del nodo local al montar la aplicación
+  useEffect(() => {
+    // Si la URL ya trae parámetro de branchId, no consultar node-identity
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('branchId') || params.get('branch') || params.get('sede')) {
+        return;
+      }
+    }
+
     fetch('/api/system/node-identity')
       .then(res => res.json())
       .then(node => {
         if (node && node.success && node.branchId) {
-          const matched = branches.find(b => b.id === node.branchId || (node.branchCode && b.code === node.branchCode));
-          if (matched && matched.id !== currentBranchId) {
-            console.log('[BranchRouter] Sede asignada por node-identity:', matched.code, matched.name);
-            setCurrentBranchId(matched.id);
-            localStorage.setItem('pk_current_branch_id', matched.id);
-          }
+          setCurrentBranchId(prev => {
+            if (prev !== node.branchId) {
+              console.log('[NodeIdentity Startup] Asignando sede del nodo local:', node.branchName, node.branchCode);
+              localStorage.setItem('pk_current_branch_id', node.branchId);
+              return node.branchId;
+            }
+            return prev;
+          });
         }
       })
-      .catch(() => {
-        getServerDataConfig().then(cfg => {
-          if (cfg && cfg.branchId) {
-            const matchedCfg = branches.find(b => b.id === cfg.branchId || (cfg.branchCode && b.code === cfg.branchCode));
-            if (matchedCfg && matchedCfg.id !== currentBranchId) {
-              console.log('[BranchRouter] Sede asignada por configuración local de servidor:', matchedCfg.code, matchedCfg.name);
-              setCurrentBranchId(matchedCfg.id);
-              localStorage.setItem('pk_current_branch_id', matchedCfg.id);
-            }
-          }
-        }).catch(() => {});
-      });
-  }, [branches, currentBranchId]);
+      .catch(() => {});
+  }, []);
 
   const currentBranch = useMemo(() => {
-    // 1. Por ID directo si coincide en branches
-    const byId = branches.find(b => b.id === currentBranchId);
-    if (byId) return byId;
-
-    // 2. Si estamos en 192.168.14.227 (IP de Desarrollo y Pruebas)
+    // 1. Prioridad absoluta: URL
     if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlId = params.get('branchId') || params.get('branch') || params.get('sede');
+      if (urlId) {
+        const byUrl = branches.find(b => b.id === urlId || (b.code && b.code.toUpperCase() === urlId.toUpperCase()));
+        if (byUrl) return byUrl;
+      }
+
+      // 2. Prioridad de Hostname local de pruebas
       const host = window.location.hostname;
       if (host === '192.168.14.227' || host.includes('14.227')) {
         const devBranch = branches.find(b => b.id === 'branch_1793114761863');
         if (devBranch) return devBranch;
       }
-      const byHost = branches.find(b => 
-        b.localIp === host ||
-        b.ipAddress === host ||
-        b.publicIp === host ||
-        b.reportedPublicIp === host ||
-        b.domain === host ||
-        b.ddnsDomain === host
-      );
-      if (byHost) return byHost;
     }
 
-    // 3. Fallback inteligente: sede de desarrollo y pruebas si existe
+    // 3. Por ID directo si coincide en branches
+    const byId = branches.find(b => b.id === currentBranchId);
+    if (byId) return byId;
+
+    // 4. Fallback a Desarrollo y Pruebas
     const devFallback = branches.find(b => b.id === 'branch_1793114761863');
     if (devFallback) return devFallback;
 
@@ -1638,9 +1679,12 @@ export default function App() {
               };
             });
           if (validBranches.length > 0) {
-            const withMain = validBranches.some(b => b.id === 'suc-001') ? validBranches : [...INITIAL_BRANCHES, ...validBranches];
-            const finalBranches = ensureUniqueBranchFarmadeskCredentials(withMain);
-            if (JSON.stringify(finalBranches) !== JSON.stringify(branches)) {
+            const existingIds = new Set(validBranches.map(b => b.id));
+            const missingInitial = INITIAL_BRANCHES.filter(ib => !existingIds.has(ib.id) && !deletedSet.has(ib.id));
+            const merged = [...validBranches, ...missingInitial];
+            const finalBranches = ensureUniqueBranchFarmadeskCredentials(merged);
+            const sanitizeForCompare = (arr: BranchLocation[]) => arr.map(b => `${b.id}-${b.code}-${b.name}-${b.publicIp}-${b.localIp}-${b.port}-${b.status}`);
+            if (JSON.stringify(sanitizeForCompare(finalBranches)) !== JSON.stringify(sanitizeForCompare(branches))) {
               setBranches(finalBranches);
               localStorage.setItem('pk_branches', JSON.stringify(finalBranches));
             }

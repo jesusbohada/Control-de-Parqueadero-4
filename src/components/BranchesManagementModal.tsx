@@ -191,10 +191,35 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   // Manejo de conexión remota
   const handleConnect = (branch: BranchLocation, mode: 'system' | 'system_lan' | 'system_wan' | 'desktop') => {
     playSound('beep');
+
+    // Preparar token de sesión SSO desde el usuario logueado en Central para auto-login
+    let activeUser = currentUser;
+    if (!activeUser && typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
+        if (saved) activeUser = JSON.parse(saved);
+      } catch (e) {}
+    }
+
+    let ssoParam = '';
+    if (activeUser) {
+      try {
+        const payload = JSON.stringify({
+          user: activeUser,
+          fromCentral: true,
+          timestamp: Date.now()
+        });
+        const encoded = btoa(unescape(encodeURIComponent(payload)));
+        ssoParam = `&sso=${encodeURIComponent(encoded)}`;
+      } catch (e) {
+        console.warn('Error serializando token SSO:', e);
+      }
+    }
+
     if (mode === 'system_lan') {
       const lanHost = branch.localIp || (branch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100');
       const lanPort = 3000;
-      const targetUrl = `http://${lanHost}:${lanPort}/wolfzonepos?branchId=${branch.id}`;
+      const targetUrl = `http://${lanHost}:${lanPort}/wolfzonepos?branchId=${branch.id}${ssoParam}`;
       try {
         window.open(targetUrl, '_blank');
       } catch (err) {
@@ -203,7 +228,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
     } else if (mode === 'system_wan') {
       const wanHost = branch.domain || branch.ddnsDomain || branch.publicIp || branch.reportedPublicIp || '152.200.144.62';
       const wanPort = branch.port && branch.port !== 3000 ? branch.port : 3001;
-      const targetUrl = `http://${wanHost}:${wanPort}/wolfzonepos?branchId=${branch.id}`;
+      const targetUrl = `http://${wanHost}:${wanPort}/wolfzonepos?branchId=${branch.id}${ssoParam}`;
       try {
         window.open(targetUrl, '_blank');
       } catch (err) {
@@ -211,7 +236,9 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
       }
     } else if (mode === 'system') {
       const port = branch.port || 3000;
-      const targetUrl = branch.systemUrl || `http://${branch.ipAddress || branch.publicIp || 'localhost'}:${port}/wolfzonepos?branchId=${branch.id}`;
+      const targetUrl = branch.systemUrl 
+        ? `${branch.systemUrl}${branch.systemUrl.includes('?') ? '&' : '?'}${ssoParam.replace(/^&/, '')}`
+        : `http://${branch.ipAddress || branch.publicIp || 'localhost'}:${port}/wolfzonepos?branchId=${branch.id}${ssoParam}`;
       try {
         window.open(targetUrl, '_blank');
       } catch (err) {
