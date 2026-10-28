@@ -169,7 +169,7 @@ export const DEFAULT_BUSINESS_INFO: ParkingBusinessInfo = {
   cutPaperOnPrint: true,
   soundAlerts: true,
   enableCommercialAgreements: false,
-  logoUrl: '/assets/wolfzone_logo_farmanorte.jpg',
+  logoUrl: '/assets/wolfzone_ticket_logo.png',
   emissionDate: '26 de septiembre de 2026',
   fechaEmision: '26 de septiembre de 2026',
   // Facturación Electrónica DIAN

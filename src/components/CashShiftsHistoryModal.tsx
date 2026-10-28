@@ -1573,11 +1573,17 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     {/* Header Card */}
                     <div className="header-card">
                       {businessInfo?.logoUrl && (
-                        <img 
-                          src={businessInfo.logoUrl} 
-                          alt="Logo" 
-                          className="max-h-12 max-w-[150px] mx-auto mb-1.5 object-contain"
-                        />
+                        <div className="w-12 h-12 mx-auto rounded-full overflow-hidden bg-white border border-slate-300 p-0.5 shadow-2xs flex items-center justify-center mb-1.5">
+                          <img 
+                            src={
+                              businessInfo.logoUrl.includes('wolfzone_logo_farmanorte')
+                                ? '/assets/wolfzone_ticket_logo.png'
+                                : businessInfo.logoUrl
+                            } 
+                            alt="Logo" 
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        </div>
                       )}
                       <div className="font-extrabold text-sm uppercase tracking-wide">{businessInfo?.name || 'SISTEMA DE PARQUEADERO'}</div>
                       <div className="text-[10px] text-slate-700">NIT: {businessInfo?.nit || 'N/A'}</div>
@@ -1801,11 +1807,17 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     {/* Header Card */}
                     <div className="header-card">
                       {businessInfo?.logoUrl && (
-                        <img 
-                          src={businessInfo.logoUrl} 
-                          alt="Logo" 
-                          className="max-h-12 max-w-[150px] mx-auto mb-1.5 object-contain"
-                        />
+                        <div className="w-12 h-12 mx-auto rounded-full overflow-hidden bg-white border border-slate-300 p-0.5 shadow-2xs flex items-center justify-center mb-1.5">
+                          <img 
+                            src={
+                              businessInfo.logoUrl.includes('wolfzone_logo_farmanorte')
+                                ? '/assets/wolfzone_ticket_logo.png'
+                                : businessInfo.logoUrl
+                            } 
+                            alt="Logo" 
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        </div>
                       )}
                       <div className="font-extrabold text-sm uppercase tracking-wide">{businessInfo?.name || 'SISTEMA DE PARQUEADERO'}</div>
                       <div className="text-[10px] text-slate-700">NIT: {businessInfo?.nit || 'N/A'}</div>

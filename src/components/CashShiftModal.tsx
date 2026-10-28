@@ -2824,12 +2824,18 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     {/* Header */}
                     <div className="text-center pb-2 border-b border-dashed border-slate-400 space-y-0.5">
                       {businessInfo.logoUrl && (
-                        <img 
-                          src={businessInfo.logoUrl} 
-                          alt="Logo" 
-                          className="max-h-10 mx-auto object-contain mb-1" 
-                          referrerPolicy="no-referrer"
-                        />
+                        <div className="w-12 h-12 mx-auto rounded-full overflow-hidden bg-white border border-slate-300 p-0.5 shadow-2xs flex items-center justify-center mb-1">
+                          <img 
+                            src={
+                              businessInfo.logoUrl.includes('wolfzone_logo_farmanorte')
+                                ? '/assets/wolfzone_ticket_logo.png'
+                                : businessInfo.logoUrl
+                            } 
+                            alt="Logo" 
+                            className="w-full h-full object-cover rounded-full" 
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
                       )}
                       <h2 className="font-black text-sm uppercase text-slate-950">{businessInfo.name}</h2>
                       <p className="text-[10px] text-slate-700">NIT: {businessInfo.nit}</p>

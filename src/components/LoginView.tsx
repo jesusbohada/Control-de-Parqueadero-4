@@ -352,7 +352,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <div className="absolute inset-0 bg-cyan-400/30 blur-md rounded-full" />
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-900 to-slate-950 border border-cyan-400/70 p-1 shadow-2xl relative z-10 flex items-center justify-center overflow-hidden">
               <img
-                src="/assets/wolfzone_logo_farmanorte.jpg"
+                src="/assets/wolfzone_ticket_logo.png"
                 alt="Logo Oficial Farmanorte Wolfzone"
                 className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-105"
               />

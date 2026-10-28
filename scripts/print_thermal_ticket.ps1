@@ -15,7 +15,10 @@ param(
     [switch]$OpenDrawer,
 
     [Parameter(Mandatory=$false)]
-    [int]$Threshold = 168
+    [int]$Threshold = 140,
+
+    [Parameter(Mandatory=$false)]
+    [switch]$NoDither
 )
 
 $ErrorActionPreference = "Stop"
@@ -98,7 +101,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
 public class ThermalDarkProcessor {
-    public static Bitmap ProcessImage(Bitmap src, int targetWidth, byte threshold) {
+    public static Bitmap ProcessImage(Bitmap src, int targetWidth, byte threshold, bool useDither = true) {
         double scale = (double)targetWidth / (double)src.Width;
         int targetHeight = (int)(src.Height * scale);
 
@@ -117,29 +120,77 @@ public class ThermalDarkProcessor {
             PixelFormat.Format32bppArgb
         );
 
-        int bytes = Math.Abs(data.Stride) * targetHeight;
+        int stride = Math.Abs(data.Stride);
+        int bytes = stride * targetHeight;
         byte[] rgb = new byte[bytes];
         Marshal.Copy(data.Scan0, rgb, 0, bytes);
 
         int lastBlackY = 0;
 
-        for (int y = 0; y < targetHeight; y++) {
-            int rowOffset = y * data.Stride;
-            for (int x = 0; x < targetWidth; x++) {
-                int i = rowOffset + (x * 4);
-                int lum = (rgb[i + 2] * 299 + rgb[i + 1] * 587 + rgb[i] * 114) / 1000;
+        if (useDither) {
+            float[] lum = new float[targetWidth * targetHeight];
+            for (int y = 0; y < targetHeight; y++) {
+                int rowOffset = y * stride;
+                int lumRowOffset = y * targetWidth;
+                for (int x = 0; x < targetWidth; x++) {
+                    int i = rowOffset + (x * 4);
+                    // Luminancia Rec. 601
+                    lum[lumRowOffset + x] = (rgb[i + 2] * 0.299f + rgb[i + 1] * 0.587f + rgb[i] * 0.114f);
+                }
+            }
 
-                if (lum < threshold) {
-                    rgb[i] = 0;
-                    rgb[i + 1] = 0;
-                    rgb[i + 2] = 0;
+            for (int y = 0; y < targetHeight; y++) {
+                int rowOffset = y * stride;
+                int lumRowOffset = y * targetWidth;
+                int nextLumRowOffset = (y + 1) * targetWidth;
+
+                for (int x = 0; x < targetWidth; x++) {
+                    float oldVal = lum[lumRowOffset + x];
+                    if (oldVal < 0f) oldVal = 0f;
+                    else if (oldVal > 255f) oldVal = 255f;
+
+                    float newVal = oldVal < (float)threshold ? 0f : 255f;
+                    float err = oldVal - newVal;
+
+                    // Tramado de error Floyd-Steinberg para imprimir logos e imagenes sin mancha negra
+                    if (x + 1 < targetWidth) {
+                        lum[lumRowOffset + x + 1] += err * (7f / 16f);
+                    }
+                    if (y + 1 < targetHeight) {
+                        if (x > 0) {
+                            lum[nextLumRowOffset + x - 1] += err * (3f / 16f);
+                        }
+                        lum[nextLumRowOffset + x] += err * (5f / 16f);
+                        if (x + 1 < targetWidth) {
+                            lum[nextLumRowOffset + x + 1] += err * (1f / 16f);
+                        }
+                    }
+
+                    byte b = (byte)newVal;
+                    int i = rowOffset + (x * 4);
+                    rgb[i] = b;
+                    rgb[i + 1] = b;
+                    rgb[i + 2] = b;
                     rgb[i + 3] = 255;
-                    if (y > lastBlackY) lastBlackY = y;
-                } else {
-                    rgb[i] = 255;
-                    rgb[i + 1] = 255;
-                    rgb[i + 2] = 255;
+                    if (b == 0 && y > lastBlackY) {
+                        lastBlackY = y;
+                    }
+                }
+            }
+        } else {
+            for (int y = 0; y < targetHeight; y++) {
+                int rowOffset = y * stride;
+                for (int x = 0; x < targetWidth; x++) {
+                    int i = rowOffset + (x * 4);
+                    int lum = (int)(rgb[i + 2] * 0.299 + rgb[i + 1] * 0.587 + rgb[i] * 0.114);
+                    byte b = (lum < threshold) ? (byte)0 : (byte)255;
+                    rgb[i] = b;
+                    rgb[i + 1] = b;
+                    rgb[i + 2] = b;
                     rgb[i + 3] = 255;
+                    if (b == 0 && y > lastBlackY) {
+                        lastBlackY = y;
+                    }
                 }
             }
         }
@@ -185,7 +236,7 @@ $targetDots = if ($is58) { 384 } else { 576 }
 
 $rawImg = [System.Drawing.Image]::FromFile($ImagePath)
 $bmpSrc = New-Object System.Drawing.Bitmap $rawImg
-$darkBmp = [ThermalDarkProcessor]::ProcessImage($bmpSrc, $targetDots, [byte]$Threshold)
+$darkBmp = [ThermalDarkProcessor]::ProcessImage($bmpSrc, $targetDots, [byte]$Threshold, (-not $NoDither))
 $bmpSrc.Dispose()
 $rawImg.Dispose()
 

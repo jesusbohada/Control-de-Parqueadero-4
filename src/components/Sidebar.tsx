@@ -364,7 +364,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-indigo-600/20 text-white flex items-center justify-center font-black text-sm shrink-0 border border-slate-200 dark:border-slate-700 bg-slate-900">
             <img 
-              src={businessInfo.logoUrl || "/assets/wolfzone_logo_farmanorte.jpg"} 
+              src={businessInfo.logoUrl || "/assets/wolfzone_ticket_logo.png"} 
               alt="Logo Farmanorte" 
               className="w-full h-full object-cover" 
             />

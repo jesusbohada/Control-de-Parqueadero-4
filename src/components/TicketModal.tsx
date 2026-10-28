@@ -179,14 +179,20 @@ export const TicketModal: React.FC<TicketModalProps> = ({
               paperWidth === '58mm' ? 'max-w-[245px] text-[10px] p-3.5 paper-58mm' : 'max-w-[320px] text-xs p-5 paper-80mm'
             } bg-white border border-dashed border-slate-300 shadow-xs font-mono text-slate-950 leading-relaxed rounded-md transition-all force-light`}
           >
-            {/* Logo if configured or default WolfZone branding */}
-            <div className="text-center pb-2">
-              <img 
-                src={businessInfo.logoUrl || '/logo_compacto.png'} 
-                alt="Logo del Establecimiento" 
-                className="max-h-12 mx-auto object-contain"
-                referrerPolicy="no-referrer" 
-              />
+            {/* Logo if configured or default WolfZone branding - Emblema circular limpio sin bordes oscuros */}
+            <div className="text-center pb-2 flex justify-center">
+              <div className="w-14 h-14 rounded-full overflow-hidden bg-white border border-slate-200 shadow-2xs flex items-center justify-center p-0.5">
+                <img 
+                  src={
+                    businessInfo.logoUrl && !businessInfo.logoUrl.includes('wolfzone_logo_farmanorte')
+                      ? businessInfo.logoUrl 
+                      : '/assets/wolfzone_ticket_logo.png'
+                  } 
+                  alt="Logo del Establecimiento" 
+                  className="w-full h-full object-cover rounded-full"
+                  referrerPolicy="no-referrer" 
+                />
+              </div>
             </div>
 
             {/* Header / Business Info */}

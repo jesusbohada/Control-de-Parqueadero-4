@@ -260,8 +260,8 @@ export const RatesSettingsModal: React.FC<RatesSettingsModalProps> = ({
 
   // Logo preset icons/images
   const logoPresets = [
-    { label: 'Farmanorte (Oficial)', url: '/assets/wolfzone_logo_farmanorte.jpg' },
-    { label: 'WolfZone Vigilante', url: '/assets/wolfzone_logo_mascot.jpg' },
+    { label: 'WolfZone Ticket (Optimizado)', url: '/assets/wolfzone_ticket_logo.png' },
+    { label: 'Farmanorte (Oficial)', url: '/assets/wolfzone_ticket_logo.png' },
     { label: 'Logo Compacto', url: '/logo_compacto.png' },
   ];
 

@@ -20,6 +20,25 @@ function getLogoBase64(businessInfo?: Partial<ParkingBusinessInfo>): string {
     if (businessInfo?.logoUrl && businessInfo.logoUrl.startsWith('data:image')) {
       return businessInfo.logoUrl;
     }
+    // Si viene una ruta relativa en public
+    if (businessInfo?.logoUrl && !businessInfo.logoUrl.startsWith('http')) {
+      let relativePath = businessInfo.logoUrl.replace(/^\//, '');
+      if (relativePath.includes('wolfzone_logo_farmanorte')) {
+        relativePath = path.join('assets', 'wolfzone_ticket_logo.png');
+      }
+      const fullPath = path.join(process.cwd(), 'public', relativePath);
+      if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+        const ext = path.extname(fullPath).replace('.', '') || 'png';
+        const data = fs.readFileSync(fullPath).toString('base64');
+        return `data:image/${ext};base64,${data}`;
+      }
+    }
+    // Logo optimizado para tickets trmicos
+    const ticketLogo = path.join(process.cwd(), 'public', 'assets', 'wolfzone_ticket_logo.png');
+    if (fs.existsSync(ticketLogo)) {
+      const data = fs.readFileSync(ticketLogo).toString('base64');
+      return `data:image/png;base64,${data}`;
+    }
     const localLogo = path.join(process.cwd(), 'public', 'logo_compacto.png');
     if (fs.existsSync(localLogo)) {
       const data = fs.readFileSync(localLogo).toString('base64');
@@ -147,7 +166,16 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
     .uppercase { text-transform: uppercase; }
     .font-mono { font-family: 'Consolas', 'Courier New', monospace; font-weight: 700; }
     
-    .header-logo { max-height: ${is58 ? '38px' : '46px'}; max-width: 150px; margin: 0 auto 3px; display: block; object-fit: contain; }
+    .header-logo { 
+      max-height: ${is58 ? '44px' : '52px'}; 
+      max-width: ${is58 ? '44px' : '52px'}; 
+      margin: 0 auto 4px auto; 
+      display: block; 
+      object-fit: cover; 
+      border-radius: 50%; 
+      background: #ffffff; 
+      border: 1px solid #e2e8f0; 
+    }
     .header-name { font-size: ${is58 ? '12px' : '14px'}; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; color: #000000; }
     .header-sub { font-size: ${is58 ? '9px' : '10.5px'}; font-weight: 500; color: #000000; }
     

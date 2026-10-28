@@ -3622,7 +3622,7 @@ async function startServer() {
       } = req.body || {};
 
       const targetPrinter = await resolveActiveThermalPrinter(printerName);
-      const targetThreshold = Number(req.body?.threshold) || 168;
+      const targetThreshold = Number(req.body?.threshold) || 140;
       const psScript = path.join(currentDir, 'scripts', 'print_thermal_ticket.ps1');
 
       // 1. Si viene imagen Base64 explícita sin datos de ticket/reporte estructurado
