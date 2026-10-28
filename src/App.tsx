@@ -118,6 +118,7 @@ import { ExpenseConceptsModal } from './components/ExpenseConceptsModal';
 import { CommercialAgreementsModal } from './components/CommercialAgreementsModal';
 import { CashShiftsHistoryModal } from './components/CashShiftsHistoryModal';
 import { SpotsManagementModal } from './components/SpotsManagementModal';
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { SubscribersModal } from './components/SubscribersModal';
 import { CentralHubModal } from './components/CentralHubModal';
 import { BranchSyncModal } from './components/BranchSyncModal';
@@ -4921,83 +4922,88 @@ export default function App() {
 
         {/* SERVIDOR CENTRAL & RED */}
         {activeView === 'branches' && (
-          <BranchesManagementModal
-            embedded={true}
-            isOpen={true}
-            onClose={() => setActiveView('operations')}
-            branches={branches}
-            warehouses={warehouses}
-            posPoints={posPoints}
-            remoteOrders={remoteOrders}
-            onSaveBranch={handleSaveBranch}
-            onDeleteBranch={handleDeleteBranch}
-            onSaveWarehouse={handleSaveWarehouse}
-            onDeleteWarehouse={handleDeleteWarehouse}
-            onSavePosPoint={handleSavePosPoint}
-            onDeletePosPoint={handleDeletePosPoint}
-            onExecuteRemoteOrder={handleExecuteRemoteOrder}
-            onConnectRemoteBranch={handleConnectRemoteBranch}
-            currentUser={currentUser}
-            onOpenSync={() => handleSwitchView('branch_sync', 'central')}
-            onOpenWorkMode={() => handleSwitchView('work_mode', 'central')}
-            onOpenUpdater={() => handleSwitchView('software_updater', 'updates')}
-            onOpenCentralHub={(tab) => {
-              if (tab) setCentralHubInitialTab(tab as any);
-              handleSwitchView('central_hub', 'central');
-            }}
-            onRefreshBranches={async () => {
-              try {
-                const refreshed = await fetchBranchesTelemetry();
-                if (refreshed && refreshed.length > 0) {
-                  let deletedSet = new Set<string>();
-                  try {
-                    const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
-                    if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
-                  } catch (e) {}
-                  setBranches(prev => {
-                    const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
-                    const updated = prev.map(p => {
-                      const t = telemetryMap.get(p.id) || refreshed.find(r => r.code && p.code && r.code.toUpperCase() === p.code.toUpperCase());
-                      if (!t) return p;
-                      return {
-                        ...p,
-                        publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
-                        reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
-                        ipAddress: t.domain || t.ddnsDomain || t.reportedPublicIp || t.publicIp || p.ipAddress,
-                        domain: t.domain || t.ddnsDomain || p.domain,
-                        ddnsDomain: t.ddnsDomain || t.domain || p.ddnsDomain,
-                        status: t.status || p.status,
-                        latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs
-                      };
-                    });
-                    // Also include any branches from telemetry that are not yet in prev
-                    const prevIds = new Set(prev.map(p => p.id));
-                    for (const r of refreshed) {
-                      if (r && r.id && r.id !== 'SERVER-CENTRAL' && !prevIds.has(r.id) && !deletedSet.has(r.id)) {
-                        updated.push({
-                          ...r,
-                          code: r.code || r.id.toUpperCase(),
-                          name: r.name || `Sucursal ${r.id}`,
-                          city: r.city || 'Principal',
-                          address: r.address || 'Dirección Principal',
-                          status: r.status || 'online',
-                          totalSpots: typeof r.totalSpots === 'number' ? r.totalSpots : 30,
-                          occupiedSpots: typeof r.occupiedSpots === 'number' ? r.occupiedSpots : 0,
-                          todayRevenue: typeof r.todayRevenue === 'number' ? r.todayRevenue : 0,
-                          todayVehicles: typeof r.todayVehicles === 'number' ? r.todayVehicles : 0
-                        });
+          <GlobalErrorBoundary 
+            fallbackTitle="Error al cargar el módulo de Sedes y Sucursales" 
+            onReset={() => handleSwitchView('operations')}
+          >
+            <BranchesManagementModal
+              embedded={true}
+              isOpen={true}
+              onClose={() => setActiveView('operations')}
+              branches={branches}
+              warehouses={warehouses}
+              posPoints={posPoints}
+              remoteOrders={remoteOrders}
+              onSaveBranch={handleSaveBranch}
+              onDeleteBranch={handleDeleteBranch}
+              onSaveWarehouse={handleSaveWarehouse}
+              onDeleteWarehouse={handleDeleteWarehouse}
+              onSavePosPoint={handleSavePosPoint}
+              onDeletePosPoint={handleDeletePosPoint}
+              onExecuteRemoteOrder={handleExecuteRemoteOrder}
+              onConnectRemoteBranch={handleConnectRemoteBranch}
+              currentUser={currentUser}
+              onOpenSync={() => handleSwitchView('branch_sync', 'central')}
+              onOpenWorkMode={() => handleSwitchView('work_mode', 'central')}
+              onOpenUpdater={() => handleSwitchView('software_updater', 'updates')}
+              onOpenCentralHub={(tab) => {
+                if (tab) setCentralHubInitialTab(tab as any);
+                handleSwitchView('central_hub', 'central');
+              }}
+              onRefreshBranches={async () => {
+                try {
+                  const refreshed = await fetchBranchesTelemetry();
+                  if (refreshed && refreshed.length > 0) {
+                    let deletedSet = new Set<string>();
+                    try {
+                      const savedDeleted = localStorage.getItem('pk_deleted_branch_ids');
+                      if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
+                    } catch (e) {}
+                    setBranches(prev => {
+                      const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
+                      const updated = prev.map(p => {
+                        const t = telemetryMap.get(p.id) || refreshed.find(r => r.code && p.code && r.code.toUpperCase() === p.code.toUpperCase());
+                        if (!t) return p;
+                        return {
+                          ...p,
+                          publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
+                          reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
+                          ipAddress: t.domain || t.ddnsDomain || t.reportedPublicIp || t.publicIp || p.ipAddress,
+                          domain: t.domain || t.ddnsDomain || p.domain,
+                          ddnsDomain: t.ddnsDomain || t.domain || p.ddnsDomain,
+                          status: t.status || p.status,
+                          latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs
+                        };
+                      });
+                      // Also include any branches from telemetry that are not yet in prev
+                      const prevIds = new Set(prev.map(p => p.id));
+                      for (const r of refreshed) {
+                        if (r && r.id && r.id !== 'SERVER-CENTRAL' && !prevIds.has(r.id) && !deletedSet.has(r.id)) {
+                          updated.push({
+                            ...r,
+                            code: r.code || r.id.toUpperCase(),
+                            name: r.name || `Sucursal ${r.id}`,
+                            city: r.city || 'Principal',
+                            address: r.address || 'Dirección Principal',
+                            status: r.status || 'online',
+                            totalSpots: typeof r.totalSpots === 'number' ? r.totalSpots : 30,
+                            occupiedSpots: typeof r.occupiedSpots === 'number' ? r.occupiedSpots : 0,
+                            todayRevenue: typeof r.todayRevenue === 'number' ? r.todayRevenue : 0,
+                            todayVehicles: typeof r.todayVehicles === 'number' ? r.todayVehicles : 0
+                          });
+                        }
                       }
-                    }
-                    return updated.filter(b => b && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id));
-                  });
+                      return updated.filter(b => b && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id));
+                    });
+                  }
+                } catch (err) {
+                  console.warn('[App] Error en onRefreshBranches:', err);
                 }
-              } catch (err) {
-                console.warn('[App] Error en onRefreshBranches:', err);
-              }
-            }}
-            pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
-            softwareUpdateAvailable={hasSoftwareUpdateAvailable}
-          />
+              }}
+              pendingCentralUpdatesCount={pendingUpdatesForBranchCount}
+              softwareUpdateAvailable={hasSoftwareUpdateAvailable}
+            />
+          </GlobalErrorBoundary>
         )}
 
         {activeView === 'central_hub' && (
