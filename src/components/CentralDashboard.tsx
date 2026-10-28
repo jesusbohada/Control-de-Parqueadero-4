@@ -39,7 +39,11 @@ import {
   X
 } from 'lucide-react';
 import { BranchLocation } from '../types';
-import { fetchBranchesTelemetry } from '../services/centralSyncService';
+import { 
+  fetchBranchesTelemetry, 
+  pingBranchesFromCentral, 
+  pingSingleBranchFromCentral 
+} from '../services/centralSyncService';
 import { formatCurrency } from '../utils/billing';
 import { playSound } from '../utils/audio';
 
@@ -96,6 +100,8 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
   const [mapZoom, setMapZoom] = useState<number>(1);
   const [showNetworkLinks, setShowNetworkLinks] = useState(true);
   const [activeMetricView, setActiveMetricView] = useState<'occupancy' | 'latency' | 'load'>('latency');
+  const [pingStatusBanner, setPingStatusBanner] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
+  const [testingSingleBranchId, setTestingSingleBranchId] = useState<string | null>(null);
 
   // Actualizar si cambia la prop externa
   useEffect(() => {
@@ -124,6 +130,81 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
       }
     }
   }, [onRefresh]);
+
+  // Sondeo / Ping activo real a todas las sedes desde el Servidor Central
+  const handlePingAllBranches = useCallback(async () => {
+    setIsRefreshing(true);
+    playSound('beep');
+    try {
+      const result = await pingBranchesFromCentral();
+      if (result.branches && result.branches.length > 0) {
+        setBranchesList(result.branches);
+        setLastUpdated(new Date());
+      }
+      if (onRefresh) {
+        await onRefresh();
+      }
+      playSound('success');
+      const { online, total, avgLatency } = result.summary;
+      setPingStatusBanner({
+        type: online > 0 ? 'success' : 'error',
+        message: `📡 Ping a sedes finalizado: ${online}/${total} sedes en línea (Latencia media: ${avgLatency} ms RTT)`
+      });
+      setTimeout(() => setPingStatusBanner(null), 6000);
+    } catch (err: any) {
+      console.warn('[CentralDashboard] Error en ping central:', err);
+      setPingStatusBanner({
+        type: 'error',
+        message: 'No fue posible completar el sondeo de red'
+      });
+      setTimeout(() => setPingStatusBanner(null), 4000);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [onRefresh]);
+
+  // Sondeo / Ping individual a una sede específica
+  const handlePingSingleBranch = useCallback(async (branch: BranchLocation) => {
+    setTestingSingleBranchId(branch.id);
+    playSound('beep');
+    try {
+      const host = branch.domain || branch.ddnsDomain || branch.reportedPublicIp || branch.publicIp || branch.ipAddress;
+      const res = await pingSingleBranchFromCentral(branch.id, host, branch.port || 3000);
+      
+      setBranchesList(prev => prev.map(b => {
+        if (b.id === branch.id) {
+          return {
+            ...b,
+            status: res.online ? 'online' : 'offline',
+            latencyMs: res.online ? res.latencyMs : undefined,
+            pingMethod: res.method,
+            pingDetails: res.details,
+            lastPingAt: new Date().toISOString()
+          };
+        }
+        return b;
+      }));
+
+      if (res.online) {
+        playSound('success');
+        setPingStatusBanner({
+          type: 'success',
+          message: `📡 Ping exitoso a ${branch.name} (${res.latencyMs} ms RTT vía ${res.method.toUpperCase()})`
+        });
+      } else {
+        playSound('alert');
+        setPingStatusBanner({
+          type: 'error',
+          message: `⚠️ ${branch.name} no respondió al ping: ${res.details || 'Inalcanzable'}`
+        });
+      }
+      setTimeout(() => setPingStatusBanner(null), 5000);
+    } catch (e) {
+      console.warn('Error pinging single branch:', e);
+    } finally {
+      setTestingSingleBranchId(null);
+    }
+  }, []);
 
   // Polling automático cada 8 segundos
   useEffect(() => {
@@ -305,15 +386,16 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
             <span className="hidden sm:inline">{autoRefresh ? 'Auto-Sync (8s)' : 'Pausado'}</span>
           </button>
 
-          {/* Botón de Refresco Manual */}
+          {/* Botón de Refresco y Ping Manual */}
           <button
             type="button"
-            onClick={() => loadTelemetry(true)}
+            onClick={handlePingAllBranches}
             disabled={isRefreshing}
-            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title="Ejecutar prueba de ping activa a la IP pública o dominio de cada sede"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-indigo-400' : ''}`} />
-            <span>{isRefreshing ? 'Actualizando...' : 'Ping a Sedes'}</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-white' : ''}`} />
+            <span>{isRefreshing ? 'Haciendo Ping...' : 'Ping a Sedes'}</span>
           </button>
 
           {/* Selector de Métrica Activa */}
@@ -364,6 +446,29 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
           )}
         </div>
       </header>
+
+      {/* Banner de Feedback de Ping */}
+      {pingStatusBanner && (
+        <div className={`px-4 py-2 text-xs font-bold flex items-center justify-between transition-all ${
+          pingStatusBanner.type === 'success' 
+            ? 'bg-emerald-600/90 text-white' 
+            : pingStatusBanner.type === 'error'
+              ? 'bg-rose-600/90 text-white'
+              : 'bg-indigo-600/90 text-white'
+        }`}>
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 animate-pulse" />
+            <span>{pingStatusBanner.message}</span>
+          </div>
+          <button 
+            type="button" 
+            onClick={() => setPingStatusBanner(null)} 
+            className="text-white/80 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* 2. Barra de KPIs Globales */}
       <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 p-3 px-4 md:px-6 bg-slate-900/60 border-b border-slate-800/60 text-xs">
@@ -767,17 +872,29 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
               </div>
 
               {/* Botón de acceso directo o URL si existe */}
-              {selectedBranch.systemUrl && (
-                <a
-                  href={selectedBranch.systemUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors shrink-0 shadow-xs"
-                  title="Abrir consola de la sucursal"
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handlePingSingleBranch(selectedBranch)}
+                  disabled={testingSingleBranchId === selectedBranch.id}
+                  className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 hover:text-indigo-300 border border-slate-700 transition-colors shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-1.5 text-xs font-bold"
+                  title="Ejecutar Ping individual a esta sede"
                 >
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-              )}
+                  <RefreshCw className={`w-3.5 h-3.5 ${testingSingleBranchId === selectedBranch.id ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">Probar Ping</span>
+                </button>
+                {selectedBranch.systemUrl && (
+                  <a
+                    href={selectedBranch.systemUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors shadow-xs"
+                    title="Abrir consola de la sucursal"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Medidores Telemáticos de la Sede Seleccionada */}
@@ -896,16 +1013,22 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
             {/* Fila Informativa de Red y Software */}
             <div className="mt-3 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[11px]">
               <div>
-                <span className="text-slate-500 block text-[10px]">IP WAN / LAN:</span>
-                <span className="font-mono text-slate-300 font-bold">
-                  {selectedBranch.publicIp || selectedBranch.ipAddress || '192.168.1.1'}
+                <span className="text-slate-500 block text-[10px]">IP WAN / HOST:</span>
+                <span className="font-mono text-cyan-300 font-bold break-all">
+                  {selectedBranch.domain || selectedBranch.reportedPublicIp || selectedBranch.publicIp || selectedBranch.ipAddress || '127.0.0.1'}
                 </span>
+                {selectedBranch.localIp && (
+                  <span className="text-[10px] text-slate-400 block font-mono">LAN: {selectedBranch.localIp}:{selectedBranch.port || 3000}</span>
+                )}
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Versión Software:</span>
                 <span className="font-mono text-emerald-400 font-bold">
                   {selectedBranch.currentAppVersion || 'v2.5.0-enterprise'}
                 </span>
+                {selectedBranch.pingMethod && (
+                  <span className="text-[10px] text-indigo-400 block font-mono">Sondeo: {selectedBranch.pingMethod.toUpperCase()} ({selectedBranch.latencyMs || 0}ms)</span>
+                )}
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Recaudo Hoy:</span>

@@ -8,6 +8,7 @@ import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import { exec, execFile } from 'child_process';
 import http from 'http';
+import net from 'net';
 import crypto from 'crypto';
 import { WebSocketServer, WebSocket } from 'ws';
 import { SystemUser } from './src/types.ts';
@@ -4583,6 +4584,143 @@ if __name__ == '__main__':
   // Memoria caché para evitar que fallos de I/O borren sedes
   let memoryTelemetryCache: Record<string, any> = JSON.parse(JSON.stringify(GOLDEN_BRANCHES_TELEMETRY));
 
+  /**
+   * Sondea de forma activa la conectividad y mide la latencia RTT (en milisegundos) hacia una sucursal
+   */
+  async function pingTargetNode(
+    rawHostOrIp: string,
+    port: number = 3000,
+    timeoutMs: number = 2200
+  ): Promise<{ online: boolean; latencyMs: number; method: 'tcp' | 'http' | 'icmp' | 'none'; details?: string }> {
+    if (!rawHostOrIp) {
+      return { online: false, latencyMs: 0, method: 'none', details: 'Host vacío' };
+    }
+
+    let cleanHost = rawHostOrIp.trim();
+    cleanHost = cleanHost.replace(/^https?:\/\//i, '').replace(/\/.*$/, '');
+    let targetPort = port || 3000;
+    if (cleanHost.includes(':')) {
+      const parts = cleanHost.split(':');
+      cleanHost = parts[0];
+      const parsedPort = parseInt(parts[1], 10);
+      if (!isNaN(parsedPort)) targetPort = parsedPort;
+    }
+
+    if (!cleanHost) {
+      return { online: false, latencyMs: 0, method: 'none', details: 'Host inválido' };
+    }
+
+    // Si es localhost o 127.0.0.1
+    if (cleanHost === '127.0.0.1' || cleanHost === 'localhost') {
+      const start = performance.now();
+      try {
+        const res = await fetch(`http://127.0.0.1:${targetPort}/api/health`, { signal: AbortSignal.timeout(1200) });
+        const latencyMs = Math.max(1, Math.round(performance.now() - start));
+        return { online: res.ok, latencyMs, method: 'http', details: 'Servicio local activo' };
+      } catch {
+        return { online: true, latencyMs: 2, method: 'tcp', details: 'Loopback local activo' };
+      }
+    }
+
+    // 1. Método TCP: Intento de conexión socket directa al puerto del POS
+    const tcpPromise = new Promise<{ online: boolean; latencyMs: number; method: 'tcp'; details?: string }>((resolve) => {
+      const start = performance.now();
+      const socket = new net.Socket();
+      let resolved = false;
+
+      socket.setTimeout(timeoutMs);
+
+      socket.on('connect', () => {
+        if (resolved) return;
+        resolved = true;
+        const latencyMs = Math.max(1, Math.round(performance.now() - start));
+        socket.destroy();
+        resolve({ online: true, latencyMs, method: 'tcp', details: `Puerto ${targetPort} accesible directamente` });
+      });
+
+      socket.on('timeout', () => {
+        if (resolved) return;
+        resolved = true;
+        socket.destroy();
+        resolve({ online: false, latencyMs: 0, method: 'tcp', details: 'Timeout TCP' });
+      });
+
+      socket.on('error', (err: any) => {
+        if (resolved) return;
+        resolved = true;
+        socket.destroy();
+        resolve({ online: false, latencyMs: 0, method: 'tcp', details: err.message || 'Error socket' });
+      });
+
+      try {
+        socket.connect(targetPort, cleanHost);
+      } catch (err: any) {
+        if (!resolved) {
+          resolved = true;
+          socket.destroy();
+          resolve({ online: false, latencyMs: 0, method: 'tcp', details: err.message });
+        }
+      }
+    });
+
+    const tcpRes = await tcpPromise;
+    if (tcpRes.online) {
+      return tcpRes;
+    }
+
+    // 2. Método HTTP Health Probe
+    try {
+      const startHttp = performance.now();
+      const httpRes = await fetch(`http://${cleanHost}:${targetPort}/api/health`, {
+        signal: AbortSignal.timeout(timeoutMs)
+      });
+      if (httpRes.ok || httpRes.status === 404 || httpRes.status === 401) {
+        const latencyMs = Math.max(1, Math.round(performance.now() - startHttp));
+        return { online: true, latencyMs, method: 'http', details: `HTTP responde (Status: ${httpRes.status})` };
+      }
+    } catch {
+      // Continuar con ICMP
+    }
+
+    // 3. Método ICMP Ping del Sistema Operativo
+    const icmpPromise = new Promise<{ online: boolean; latencyMs: number; method: 'icmp'; details?: string }>((resolve) => {
+      const isWin = process.platform === 'win32';
+      const args = isWin 
+        ? ['-n', '1', '-w', '1800', cleanHost] 
+        : ['-c', '1', '-W', '2', cleanHost];
+
+      execFile('ping', args, { timeout: 2000 }, (error, stdout) => {
+        if (error || !stdout) {
+          return resolve({ online: false, latencyMs: 0, method: 'icmp', details: 'Sin respuesta a ICMP' });
+        }
+
+        const match = stdout.match(/(?:tiempo|time)[=<](\d+(?:\.\d+)?)\s*ms/i);
+        if (match && match[1]) {
+          const latencyMs = Math.max(1, Math.round(parseFloat(match[1])));
+          return resolve({
+            online: true,
+            latencyMs,
+            method: 'icmp',
+            details: `Enlace WAN activo (${latencyMs}ms). Puerto ${targetPort} filtrado o NAT.`
+          });
+        }
+
+        if (stdout.includes('0% perdidos') || stdout.includes('0% loss')) {
+          return resolve({ online: true, latencyMs: 25, method: 'icmp', details: 'Enlace WAN responde a ICMP' });
+        }
+
+        resolve({ online: false, latencyMs: 0, method: 'icmp', details: 'Paquete ICMP perdido' });
+      });
+    });
+
+    const icmpRes = await icmpPromise;
+    if (icmpRes.online) {
+      return icmpRes;
+    }
+
+    return { online: false, latencyMs: 0, method: 'none', details: 'Sede inalcanzable (sin respuesta en puerto ni ICMP)' };
+  }
+
   function loadAndValidateBranchesTelemetry(): Record<string, any> {
     let parsed: any = null;
     let loadedFromDisk = false;
@@ -4625,12 +4763,42 @@ if __name__ == '__main__':
         : GOLDEN_BRANCHES_TELEMETRY;
     }
 
-    // 4. Sanitizar y asegurar que todas las 6 sedes oficiales siempre existan y tengan datos completos
+    // 4. Sanitizar y asegurar que todas las sedes oficiales siempre existan y tengan datos completos
     const cleanMap: Record<string, any> = {};
 
     // Primero poblar con la plantilla dorada para garantizar valores base intactos
     for (const [id, goldenBranch] of Object.entries(GOLDEN_BRANCHES_TELEMETRY)) {
       cleanMap[id] = { ...goldenBranch };
+    }
+
+    // 4.5. Incorporar sedes registradas en global-config.json para que nunca desaparezcan
+    if (fs.existsSync(globalConfigPath)) {
+      try {
+        const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+        if (gConf && Array.isArray(gConf.branches)) {
+          for (const b of gConf.branches) {
+            if (!b || !b.id || b.id === 'branch-01') continue;
+            cleanMap[b.id] = {
+              ...b,
+              id: b.id,
+              code: b.code || b.id.toUpperCase(),
+              name: b.name || `Sucursal ${b.id}`,
+              city: b.city || 'Ciudad Principal',
+              address: b.address || 'Dirección Principal',
+              status: validBranchStatuses.includes(b.status) ? b.status : 'online',
+              publicIp: b.reportedPublicIp || b.publicIp || b.ipAddress || '127.0.0.1',
+              reportedPublicIp: b.reportedPublicIp || b.publicIp || b.ipAddress || '127.0.0.1',
+              ipAddress: b.domain || b.reportedPublicIp || b.publicIp || b.ipAddress || '127.0.0.1',
+              domain: b.domain || b.ddnsDomain,
+              ddnsDomain: b.ddnsDomain || b.domain,
+              port: b.port || 3000,
+              lastReportedAt: b.lastReportedAt || b.lastSyncTimestamp || new Date().toISOString()
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('[Sync Telemetría] Error leyendo sedes de global-config:', e);
+      }
     }
 
     // Luego superponer datos dinámicos válidos recibidos del disco o memoria
@@ -4651,6 +4819,11 @@ if __name__ == '__main__':
         city: item.city || base.city || 'Ciudad Principal',
         address: item.address || base.address || 'Dirección Principal',
         status: validBranchStatuses.includes(item.status) ? item.status : (base.status || 'offline'),
+        publicIp: item.reportedPublicIp || item.publicIp || base.publicIp || '127.0.0.1',
+        reportedPublicIp: item.reportedPublicIp || item.publicIp || base.reportedPublicIp || '127.0.0.1',
+        domain: item.domain || item.ddnsDomain || base.domain || base.ddnsDomain,
+        ddnsDomain: item.ddnsDomain || item.domain || base.ddnsDomain || base.domain,
+        ipAddress: item.domain || item.ddnsDomain || item.reportedPublicIp || item.publicIp || item.ipAddress || base.ipAddress || '127.0.0.1',
         lastReportedAt: item.lastReportedAt || base.lastReportedAt || new Date().toISOString()
       };
     }
@@ -4660,8 +4833,8 @@ if __name__ == '__main__':
 
     // Si el archivo en disco no existía, estaba dañado, o le faltaban sedes, auto-repararlo inmediatamente en disco
     const diskKeysCount = Object.keys(parsed || {}).length;
-    const goldenKeysCount = Object.keys(GOLDEN_BRANCHES_TELEMETRY).length;
-    if (!loadedFromDisk || diskKeysCount < goldenKeysCount) {
+    const cleanKeysCount = Object.keys(cleanMap).length;
+    if (!loadedFromDisk || diskKeysCount < cleanKeysCount) {
       saveBranchesTelemetry(cleanMap);
     }
 
@@ -4988,39 +5161,25 @@ if __name__ == '__main__':
   // --- CONTROL REMOTO Y ACCESO A SEDES ENDPOINTS ---
   app.post('/api/remote/test-branch', async (req, res) => {
     try {
-      const { branchId, ipAddress, name } = req.body;
+      const { branchId, ipAddress, name, port } = req.body;
       const cleanIp = (ipAddress || '').trim();
 
-      const startTime = Date.now();
-      let isOnline = true;
-      let latencyMs = Math.floor(Math.random() * 10) + 12;
-      let posPortStatus = '443/HTTPS ABIERTO';
-      let vncPortStatus = '5900/RFB ABIERTO';
-
-      if (cleanIp && cleanIp !== 'localhost' && cleanIp !== '127.0.0.1') {
-        const targetUrl = cleanIp.startsWith('http') ? cleanIp : `http://${cleanIp}`;
-        try {
-          const directRes = await fetch(`${targetUrl}/api/health`, { signal: AbortSignal.timeout(2000) });
-          latencyMs = Date.now() - startTime;
-          if (directRes.ok) {
-            isOnline = true;
-          }
-        } catch {
-          // Local/LAN response
-          latencyMs = Math.floor(Math.random() * 12) + 10;
-        }
-      }
+      const probe = await pingTargetNode(cleanIp, port || 3000, 2500);
 
       res.json({
         success: true,
         branchId: branchId === 'branch-01' ? 'suc-001' : (branchId || 'suc-001'),
         name: name || 'Sucursal',
         ipAddress: cleanIp || '192.168.1.100',
-        status: isOnline ? 'online' : 'offline',
-        latencyMs,
-        posPortStatus,
-        vncPortStatus,
-        message: `✅ IP ${cleanIp || '192.168.1.100'} verificada. Servicios POS y VNC listos para conexión remote.`
+        status: probe.online ? 'online' : 'offline',
+        latencyMs: probe.online ? probe.latencyMs : 0,
+        pingMs: probe.online ? probe.latencyMs : null,
+        method: probe.method,
+        posPortStatus: probe.online ? `${port || 3000}/POS ACCESIBLE (${probe.latencyMs}ms)` : `${port || 3000}/INACCESIBLE`,
+        vncPortStatus: probe.online ? '5900/RFB DISPONIBLE' : '5900/RFB NO RESPONDE',
+        message: probe.online
+          ? `✅ Sede en ${cleanIp} alcanzable vía ${probe.method.toUpperCase()} [${probe.latencyMs}ms]. ${probe.details || ''}`
+          : `⚠️ Sede en ${cleanIp} no responde [${probe.details || 'Inalcanzable'}].`
       });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
@@ -5478,17 +5637,38 @@ if __name__ == '__main__':
   app.post('/api/sync/branches-telemetry', (req, res) => {
     try {
       const { branch } = req.body;
-      if (!branch || !branch.id) {
+      if (!branch || (!branch.id && !branch.code)) {
         return res.status(400).json({ success: false, error: 'Datos de sucursal incompletos.' });
       }
 
       const detectedClientIp = extractClientIp(req);
-      const targetBranchId = branch.id === 'branch-01' ? 'suc-001' : branch.id;
+      let targetBranchId = branch.id === 'branch-01' ? 'suc-001' : (branch.id || branch.code);
+      const branchCode = branch.code;
+
+      // Buscar si existe en global-config.json para resolver su ID exacto
+      if (fs.existsSync(globalConfigPath)) {
+        try {
+          const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+          if (gConf && Array.isArray(gConf.branches)) {
+            const found = gConf.branches.find((b: any) => 
+              b.id === targetBranchId || 
+              (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase()) ||
+              b.code?.toUpperCase() === targetBranchId?.toUpperCase()
+            );
+            if (found) targetBranchId = found.id;
+          }
+        } catch (_) {}
+      }
+
       branch.id = targetBranchId;
 
       const telemetryMap = loadAndValidateBranchesTelemetry();
       const existing = telemetryMap[targetBranchId] || {};
-      const reportedPublicIp = branch.publicIp || (detectedClientIp !== '127.0.0.1' ? detectedClientIp : (existing.publicIp || branch.ipAddress || detectedClientIp));
+      const reportedPublicIp = (detectedClientIp && detectedClientIp !== '127.0.0.1') 
+        ? detectedClientIp 
+        : (branch.publicIp || existing.publicIp || branch.ipAddress || detectedClientIp);
+
+      const resolvedDomain = branch.domain || branch.ddnsDomain || existing.domain || existing.ddnsDomain;
 
       const branchRecord = {
         ...existing,
@@ -5496,6 +5676,9 @@ if __name__ == '__main__':
         id: targetBranchId,
         publicIp: reportedPublicIp,
         reportedPublicIp: reportedPublicIp,
+        domain: resolvedDomain,
+        ddnsDomain: resolvedDomain,
+        ipAddress: resolvedDomain || reportedPublicIp,
         lastIpReportedAt: new Date().toISOString(),
         lastReportedAt: new Date().toISOString(),
         status: 'online'
@@ -5510,9 +5693,20 @@ if __name__ == '__main__':
           const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
           if (gConf) {
             if (!Array.isArray(gConf.branches)) gConf.branches = [];
-            const bIdx = gConf.branches.findIndex((b: any) => b.id === targetBranchId);
+            const bIdx = gConf.branches.findIndex((b: any) => 
+              b.id === targetBranchId || 
+              (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase())
+            );
             if (bIdx >= 0) {
-              gConf.branches[bIdx] = { ...gConf.branches[bIdx], ...branchRecord };
+              gConf.branches[bIdx] = { 
+                ...gConf.branches[bIdx], 
+                ...branchRecord,
+                publicIp: reportedPublicIp,
+                reportedPublicIp: reportedPublicIp,
+                ipAddress: resolvedDomain || reportedPublicIp,
+                status: 'online',
+                lastSyncTimestamp: new Date().toISOString()
+              };
             } else {
               gConf.branches.push(branchRecord);
             }
@@ -5532,12 +5726,13 @@ if __name__ == '__main__':
             branchId: targetBranchId,
             status: 'online',
             publicIp: reportedPublicIp,
+            domain: resolvedDomain,
             timestamp: new Date().toISOString()
           }
         });
       } catch (e) { /* ignore */ }
 
-      console.log(`[Sync Telemetría] Sede ${targetBranchId} reportó IP Pública: ${reportedPublicIp} (Detectada: ${detectedClientIp})`);
+      console.log(`[Sync Telemetría] Sede ${targetBranchId} (${branchCode || 'N/A'}) reportó IP Pública: ${reportedPublicIp} (Detectada: ${detectedClientIp})`);
 
       res.json({
         success: true,
@@ -5554,27 +5749,46 @@ if __name__ == '__main__':
   // 8.5 POST /api/sync/report-ip (Heartbeat rápido exclusivo para reporte de IP Pública de sede)
   app.post('/api/sync/report-ip', (req, res) => {
     try {
-      const { branchId, localIp, port, farmadeskId, farmadeskPassword } = req.body;
-      if (!branchId) {
-        return res.status(400).json({ success: false, error: 'branchId es requerido.' });
+      const { branchId, branchCode, domain, ddnsDomain, localIp, port, farmadeskId, farmadeskPassword } = req.body;
+      if (!branchId && !branchCode) {
+        return res.status(400).json({ success: false, error: 'branchId o branchCode es requerido.' });
       }
 
-      const targetBranchId = branchId === 'branch-01' ? 'suc-001' : branchId;
-      const detectedClientIp = extractClientIp(req);
+      let targetBranchId = branchId === 'branch-01' ? 'suc-001' : (branchId || branchCode);
 
+      // Buscar en global-config.json para resolver el ID canónico
+      if (fs.existsSync(globalConfigPath)) {
+        try {
+          const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+          if (gConf && Array.isArray(gConf.branches)) {
+            const found = gConf.branches.find((b: any) => 
+              b.id === targetBranchId || 
+              (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase()) ||
+              b.code?.toUpperCase() === targetBranchId?.toUpperCase()
+            );
+            if (found) targetBranchId = found.id;
+          }
+        } catch (_) {}
+      }
+
+      const detectedClientIp = extractClientIp(req);
       const telemetryMap = loadAndValidateBranchesTelemetry();
       const existing = telemetryMap[targetBranchId] || {};
       const resolvedPublicIp = (detectedClientIp && detectedClientIp !== '127.0.0.1') 
         ? detectedClientIp 
         : (req.body.publicIp || existing.publicIp || existing.ipAddress || detectedClientIp);
 
+      const resolvedDomain = domain || ddnsDomain || req.body.publicIp || existing.domain || existing.ddnsDomain;
+
       telemetryMap[targetBranchId] = {
         ...existing,
         id: targetBranchId,
         publicIp: resolvedPublicIp,
         reportedPublicIp: resolvedPublicIp,
+        domain: resolvedDomain,
+        ddnsDomain: resolvedDomain,
         localIp: localIp || existing.localIp || '192.168.1.100',
-        ipAddress: resolvedPublicIp,
+        ipAddress: resolvedDomain || resolvedPublicIp,
         port: port || existing.port || 3000,
         farmadeskId: farmadeskId || existing.farmadeskId,
         farmadeskPassword: farmadeskPassword || existing.farmadeskPassword,
@@ -5585,6 +5799,36 @@ if __name__ == '__main__':
 
       saveBranchesTelemetry(telemetryMap);
 
+      // Persistir de inmediato en global-config.json
+      if (fs.existsSync(globalConfigPath)) {
+        try {
+          const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+          if (gConf && Array.isArray(gConf.branches)) {
+            const bIdx = gConf.branches.findIndex((b: any) => 
+              b.id === targetBranchId || 
+              (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase())
+            );
+            if (bIdx >= 0) {
+              gConf.branches[bIdx] = {
+                ...gConf.branches[bIdx],
+                publicIp: resolvedPublicIp,
+                reportedPublicIp: resolvedPublicIp,
+                domain: resolvedDomain,
+                ipAddress: resolvedDomain || resolvedPublicIp,
+                localIp: localIp || gConf.branches[bIdx].localIp || '192.168.1.100',
+                port: port || gConf.branches[bIdx].port || 3000,
+                status: 'online',
+                lastSyncTimestamp: new Date().toISOString()
+              };
+              gConf.lastUpdated = new Date().toISOString();
+              fs.writeFileSync(globalConfigPath, JSON.stringify(gConf, null, 2), 'utf8');
+            }
+          }
+        } catch (e) {
+          console.warn('[Report IP] Error actualizando global-config.json:', e);
+        }
+      }
+
       // Notificar a los administradores en vivo
       try {
         broadcastToAdmins(targetBranchId, {
@@ -5593,6 +5837,7 @@ if __name__ == '__main__':
             branchId: targetBranchId,
             status: 'online',
             publicIp: resolvedPublicIp,
+            domain: resolvedDomain,
             timestamp: new Date().toISOString()
           }
         });
@@ -5604,6 +5849,7 @@ if __name__ == '__main__':
         success: true,
         branchId: targetBranchId,
         publicIp: resolvedPublicIp,
+        domain: resolvedDomain,
         localIp: localIp || existing.localIp,
         message: `IP Pública (${resolvedPublicIp}) confirmada y registrada en Servidor Central.`
       });
@@ -5625,6 +5871,142 @@ if __name__ == '__main__':
       res.json({ success: true, data: branchesList });
     } catch (err: any) {
       console.error('[Sync] Error leyendo branches-telemetry:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 9.1 POST /api/sync/ping-branches (Central ejecuta sondeo/ping en vivo a todas las sedes)
+  app.post('/api/sync/ping-branches', async (req, res) => {
+    try {
+      const telemetryMap = loadAndValidateBranchesTelemetry();
+      const { branchIds } = req.body || {};
+      
+      const targetBranches = Object.values(telemetryMap).filter((b: any) => {
+        if (branchIds && Array.isArray(branchIds) && branchIds.length > 0) {
+          return branchIds.includes(b.id) || branchIds.includes(b.code);
+        }
+        return true;
+      });
+
+      console.log(`[Central Ping] Iniciando sondeo de conectividad RTT para ${targetBranches.length} sedes...`);
+
+      const pingResults = await Promise.all(
+        targetBranches.map(async (branch: any) => {
+          const targetHost = branch.domain || branch.ddnsDomain || branch.reportedPublicIp || branch.publicIp || branch.ipAddress || branch.localIp || '127.0.0.1';
+          const targetPort = branch.port || 3000;
+          
+          const probe = await pingTargetNode(targetHost, targetPort, 2200);
+
+          const updatedBranch = {
+            ...branch,
+            latencyMs: probe.online ? probe.latencyMs : undefined,
+            status: probe.online ? 'online' : (branch.status === 'online' ? 'warning' : 'offline'),
+            lastPingAt: new Date().toISOString(),
+            pingMethod: probe.method,
+            pingDetails: probe.details,
+            testedHost: targetHost,
+            testedPort: targetPort
+          };
+
+          telemetryMap[branch.id] = updatedBranch;
+          return updatedBranch;
+        })
+      );
+
+      saveBranchesTelemetry(telemetryMap);
+
+      // Actualizar también en global-config.json para persistencia
+      if (fs.existsSync(globalConfigPath)) {
+        try {
+          const gConfig = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+          if (gConfig && Array.isArray(gConfig.branches)) {
+            for (const resBranch of pingResults) {
+              const idx = gConfig.branches.findIndex((b: any) => b.id === resBranch.id || b.code === resBranch.code);
+              if (idx >= 0) {
+                gConfig.branches[idx].status = resBranch.status;
+                gConfig.branches[idx].latencyMs = resBranch.latencyMs;
+                gConfig.branches[idx].lastSyncTimestamp = new Date().toISOString();
+              }
+            }
+            gConfig.lastUpdated = new Date().toISOString();
+            fs.writeFileSync(globalConfigPath, JSON.stringify(gConfig, null, 2), 'utf8');
+          }
+        } catch (e) {
+          console.warn('[Ping Branches] Error actualizando global-config.json:', e);
+        }
+      }
+
+      // Notificar a administradores por WebSockets en tiempo real
+      for (const resBranch of pingResults) {
+        try {
+          broadcastToAdmins(resBranch.id, {
+            event: 'branch:ping_result',
+            data: resBranch
+          });
+        } catch (_) {}
+      }
+
+      const onlineCount = pingResults.filter((b: any) => b.status === 'online').length;
+      const validLatencies = pingResults
+        .filter((b: any) => typeof b.latencyMs === 'number' && b.status === 'online')
+        .map((b: any) => b.latencyMs);
+      const avgLatency = validLatencies.length > 0 
+        ? Math.round(validLatencies.reduce((a: number, c: number) => a + c, 0) / validLatencies.length) 
+        : 0;
+
+      console.log(`[Central Ping] Sondeo finalizado: ${onlineCount}/${pingResults.length} sedes en línea (Latencia promedio: ${avgLatency}ms)`);
+
+      res.json({
+        success: true,
+        branches: pingResults,
+        summary: {
+          total: pingResults.length,
+          online: onlineCount,
+          offline: pingResults.length - onlineCount,
+          avgLatency
+        }
+      });
+    } catch (err: any) {
+      console.error('[Ping Branches] Error:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 9.2 POST /api/sync/ping-branch (Central ejecuta sondeo individual a una sede específica o host)
+  app.post('/api/sync/ping-branch', async (req, res) => {
+    try {
+      const { branchId, host, port } = req.body;
+      const telemetryMap = loadAndValidateBranchesTelemetry();
+      const existing = branchId ? (telemetryMap[branchId] || {}) : {};
+
+      const targetHost = host || existing.domain || existing.ddnsDomain || existing.reportedPublicIp || existing.publicIp || existing.ipAddress || '127.0.0.1';
+      const targetPort = port || existing.port || 3000;
+
+      const probe = await pingTargetNode(targetHost, targetPort, 2500);
+
+      if (branchId && telemetryMap[branchId]) {
+        telemetryMap[branchId] = {
+          ...telemetryMap[branchId],
+          latencyMs: probe.online ? probe.latencyMs : undefined,
+          status: probe.online ? 'online' : 'offline',
+          lastPingAt: new Date().toISOString(),
+          pingMethod: probe.method,
+          pingDetails: probe.details
+        };
+        saveBranchesTelemetry(telemetryMap);
+      }
+
+      res.json({
+        success: true,
+        online: probe.online,
+        latencyMs: probe.latencyMs,
+        method: probe.method,
+        details: probe.details,
+        testedHost: targetHost,
+        testedPort: targetPort
+      });
+    } catch (err: any) {
+      console.error('[Ping Single Branch] Error:', err);
       res.status(500).json({ success: false, error: err.message });
     }
   });
@@ -6141,9 +6523,26 @@ if __name__ == '__main__':
   // API to receive direct public IP network updates from branches (REST channel)
   app.post('/api/sync/network-info', (req, res) => {
     try {
-      const { branchId, ipAddress, port, webSocketsUrl, farmadeskId, farmadeskPassword, anydeskId, rustdeskId, vncPassword, systemUrl } = req.body;
-      if (!branchId) {
-        return res.status(400).json({ success: false, error: 'Sede ID (branchId) es obligatorio.' });
+      const { branchId, branchCode, domain, ddnsDomain, ipAddress, port, webSocketsUrl, farmadeskId, farmadeskPassword, anydeskId, rustdeskId, vncPassword, systemUrl } = req.body;
+      if (!branchId && !branchCode) {
+        return res.status(400).json({ success: false, error: 'Sede ID (branchId) o Código es obligatorio.' });
+      }
+
+      let targetBranchId = branchId === 'branch-01' ? 'suc-001' : (branchId || branchCode);
+
+      // Buscar en global-config.json para resolver el ID canónico si se pasó código o ID de taquilla
+      if (fs.existsSync(globalConfigPath)) {
+        try {
+          const gConf = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+          if (gConf && Array.isArray(gConf.branches)) {
+            const found = gConf.branches.find((b: any) => 
+              b.id === targetBranchId || 
+              (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase()) ||
+              b.code?.toUpperCase() === targetBranchId?.toUpperCase()
+            );
+            if (found) targetBranchId = found.id;
+          }
+        } catch (_) {}
       }
 
       const detectedClientIp = extractClientIp(req);
@@ -6151,9 +6550,9 @@ if __name__ == '__main__':
         ? detectedClientIp 
         : (req.body.publicIp || ipAddress || '192.168.10.105');
 
-      const targetBranchId = branchId === 'branch-01' ? 'suc-001' : branchId;
+      const resolvedDomain = domain || ddnsDomain || req.body.publicIp;
 
-      console.log(`[REST Telemetría] Recibida actualización para Sede ${targetBranchId}: IP=${resolvedPublicIp} (Local=${ipAddress}) Puerto=${port || 3000} FarmaDeskID=${farmadeskId || anydeskId}`);
+      console.log(`[REST Telemetría] Recibida actualización para Sede ${targetBranchId} (${branchCode || 'N/A'}): IP=${resolvedPublicIp} (Local=${ipAddress}) Puerto=${port || 3000} FarmaDeskID=${farmadeskId || anydeskId}`);
 
       // 1. Update branches-telemetry.json
       const telemetryMap = loadAndValidateBranchesTelemetry();
@@ -6162,9 +6561,11 @@ if __name__ == '__main__':
       telemetryMap[targetBranchId] = {
         ...existing,
         id: targetBranchId,
-        ipAddress: resolvedPublicIp,
+        ipAddress: resolvedDomain || resolvedPublicIp,
         publicIp: resolvedPublicIp,
         reportedPublicIp: resolvedPublicIp,
+        domain: resolvedDomain || existing.domain,
+        ddnsDomain: resolvedDomain || existing.ddnsDomain,
         localIp: ipAddress || existing.localIp || '192.168.10.105',
         port: port || existing.port || 3000,
         webSocketsUrl: webSocketsUrl || `ws://${resolvedPublicIp}:${port || 3000}/ws`,
@@ -6174,7 +6575,7 @@ if __name__ == '__main__':
         anydeskId: anydeskId || existing.anydeskId || farmadeskId || '592038471',
         rustdeskId: rustdeskId || existing.rustdeskId || '904812354',
         vncPassword: vncPassword || existing.vncPassword || 'WOLF_PASS_SECURE',
-        systemUrl: systemUrl || `http://${resolvedPublicIp}:${port || 3000}/`,
+        systemUrl: systemUrl || `http://${resolvedDomain || resolvedPublicIp}:${port || 3000}/`,
         lastIpReportedAt: new Date().toISOString(),
         lastReportedAt: new Date().toISOString(),
         status: 'online',
@@ -6190,14 +6591,19 @@ if __name__ == '__main__':
           const gConfig = JSON.parse(fileContent);
           if (gConfig) {
             if (!Array.isArray(gConfig.branches)) gConfig.branches = [];
-            const bIdx = gConfig.branches.findIndex((b: any) => b.id === targetBranchId);
+            const bIdx = gConfig.branches.findIndex((b: any) => 
+              b.id === targetBranchId || 
+              (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase())
+            );
             const branchNetData = {
-              ipAddress: resolvedPublicIp,
+              ipAddress: resolvedDomain || resolvedPublicIp,
               publicIp: resolvedPublicIp,
+              reportedPublicIp: resolvedPublicIp,
+              domain: resolvedDomain,
               localIp: ipAddress || (bIdx >= 0 ? gConfig.branches[bIdx].localIp : '192.168.1.100'),
               port: port || (bIdx >= 0 ? gConfig.branches[bIdx].port : 3000),
               webSocketsUrl: webSocketsUrl || `ws://${resolvedPublicIp}:${port || 3000}/ws`,
-              systemUrl: systemUrl || `http://${resolvedPublicIp}:${port || 3000}/wolfzonepos?branchId=${targetBranchId}`,
+              systemUrl: systemUrl || `http://${resolvedDomain || resolvedPublicIp}:${port || 3000}/wolfzonepos?branchId=${targetBranchId}`,
               farmadeskId: farmadeskId || (bIdx >= 0 ? gConfig.branches[bIdx].farmadeskId : anydeskId),
               farmadeskPort: 9050,
               farmadeskPassword: farmadeskPassword || (bIdx >= 0 ? gConfig.branches[bIdx].farmadeskPassword : (vncPassword || 'FARMA_PASS_SECURE')),
@@ -6210,7 +6616,7 @@ if __name__ == '__main__':
             if (bIdx >= 0) {
               gConfig.branches[bIdx] = { ...gConfig.branches[bIdx], ...branchNetData };
             } else {
-              gConfig.branches.push({ id: targetBranchId, name: `Sucursal ${targetBranchId}`, code: targetBranchId.toUpperCase(), ...branchNetData });
+              gConfig.branches.push({ id: targetBranchId, name: `Sucursal ${targetBranchId}`, code: (branchCode || targetBranchId).toUpperCase(), ...branchNetData });
             }
             gConfig.lastUpdated = new Date().toISOString();
             fs.writeFileSync(configPath, JSON.stringify(gConfig, null, 2), 'utf8');
@@ -6222,12 +6628,13 @@ if __name__ == '__main__':
 
       // Notificar a administradores en tiempo real
       try {
-        broadcastToAdmins(branchId, {
+        broadcastToAdmins(targetBranchId, {
           event: 'branch:status_change',
           data: {
-            branchId,
+            branchId: targetBranchId,
             status: 'online',
             publicIp: resolvedPublicIp,
+            domain: resolvedDomain,
             timestamp: new Date().toISOString()
           }
         });
@@ -6237,7 +6644,7 @@ if __name__ == '__main__':
         success: true,
         message: 'Dirección IP pública y parámetros de red actualizados con éxito en el Servidor Central.',
         publicIp: resolvedPublicIp,
-        data: telemetryMap[branchId]
+        data: telemetryMap[targetBranchId]
       });
     } catch (err: any) {
       console.error('[REST Telemetría] Error:', err);
@@ -6993,12 +7400,16 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
             ? wsClientIp 
             : (data.publicIp || data.ipAddress || existing.publicIp || wsClientIp);
 
+          const resolvedDomain = data.domain || data.ddnsDomain;
+
           telemetryMap[branchId] = {
             ...existing,
             ...data,
             id: branchId,
             publicIp: resolvedWsIp,
             reportedPublicIp: resolvedWsIp,
+            domain: resolvedDomain || existing.domain,
+            ddnsDomain: resolvedDomain || existing.ddnsDomain,
             localIp: data.ipAddress || existing.localIp,
             lastIpReportedAt: new Date().toISOString(),
             lastReportedAt: new Date().toISOString(),
@@ -7017,11 +7428,18 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
               const gConfig = JSON.parse(fileContent);
               if (gConfig && Array.isArray(gConfig.branches)) {
                 gConfig.branches = gConfig.branches.map((b: any) => {
-                  if (b.id === branchId) {
+                  const isMatch = b.id === branchId || 
+                    (data.code && b.code?.toUpperCase() === data.code?.toUpperCase()) ||
+                    (data.branchCode && b.code?.toUpperCase() === data.branchCode?.toUpperCase()) ||
+                    b.code?.toUpperCase() === branchId?.toUpperCase();
+                  if (isMatch) {
                     return {
                       ...b,
-                      ipAddress: resolvedWsIp,
+                      ipAddress: resolvedDomain || resolvedWsIp,
                       publicIp: resolvedWsIp,
+                      reportedPublicIp: resolvedWsIp,
+                      domain: resolvedDomain || b.domain,
+                      ddnsDomain: resolvedDomain || b.ddnsDomain,
                       localIp: data.ipAddress || b.localIp,
                       farmadeskId: data.farmadeskId || b.farmadeskId || data.anydeskId || b.anydeskId,
                       farmadeskPassword: data.farmadeskPassword || b.farmadeskPassword || data.vncPassword || b.vncPassword,

@@ -65,7 +65,8 @@ import {
   reportBranchHeartbeatAndIp,
   detectCurrentPublicIp,
   fetchBranchesTelemetry,
-  deleteBranchFromServer
+  deleteBranchFromServer,
+  normalizeServerUrl
 } from './services/centralSyncService';
 import { 
   loadTerminalDatabaseData,
@@ -1292,12 +1293,12 @@ export default function App() {
   const getSyncUrl = (endpoint: string) => {
     if (systemNodeConfig?.workMode === 'pos' && systemNodeConfig?.centralServerHost) {
       const host = systemNodeConfig.centralServerHost.trim();
-      // Ignore dummy or local placeholder IPs that cannot be reached directly from client browser
-      const isDummyHost = !host || host === 'localhost' || host === '127.0.0.1' || host === '192.168.10.150' || host === 'central.parqueaderopos.com';
-      if (!isDummyHost) {
+      if (host && host !== '0.0.0.0') {
         const port = systemNodeConfig.centralServerPort || 3000;
-        const baseUrl = host.startsWith('http') ? host : `http://${host}:${port}`;
-        return `${baseUrl}${endpoint}`;
+        const baseUrl = normalizeServerUrl(host, port);
+        if (baseUrl) {
+          return `${baseUrl}${endpoint}`;
+        }
       }
     }
     return endpoint;
@@ -1633,6 +1634,10 @@ export default function App() {
         
         // Reportar directamente a Central vía REST
         await reportBranchHeartbeatAndIp(currentBranchId, {
+          code: currentBranch?.code,
+          domain: currentBranch?.domain,
+          ddnsDomain: currentBranch?.ddnsDomain,
+          publicIp: localPublicIp,
           localIp: currentBranch?.localIp || '192.168.1.100',
           port: currentBranch?.port || 3000,
           farmadeskId: currentBranch?.farmadeskId,
@@ -1655,6 +1660,9 @@ export default function App() {
       detectIpAndReport();
 
       branchSocket.reportNetworkTelemetry({
+        code: currentBranch?.code,
+        domain: currentBranch?.domain,
+        ddnsDomain: currentBranch?.ddnsDomain,
         ipAddress: localPublicIp,
         publicIp: localPublicIp,
         localIp: currentBranch?.localIp || '192.168.1.100',
@@ -4920,8 +4928,29 @@ export default function App() {
                   if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
                 } catch (e) {}
                 setBranches(prev => {
+                  const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
+                  const updated = prev.map(p => {
+                    const t = telemetryMap.get(p.id) || refreshed.find(r => r.code && r.code.toUpperCase() === p.code?.toUpperCase());
+                    if (!t) return p;
+                    return {
+                      ...p,
+                      publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
+                      reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
+                      ipAddress: t.domain || t.ddnsDomain || t.reportedPublicIp || t.publicIp || p.ipAddress,
+                      domain: t.domain || t.ddnsDomain || p.domain,
+                      ddnsDomain: t.ddnsDomain || t.domain || p.ddnsDomain,
+                      status: t.status || p.status,
+                      latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs
+                    };
+                  });
+                  // Also include any branches from telemetry that are not yet in prev
                   const prevIds = new Set(prev.map(p => p.id));
-                  return refreshed.filter(r => prevIds.has(r.id) && !deletedSet.has(r.id));
+                  for (const r of refreshed) {
+                    if (!prevIds.has(r.id) && !deletedSet.has(r.id)) {
+                      updated.push(r);
+                    }
+                  }
+                  return updated.filter(b => !deletedSet.has(b.id));
                 });
               }
             }}

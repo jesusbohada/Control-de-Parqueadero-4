@@ -44,7 +44,11 @@ import {
   generateFarmadeskId, 
   generateFarmadeskPassword 
 } from '../utils/farmadeskCredentials';
-import { detectCurrentPublicIp } from '../services/centralSyncService';
+import { 
+  detectCurrentPublicIp, 
+  fetchBranchesTelemetry, 
+  pingSingleBranchFromCentral 
+} from '../services/centralSyncService';
 import { playSound } from '../utils/audio';
 
 interface BranchesManagementModalProps {
@@ -335,27 +339,67 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
     }, 1200);
   };
 
+  // Al abrir el módulo, consultar la última telemetría reportada por las sucursales a la Central
+  useEffect(() => {
+    if (onRefreshBranches) {
+      onRefreshBranches();
+    }
+  }, []);
+
   const handleQuickAutoDetectIp = async (branch: BranchLocation) => {
     setQuickDetectingBranchId(branch.id);
     playSound('beep');
     try {
-      const realIp = await detectCurrentPublicIp();
-      if (realIp && realIp !== '127.0.0.1') {
+      // 1. Consultar si la Central ya tiene registrada la IP Pública reportada por esta sucursal
+      const telemetryList = await fetchBranchesTelemetry();
+      const reported = telemetryList.find(t => t.id === branch.id || (branch.code && t.code === branch.code));
+      
+      let ipToUse = reported?.reportedPublicIp || reported?.publicIp;
+      let domainToUse = reported?.domain || reported?.ddnsDomain;
+
+      // Si no hay reporte previo o es la terminal local, consultar la IP pública del entorno actual
+      if ((!ipToUse || ipToUse === '127.0.0.1') && branch.isCurrentBranch) {
+        const detected = await detectCurrentPublicIp();
+        if (detected && detected !== '127.0.0.1') {
+          ipToUse = detected;
+        }
+      }
+
+      if (ipToUse && ipToUse !== '127.0.0.1') {
         const port = branch.port || 3000;
         const updated: BranchLocation = {
           ...branch,
-          ipAddress: realIp,
-          publicIp: realIp,
-          systemUrl: `http://${realIp}:${port}/wolfzonepos?branchId=${branch.id}`,
+          ipAddress: domainToUse || ipToUse,
+          publicIp: ipToUse,
+          reportedPublicIp: ipToUse,
+          domain: domainToUse || branch.domain,
+          systemUrl: `http://${domainToUse || ipToUse}:${port}/wolfzonepos?branchId=${branch.id}`,
           lastSyncTimestamp: new Date().toISOString()
         };
         onSaveBranch(updated);
         playSound('success');
         setNetworkSaveSuccessId(branch.id);
         setTimeout(() => setNetworkSaveSuccessId(null), 2000);
+      } else {
+        // Ejecutar sondeo directo de Ping
+        const host = branch.domain || branch.ddnsDomain || branch.publicIp || branch.ipAddress || '127.0.0.1';
+        const pingRes = await pingSingleBranchFromCentral(branch.id, host, branch.port || 3000);
+        if (pingRes.online) {
+          onSaveBranch({
+            ...branch,
+            status: 'online',
+            latencyMs: pingRes.latencyMs,
+            lastSyncTimestamp: new Date().toISOString()
+          });
+          playSound('success');
+          setNetworkSaveSuccessId(branch.id);
+          setTimeout(() => setNetworkSaveSuccessId(null), 2000);
+        } else {
+          playSound('alert');
+        }
       }
     } catch (err) {
-      console.warn('Error detectando IP pública:', err);
+      console.warn('Error detectando IP pública o ejecutando ping:', err);
     } finally {
       setQuickDetectingBranchId(null);
     }
@@ -367,16 +411,21 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
     setInlinePingMs(null);
     playSound('beep');
     try {
-      const res = await fetch('/api/remote/test-branch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ipAddress: networkForm.ipAddress })
-      });
-      const data = await res.json();
-      setInlinePingMs(data.pingMs || Math.floor(Math.random() * 15) + 8);
-      playSound('success');
-    } catch {
-      setInlinePingMs(Math.floor(Math.random() * 20) + 12);
+      const res = await pingSingleBranchFromCentral(
+        editingNetworkBranchId || undefined,
+        networkForm.ipAddress,
+        networkForm.port || 3000
+      );
+      if (res.online) {
+        setInlinePingMs(res.latencyMs);
+        playSound('success');
+      } else {
+        setInlinePingMs(null);
+        playSound('alert');
+      }
+    } catch (err) {
+      console.warn('Error probando conexión:', err);
+      setInlinePingMs(null);
     } finally {
       setInlineTestingIp(false);
     }
@@ -740,10 +789,13 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                             onClick={() => handleQuickAutoDetectIp(branch)}
                             disabled={quickDetectingBranchId === branch.id}
                             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[10px] font-bold border border-slate-300 dark:border-slate-700 cursor-pointer transition-all disabled:opacity-50"
-                            title="Haz clic para autodetectar la IP Pública WAN"
+                            title="Haz clic para consultar la IP Pública WAN reportada por la sede o probar ping"
                           >
                             <Globe className={`w-3 h-3 text-cyan-600 dark:text-cyan-400 ${quickDetectingBranchId === branch.id ? 'animate-spin' : ''}`} />
-                            <span>WAN: {branch.publicIp || branch.ipAddress || '127.0.0.1'}</span>
+                            <span>WAN: {branch.domain || branch.reportedPublicIp || branch.publicIp || branch.ipAddress || '127.0.0.1'}</span>
+                            {branch.latencyMs !== undefined && (
+                              <span className="text-emerald-500 font-bold ml-0.5">({branch.latencyMs}ms)</span>
+                            )}
                           </button>
                         </div>
                       </div>

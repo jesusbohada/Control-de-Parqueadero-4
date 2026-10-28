@@ -29,6 +29,7 @@ import {
   getServerDataConfig,
   saveServerDataConfig,
   testServerConnection,
+  normalizeServerUrl,
   DEFAULT_SERVER_DATA_CONFIG
 } from '../services/centralSyncService';
 import { getStoredTerminalId, getDatabaseNameForTerminal } from '../db/terminalDatabase';
@@ -84,31 +85,83 @@ export const ServerDataConfigCard: React.FC<ServerDataConfigCardProps> = ({
     }
   };
 
+  const getEffectiveBranchId = (): string => {
+    try {
+      const saved = localStorage.getItem('pk_current_branch_id');
+      if (saved && saved !== 'branch-01') return saved;
+      const nodeCfg = localStorage.getItem('pk_system_node_config');
+      if (nodeCfg) {
+        const parsed = JSON.parse(nodeCfg);
+        if (parsed.selectedBranchId) return parsed.selectedBranchId;
+      }
+    } catch (_) {}
+    return 'suc-001';
+  };
+
+  const getEffectiveBranchCode = (): string | undefined => {
+    try {
+      const bId = getEffectiveBranchId();
+      const gConf = localStorage.getItem('pk_global_config');
+      if (gConf) {
+        const parsed = JSON.parse(gConf);
+        const b = parsed.branches?.find((x: any) => x.id === bId);
+        if (b?.code) return b.code;
+      }
+    } catch (_) {}
+    return undefined;
+  };
+
   const handlePublishIpToCentral = async () => {
     setIsPublishingIp(true);
     setPublishFeedback(null);
     try {
-      const storedTerminalId = getStoredTerminalId() || 'branch-01';
+      const activeBranchId = getEffectiveBranchId();
+      const activeBranchCode = getEffectiveBranchCode();
+      const port = 3000;
       
       const payload = {
-        branchId: storedTerminalId,
+        branchId: activeBranchId,
+        branchCode: activeBranchCode,
         ipAddress: publicIp,
+        publicIp: publicIp,
+        port,
         farmadeskId: '592038471',
         farmadeskPassword: 'FARMA_PASS_SECURE',
         farmadeskPort: 9050,
-        systemUrl: `http://${publicIp}:3000/`
+        systemUrl: `http://${publicIp}:${port}/`
       };
 
+      // 1. Enviar al Servidor Central Remoto si está configurado en remoteDbHost
+      let publishedRemotely = false;
+      const remoteUrl = normalizeServerUrl(config.remoteDbHost);
+      if (remoteUrl && !remoteUrl.includes('localhost') && !remoteUrl.includes('127.0.0.1')) {
+        try {
+          const remoteRes = await fetch(`${remoteUrl}/api/sync/network-info`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(4000)
+          });
+          if (remoteRes.ok) {
+            publishedRemotely = true;
+          }
+        } catch (e) {
+          console.warn('[ServerDataConfigCard] No se pudo conectar al servidor central remoto:', e);
+        }
+      }
+
+      // 2. Enviar al servidor local
       const res = await fetch('/api/sync/network-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const result = await res.json();
-      if (result.success) {
+
+      if (result.success || publishedRemotely) {
         setPublishFeedback({
           type: 'success',
-          message: `¡Dirección IP Pública [${publicIp}] publicada con éxito! La central ahora puede acceder de inmediato por 'Acceso Sistema' y 'Escritorio Remoto' (FarmaDesk Pro®).`
+          message: `¡Dirección IP Pública [${publicIp}] publicada con éxito! ${publishedRemotely ? 'Registrada en Servidor Central remoto (' + config.remoteDbHost + '). ' : ''}La central ahora puede acceder de inmediato por 'Acceso Sistema', Ping y 'Escritorio Remoto'.`
         });
         playSound('success', true);
       } else {

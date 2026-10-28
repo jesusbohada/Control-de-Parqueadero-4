@@ -791,6 +791,8 @@ export interface BranchLocation {
   lastRemoteCommandTime?: string;
   notes?: string;
   systemUrl?: string;
+  domain?: string;                        // Nombre de dominio / DDNS de la sede (ej. 'sucursal1.ddns.net')
+  ddnsDomain?: string;                    // Alias para dominio DDNS
   farmadeskId?: string;
   farmadeskPassword?: string;
   farmadeskPort?: number;
@@ -800,6 +802,9 @@ export interface BranchLocation {
   lat?: number;                           // Coordenada latitud para mapas y geolocalización
   lng?: number;                           // Coordenada longitud para mapas y geolocalización
   latencyMs?: number;                     // Latencia telemática en tiempo real (ms)
+  pingMethod?: 'tcp' | 'http' | 'icmp' | 'none'; // Método de sondeo exitoso
+  pingDetails?: string;                   // Detalles técnicos del último ping
+  lastPingAt?: string;                    // Timestamp del último ping ejecutado desde Central
   systemLoad?: number;                    // Carga de CPU / Sistema (0-100%)
   memoryUsage?: number;                   // Uso de memoria RAM (0-100%)
   diskUsage?: number;                     // Uso de disco (%)

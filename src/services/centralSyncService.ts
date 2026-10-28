@@ -38,17 +38,51 @@ export const DEFAULT_SERVER_DATA_CONFIG: ServerDataConnectionConfig = {
 const LOCAL_STORAGE_KEY_SERVER_CONFIG = 'pk_server_data_config';
 
 /**
- * Obtener la URL base remota configurada en localStorage si existe
+ * Normaliza cualquier IP, host o URL asegurando esquema http:// o https:// y puerto si no está presente
+ */
+export function normalizeServerUrl(rawHost?: string, defaultPort = 3000): string | undefined {
+  if (!rawHost) return undefined;
+  let host = rawHost.trim();
+  if (!host || host === '0.0.0.0') return undefined;
+
+  // Si ya tiene protocolo http:// o https://
+  if (/^https?:\/\//i.test(host)) {
+    return host.replace(/\/+$/, '');
+  }
+
+  // Si ya tiene puerto (ej: 186.180.74.35:3001)
+  if (/:\d+$/.test(host)) {
+    return `http://${host}`.replace(/\/+$/, '');
+  }
+
+  return `http://${host}:${defaultPort}`.replace(/\/+$/, '');
+}
+
+/**
+ * Obtener la URL base remota configurada en localStorage si existe (soporta SystemNodeConfig y ServerDataConfig)
  */
 export function getRemoteBaseUrlFromConfig(): string | undefined {
   try {
+    // 1. Intentar desde pk_system_node_config (modo POS y host central configurado)
+    const nodeSaved = localStorage.getItem('pk_system_node_config');
+    if (nodeSaved) {
+      const nodeCfg = JSON.parse(nodeSaved);
+      if (nodeCfg?.centralServerHost && typeof nodeCfg.centralServerHost === 'string' && nodeCfg.centralServerHost.trim()) {
+        const norm = normalizeServerUrl(nodeCfg.centralServerHost, nodeCfg.centralServerPort || 3000);
+        if (norm && !norm.includes('localhost') && !norm.includes('127.0.0.1')) {
+          return norm;
+        }
+      }
+    }
+
+    // 2. Intentar desde pk_server_data_config (configuración de base de datos / sincronización)
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY_SERVER_CONFIG);
     if (saved) {
       const cfg = JSON.parse(saved);
       if (cfg && cfg.remoteDbHost) {
-        const host = cfg.remoteDbHost.trim();
-        if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== 'central.parqueaderopos.com') {
-          return host.startsWith('http') ? host : `http://${host}`;
+        const norm = normalizeServerUrl(cfg.remoteDbHost, 3000);
+        if (norm && !norm.includes('localhost') && !norm.includes('127.0.0.1')) {
+          return norm;
         }
       }
     }
@@ -343,12 +377,25 @@ export async function detectCurrentPublicIp(customBaseUrl?: string): Promise<str
  */
 export async function reportBranchHeartbeatAndIp(
   branchId: string, 
-  data?: { localIp?: string; port?: number; farmadeskId?: string; farmadeskPassword?: string; farmadeskPort?: number },
+  data?: { 
+    code?: string;
+    domain?: string;
+    ddnsDomain?: string;
+    publicIp?: string;
+    localIp?: string; 
+    port?: number; 
+    farmadeskId?: string; 
+    farmadeskPassword?: string; 
+    farmadeskPort?: number 
+  },
   customBaseUrl?: string
 ): Promise<{ success: boolean; publicIp: string; message: string }> {
-  const detectedIp = await detectCurrentPublicIp(customBaseUrl);
+  const detectedIp = data?.publicIp || await detectCurrentPublicIp(customBaseUrl);
   const payload = {
     branchId,
+    branchCode: data?.code,
+    domain: data?.domain || data?.ddnsDomain,
+    ddnsDomain: data?.ddnsDomain || data?.domain,
     publicIp: detectedIp,
     localIp: data?.localIp || '192.168.1.100',
     port: data?.port || 3000,
@@ -358,7 +405,7 @@ export async function reportBranchHeartbeatAndIp(
     timestamp: new Date().toISOString()
   };
 
-  const remoteUrl = customBaseUrl || getRemoteBaseUrlFromConfig();
+  const remoteUrl = normalizeServerUrl(customBaseUrl) || getRemoteBaseUrlFromConfig();
   if (remoteUrl) {
     try {
       const fullUrl = `${remoteUrl.replace(/\/+$/, '')}/api/sync/report-ip`;
@@ -366,7 +413,7 @@ export async function reportBranchHeartbeatAndIp(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(3000)
+        signal: AbortSignal.timeout(3500)
       });
       if (res.ok) {
         const json = await res.json();
@@ -506,6 +553,8 @@ export function validateBranchTelemetryItem(item: any): BranchLocation | null {
     lastRemoteCommandTime: item.lastRemoteCommandTime,
     notes: item.notes,
     systemUrl: item.systemUrl,
+    domain: item.domain || item.ddnsDomain,
+    ddnsDomain: item.ddnsDomain || item.domain,
     farmadeskId: item.farmadeskId,
     farmadeskPassword: item.farmadeskPassword,
     farmadeskPort: item.farmadeskPort || 9050,
@@ -515,11 +564,104 @@ export function validateBranchTelemetryItem(item: any): BranchLocation | null {
     lat: typeof item.lat === 'number' ? item.lat : undefined,
     lng: typeof item.lng === 'number' ? item.lng : undefined,
     latencyMs: typeof item.latencyMs === 'number' ? item.latencyMs : undefined,
+    pingMethod: item.pingMethod,
+    pingDetails: item.pingDetails,
+    lastPingAt: item.lastPingAt,
+    installedGlobalVersion: item.installedGlobalVersion,
+    installedSoftwareVersion: item.installedSoftwareVersion,
+    isGlobalOutdated: item.isGlobalOutdated,
+    isAppOutdated: item.isAppOutdated,
+    financialShiftSummary: item.financialShiftSummary,
     systemLoad: typeof item.systemLoad === 'number' ? item.systemLoad : undefined,
     memoryUsage: typeof item.memoryUsage === 'number' ? item.memoryUsage : undefined,
     diskUsage: typeof item.diskUsage === 'number' ? item.diskUsage : undefined,
     activeConnections: typeof item.activeConnections === 'number' ? item.activeConnections : undefined
   };
+}
+
+/**
+ * Servidor Central: Ejecutar Ping / Sondeo de Conectividad RTT real a todas las sucursales
+ */
+export async function pingBranchesFromCentral(
+  targetBranchIds?: string[]
+): Promise<{ 
+  success: boolean; 
+  branches: BranchLocation[]; 
+  summary: { total: number; online: number; offline: number; avgLatency: number } 
+}> {
+  try {
+    const res = await fetch('/api/sync/ping-branches', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branchIds: targetBranchIds })
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.branches)) {
+        const validatedList: BranchLocation[] = [];
+        for (const item of json.branches) {
+          const validBranch = validateBranchTelemetryItem(item);
+          if (validBranch) validatedList.push(validBranch);
+        }
+        return {
+          success: true,
+          branches: validatedList,
+          summary: json.summary || {
+            total: validatedList.length,
+            online: validatedList.filter(b => b.status === 'online').length,
+            offline: validatedList.filter(b => b.status === 'offline').length,
+            avgLatency: 24
+          }
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('[SyncService] Error ejecutando ping central a sedes:', err);
+  }
+
+  // Fallback a lectura de telemetría regular
+  const fallbackList = await fetchBranchesTelemetry();
+  return {
+    success: false,
+    branches: fallbackList,
+    summary: {
+      total: fallbackList.length,
+      online: fallbackList.filter(b => b.status === 'online').length,
+      offline: fallbackList.filter(b => b.status === 'offline').length,
+      avgLatency: 24
+    }
+  };
+}
+
+/**
+ * Servidor Central: Ejecutar Ping individual a una sede específica o IP/host arbitrario
+ */
+export async function pingSingleBranchFromCentral(
+  branchId?: string,
+  host?: string,
+  port?: number
+): Promise<{
+  success: boolean;
+  online: boolean;
+  latencyMs: number;
+  method: 'tcp' | 'http' | 'icmp' | 'none';
+  details?: string;
+  testedHost?: string;
+  testedPort?: number;
+}> {
+  try {
+    const res = await fetch('/api/sync/ping-branch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branchId, host, port })
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err: any) {
+    console.warn('[SyncService] Error pinging single branch:', err);
+  }
+  return { success: false, online: false, latencyMs: 0, method: 'none', details: 'No se pudo comunicar con el servidor' };
 }
 
 /**
