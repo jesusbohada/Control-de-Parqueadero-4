@@ -240,16 +240,43 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   };
 
   const handleEditBranch = (branch: BranchLocation) => {
-    // Si la IP guardada es local/LAN (127.0.0.1 o 192.168.x.x) y hay una IP pública detectada o dominio, pre-aplicarla
+    // Protección y recuperación automática de identidad de sede
+    let safeName = branch.name;
+    let safeCode = branch.code;
+    let safeCity = branch.city;
+    let safeAddress = branch.address;
+    let safeManager = branch.managerName;
+    let safeSpots = branch.totalSpots;
+    let safeLocalIp = branch.localIp;
+
+    if (branch.id === 'branch_1793114761863') {
+      if (!safeName || safeName.startsWith('Sucursal branch_')) safeName = 'DESARROLLO Y PRUEBAS';
+      if (!safeCode || safeCode.startsWith('BRANCH_')) safeCode = 'OFI-001';
+      if (!safeCity || safeCity === 'Principal' || safeCity === 'Ciudad Principal') safeCity = 'CUCUTA';
+      if (!safeAddress || safeAddress === 'Dirección Principal') safeAddress = 'Avenida 7A # 0BN38 BARRIO SEVILLA';
+      if (!safeManager || safeManager === 'Administrador') safeManager = 'JESUS BOHADA';
+      if (!safeSpots || safeSpots === 30) safeSpots = 1000;
+      if (!safeLocalIp || safeLocalIp.includes('152.200.')) safeLocalIp = '192.168.14.227';
+    }
+
     const detectedPublic = branch.domain || branch.ddnsDomain || (branch.reportedPublicIp && branch.reportedPublicIp !== '127.0.0.1' ? branch.reportedPublicIp : '') || (branch.publicIp && branch.publicIp !== '127.0.0.1' ? branch.publicIp : '');
     const isCurrentIpLocal = !branch.ipAddress || branch.ipAddress === '127.0.0.1' || branch.ipAddress.startsWith('192.168.') || branch.ipAddress.startsWith('10.') || branch.ipAddress === 'localhost';
 
-    const effectiveIp = (isCurrentIpLocal && detectedPublic) ? detectedPublic : (branch.ipAddress || detectedPublic || '127.0.0.1');
+    const fallbackLan = safeLocalIp || (isCurrentIpLocal ? branch.ipAddress : (branch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100'));
+    const effectiveIp = (isCurrentIpLocal && detectedPublic) ? detectedPublic : (branch.ipAddress || detectedPublic || fallbackLan || '127.0.0.1');
 
     setEditingBranch({
       ...branch,
+      name: safeName,
+      code: safeCode,
+      city: safeCity,
+      address: safeAddress,
+      managerName: safeManager,
+      totalSpots: safeSpots,
+      localIp: fallbackLan,
       ipAddress: effectiveIp,
-      publicIp: detectedPublic || branch.publicIp || effectiveIp,
+      publicIp: detectedPublic || branch.publicIp || '152.200.144.62',
+      reportedPublicIp: detectedPublic || branch.reportedPublicIp || '152.200.144.62',
       port: branch.port || 3000
     });
     setBranchModalPingResult(null);
@@ -293,11 +320,15 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
       // Aplicar de inmediato al estado del formulario
       setEditingBranch(prev => {
         if (!prev) return prev;
+        const validLocal = (reported?.localIp && !reported.localIp.includes('152.200.') && reported.localIp !== ipToUse) 
+          ? reported.localIp 
+          : (prev.localIp || (prev.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100'));
         return {
           ...prev,
           ipAddress: hostToApply,
           publicIp: ipToUse || prev.publicIp || hostToApply,
           reportedPublicIp: ipToUse || prev.reportedPublicIp || hostToApply,
+          localIp: validLocal,
           domain: domainToUse || prev.domain
         };
       });
@@ -360,6 +391,7 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
 
     const host = editingBranch.ipAddress?.trim() || '127.0.0.1';
     const port = Number(editingBranch.port) || 3000;
+    const isLocalHost = host.startsWith('192.168.') || host.startsWith('10.') || host.startsWith('172.16.') || host === '127.0.0.1' || host === 'localhost';
 
     const branchToSave: BranchLocation = {
       id: editingBranch.id || `branch_${Date.now()}`,
@@ -372,8 +404,9 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
       status: branchModalPingResult ? (branchModalPingResult.online ? 'online' : 'offline') : ((editingBranch.status as any) || 'online'),
       latencyMs: branchModalPingResult?.latencyMs !== undefined ? branchModalPingResult.latencyMs : editingBranch.latencyMs,
       ipAddress: host,
-      publicIp: editingBranch.publicIp?.trim() || host,
-      reportedPublicIp: editingBranch.reportedPublicIp || editingBranch.publicIp?.trim() || host,
+      publicIp: editingBranch.publicIp?.trim() || editingBranch.reportedPublicIp?.trim() || (isLocalHost ? '152.200.144.62' : host),
+      reportedPublicIp: editingBranch.reportedPublicIp?.trim() || editingBranch.publicIp?.trim() || (isLocalHost ? '152.200.144.62' : host),
+      localIp: editingBranch.localIp?.trim() || (isLocalHost ? host : (editingBranch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100')),
       domain: editingBranch.domain?.trim() || undefined,
       ddnsDomain: editingBranch.ddnsDomain?.trim() || editingBranch.domain?.trim() || undefined,
       port: port,
@@ -1611,36 +1644,116 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <label className="block text-slate-700 dark:text-slate-300 font-bold text-xs">
-                          IP Pública / WAN / Dominio:
+                          IP / Host de Conexión:
                         </label>
-                        <button
-                          type="button"
-                          onClick={handleDetectAndPingInBranchModal}
-                          disabled={isDetectingInBranchModal}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all cursor-pointer shadow-xs disabled:opacity-50"
-                          title="Consultar la IP pública/dominio reportado por esta sucursal y ejecutar ping"
-                        >
-                          <Radio className={`w-3.5 h-3.5 text-white ${isDetectingInBranchModal ? 'animate-pulse' : ''}`} />
-                          <span>{isDetectingInBranchModal ? 'Sondeando...' : 'Autodetectar IP / Ping'}</span>
-                        </button>
+                        <div className="flex items-center gap-1">
+                          {/* WAN Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const wan = editingBranch.publicIp || editingBranch.reportedPublicIp || '152.200.144.62';
+                              setEditingBranch(prev => prev ? ({
+                                ...prev,
+                                ipAddress: wan,
+                                systemUrl: `http://${wan}:${prev.port || 3000}/wolfzonepos?branchId=${prev.id}`
+                              }) : null);
+                            }}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                              editingBranch.ipAddress === (editingBranch.publicIp || editingBranch.reportedPublicIp) && !editingBranch.ipAddress?.startsWith('192.168.') && editingBranch.ipAddress !== '127.0.0.1'
+                                ? 'bg-indigo-600 text-white shadow-xs'
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300'
+                            }`}
+                            title={`Seleccionar IP Pública WAN (${editingBranch.publicIp || editingBranch.reportedPublicIp || 'Detectada'})`}
+                          >
+                            WAN Pública
+                          </button>
+
+                          {/* LAN Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const lan = editingBranch.localIp || (editingBranch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100');
+                              setEditingBranch(prev => prev ? ({
+                                ...prev,
+                                ipAddress: lan,
+                                localIp: lan,
+                                systemUrl: `http://${lan}:${prev.port || 3000}/wolfzonepos?branchId=${prev.id}`
+                              }) : null);
+                            }}
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                              editingBranch.ipAddress === editingBranch.localIp || editingBranch.ipAddress?.startsWith('192.168.') || editingBranch.ipAddress === '127.0.0.1'
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300'
+                            }`}
+                            title={`Seleccionar IP Local LAN (${editingBranch.localIp || '192.168.14.227'})`}
+                          >
+                            LAN Local
+                          </button>
+
+                          {/* DDNS Button if available */}
+                          {(editingBranch.domain || editingBranch.ddnsDomain) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const dom = editingBranch.domain || editingBranch.ddnsDomain!;
+                                setEditingBranch(prev => prev ? ({
+                                  ...prev,
+                                  ipAddress: dom,
+                                  systemUrl: `http://${dom}:${prev.port || 3000}/wolfzonepos?branchId=${prev.id}`
+                                }) : null);
+                              }}
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-all ${
+                                editingBranch.ipAddress === (editingBranch.domain || editingBranch.ddnsDomain)
+                                  ? 'bg-purple-600 text-white shadow-xs'
+                                  : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300'
+                              }`}
+                              title={`Seleccionar Dominio DDNS (${editingBranch.domain || editingBranch.ddnsDomain})`}
+                            >
+                              DDNS
+                            </button>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="relative">
+                      <div className="flex gap-1.5">
                         <input
                           type="text"
                           value={editingBranch.ipAddress || ''}
                           onChange={(e) => {
                             const val = e.target.value;
-                            setEditingBranch(prev => prev ? ({ 
-                              ...prev, 
-                              ipAddress: val, 
-                              publicIp: val,
-                              systemUrl: `http://${val}:${prev.port || 3000}/wolfzonepos?branchId=${prev.id}`
-                            }) : null);
+                            setEditingBranch(prev => {
+                              if (!prev) return null;
+                              const isLocal = val.startsWith('192.168.') || val.startsWith('10.') || val.startsWith('172.16.') || val === '127.0.0.1' || val === 'localhost';
+                              return {
+                                ...prev,
+                                ipAddress: val,
+                                ...(isLocal ? { localIp: val } : { publicIp: val }),
+                                systemUrl: `http://${val}:${prev.port || 3000}/wolfzonepos?branchId=${prev.id}`
+                              };
+                            });
                           }}
-                          placeholder="Ej: 152.200.144.62 ó sede.ddns.net"
+                          placeholder="Ej: 152.200.144.62 ó 192.168.14.227"
                           className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 font-mono font-bold text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500"
                         />
+                        <button
+                          type="button"
+                          onClick={handleDetectAndPingInBranchModal}
+                          disabled={isDetectingInBranchModal}
+                          className="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all cursor-pointer shadow-xs disabled:opacity-50 shrink-0"
+                          title="Consultar la IP pública/dominio reportado por esta sucursal y ejecutar ping"
+                        >
+                          <Radio className={`w-3.5 h-3.5 text-white ${isDetectingInBranchModal ? 'animate-pulse' : ''}`} />
+                          <span className="hidden sm:inline">{isDetectingInBranchModal ? 'Sondeando...' : 'Autodetectar'}</span>
+                        </button>
+                      </div>
+
+                      <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                        <span title="IP pública WAN detectada en telemetría">
+                          🌐 WAN: <strong className="text-indigo-600 dark:text-indigo-400">{editingBranch.publicIp || editingBranch.reportedPublicIp || '152.200.144.62'}</strong>
+                        </span>
+                        <span title="IP privada de red interna LAN">
+                          🏠 LAN: <strong className="text-emerald-600 dark:text-emerald-400">{editingBranch.localIp || (editingBranch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100')}</strong>
+                        </span>
                       </div>
                     </div>
 

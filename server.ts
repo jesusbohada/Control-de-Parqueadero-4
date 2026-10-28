@@ -4810,15 +4810,21 @@ if __name__ == '__main__':
 
       const base = cleanMap[id] || (GOLDEN_BRANCHES_TELEMETRY[id] || {});
 
+      const isGenericName = (n?: string) => !n || n.startsWith('Sucursal branch_') || n.startsWith('Sucursal SUC-') || n === `Sucursal ${id}`;
+      const isGenericCode = (c?: string) => !c || c === id.toUpperCase() || c.startsWith('BRANCH_');
+
       cleanMap[id] = {
         ...base,
         ...item,
         id,
-        code: item.code || base.code || id.toUpperCase(),
-        name: item.name || base.name || `Sucursal ${id}`,
-        city: item.city || base.city || 'Ciudad Principal',
-        address: item.address || base.address || 'Dirección Principal',
+        code: (!isGenericCode(base.code)) ? base.code : ((item.code && !isGenericCode(item.code)) ? item.code : (base.code || id.toUpperCase())),
+        name: (!isGenericName(base.name)) ? base.name : ((item.name && !isGenericName(item.name)) ? item.name : (base.name || `Sucursal ${id}`)),
+        city: (base.city && base.city !== 'Ciudad Principal') ? base.city : (item.city || base.city || 'Ciudad Principal'),
+        address: (base.address && base.address !== 'Dirección Principal' && base.address !== 'Dirección no registrada') ? base.address : (item.address || base.address || 'Dirección Principal'),
+        managerName: (base.managerName && base.managerName !== 'Administrador') ? base.managerName : (item.managerName || base.managerName || 'Administrador'),
+        totalSpots: (typeof base.totalSpots === 'number' && base.totalSpots > 0) ? base.totalSpots : (typeof item.totalSpots === 'number' ? item.totalSpots : 30),
         status: validBranchStatuses.includes(item.status) ? item.status : (base.status || 'offline'),
+        localIp: (item.localIp && !item.localIp.includes('152.200.') && item.localIp !== item.publicIp) ? item.localIp : (base.localIp || item.localIp || '192.168.1.100'),
         publicIp: item.reportedPublicIp || item.publicIp || base.publicIp || '127.0.0.1',
         reportedPublicIp: item.reportedPublicIp || item.publicIp || base.reportedPublicIp || '127.0.0.1',
         domain: item.domain || item.ddnsDomain || base.domain || base.ddnsDomain,
@@ -5670,12 +5676,25 @@ if __name__ == '__main__':
 
       const resolvedDomain = branch.domain || branch.ddnsDomain || existing.domain || existing.ddnsDomain;
 
+      const isGenericName = (n?: string) => !n || n.startsWith('Sucursal branch_') || n.startsWith('Sucursal SUC-') || n === `Sucursal ${targetBranchId}`;
+      const isGenericCode = (c?: string) => !c || c === targetBranchId.toUpperCase() || c.startsWith('BRANCH_');
+
+      const resolvedName = (existing.name && !isGenericName(existing.name)) ? existing.name : ((branch.name && !isGenericName(branch.name)) ? branch.name : (existing.name || `Sucursal ${targetBranchId}`));
+      const resolvedCode = (existing.code && !isGenericCode(existing.code)) ? existing.code : ((branch.code && !isGenericCode(branch.code)) ? branch.code : (existing.code || targetBranchId.toUpperCase()));
+
       const branchRecord = {
         ...existing,
         ...branch,
         id: targetBranchId,
+        name: resolvedName,
+        code: resolvedCode,
+        city: (existing.city && existing.city !== 'Ciudad Principal') ? existing.city : (branch.city || existing.city || 'Ciudad Principal'),
+        address: (existing.address && existing.address !== 'Dirección Principal') ? existing.address : (branch.address || existing.address || 'Dirección Principal'),
+        managerName: (existing.managerName && existing.managerName !== 'Administrador') ? existing.managerName : (branch.managerName || existing.managerName || 'Administrador'),
+        totalSpots: (typeof existing.totalSpots === 'number' && existing.totalSpots > 0) ? existing.totalSpots : (typeof branch.totalSpots === 'number' ? branch.totalSpots : 30),
         publicIp: reportedPublicIp,
         reportedPublicIp: reportedPublicIp,
+        localIp: (branch.localIp && !branch.localIp.includes('152.200.') && branch.localIp !== branch.publicIp) ? branch.localIp : (existing.localIp || '192.168.1.100'),
         domain: resolvedDomain,
         ddnsDomain: resolvedDomain,
         ipAddress: resolvedDomain || reportedPublicIp,
@@ -5698,9 +5717,17 @@ if __name__ == '__main__':
               (branchCode && b.code?.toUpperCase() === branchCode?.toUpperCase())
             );
             if (bIdx >= 0) {
+              const gb = gConf.branches[bIdx];
               gConf.branches[bIdx] = { 
-                ...gConf.branches[bIdx], 
+                ...gb, 
                 ...branchRecord,
+                name: (gb.name && !isGenericName(gb.name)) ? gb.name : branchRecord.name,
+                code: (gb.code && !isGenericCode(gb.code)) ? gb.code : branchRecord.code,
+                city: (gb.city && gb.city !== 'Ciudad Principal') ? gb.city : branchRecord.city,
+                address: (gb.address && gb.address !== 'Dirección Principal') ? gb.address : branchRecord.address,
+                managerName: gb.managerName || branchRecord.managerName,
+                totalSpots: (typeof gb.totalSpots === 'number' && gb.totalSpots > 0) ? gb.totalSpots : branchRecord.totalSpots,
+                localIp: gb.localIp || branchRecord.localIp || '192.168.1.100',
                 publicIp: reportedPublicIp,
                 reportedPublicIp: reportedPublicIp,
                 ipAddress: resolvedDomain || reportedPublicIp,
@@ -6558,15 +6585,23 @@ if __name__ == '__main__':
       const telemetryMap = loadAndValidateBranchesTelemetry();
       const existing = telemetryMap[targetBranchId] || {};
 
+      const isGenericName = (n?: string) => !n || n.startsWith('Sucursal branch_') || n.startsWith('Sucursal SUC-') || n === `Sucursal ${targetBranchId}`;
+      const isGenericCode = (c?: string) => !c || c === targetBranchId.toUpperCase() || c.startsWith('BRANCH_');
+
+      const resolvedName = (existing.name && !isGenericName(existing.name)) ? existing.name : (existing.name || `Sucursal ${targetBranchId}`);
+      const resolvedCode = (existing.code && !isGenericCode(existing.code)) ? existing.code : (branchCode || existing.code || targetBranchId.toUpperCase());
+
       telemetryMap[targetBranchId] = {
         ...existing,
         id: targetBranchId,
+        name: resolvedName,
+        code: resolvedCode,
         ipAddress: resolvedDomain || resolvedPublicIp,
         publicIp: resolvedPublicIp,
         reportedPublicIp: resolvedPublicIp,
         domain: resolvedDomain || existing.domain,
         ddnsDomain: resolvedDomain || existing.ddnsDomain,
-        localIp: ipAddress || existing.localIp || '192.168.10.105',
+        localIp: (ipAddress && !ipAddress.includes('152.200.') && ipAddress !== resolvedPublicIp) ? ipAddress : (existing.localIp || '192.168.14.227'),
         port: port || existing.port || 3000,
         webSocketsUrl: webSocketsUrl || `ws://${resolvedPublicIp}:${port || 3000}/ws`,
         farmadeskId: farmadeskId || existing.farmadeskId || anydeskId || '592038471',

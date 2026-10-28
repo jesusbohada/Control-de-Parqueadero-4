@@ -872,18 +872,40 @@ export default function App() {
         if (Array.isArray(list) && list.length > 0) {
           const validList = list
             .filter(b => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id))
-            .map((b: any) => ({
-              ...b,
-              code: b.code || b.id.toUpperCase(),
-              name: b.name || `Sucursal ${b.id}`,
-              city: b.city || 'Principal',
-              address: b.address || 'Dirección Principal',
-              status: b.status || 'online',
-              totalSpots: typeof b.totalSpots === 'number' ? b.totalSpots : 30,
-              occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
-              todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
-              todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
-            }));
+            .map((b: any) => {
+              if (b.id === 'branch_1793114761863') {
+                const isGenName = !b.name || b.name.startsWith('Sucursal branch_');
+                const isGenCode = !b.code || b.code.startsWith('BRANCH_');
+                return {
+                  ...b,
+                  code: isGenCode ? 'OFI-001' : b.code,
+                  name: isGenName ? 'DESARROLLO Y PRUEBAS' : b.name,
+                  city: (!b.city || b.city === 'Principal' || b.city === 'Ciudad Principal') ? 'CUCUTA' : b.city,
+                  address: (!b.address || b.address === 'Dirección Principal') ? 'Avenida 7A # 0BN38 BARRIO SEVILLA' : b.address,
+                  managerName: (!b.managerName || b.managerName === 'Administrador') ? 'JESUS BOHADA' : b.managerName,
+                  totalSpots: (typeof b.totalSpots === 'number' && b.totalSpots > 0 && b.totalSpots !== 30) ? b.totalSpots : 1000,
+                  localIp: (b.localIp && !b.localIp.includes('152.200.')) ? b.localIp : '192.168.14.227',
+                  publicIp: b.publicIp || '152.200.144.62',
+                  reportedPublicIp: b.reportedPublicIp || '152.200.144.62',
+                  status: b.status || 'online',
+                  occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
+                  todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
+                  todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
+                };
+              }
+              return {
+                ...b,
+                code: b.code || b.id.toUpperCase(),
+                name: b.name || `Sucursal ${b.id}`,
+                city: b.city || 'Principal',
+                address: b.address || 'Dirección Principal',
+                status: b.status || 'online',
+                totalSpots: typeof b.totalSpots === 'number' ? b.totalSpots : 30,
+                occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
+                todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
+                todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
+              };
+            });
           if (validList.length > 0) {
             const hasMain = validList.some(b => b.id === 'suc-001');
             const merged = hasMain ? validList : [...INITIAL_BRANCHES, ...validList];
@@ -1424,18 +1446,40 @@ export default function App() {
 
           const validBranches = sBranches
             .filter((b: any) => b && typeof b === 'object' && b.id && b.id !== 'branch-01' && b.id !== 'SERVER-CENTRAL' && !deletedSet.has(b.id))
-            .map((b: any) => ({
-              ...b,
-              code: b.code || b.id.toUpperCase(),
-              name: b.name || `Sucursal ${b.id}`,
-              city: b.city || 'Principal',
-              address: b.address || 'Dirección Principal',
-              status: b.status || 'online',
-              totalSpots: typeof b.totalSpots === 'number' ? b.totalSpots : 30,
-              occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
-              todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
-              todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
-            }));
+            .map((b: any) => {
+              if (b.id === 'branch_1793114761863') {
+                const isGenName = !b.name || b.name.startsWith('Sucursal branch_');
+                const isGenCode = !b.code || b.code.startsWith('BRANCH_');
+                return {
+                  ...b,
+                  code: isGenCode ? 'OFI-001' : b.code,
+                  name: isGenName ? 'DESARROLLO Y PRUEBAS' : b.name,
+                  city: (!b.city || b.city === 'Principal' || b.city === 'Ciudad Principal') ? 'CUCUTA' : b.city,
+                  address: (!b.address || b.address === 'Dirección Principal') ? 'Avenida 7A # 0BN38 BARRIO SEVILLA' : b.address,
+                  managerName: (!b.managerName || b.managerName === 'Administrador') ? 'JESUS BOHADA' : b.managerName,
+                  totalSpots: (typeof b.totalSpots === 'number' && b.totalSpots > 0 && b.totalSpots !== 30) ? b.totalSpots : 1000,
+                  localIp: (b.localIp && !b.localIp.includes('152.200.')) ? b.localIp : '192.168.14.227',
+                  publicIp: b.publicIp || '152.200.144.62',
+                  reportedPublicIp: b.reportedPublicIp || '152.200.144.62',
+                  status: b.status || 'online',
+                  occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
+                  todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
+                  todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
+                };
+              }
+              return {
+                ...b,
+                code: b.code || b.id.toUpperCase(),
+                name: b.name || `Sucursal ${b.id}`,
+                city: b.city || 'Principal',
+                address: b.address || 'Dirección Principal',
+                status: b.status || 'online',
+                totalSpots: typeof b.totalSpots === 'number' ? b.totalSpots : 30,
+                occupiedSpots: typeof b.occupiedSpots === 'number' ? b.occupiedSpots : 0,
+                todayRevenue: typeof b.todayRevenue === 'number' ? b.todayRevenue : 0,
+                todayVehicles: typeof b.todayVehicles === 'number' ? b.todayVehicles : 0
+              };
+            });
           if (validBranches.length > 0) {
             const withMain = validBranches.some(b => b.id === 'suc-001') ? validBranches : [...INITIAL_BRANCHES, ...validBranches];
             const finalBranches = ensureUniqueBranchFarmadeskCredentials(withMain);
@@ -4976,8 +5020,33 @@ export default function App() {
                         const effectiveHost = effectiveDomain || effectivePublicIp || p.ipAddress;
                         const port = p.port || t.port || 3000;
 
+                        let name = p.name;
+                        let code = p.code;
+                        let city = p.city;
+                        let address = p.address;
+                        let managerName = p.managerName;
+                        let totalSpots = p.totalSpots;
+                        let localIp = (p.localIp && !p.localIp.includes('152.200.')) ? p.localIp : t.localIp;
+
+                        if (p.id === 'branch_1793114761863') {
+                          if (!name || name.startsWith('Sucursal branch_')) name = 'DESARROLLO Y PRUEBAS';
+                          if (!code || code.startsWith('BRANCH_')) code = 'OFI-001';
+                          if (!city || city === 'Principal' || city === 'Ciudad Principal') city = 'CUCUTA';
+                          if (!address || address === 'Dirección Principal') address = 'Avenida 7A # 0BN38 BARRIO SEVILLA';
+                          if (!managerName || managerName === 'Administrador') managerName = 'JESUS BOHADA';
+                          if (!totalSpots || totalSpots === 30) totalSpots = 1000;
+                          if (!localIp || localIp.includes('152.200.')) localIp = '192.168.14.227';
+                        }
+
                         return {
                           ...p,
+                          name,
+                          code,
+                          city,
+                          address,
+                          managerName,
+                          totalSpots,
+                          localIp: localIp || '192.168.14.227',
                           publicIp: effectivePublicIp || p.publicIp,
                           reportedPublicIp: effectivePublicIp || p.reportedPublicIp,
                           ipAddress: effectiveHost,
@@ -4994,16 +5063,19 @@ export default function App() {
                         if (r && r.id && r.id !== 'SERVER-CENTRAL' && !prevIds.has(r.id) && !deletedSet.has(r.id)) {
                           const rHost = r.domain || r.ddnsDomain || r.reportedPublicIp || r.publicIp || '127.0.0.1';
                           const rPort = r.port || 3000;
+                          const isSpecial = r.id === 'branch_1793114761863';
                           updated.push({
                             ...r,
-                            code: r.code || r.id.toUpperCase(),
-                            name: r.name || `Sucursal ${r.id}`,
-                            city: r.city || 'Principal',
-                            address: r.address || 'Dirección Principal',
+                            code: isSpecial ? 'OFI-001' : (r.code || r.id.toUpperCase()),
+                            name: isSpecial ? 'DESARROLLO Y PRUEBAS' : (r.name || `Sucursal ${r.id}`),
+                            city: isSpecial ? 'CUCUTA' : (r.city || 'Principal'),
+                            address: isSpecial ? 'Avenida 7A # 0BN38 BARRIO SEVILLA' : (r.address || 'Dirección Principal'),
+                            managerName: isSpecial ? 'JESUS BOHADA' : (r.managerName || 'Administrador'),
+                            totalSpots: isSpecial ? 1000 : (typeof r.totalSpots === 'number' ? r.totalSpots : 30),
+                            localIp: isSpecial ? '192.168.14.227' : (r.localIp || '192.168.1.100'),
                             ipAddress: rHost,
                             systemUrl: `http://${rHost}:${rPort}/wolfzonepos?branchId=${r.id}`,
                             status: r.status || 'online',
-                            totalSpots: typeof r.totalSpots === 'number' ? r.totalSpots : 30,
                             occupiedSpots: typeof r.occupiedSpots === 'number' ? r.occupiedSpots : 0,
                             todayRevenue: typeof r.todayRevenue === 'number' ? r.todayRevenue : 0,
                             todayVehicles: typeof r.todayVehicles === 'number' ? r.todayVehicles : 0
@@ -5111,8 +5183,23 @@ export default function App() {
                     if (savedDeleted) deletedSet = new Set(JSON.parse(savedDeleted));
                   } catch (e) {}
                   setBranches(prev => {
-                    const prevIds = new Set(prev.map(p => p.id));
-                    return refreshed.filter(r => prevIds.has(r.id) && !deletedSet.has(r.id));
+                    const telemetryMap = new Map(refreshed.map(r => [r.id, r]));
+                    return prev.map(p => {
+                      const t = telemetryMap.get(p.id);
+                      if (!t) return p;
+                      return {
+                        ...p,
+                        status: t.status || p.status,
+                        latencyMs: t.latencyMs !== undefined ? t.latencyMs : p.latencyMs,
+                        publicIp: t.reportedPublicIp || t.publicIp || p.publicIp,
+                        reportedPublicIp: t.reportedPublicIp || t.publicIp || p.reportedPublicIp,
+                        domain: t.domain || t.ddnsDomain || p.domain,
+                        ddnsDomain: t.domain || t.ddnsDomain || p.ddnsDomain,
+                        occupiedSpots: typeof t.occupiedSpots === 'number' ? t.occupiedSpots : p.occupiedSpots,
+                        todayRevenue: typeof t.todayRevenue === 'number' ? t.todayRevenue : p.todayRevenue,
+                        todayVehicles: typeof t.todayVehicles === 'number' ? t.todayVehicles : p.todayVehicles
+                      };
+                    });
                   });
                 }
               }}
