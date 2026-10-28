@@ -3021,7 +3021,6 @@ export default function App() {
         }
         break;
       case 'rates':
-      case 'rates_ai':
         if (!perms.canEditRates || vis?.showTabSettings === false) {
           return { allowed: false, name: 'Tarifas del Sistema' };
         }
@@ -3133,7 +3132,6 @@ export default function App() {
         software_updater: 'updates',
         work_mode: 'central',
         rates: 'config',
-        rates_ai: 'config',
         agreements: 'config',
         vehicle_categories: 'config',
         users: 'config',
@@ -5144,9 +5142,8 @@ export default function App() {
         )}
 
         {/* CONFIGURACIÓN & PARÁMETROS */}
-        {(activeView === 'rates' || activeView === 'rates_ai') && (
+        {activeView === 'rates' && (
           <RatesSettingsModal
-            initialTab={activeView === 'rates_ai' ? 'ai_gemini' : 'rates'}
             rates={rates}
             businessInfo={businessInfo}
             onSaveRates={handleSaveRates}

@@ -17,7 +17,6 @@ export type ActiveWorkspaceView =
   | 'software_updater'
   | 'work_mode'
   | 'rates'
-  | 'rates_ai'
   | 'vehicle_categories'
   | 'users'
   | 'printer_config'

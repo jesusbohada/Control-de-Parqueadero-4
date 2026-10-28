@@ -225,16 +225,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: Printer,
           requiredPermission: (currentUser.permissions.canConfigurePrinters ?? currentUser.permissions.canEditBusinessInfo ?? (currentUser.role === 'master' || currentUser.role === 'supervisor')) && (currentUser.permissions.uiVisibility?.showPrinterConfigModule !== false),
         },
-        {
-          id: 'rates_ai',
-          category: 'config',
-          label: 'Inteligencia Artificial (Gemini)',
-          shortLabel: 'IA Gemini',
-          icon: Sparkles,
-          badge: 'IA',
-          badgeColor: 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold',
-          requiredPermission: (currentUser.permissions.canEditRates !== false) && (currentUser.permissions.uiVisibility?.showTabSettings !== false),
-        },
       ],
     },
     {
