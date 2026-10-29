@@ -147,14 +147,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           requiredPermission: (currentUser.permissions.canManageCashShift !== false) && (currentUser.permissions.uiVisibility?.showTabCash !== false),
         },
         {
-          id: 'cash_history',
-          category: 'finance',
-          label: 'Histórico de Cierres',
-          shortLabel: 'Histórico',
-          icon: History,
-          requiredPermission: (currentUser.permissions.canViewCashShiftsHistory !== false) && (currentUser.permissions.uiVisibility?.showCashShiftsHistory !== false),
-        },
-        {
           id: 'expense_concepts',
           category: 'finance',
           label: 'Conceptos Gasto',
