@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Printer, X, CheckCircle2, QrCode, Car, Bike, Truck, Shield, FileCheck } from 'lucide-react';
-import { ParkingTicket, ParkingBusinessInfo, RatesConfig, PaymentMethod, VehicleCategoryConfig } from '../types';
+import { ParkingTicket, ParkingBusinessInfo, RatesConfig, PaymentMethod, VehicleCategoryConfig, OperationalDay, CashShift } from '../types';
 import { formatCurrency, getVehicleRate } from '../utils/billing';
 import { getPaymentMethodMeta, formatPaymentDetailsSummary } from '../utils/paymentUtils';
 import { DynamicQrCode } from './DynamicQrCode';
@@ -13,6 +13,8 @@ interface TicketModalProps {
   businessInfo: ParkingBusinessInfo;
   rates: RatesConfig;
   vehicleCategories?: VehicleCategoryConfig[];
+  operationalDay?: OperationalDay;
+  currentShift?: CashShift;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -23,6 +25,8 @@ export const TicketModal: React.FC<TicketModalProps> = ({
   businessInfo,
   rates,
   vehicleCategories = [],
+  operationalDay,
+  currentShift,
   isOpen,
   onClose,
 }) => {
@@ -77,6 +81,8 @@ export const TicketModal: React.FC<TicketModalProps> = ({
       const res = await printInstantThermal({
         type: mode === 'entry' ? 'entry_ticket' : 'exit_receipt',
         ticket,
+        day: operationalDay,
+        shift: currentShift,
         businessInfo,
         rates,
         targetPrinterName: targetPrinter,
@@ -121,6 +127,15 @@ export const TicketModal: React.FC<TicketModalProps> = ({
 
   const entryDateObj = new Date(ticket.entryTime);
   const exitDateObj = ticket.exitTime ? new Date(ticket.exitTime) : new Date();
+
+  // Resolver fecha operativa y turno activo (ej: 23/08/2026 (Turno #1))
+  const operationalDateStr = 
+    ticket.operationalDayDate || 
+    operationalDay?.formattedDate || 
+    (operationalDay?.date ? new Date(operationalDay.date + 'T12:00:00').toLocaleDateString('es-CO') : '') ||
+    (ticket.entryTime ? new Date(ticket.entryTime).toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO'));
+
+  const shiftNumberVal = ticket.shiftNumber || currentShift?.shiftNumber || 1;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
@@ -249,14 +264,13 @@ export const TicketModal: React.FC<TicketModalProps> = ({
                 <span className="font-bold text-slate-950 bg-slate-100 px-1.5 rounded">{ticket.spotCode}</span>
               </div>
 
-              {(ticket.operationalDayNumber || ticket.shiftNumber) && (
-                <div className="flex justify-between text-[10px] text-slate-700">
-                  <span>Jornada Operativa:</span>
-                  <span className="font-bold text-slate-900">
-                    Día #{ticket.operationalDayNumber || 1} • Turno #{ticket.shiftNumber || 1}
-                  </span>
-                </div>
-              )}
+              {/* Día Operativo y Turno Activo */}
+              <div className="flex justify-between items-center text-[10.5px] text-slate-800 bg-slate-50 px-2 py-1 rounded border border-slate-200">
+                <span className="font-bold text-slate-700">Día Operativo:</span>
+                <span className="font-extrabold text-slate-950 font-mono tracking-tight">
+                  {operationalDateStr} (Turno #{shiftNumberVal})
+                </span>
+              </div>
 
               <div className="flex justify-between text-[11px]">
                 <span className="text-slate-700">Fecha / Hora Entrada:</span>

@@ -2865,7 +2865,9 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       </div>
                       <div className="flex justify-between">
                         <span>DÍA OPERATIVO:</span>
-                        <span className="font-bold">#{operationalDay.dayNumber || 1} ({operationalDay.formattedDate || operationalDay.date})</span>
+                        <span className="font-bold font-mono">
+                          {operationalDay.formattedDate || (operationalDay.date ? new Date(operationalDay.date + 'T12:00:00').toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO'))} ({isArqueoVoucher ? `Turno #${currentShift.shiftNumber}` : 'Cierre Definitivo'})
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>USUARIO / CAJERO:</span>

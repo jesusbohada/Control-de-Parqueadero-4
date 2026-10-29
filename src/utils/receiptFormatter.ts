@@ -110,6 +110,8 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(thinSep);
     lines.push(row('CATEGORIA:', (ticket.vehicleType || '').toUpperCase()));
     lines.push(row('PLAZA ASIGNADA:', ticket.spotCode || 'PATIO GENERAL'));
+    const opDateStr = ticket.operationalDayDate || day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date(ticket.entryTime || Date.now()).toLocaleDateString('es-CO');
+    lines.push(row('DIA OPERATIVO:', `${opDateStr} (Turno #${ticket.shiftNumber || 1})`));
     lines.push(row('FECHA/HORA:', new Date(ticket.entryTime || Date.now()).toLocaleString('es-CO')));
     if (ticket.isForeignPlate && ticket.originCountry) {
       lines.push(row('PROCEDENCIA:', ticket.originCountry.toUpperCase()));
@@ -130,6 +132,8 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
       lines.push(center('*** COMPROBANTE DE MENSUALIDAD ***'));
       lines.push(center('SUSCRIPCION DE ABONADO'));
       lines.push(center(`NRO ABONO: ${ticket.ticketNumber || 'N/A'}`));
+      const exitOpDateStr = ticket.operationalDayDate || day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date(ticket.exitTime || Date.now()).toLocaleDateString('es-CO');
+      lines.push(row('DIA OPERATIVO:', `${exitOpDateStr} (Turno #${ticket.shiftNumber || 1})`));
       lines.push(sep);
       lines.push(center(`PLACA: [ ${ticket.plate} ]`));
       if (sub.vehicleCategoryName || ticket.vehicleType) {
@@ -163,6 +167,8 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     } else {
       lines.push(center(ticket.electronicInvoice ? '*** FACTURA ELECTRONICA DE VENTA ***' : 'COMPROBANTE DE SALIDA / FACTURA POS'));
       lines.push(center(`TICKET NRO: ${ticket.ticketNumber || 'N/A'}`));
+      const exitOpDateStr2 = ticket.operationalDayDate || day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date(ticket.exitTime || Date.now()).toLocaleDateString('es-CO');
+      lines.push(row('DIA OPERATIVO:', `${exitOpDateStr2} (Turno #${ticket.shiftNumber || 1})`));
       if (ticket.electronicInvoice?.invoiceNumber) {
         lines.push(center(`FACTURA ELECTRONICA: ${ticket.electronicInvoice.prefix}${ticket.electronicInvoice.invoiceNumber}`));
         if (ticket.electronicInvoice.resolutionNumber) {
@@ -218,6 +224,8 @@ export function formatReceiptText(options: FormatReceiptOptions): string {
     lines.push(boxBorder);
     lines.push(boxCenter('**** COMPROBANTE DE ARQUEO DE CAJA ****'));
     lines.push(boxCenter(`TURNO #${shift.shiftNumber || 1}`));
+    const shiftDateStr = day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date(shift.startTime).toLocaleDateString('es-CO');
+    lines.push(boxRow('DIA OPERATIVO:', `${shiftDateStr} (Turno #${shift.shiftNumber || 1})`));
     if (shift.consecutiveCode) lines.push(boxCenter(`CONSECUTIVO: ${shift.consecutiveCode}`));
     lines.push(boxDoubleBorder);
     lines.push(boxRow('CAJERO/OPERADOR:', shift.operatorName || 'Cajero'));

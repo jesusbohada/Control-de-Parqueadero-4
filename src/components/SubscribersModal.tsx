@@ -659,6 +659,9 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         cashReceived: sub.monthlyRate,
         changeGiven: 0,
         status: 'paid',
+        operationalDayNumber: 1,
+        shiftNumber: 1,
+        operationalDayDate: new Date().toLocaleDateString('es-CO'),
         subscriberInfo: {
           fullName: sub.fullName,
           documentId: sub.documentId,

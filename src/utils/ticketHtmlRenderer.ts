@@ -483,6 +483,8 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
     const formattedDate = entryDate.toLocaleDateString('es-CO');
     const formattedTime = entryDate.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
     const vehicleRate = getVehicleRate(ticket.vehicleType, rates as RatesConfig, vehicleCategories);
+    const opDateStr = ticket.operationalDayDate || day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || formattedDate;
+    const shiftNum = ticket.shiftNumber || shift?.shiftNumber || 1;
 
     const isSubEntry = !!(ticket as any).isSubscriber || (ticket.notes && /abonado/i.test(ticket.notes));
 
@@ -508,8 +510,8 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
         <span class="bold" style="border:1.5px solid #000;padding:1px 6px;border-radius:3px;">${ticket.spotCode || 'PATIO GENERAL'}</span>
       </div>
       <div class="row">
-        <span>Jornada Operativa:</span>
-        <span class="bold">Día #${ticket.operationalDayNumber || 1} • Turno #${ticket.shiftNumber || 1}</span>
+        <span>Día Operativo:</span>
+        <span class="bold font-mono">${opDateStr} (Turno #${shiftNum})</span>
       </div>
       <div class="row">
         <span>Fecha / Hora Entrada:</span>
@@ -575,6 +577,8 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
   } else if (type === 'exit_receipt' && ticket) {
     const isSub = !!(ticket as any).subscriberInfo || ticket.ticketNumber?.startsWith('SUB-');
     const subInfo = (ticket as any).subscriberInfo || {};
+    const exitOpDateStr = ticket.operationalDayDate || day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date().toLocaleDateString('es-CO');
+    const exitShiftNum = ticket.shiftNumber || shift?.shiftNumber || 1;
 
     if (isSub) {
       bodyContent = `
@@ -594,8 +598,12 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       <div class="divider"></div>
 
       <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-        <span class="bold">N° ABONO:</span>
+        <span class="bold">Nº ABONO:</span>
         <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
+      </div>
+      <div class="row">
+        <span>Día Operativo:</span>
+        <span class="bold font-mono">${exitOpDateStr} (Turno #${exitShiftNum})</span>
       </div>
       <div class="row"><span class="bold">TITULAR:</span><span class="font-black">${subInfo.fullName || 'Titular Registrado'}</span></div>
       ${subInfo.documentId ? `<div class="row"><span>DOCUMENTO:</span><span class="bold">CC: ${subInfo.documentId}</span></div>` : ''}
@@ -707,8 +715,12 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       <div class="thin-divider"></div>` : ''}
 
       <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-        <span class="bold">N° TICKET:</span>
+        <span class="bold">Nº TICKET:</span>
         <span class="font-black">${ticket.ticketNumber || 'N/A'}</span>
+      </div>
+      <div class="row">
+        <span>Día Operativo:</span>
+        <span class="bold font-mono">${exitOpDateStr} (Turno #${exitShiftNum})</span>
       </div>
       <div class="row">
         <span>Fecha / Hora Entrada:</span>
@@ -820,6 +832,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
   } else if (type === 'cash_shift' && shift) {
     const diff = shift.cashDifference || 0;
     const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';
+    const shiftDayDateStr = day?.formattedDate || (day?.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date(shift.startTime).toLocaleDateString('es-CO');
 
     bodyContent = `
       <div class="ticket-frame">
@@ -833,8 +846,12 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
 
         <div class="info-card">
           <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-            <span class="bold">TURNO N°:</span>
+            <span class="bold">TURNO Nº:</span>
             <span class="font-black">#${shift.shiftNumber || 1}</span>
+          </div>
+          <div class="row">
+            <span>Día Operativo:</span>
+            <span class="font-black font-mono">${shiftDayDateStr} (Turno #${shift.shiftNumber || 1})</span>
           </div>
           <div class="row">
             <span>Cajero / Operador:</span>
@@ -969,6 +986,7 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
       </div>
     `;
   } else if (type === 'day_closure' && day) {
+    const dayClosureDateStr = day.formattedDate || (day.date ? new Date(day.date + 'T12:00:00').toLocaleDateString('es-CO') : '') || new Date(day.openedAt).toLocaleDateString('es-CO');
     const electronicDay = (day.cardCollectedSnapshot || 0) + (day.walletCollectedSnapshot || 0) + (day.qrCollectedSnapshot || 0) + (day.breBCollectedSnapshot || 0);
     const diff = day.cashDifferenceSnapshot || 0;
     const diffLabel = diff > 0 ? 'SOBRANTE (+):' : diff < 0 ? 'FALTANTE (-):' : 'CUADRE EXACTO:';
@@ -989,8 +1007,12 @@ export async function generateTicketHtml(options: GenerateTicketHtmlOptions): Pr
 
         <div class="info-card">
           <div class="row" style="font-size:${is58 ? '11px' : '13px'};">
-            <span class="bold">JORNADA N°:</span>
+            <span class="bold">JORNADA Nº:</span>
             <span class="font-black">#${day.dayNumber || 1}</span>
+          </div>
+          <div class="row">
+            <span>Día Operativo:</span>
+            <span class="font-black font-mono">${dayClosureDateStr} (${day.shiftsCount || 1} Turnos)</span>
           </div>
           <div class="row">
             <span>Consecutivo Oficial:</span>

@@ -1623,10 +1623,12 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                           <span className="font-bold">{new Date(selectedRecordForTicket.shift.endTime).toLocaleString('es-CO')}</span>
                         </div>
                       )}
-                      {selectedRecordForTicket.shift?.operationalDayNumber && (
+                      {selectedRecordForTicket.shift && (
                         <div className="flex justify-between">
                           <span>Día Operativo:</span>
-                          <span className="font-bold">Día #{selectedRecordForTicket.shift.operationalDayNumber}</span>
+                          <span className="font-bold font-mono">
+                            {selectedRecordForTicket.operationalDayDate || (selectedRecordForTicket.shift.startTime ? new Date(selectedRecordForTicket.shift.startTime).toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO'))} (Turno #{selectedRecordForTicket.shift.shiftNumber || 1})
+                          </span>
                         </div>
                       )}
                     </div>
@@ -1835,8 +1837,8 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                     {/* Info Card */}
                     <div className="info-card text-[10.5px] space-y-1">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold">JORNADA N°:</span>
-                        <span className="font-black text-sm">#{selectedRecordForTicket.day?.dayNumber || 1}</span>
+                        <span className="font-bold">DÍA OPERATIVO:</span>
+                        <span className="font-black text-xs font-mono">{selectedRecordForTicket.day?.formattedDate || (selectedRecordForTicket.day?.date ? new Date(selectedRecordForTicket.day.date + 'T12:00:00').toLocaleDateString('es-CO') : new Date(selectedRecordForTicket.day?.openedAt || Date.now()).toLocaleDateString('es-CO'))} (Jornada #{selectedRecordForTicket.day?.dayNumber || 1})</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Consecutivo Oficial:</span>

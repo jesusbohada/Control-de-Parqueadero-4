@@ -203,6 +203,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
         changeGiven: 2000,
         operationalDayNumber: 1,
         shiftNumber: 1,
+        operationalDayDate: new Date().toLocaleDateString('es-CO'),
         status: 'paid' as const
       };
 

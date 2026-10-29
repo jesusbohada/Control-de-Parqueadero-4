@@ -3653,8 +3653,8 @@ export default function App() {
       const result = await printInstantThermal({
         type: options.type,
         ticket: options.ticket,
-        shift: options.shift,
-        day: options.day,
+        shift: options.shift || currentShift,
+        day: options.day || operationalDay,
         businessInfo,
         rates,
         targetPrinterName: targetPrinter,
@@ -3789,6 +3789,7 @@ export default function App() {
       originCountry: ticketData.originCountry,
       operationalDayNumber: operationalDay.dayNumber,
       shiftNumber: currentShift.shiftNumber,
+      operationalDayDate: operationalDay.formattedDate || (operationalDay.date ? new Date(operationalDay.date + 'T12:00:00').toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO')),
       branchId: targetBranchId,
       branchName: targetBranch?.name || activeRemoteSession?.branchName || 'Sucursal Local'
     };
@@ -3889,6 +3890,7 @@ export default function App() {
       cashierName: currentShift.operatorName,
       operationalDayNumber: operationalDay.dayNumber,
       shiftNumber: currentShift.shiftNumber,
+      operationalDayDate: targetTicket.operationalDayDate || operationalDay.formattedDate || (operationalDay.date ? new Date(operationalDay.date + 'T12:00:00').toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO')),
       electronicInvoice: billingDetails.paymentDetails?.isElectronicInvoice ? {
         cufe: billingDetails.paymentDetails.cufe || '',
         invoiceNumber: billingDetails.paymentDetails.electronicInvoiceNumber || '',
@@ -5754,6 +5756,8 @@ export default function App() {
         businessInfo={businessInfo}
         rates={rates}
         vehicleCategories={vehicleCategories}
+        operationalDay={operationalDay}
+        currentShift={currentShift}
         onClose={() => setTicketModalState(prev => ({ ...prev, isOpen: false }))}
       />
 

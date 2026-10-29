@@ -301,6 +301,7 @@ export interface ParkingTicket {
   cashierName?: string;
   operationalDayNumber?: number;
   shiftNumber?: number;
+  operationalDayDate?: string; // Fecha del da operativo (ej: '23/08/2026')
 
   // Salida sin ticket físico / Presentación de Tarjeta de Propiedad
   noTicketExit?: boolean;
