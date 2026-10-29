@@ -178,6 +178,29 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
   const [isPrintingThermalDirect, setIsPrintingThermalDirect] = useState(false);
   const [directPrintStatus, setDirectPrintStatus] = useState<string | null>(null);
 
+  // Role and Permission Checks for Cashier Protection (Solo ver e imprimir para cajeros)
+  const isCashier = currentUser?.role === 'cashier' || (Boolean(currentUser) && currentUser?.role !== 'master' && currentUser?.role !== 'supervisor' && !currentUser?.permissions?.canAuditCashShifts);
+  const canAudit = Boolean(!isCashier && (currentUser?.role === 'master' || currentUser?.role === 'supervisor' || currentUser?.permissions?.canAuditCashShifts));
+  const canEdit = Boolean(!isCashier && (currentUser?.role === 'master' || currentUser?.role === 'supervisor' || currentUser?.permissions?.canEditClosedShifts));
+  const canExport = Boolean(!isCashier && (currentUser?.role === 'master' || currentUser?.role === 'supervisor' || currentUser?.permissions?.canExportReports !== false));
+  const canViewDays = currentUser?.permissions?.canViewOperationalDayInHistory !== false;
+  const canViewDiscrepancies = !isCashier && currentUser?.permissions?.canViewShiftClosingDiscrepancies !== false;
+
+  // Clean-up active tab and modal states if cashier view is active
+  useEffect(() => {
+    if (isCashier && (activeTab === 'audited' || activeTab === 'discrepancies')) {
+      setActiveTab('all');
+    }
+  }, [isCashier, activeTab]);
+
+  useEffect(() => {
+    if (isCashier) {
+      if (recalculatingItem) setRecalculatingItem(null);
+      if (editingNotesRecord) setEditingNotesRecord(null);
+      if (detailsRecord) setDetailsRecord(null);
+    }
+  }, [isCashier, recalculatingItem, editingNotesRecord, detailsRecord]);
+
   // Ticket-specific computed values for history reprint
   const ticketData = useMemo(() => {
     if (!selectedRecordForTicket) return null;
@@ -446,8 +469,9 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
       });
     });
 
-    // Add closed days
-    safeClosedDays.forEach((d) => {
+    // Add closed days if permitted
+    if (canViewDays) {
+      safeClosedDays.forEach((d) => {
       if (!d || typeof d !== 'object') return;
       const cash = d.cashCollectedSnapshot ?? 0;
       const card = d.cardCollectedSnapshot ?? 0;
@@ -500,6 +524,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
         rawDay: d,
       });
     });
+    }
 
     // Sort newest first safely
     return (list || []).sort((a, b) => {
@@ -507,7 +532,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
       const timeB = b.closedAt ? new Date(b.closedAt).getTime() : b.openedAt ? new Date(b.openedAt).getTime() : 0;
       return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
     });
-  }, [closedShifts, closedDays]);
+  }, [closedShifts, closedDays, canViewDays]);
 
   // Filtered List
   const filteredList = useMemo(() => {
@@ -732,6 +757,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
 
   // Execute Recalculation Confirm
   const handleConfirmRecalculation = () => {
+    if (isCashier || !canAudit) return;
     if (!recalculatingItem || !recalculationData) return;
 
     const nowIso = new Date().toISOString();
@@ -794,6 +820,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
 
   // Save Notes Edit
   const handleSaveNotes = () => {
+    if (isCashier || !canEdit) return;
     if (!editingNotesRecord) return;
 
     if (editingNotesRecord.type === 'shift' && editingNotesRecord.shift && onUpdateShift) {
@@ -816,6 +843,7 @@ const CashShiftsHistoryModalContent: React.FC<CashShiftsHistoryModalProps> = ({
 
   // Toggle Audited Status
   const handleToggleAuditStatus = (item: typeof historyList[0]) => {
+    if (isCashier || !canAudit) return;
     const newStatus = !item.isAudited;
     const nowIso = new Date().toISOString();
     const auditor = currentUser?.name || 'Supervisor Auditor';
@@ -940,7 +968,9 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                 </span>
               </h2>
               <p className="text-xs text-slate-300">
-                Auditoría contable, reimpresión de comprobantes térmicos y recálculo de arqueos
+                {isCashier
+                  ? 'Consulta e reimpresión de comprobantes oficiales de caja'
+                  : 'Auditoría contable, reimpresión de comprobantes térmicos y recálculo de arqueos'}
               </p>
             </div>
           </div>
@@ -1031,41 +1061,47 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
               Arqueos de Turno
             </button>
 
-            <button
-              onClick={() => setActiveTab('days')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'days' 
-                  ? 'bg-emerald-700 text-white font-bold shadow-xs' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              Cierres Definitivos Día
-            </button>
+            {canViewDays && (
+              <button
+                onClick={() => setActiveTab('days')}
+                className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'days' 
+                    ? 'bg-emerald-700 text-white font-bold shadow-xs' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                Cierres Definitivos Día
+              </button>
+            )}
 
-            <button
-              onClick={() => setActiveTab('audited')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'audited' 
-                  ? 'bg-sky-700 text-white font-bold shadow-xs' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Auditados OK
-            </button>
+            {!isCashier && canAudit && (
+              <button
+                onClick={() => setActiveTab('audited')}
+                className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'audited' 
+                    ? 'bg-sky-700 text-white font-bold shadow-xs' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Auditados OK
+              </button>
+            )}
 
-            <button
-              onClick={() => setActiveTab('discrepancies')}
-              className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'discrepancies' 
-                  ? 'bg-rose-600 text-white font-bold shadow-xs' 
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              <AlertTriangle className="w-3.5 h-3.5" />
-              Con Descuadre
-            </button>
+            {canViewDiscrepancies && (
+              <button
+                onClick={() => setActiveTab('discrepancies')}
+                className={`px-3 py-1.5 rounded-lg font-medium text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'discrepancies' 
+                    ? 'bg-rose-600 text-white font-bold shadow-xs' 
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                }`}
+              >
+                <AlertTriangle className="w-3.5 h-3.5" />
+                Con Descuadre
+              </button>
+            )}
           </div>
 
           {/* Search and Export */}
@@ -1097,14 +1133,16 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
               <option value="month">Este Mes</option>
             </select>
 
-            <button
-              onClick={handleExportCSV}
-              className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
-              title="Exportar reporte CSV"
-            >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span className="hidden sm:inline">CSV</span>
-            </button>
+            {canExport && (
+              <button
+                onClick={handleExportCSV}
+                className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="Exportar reporte CSV"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                <span className="hidden sm:inline">CSV</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -1221,7 +1259,9 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                       }`}>
                         <div className="text-[9px] uppercase font-sans">Cuadre Físico</div>
                         <div className="font-bold">
-                          {item.cashDiff === 0 
+                          {!canViewDiscrepancies 
+                            ? 'Registrado' 
+                            : item.cashDiff === 0 
                             ? 'Cuadrado $0' 
                             : item.cashDiff > 0 
                             ? `Sobrante +${formatCurrency(item.cashDiff, currencySymbol)}` 
@@ -1247,7 +1287,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                   {/* Actions Right Buttons & Menu Dropdown */}
                   <div className="flex items-center gap-2 border-t lg:border-t-0 border-slate-100 dark:border-slate-800 pt-2 lg:pt-0 shrink-0">
                     
-                    {/* Fast Print Voucher Button */}
+                    {/* Botón Ver e Imprimir Comprobante */}
                     <button
                       onClick={() => setSelectedRecordForTicket({
                         type: item.type,
@@ -1258,34 +1298,50 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                       title="Ver e Imprimir Comprobante Térmico"
                     >
                       <Printer className="w-4 h-4 text-indigo-400" />
-                      <span>Ver Tiquete</span>
+                      <span>{isCashier ? 'Ver e Imprimir' : 'Ver Tiquete'}</span>
                     </button>
 
-                    {/* Fast Recalculate Button */}
-                    <button
-                      onClick={() => setRecalculatingItem({
-                        type: item.type,
-                        shift: item.rawShift,
-                        day: item.rawDay
-                      })}
-                      className="px-3 py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
-                      title="Recalcular arqueo contra tiquetes y movimientos"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                      <span>Recalcular</span>
-                    </button>
+                    {/* Botón Descargar PDF Rápido para Cajero */}
+                    {isCashier && (
+                      <button
+                        onClick={() => handleDownloadRecordPdf({ type: item.type, shift: item.rawShift, day: item.rawDay })}
+                        className="px-2.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 text-xs font-semibold rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                        title="Descargar Comprobante en PDF Oficial"
+                      >
+                        <Download className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <span className="hidden sm:inline">PDF</span>
+                      </button>
+                    )}
+
+                    {/* Fast Recalculate Button - Solo para administradores / supervisores con permisos de auditoría */}
+                    {!isCashier && canAudit && (
+                      <button
+                        onClick={() => setRecalculatingItem({
+                          type: item.type,
+                          shift: item.rawShift,
+                          day: item.rawDay
+                        })}
+                        className="px-3 py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="Recalcular arqueo contra tiquetes y movimientos"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                        <span>Recalcular</span>
+                      </button>
+                    )}
 
                     {/* Menu Options Button */}
                     <div className="relative">
                       <button
                         onClick={() => setActiveMenuId(activeMenuId === item.id ? null : item.id)}
                         className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl transition-colors cursor-pointer"
+                        title="Más opciones"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
 
                       {activeMenuId === item.id && (
                         <div className="absolute right-0 top-10 z-30 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 py-1 text-xs animate-fadeIn">
+                          {/* Opciones de Vista e Impresión (disponibles para todos, incluyendo cajeros) */}
                           <button
                             onClick={() => {
                               setSelectedRecordForTicket({ type: item.type, shift: item.rawShift, day: item.rawDay });
@@ -1309,54 +1365,68 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                           </button>
 
                           <button
-                            onClick={() => {
-                              setRecalculatingItem({ type: item.type, shift: item.rawShift, day: item.rawDay });
-                              setActiveMenuId(null);
-                            }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
-                          >
-                            <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                            <span>Recalcular Cierre de Caja</span>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setDetailsRecord({ type: item.type, shift: item.rawShift, day: item.rawDay });
-                              setActiveMenuId(null);
-                            }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
-                          >
-                            <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                            <span>Ver Auditoría de Movimientos</span>
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              setEditingNotesRecord({ type: item.type, shift: item.rawShift, day: item.rawDay });
-                              setNotesInput(item.closingNotes || '');
-                              setActiveMenuId(null);
-                            }}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
-                          >
-                            <Edit3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            <span>Editar Observaciones / Notas</span>
-                          </button>
-
-                          <button
-                            onClick={() => handleToggleAuditStatus(item)}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100 dark:border-slate-800 cursor-pointer"
-                          >
-                            <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                            <span>{item.isAudited ? 'Desmarcar Auditado' : 'Marcar como Auditado OK'}</span>
-                          </button>
-
-                          <button
                             onClick={() => copyRecordSummary(item)}
-                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100 dark:border-slate-800 cursor-pointer"
+                            className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
                           >
                             <Copy className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                             <span>Copiar Resumen Texto</span>
                           </button>
+
+                          {/* ACCIONES Y PROCESOS DE AUDITORÍA / EDICIÓN - BLOQUEADOS Y OCULTOS PARA CAJEROS */}
+                          {!isCashier && (
+                            <>
+                              {canAudit && (
+                                <>
+                                  <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
+                                  <button
+                                    onClick={() => {
+                                      setRecalculatingItem({ type: item.type, shift: item.rawShift, day: item.rawDay });
+                                      setActiveMenuId(null);
+                                    }}
+                                    className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
+                                  >
+                                    <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                                    <span>Recalcular Cierre de Caja</span>
+                                  </button>
+
+                                  <button
+                                    onClick={() => {
+                                      setDetailsRecord({ type: item.type, shift: item.rawShift, day: item.rawDay });
+                                      setActiveMenuId(null);
+                                    }}
+                                    className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
+                                  >
+                                    <FileText className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                                    <span>Ver Auditoría de Movimientos</span>
+                                  </button>
+                                </>
+                              )}
+
+                              {canEdit && (
+                                <button
+                                  onClick={() => {
+                                    setEditingNotesRecord({ type: item.type, shift: item.rawShift, day: item.rawDay });
+                                    setNotesInput(item.closingNotes || '');
+                                    setActiveMenuId(null);
+                                  }}
+                                  className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium cursor-pointer"
+                                >
+                                  <Edit3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                  <span>Editar Observaciones / Notas</span>
+                                </button>
+                              )}
+
+                              {canAudit && (
+                                <button
+                                  onClick={() => handleToggleAuditStatus(item)}
+                                  className="w-full text-left px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 text-slate-700 dark:text-slate-200 font-medium border-t border-slate-100 dark:border-slate-800 cursor-pointer"
+                                >
+                                  <ShieldCheck className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                  <span>{item.isAudited ? 'Desmarcar Auditado' : 'Marcar como Auditado OK'}</span>
+                                </button>
+                              )}
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1387,7 +1457,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
       </div>
 
       {/* --- MODAL 1: RECALCULATION COMPARISON MODAL --- */}
-      {recalculatingItem && recalculationData && (
+      {!isCashier && canAudit && recalculatingItem && recalculationData && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-3xl w-full p-6 space-y-4">
             <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -2172,7 +2242,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
       )}
 
       {/* --- MODAL 3: EDIT NOTES MODAL --- */}
-      {editingNotesRecord && (
+      {!isCashier && canEdit && editingNotesRecord && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-4">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -2217,7 +2287,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
       )}
 
       {/* --- MODAL 4: AUDIT MOVEMENTS DETAILS --- */}
-      {detailsRecord && (
+      {!isCashier && canAudit && detailsRecord && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/80 backdrop-blur-xs p-4 animate-fadeIn">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col">
             <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3 shrink-0">
