@@ -826,9 +826,135 @@ export const normalizeUserPermissions = (perms?: Partial<UserPermissions>, role?
 
 export const normalizeUser = (user: SystemUser): SystemUser => {
   if (!user) return user;
+  const assigned = Array.isArray(user.assignedProfiles) && user.assignedProfiles.length > 0
+    ? user.assignedProfiles
+    : [user.role || 'cashier'];
   return {
     ...user,
+    assignedProfiles: assigned,
     permissions: normalizeUserPermissions(user.permissions, user.role),
+  };
+};
+
+/**
+ * Combina acumulativamente los permisos y visibilidad de múltiples perfiles de usuario (RBAC Multi-Perfil)
+ * Si cualquier perfil otorga una acción o visibilidad de módulo, el usuario la tendrá habilitada.
+ */
+export const combineProfilesPermissions = (
+  profileIds: string[],
+  roleMatrix?: Record<string, { permissions: UserPermissions; uiVisibility: UserUIVisibility }>,
+  templates: UserPermissionTemplate[] = DEFAULT_USER_TEMPLATES
+): { permissions: UserPermissions; uiVisibility: UserUIVisibility; effectiveRole: UserRole } => {
+  const safeIds = Array.isArray(profileIds) && profileIds.length > 0 ? profileIds : ['cashier'];
+
+  // Si incluye 'master', acceso total garantizado
+  if (safeIds.includes('master')) {
+    return {
+      permissions: { ...DEFAULT_MASTER_PERMISSIONS },
+      uiVisibility: { ...DEFAULT_MASTER_UI_VISIBILITY },
+      effectiveRole: 'master'
+    };
+  }
+
+  // Determinar rol efectivo: supervisor > cashier > custom
+  let effectiveRole: UserRole = 'custom';
+  if (safeIds.includes('supervisor')) {
+    effectiveRole = 'supervisor';
+  } else if (safeIds.includes('cashier')) {
+    effectiveRole = 'cashier';
+  } else {
+    const matchedTmpl = templates.find(t => safeIds.includes(t.id));
+    if (matchedTmpl) {
+      effectiveRole = matchedTmpl.role;
+    }
+  }
+
+  // Recolectar configuraciones de cada perfil
+  const configs: { permissions: UserPermissions; uiVisibility: UserUIVisibility }[] = [];
+  for (const id of safeIds) {
+    if (id === 'master') {
+      configs.push({
+        permissions: roleMatrix?.master?.permissions || DEFAULT_MASTER_PERMISSIONS,
+        uiVisibility: roleMatrix?.master?.uiVisibility || DEFAULT_MASTER_UI_VISIBILITY
+      });
+    } else if (id === 'supervisor') {
+      configs.push({
+        permissions: roleMatrix?.supervisor?.permissions || DEFAULT_SUPERVISOR_PERMISSIONS,
+        uiVisibility: roleMatrix?.supervisor?.uiVisibility || DEFAULT_SUPERVISOR_UI_VISIBILITY
+      });
+    } else if (id === 'cashier') {
+      configs.push({
+        permissions: roleMatrix?.cashier?.permissions || DEFAULT_CASHIER_PERMISSIONS,
+        uiVisibility: roleMatrix?.cashier?.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY
+      });
+    } else {
+      const tmpl = templates.find(t => t.id === id);
+      if (tmpl) {
+        configs.push({
+          permissions: tmpl.permissions,
+          uiVisibility: tmpl.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY
+        });
+      }
+    }
+  }
+
+  if (configs.length === 0) {
+    return {
+      permissions: { ...DEFAULT_CASHIER_PERMISSIONS },
+      uiVisibility: { ...DEFAULT_CASHIER_UI_VISIBILITY },
+      effectiveRole: 'cashier'
+    };
+  }
+
+  // Fusión aditiva de permisos (unión acumulativa)
+  const mergedPermissions: any = {};
+  const mergedUi: any = {};
+
+  for (const config of configs) {
+    for (const [key, value] of Object.entries(config.permissions)) {
+      if (key === 'uiVisibility') continue;
+      if (typeof value === 'boolean') {
+        if (key === 'blindCashCount') {
+          // Si alguno de los perfiles permite arqueo visible (blindCashCount === false), tiene prioridad false
+          if (mergedPermissions.blindCashCount === undefined) {
+            mergedPermissions.blindCashCount = value;
+          } else if (value === false) {
+            mergedPermissions.blindCashCount = false;
+          }
+        } else {
+          // Modelo de unión RBAC: si cualquier perfil otorga permiso, se habilita (true)
+          if (value === true) {
+            mergedPermissions[key] = true;
+          } else if (mergedPermissions[key] === undefined) {
+            mergedPermissions[key] = false;
+          }
+        }
+      }
+    }
+
+    if (config.uiVisibility) {
+      for (const [key, value] of Object.entries(config.uiVisibility)) {
+        if (typeof value === 'boolean') {
+          if (value === true) {
+            mergedUi[key] = true;
+          } else if (mergedUi[key] === undefined) {
+            mergedUi[key] = false;
+          }
+        }
+      }
+    }
+  }
+
+  const normalized = normalizeUserPermissions(mergedPermissions as UserPermissions, effectiveRole);
+  normalized.uiVisibility = {
+    ...(normalized.uiVisibility || {}),
+    ...(mergedUi as UserUIVisibility)
+  };
+
+  return {
+    permissions: normalized,
+    uiVisibility: normalized.uiVisibility,
+    effectiveRole
   };
 };
 
@@ -839,6 +965,7 @@ export const INITIAL_USERS: SystemUser[] = [
     name: 'Administrador Maestro',
     password: 'admin123',
     role: 'master',
+    assignedProfiles: ['master'],
     isActive: true,
     permissions: { ...DEFAULT_MASTER_PERMISSIONS },
     createdAt: new Date().toISOString(),
@@ -849,6 +976,7 @@ export const INITIAL_USERS: SystemUser[] = [
     name: 'Supervisor de Patio',
     password: 'super123',
     role: 'supervisor',
+    assignedProfiles: ['supervisor'],
     isActive: true,
     permissions: { ...DEFAULT_SUPERVISOR_PERMISSIONS },
     createdAt: new Date().toISOString(),
@@ -859,6 +987,7 @@ export const INITIAL_USERS: SystemUser[] = [
     name: 'Carlos Mendoza (Cajero)',
     password: 'caja123',
     role: 'cashier',
+    assignedProfiles: ['cashier'],
     isActive: true,
     permissions: { ...DEFAULT_CASHIER_PERMISSIONS },
     createdAt: new Date().toISOString(),
@@ -869,6 +998,7 @@ export const INITIAL_USERS: SystemUser[] = [
     name: 'Operador de Turno',
     password: 'caja',
     role: 'cashier',
+    assignedProfiles: ['cashier'],
     isActive: true,
     permissions: { ...DEFAULT_CASHIER_PERMISSIONS },
     createdAt: new Date().toISOString(),

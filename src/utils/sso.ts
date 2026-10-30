@@ -6,6 +6,7 @@ export interface SsoPayload {
     username: string;
     name: string;
     role: SystemUser['role'];
+    assignedProfiles?: string[];
     permissions?: SystemUser['permissions'];
     uiVisibility?: SystemUser['uiVisibility'];
     isActive?: boolean;
@@ -28,6 +29,7 @@ export function encodeSsoToken(user: SystemUser): string {
         username: user.username,
         name: user.name,
         role: user.role,
+        assignedProfiles: user.assignedProfiles || [user.role],
         permissions: user.permissions,
         uiVisibility: user.uiVisibility,
         isActive: user.isActive,

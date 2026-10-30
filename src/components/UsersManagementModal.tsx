@@ -50,6 +50,7 @@ import {
   DEFAULT_SUPERVISOR_UI_VISIBILITY,
   DEFAULT_CASHIER_UI_VISIBILITY,
   normalizeUserPermissions,
+  combineProfilesPermissions,
   DEFAULT_USER_TEMPLATES
 } from '../data/initialData';
 import {
@@ -123,6 +124,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   const [formPassword, setFormPassword] = useState('');
   const [formRole, setFormRole] = useState<UserRole>('cashier');
   const [formIsActive, setFormIsActive] = useState(true);
+  // Multi-Profile Selection State (Usuarios con múltiples perfiles)
+  const [formAssignedProfileIds, setFormAssignedProfileIds] = useState<string[]>(['cashier']);
   
   // Granular Actions State
   const [formPermissions, setFormPermissions] = useState<UserPermissions>(DEFAULT_CASHIER_PERMISSIONS);
@@ -385,9 +388,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
   const handleSyncRoleToActiveUsers = async () => {
     const active = getActiveProfileConfig();
-    const roleUsers = users.filter(u => u.role === active.role);
+    const roleUsers = users.filter(u => {
+      const userProfiles = (u.assignedProfiles && u.assignedProfiles.length > 0) ? u.assignedProfiles : [u.role];
+      return userProfiles.includes(active.id) || u.role === active.role;
+    });
+
     if (roleUsers.length === 0) {
-      setErrorMessage(`No existen usuarios asignados al rol o perfil "${active.name}".`);
+      setErrorMessage(`No existen usuarios con el perfil "${active.name}" asignado.`);
       setTimeout(() => setErrorMessage(null), 3000);
       return;
     }
@@ -395,15 +402,18 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     setIsSubmitting(true);
     try {
       for (const u of roleUsers) {
+        const userProfiles = (u.assignedProfiles && u.assignedProfiles.length > 0) ? u.assignedProfiles : [u.role];
+        const combined = combineProfilesPermissions(userProfiles, roleMatrix, templates);
         await onSaveUser({
           ...u,
+          role: combined.effectiveRole,
           permissions: {
-            ...active.permissions,
-            uiVisibility: { ...active.uiVisibility }
+            ...combined.permissions,
+            uiVisibility: { ...combined.uiVisibility }
           }
         });
       }
-      setSuccessMessage(`¡Permisos del perfil "${active.name}" aplicados a ${roleUsers.length} usuario(s)!`);
+      setSuccessMessage(`¡Permisos actualizados y combinados aplicados a ${roleUsers.length} usuario(s) con perfil "${active.name}"!`);
       setTimeout(() => setSuccessMessage(null), 4000);
     } catch (err: any) {
       setErrorMessage(`Error al sincronizar usuarios: ${err.message || 'Error desconocido'}`);
@@ -433,10 +443,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     setFormName('');
     setFormUsername('');
     setFormPassword('');
-    setFormRole('cashier');
     setFormIsActive(true);
-    setFormPermissions({ ...DEFAULT_CASHIER_PERMISSIONS });
-    setFormUiVisibility({ ...DEFAULT_CASHIER_UI_VISIBILITY });
+    setFormAssignedProfileIds(['cashier']);
+    const combined = combineProfilesPermissions(['cashier'], roleMatrix, templates);
+    setFormRole(combined.effectiveRole);
+    setFormPermissions(combined.permissions);
+    setFormUiVisibility(combined.uiVisibility);
     setSelectedTemplateId('');
     setFormSubTab('actions');
     setShowAdvancedCustomization(false);
@@ -451,12 +463,17 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     setFormName(`${sourceUser.name} (Copia)`);
     setFormUsername(`${sourceUser.username}_copia`);
     setFormPassword('1234'); // Default initial password for clone
-    setFormRole(sourceUser.role);
     setFormIsActive(true);
 
-    const normalized = normalizeUserPermissions(sourceUser.permissions, sourceUser.role);
-    setFormPermissions({ ...normalized });
-    setFormUiVisibility({ ...(normalized.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY) });
+    const assigned = Array.isArray(sourceUser.assignedProfiles) && sourceUser.assignedProfiles.length > 0
+      ? sourceUser.assignedProfiles
+      : [sourceUser.role || 'cashier'];
+    setFormAssignedProfileIds(assigned);
+
+    const combined = combineProfilesPermissions(assigned, roleMatrix, templates);
+    setFormRole(combined.effectiveRole);
+    setFormPermissions({ ...sourceUser.permissions });
+    setFormUiVisibility({ ...(sourceUser.permissions.uiVisibility || combined.uiVisibility) });
     setSelectedTemplateId('');
     setFormSubTab('actions');
     setShowAdvancedCustomization(false);
@@ -466,18 +483,27 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   };
 
   const handleApplyTemplate = (template: UserPermissionTemplate) => {
-    setFormRole(template.role);
-    const normalized = normalizeUserPermissions(template.permissions, template.role);
-    setFormPermissions({ ...normalized });
-    setFormUiVisibility({ ...(template.uiVisibility || normalized.uiVisibility || DEFAULT_CASHIER_UI_VISIBILITY) });
+    if (!formAssignedProfileIds.includes(template.id)) {
+      const withoutMaster = formAssignedProfileIds.filter(id => id !== 'master');
+      const nextProfiles = [...withoutMaster, template.id];
+      setFormAssignedProfileIds(nextProfiles);
+      const combined = combineProfilesPermissions(nextProfiles, roleMatrix, templates);
+      setFormRole(combined.effectiveRole);
+      setFormPermissions(combined.permissions);
+      setFormUiVisibility(combined.uiVisibility);
+    }
     setSelectedTemplateId(template.id);
-    setSuccessMessage(`Plantilla "${template.name}" aplicada correctamente.`);
+    setSuccessMessage(`Perfil "${template.name}" asignado al usuario. Permisos combinados.`);
     setTimeout(() => setSuccessMessage(null), 3000);
   };
 
   const handleCreateFromTemplateTab = (template: UserPermissionTemplate) => {
     openCreateForm();
-    handleApplyTemplate(template);
+    setFormAssignedProfileIds([template.id]);
+    const combined = combineProfilesPermissions([template.id], roleMatrix, templates);
+    setFormRole(combined.effectiveRole);
+    setFormPermissions(combined.permissions);
+    setFormUiVisibility(combined.uiVisibility);
     setFormName(`Usuario (${template.name})`);
     setFormUsername(`operador_${Date.now().toString().slice(-4)}`);
     setFormPassword('1234');
@@ -491,6 +517,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     setFormPassword(user.password);
     setFormRole(user.role);
     setFormIsActive(user.isActive);
+
+    const assigned = Array.isArray(user.assignedProfiles) && user.assignedProfiles.length > 0
+      ? user.assignedProfiles
+      : [user.role || 'cashier'];
+    setFormAssignedProfileIds(assigned);
     
     // Normalize existing permissions
     const normalized = normalizeUserPermissions(user.permissions, user.role);
@@ -505,17 +536,37 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   };
 
   const handleRolePresetChange = (role: UserRole) => {
-    setFormRole(role);
-    if (role === 'master') {
-      setFormPermissions({ ...DEFAULT_MASTER_PERMISSIONS });
-      setFormUiVisibility({ ...DEFAULT_MASTER_UI_VISIBILITY });
-    } else if (role === 'supervisor') {
-      setFormPermissions({ ...DEFAULT_SUPERVISOR_PERMISSIONS });
-      setFormUiVisibility({ ...DEFAULT_SUPERVISOR_UI_VISIBILITY });
-    } else if (role === 'cashier') {
-      setFormPermissions({ ...DEFAULT_CASHIER_PERMISSIONS });
-      setFormUiVisibility({ ...DEFAULT_CASHIER_UI_VISIBILITY });
+    handleToggleProfile(role);
+  };
+
+  // Toggle/seleccionar un perfil en la asignación múltiple de perfiles del usuario
+  const handleToggleProfile = (profileId: string) => {
+    let nextProfiles: string[];
+    if (profileId === 'master') {
+      if (formAssignedProfileIds.includes('master')) {
+        nextProfiles = formAssignedProfileIds.filter(id => id !== 'master');
+        if (nextProfiles.length === 0) nextProfiles = ['cashier'];
+      } else {
+        nextProfiles = ['master'];
+      }
+    } else {
+      const withoutMaster = formAssignedProfileIds.filter(id => id !== 'master');
+      if (withoutMaster.includes(profileId)) {
+        nextProfiles = withoutMaster.filter(id => id !== profileId);
+        if (nextProfiles.length === 0) nextProfiles = ['cashier'];
+      } else {
+        nextProfiles = [...withoutMaster, profileId];
+      }
     }
+
+    setFormAssignedProfileIds(nextProfiles);
+
+    // Fusión automática acumulativa de permisos y módulos de todos los perfiles marcados
+    const combined = combineProfilesPermissions(nextProfiles, roleMatrix, templates);
+    setFormRole(combined.effectiveRole);
+    setFormPermissions(combined.permissions);
+    setFormUiVisibility(combined.uiVisibility);
+    setSelectedTemplateId('');
   };
 
   // Toggle specific action permission
@@ -691,13 +742,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
             uiVisibility: { ...formUiVisibility }
           };
 
+      const effectiveRole: UserRole = formAssignedProfileIds.includes('master')
+        ? 'master'
+        : formAssignedProfileIds.includes('supervisor')
+        ? 'supervisor'
+        : formAssignedProfileIds.includes('cashier')
+        ? 'cashier'
+        : formRole;
+
       const userToSave: SystemUser = {
         id: selectedUser ? selectedUser.id : `usr-${Date.now()}`,
         name: cleanName,
         username: cleanUsername,
         password: cleanPassword,
-        role: formRole,
-        isActive: formRole === 'master' ? true : formIsActive,
+        role: effectiveRole,
+        assignedProfiles: formAssignedProfileIds.length > 0 ? formAssignedProfileIds : [effectiveRole],
+        isActive: effectiveRole === 'master' ? true : formIsActive,
         permissions: mergedPermissions,
         createdAt: selectedUser ? selectedUser.createdAt : new Date().toISOString(),
         lastLogin: selectedUser?.lastLogin
@@ -1047,7 +1107,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     const templateProfiles = templates.map((tmpl) => {
       const actionsCount = countActiveActions(tmpl.permissions);
       const visCount = countVisibleUI(tmpl.uiVisibility);
-      const usersCount = users.filter(u => u.role === tmpl.role).length;
+      const usersCount = users.filter(u => ((u.assignedProfiles && u.assignedProfiles.length > 0) ? u.assignedProfiles : [u.role]).includes(tmpl.id) || u.role === tmpl.role).length;
 
       return {
         id: tmpl.id,
@@ -1337,7 +1397,34 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         {/* Granular Badges & Summary */}
                         <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
                           <div className="flex items-center justify-between text-xs">
-                            <div>{getRoleBadge(user.role)}</div>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {((user.assignedProfiles && user.assignedProfiles.length > 0) ? user.assignedProfiles : [user.role]).map(profId => {
+                                const prof = allProfilesList.find(p => p.id === profId);
+                                const isMaster = profId === 'master';
+                                const isSuper = profId === 'supervisor';
+                                const isCashier = profId === 'cashier';
+                                return (
+                                  <span 
+                                    key={profId} 
+                                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                                      isMaster ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30' :
+                                      isSuper ? 'bg-blue-500/10 text-blue-800 dark:text-blue-300 border-blue-500/30' :
+                                      isCashier ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' :
+                                      'bg-purple-500/10 text-purple-800 dark:text-purple-300 border-purple-500/30'
+                                    }`}
+                                  >
+                                    {prof ? (
+                                      <>
+                                        <prof.icon className="w-3 h-3" />
+                                        <span>{prof.name}</span>
+                                      </>
+                                    ) : (
+                                      <span>{profId}</span>
+                                    )}
+                                  </span>
+                                );
+                              })}
+                            </div>
                             <div className="flex items-center gap-2 font-mono text-[11px]">
                               <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
                                 🛠️ {isMaster ? 'Todas' : `${activeActions}/62`} Acciones
@@ -2772,132 +2859,182 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   </div>
                 </div>
 
-                {/* Preset & Status */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 items-center">
-                  <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1.5 flex items-center justify-between">
-                      <span>Perfil / Rol Asignado:</span>
-                      <span className="text-[11px] text-amber-700 dark:text-amber-400 font-mono">Herencia de Permisos (RBAC)</span>
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedTemplateId('');
-                          handleRolePresetChange('master');
-                        }}
-                        className={`px-3 py-2 rounded-lg text-xs font-bold border flex items-center gap-1.5 transition-all cursor-pointer ${
-                          formRole === 'master' && !selectedTemplateId
-                            ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-xs'
-                            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                        }`}
-                      >
-                        👑 Maestro
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedTemplateId('');
-                          handleRolePresetChange('supervisor');
-                        }}
-                        className={`px-3 py-2 rounded-lg text-xs font-bold border flex items-center gap-1.5 transition-all cursor-pointer ${
-                          formRole === 'supervisor' && !selectedTemplateId
-                            ? 'bg-blue-500 text-white border-blue-400 shadow-xs'
-                            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                        }`}
-                      >
-                        🛡️ Supervisor
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedTemplateId('');
-                          handleRolePresetChange('cashier');
-                        }}
-                        className={`px-3 py-2 rounded-lg text-xs font-bold border flex items-center gap-1.5 transition-all cursor-pointer ${
-                          formRole === 'cashier' && !selectedTemplateId
-                            ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-xs'
-                            : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                        }`}
-                      >
-                        💼 Solo Caja
-                      </button>
-
-                      {templates.length > 0 && (
-                        <select
-                          value={selectedTemplateId}
-                          onChange={(e) => {
-                            const id = e.target.value;
-                            setSelectedTemplateId(id);
-                            const found = templates.find(t => t.id === id);
-                            if (found) handleApplyTemplate(found);
-                          }}
-                          className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all cursor-pointer focus:outline-none ${
-                            selectedTemplateId
-                              ? 'border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 font-bold'
-                              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                          }`}
-                        >
-                          <option value="">-- Perfiles Personalizados ({templates.length}) --</option>
-                          {templates.map(t => (
-                            <option key={t.id} value={t.id}>
-                              📑 {t.name} {t.isSystem ? '(Sistema)' : '(Personalizado)'}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between md:justify-end gap-3 pt-2 md:pt-0">
-                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer">
-                      Estado de la cuenta:
-                    </label>
-                    <button
-                      type="button"
-                      disabled={formRole === 'master'}
-                      onClick={() => setFormIsActive(!formIsActive)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                        formIsActive
-                          ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                          : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-                      }`}
-                    >
-                      {formIsActive ? <UserCheck className="w-3.5 h-3.5" /> : <UserX className="w-3.5 h-3.5" />}
-                      {formIsActive ? 'Usuario Activo' : 'Usuario Bloqueado'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Streamlined Profile Summary & Advanced Customization Trigger */}
-                <div className="p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold shrink-0">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
-                    <div className="text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-600 dark:text-slate-400 font-medium">Perfil Asignado:</span>
-                        <span className="text-amber-800 dark:text-amber-300 font-bold">
-                          {selectedTemplateId 
-                            ? (templates.find(t => t.id === selectedTemplateId)?.name || 'Perfil Personalizado') 
-                            : formRole === 'master' ? 'Maestro (Control Total)' : formRole === 'supervisor' ? 'Supervisor' : 'Solo Caja'}
+                {/* Multi-Profile Selector & Account Status */}
+                <div className="space-y-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <Bookmark className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span>Perfiles / Roles Asignados (Selección Múltiple):</span>
+                        <span className="text-[10px] font-mono bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                          Multi-Perfil RBAC Combinado
                         </span>
-                      </div>
-                      <p className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">
-                        El usuario hereda todos los módulos y acciones definidos para este perfil. Para modificar qué puede hacer este perfil a nivel general, dirígete a la pestaña <button type="button" onClick={() => setActiveTab('permissions')} className="text-amber-800 dark:text-amber-300 font-bold underline hover:text-amber-600 dark:hover:text-amber-200 cursor-pointer">3. Permisos por Perfil</button>.
+                      </label>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Puedes asignar uno o varios perfiles simultáneamente. El usuario sumará los permisos y módulos de todos los perfiles marcados.
                       </p>
                     </div>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer">
+                        Estado:
+                      </label>
+                      <button
+                        type="button"
+                        disabled={formAssignedProfileIds.includes('master')}
+                        onClick={() => setFormIsActive(!formIsActive)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                          formIsActive
+                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                            : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                        }`}
+                      >
+                        {formIsActive ? <UserCheck className="w-3.5 h-3.5" /> : <UserX className="w-3.5 h-3.5" />}
+                        {formIsActive ? 'Usuario Activo' : 'Usuario Bloqueado'}
+                      </button>
+                    </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvancedCustomization(!showAdvancedCustomization)}
-                    className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-xs"
-                  >
-                    <Sliders className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
-                    <span>{showAdvancedCustomization ? 'Ocultar Matriz Granular' : 'Personalizar Permisos Individuales (Avanzado)'}</span>
-                  </button>
+                  {/* Profile Selection Grid: System Base Roles & Custom Templates */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {allProfilesList.map((prof) => {
+                      const isSelected = formAssignedProfileIds.includes(prof.id);
+                      const Icon = prof.icon;
+                      const isMaster = prof.id === 'master';
+                      const isSupervisor = prof.id === 'supervisor';
+                      const isCashier = prof.id === 'cashier';
+
+                      return (
+                        <div
+                          key={prof.id}
+                          onClick={() => handleToggleProfile(prof.id)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleProfile(prof.id); } }}
+                          className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer select-none ${
+                            isSelected
+                              ? isMaster
+                                ? 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-500 ring-2 ring-amber-500/40 shadow-xs'
+                                : isSupervisor
+                                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 ring-2 ring-blue-500/40 shadow-xs'
+                                : isCashier
+                                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-500/40 shadow-xs'
+                                : 'bg-purple-50 dark:bg-purple-950/40 border-purple-500 ring-2 ring-purple-500/40 shadow-xs'
+                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 opacity-80 hover:opacity-100'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                                isSelected
+                                  ? isMaster ? 'bg-amber-500 text-slate-950' : isSupervisor ? 'bg-blue-600 text-white' : isCashier ? 'bg-emerald-600 text-white' : 'bg-purple-600 text-white'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                              }`}>
+                                <Icon className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                  <span>{prof.name}</span>
+                                </div>
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-medium border ${prof.badgeBg}`}>
+                                  {prof.badgeText}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Checkbox indicator */}
+                            <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0 ${
+                              isSelected
+                                ? isMaster
+                                  ? 'bg-amber-500 border-amber-500 text-slate-950'
+                                  : isSupervisor
+                                  ? 'bg-blue-600 border-blue-600 text-white'
+                                  : isCashier
+                                  ? 'bg-emerald-600 border-emerald-600 text-white'
+                                  : 'bg-purple-600 border-purple-600 text-white'
+                                : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
+                            }`}>
+                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            </div>
+                          </div>
+
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-2 leading-relaxed">
+                            {prof.description}
+                          </p>
+
+                          <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-600 dark:text-slate-400">
+                            <span>{prof.actionsCount}/62 Acciones</span>
+                            <span>{prof.visCount}/37 Módulos</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Summary of Combined Permissions */}
+                  <div className="p-3.5 rounded-xl bg-slate-50/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold shrink-0 mt-0.5">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap text-xs">
+                          <span className="text-slate-600 dark:text-slate-400 font-semibold">
+                            Perfiles Asignados ({formAssignedProfileIds.length}):
+                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            {formAssignedProfileIds.map((pId) => {
+                              const found = allProfilesList.find(p => p.id === pId);
+                              const pName = found?.name || pId;
+                              return (
+                                <span
+                                  key={pId}
+                                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 shadow-2xs"
+                                >
+                                  <span>{pName}</span>
+                                  {formAssignedProfileIds.length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleToggleProfile(pId);
+                                      }}
+                                      className="hover:text-red-500 p-0.5 rounded-full cursor-pointer"
+                                      title="Quitar perfil"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                          <span>
+                            ⚡ Permisos sumados: <strong className="text-slate-800 dark:text-slate-200 font-mono">{countActiveActions(formPermissions)}/62</strong> acciones activas
+                          </span>
+                          <span>•</span>
+                          <span>
+                            👁️ Módulos: <strong className="text-slate-800 dark:text-slate-200 font-mono">{countVisibleUI(formUiVisibility)}/37</strong> visibles
+                          </span>
+                          <span>•</span>
+                          <span>
+                            Rol efectivo: <strong className="text-amber-700 dark:text-amber-400">{formRole === 'master' ? 'Maestro' : formRole === 'supervisor' ? 'Supervisor' : formRole === 'cashier' ? 'Cajero' : 'Personalizado'}</strong>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowAdvancedCustomization(!showAdvancedCustomization)}
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-xs self-start md:self-auto"
+                    >
+                      <Sliders className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                      <span>{showAdvancedCustomization ? 'Ocultar Matriz Granular' : 'Ajustar Permisos Específicos'}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

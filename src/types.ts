@@ -971,6 +971,7 @@ export interface SystemUser {
   name: string;              // Nombre completo
   password: string;          // Contraseña o PIN
   role: UserRole;
+  assignedProfiles?: string[]; // IDs de los perfiles asignados (ej. ['cashier', 'supervisor', 'tmpl-auditor-readonly'])
   isActive: boolean;
   permissions: UserPermissions;
   createdAt: string;
