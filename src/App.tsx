@@ -57,7 +57,8 @@ import {
   INITIAL_COMMERCIAL_AGREEMENTS,
   normalizeUser
 } from './data/initialData';
-import { decodeSsoToken } from './utils/sso';
+import { exchangeSsoToken } from './utils/sso';
+import { getAuthToken, setAuthToken, refreshSyncKey, serverLogout, AUTH_EXPIRED_EVENT } from './utils/authSession';
 import { 
   ensureUniqueBranchFarmadeskCredentials, 
   generateFarmadeskId, 
@@ -261,18 +262,11 @@ export default function App() {
       const saved = localStorage.getItem('pk_system_users');
       if (!saved) return INITIAL_USERS;
       const parsed: SystemUser[] = JSON.parse(saved);
-      const updated = parsed.map(u => {
-        if (u.username === 'admin' && (u.password === 'admin' || !u.password)) {
-          return { ...u, password: 'admin123' };
-        }
-        if (u.username === 'supervisor' && (u.password === 'super' || !u.password)) {
-          return { ...u, password: 'super123' };
-        }
-        if (u.username === 'caja' && (u.password === 'caja' || !u.password)) {
-          return { ...u, password: 'caja123' };
-        }
-        return u;
-      });
+      // Las claves solo viven en el servidor: se descarta cualquier clave en texto plano cacheada.
+      const updated = parsed.map(u => ({
+        ...u,
+        password: typeof u.password === 'string' && u.password.startsWith('scrypt$') ? u.password : ''
+      }));
       if (!updated.some(u => u.username === 'cajero')) {
         const cajeroUser = INITIAL_USERS.find(u => u.username === 'cajero');
         if (cajeroUser) updated.push(cajeroUser);
@@ -310,25 +304,11 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<SystemUser | null>(() => {
     if (typeof window === 'undefined') return null;
 
-    // 1. Detectar inicio de sesión automático vía SSO desde Servidor Central (?sso=...)
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const ssoParam = params.get('sso') || params.get('authSession') || params.get('authUser');
-      if (ssoParam) {
-        const decoded = decodeSsoToken(ssoParam);
-        if (decoded) {
-          const u = normalizeUser(decoded);
-          const serialized = JSON.stringify(u);
-          localStorage.setItem('pk_current_user', serialized);
-          sessionStorage.setItem('pk_current_user', serialized);
-          localStorage.setItem('wolfzone_authorized_path', 'true');
-          sessionStorage.setItem('wolfzone_authorized_path', 'true');
-          console.log('🐺 [SSO Auto-Login] Sesión iniciada automáticamente desde Central para:', u.name, `(${u.role})`);
-          return u;
-        }
-      }
-    } catch (e) {
-      console.warn('[SSO Auth Error in State]', e);
+    // Sin token de sesión del servidor no se restaura ningún usuario (evita sesiones falsificadas).
+    if (!getAuthToken()) {
+      localStorage.removeItem('pk_current_user');
+      sessionStorage.removeItem('pk_current_user');
+      return null;
     }
 
     const savedUser = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
@@ -347,54 +327,46 @@ export default function App() {
     return null;
   });
 
-  // Procesador reactivo de inicio de sesión SSO en montaje
+  // Inicio de sesión SSO desde el Servidor Central (?sso=...): el token firmado se canjea en el servidor local.
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const ssoParam = params.get('sso') || params.get('authSession') || params.get('authUser');
-      if (ssoParam) {
-        const decoded = decodeSsoToken(ssoParam);
-        if (decoded) {
-          const u = normalizeUser(decoded);
-          setCurrentUser(u);
-          const serialized = JSON.stringify(u);
-          localStorage.setItem('pk_current_user', serialized);
-          sessionStorage.setItem('pk_current_user', serialized);
-          localStorage.setItem('wolfzone_authorized_path', 'true');
-          sessionStorage.setItem('wolfzone_authorized_path', 'true');
-          setCurrentShift(prev => ({
-            ...prev,
-            operatorName: u.name
-          }));
-          setActiveView('operations');
-          playSound('success', true);
-          dbAddAuditLog('SSO_LOGIN', `Acceso unificado SSO desde Servidor Central: ${u.name} (@${u.username}) - Rol: ${u.role}`, u.name).catch(console.error);
+    const params = new URLSearchParams(window.location.search);
+    const ssoParam = params.get('sso');
+    if (!ssoParam) return;
 
-          // Asegurar presencia del usuario en la lista de usuarios del sistema
-          setUsers(prev => {
-            const exists = prev.some(usr => usr.id === u.id || usr.username.toLowerCase() === u.username.toLowerCase());
-            if (!exists) {
-              const updated = [u, ...prev];
-              try {
-                localStorage.setItem('pk_system_users', JSON.stringify(updated));
-              } catch (e) {}
-              return updated;
-            }
-            return prev;
-          });
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('sso');
+    cleanUrl.searchParams.delete('authSession');
+    cleanUrl.searchParams.delete('authUser');
+    window.history.replaceState({}, '', cleanUrl.toString());
 
-          // Limpiar parámetros sso de la URL conservando branchId
-          const cleanUrl = new URL(window.location.href);
-          cleanUrl.searchParams.delete('sso');
-          cleanUrl.searchParams.delete('authSession');
-          cleanUrl.searchParams.delete('authUser');
-          window.history.replaceState({}, '', cleanUrl.toString());
-        }
+    exchangeSsoToken(ssoParam).then(result => {
+      if (!result) {
+        playSound('alert', true);
+        return;
       }
-    } catch (err) {
-      console.warn('[SSO Auto-Login Effect Error]', err);
-    }
+      setAuthToken(result.token);
+      const u = normalizeUser(result.user);
+      const serialized = JSON.stringify(u);
+      localStorage.setItem('pk_current_user', serialized);
+      sessionStorage.setItem('pk_current_user', serialized);
+      localStorage.setItem('wolfzone_authorized_path', 'true');
+      sessionStorage.setItem('wolfzone_authorized_path', 'true');
+      dbAddAuditLog('SSO_LOGIN', `Acceso unificado SSO desde Servidor Central: ${u.name} (@${u.username}) - Rol: ${u.role}`, u.name)
+        .catch(console.error)
+        .finally(() => window.location.reload());
+    });
+  }, []);
+
+  // Sesión vencida o revocada en el servidor → volver a la pantalla de ingreso
+  useEffect(() => {
+    const onExpired = () => {
+      setCurrentUser(null);
+      playSound('alert', true);
+    };
+    window.addEventListener(AUTH_EXPIRED_EVENT, onExpired);
+    if (getAuthToken()) refreshSyncKey();
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onExpired);
   }, []);
 
   // Ensure any active currentUser is automatically propagated to localStorage for other tabs
@@ -3543,7 +3515,11 @@ export default function App() {
     }));
     setActiveView('operations');
     playSound('success', soundEnabled);
-    dbAddAuditLog('LOGIN', `Inicio de sesión exitoso: ${user.name} (@${user.username}) - Rol: ${user.role}`, user.name).catch(console.error);
+    // Recargar para que todos los datos se carguen ya autenticados (los intentos previos al login reciben 401)
+    Promise.allSettled([
+      dbAddAuditLog('LOGIN', `Inicio de sesión exitoso: ${user.name} (@${user.username}) - Rol: ${user.role}`, user.name),
+      refreshSyncKey()
+    ]).finally(() => window.location.reload());
   };
 
   const handleLogout = () => {
@@ -3551,8 +3527,7 @@ export default function App() {
       dbAddAuditLog('LOGOUT', `Cierre de sesión: ${currentUser.name} (@${currentUser.username})`, currentUser.name).catch(console.error);
     }
     setCurrentUser(null);
-    sessionStorage.removeItem('pk_current_user');
-    localStorage.removeItem('pk_current_user');
+    serverLogout();
     playSound('beep', soundEnabled);
   };
 
@@ -3569,7 +3544,8 @@ export default function App() {
       currentUsersCount: users.length,
     });
 
-    await dbSaveUser(userToSave);
+    // El servidor guarda la clave con hash y devuelve el usuario sin clave en texto plano
+    userToSave = await dbSaveUser(userToSave);
     let nextUsersList: SystemUser[] = [];
     setUsers(prev => {
       const idx = prev.findIndex(u => u.id === userToSave.id);

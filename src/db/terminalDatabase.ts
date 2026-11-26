@@ -174,23 +174,27 @@ export async function dbGetUsers(): Promise<SystemUser[]> {
   return localSaved ? (JSON.parse(localSaved) as SystemUser[]).map(normalizeUser) : INITIAL_USERS.map(normalizeUser);
 }
 
-export async function dbSaveUser(user: SystemUser): Promise<void> {
+export async function dbSaveUser(user: SystemUser): Promise<SystemUser> {
   const normalized = normalizeUser(user);
-  try {
-    await fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: normalized })
-    });
-  } catch (e) {
-    console.warn('[dbSaveUser] Error guardando en API:', e);
+  // Nunca conservar la clave en texto plano en el cliente: el servidor devuelve la versión segura.
+  let stored: SystemUser = { ...normalized, password: '' };
+  const res = await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user: normalized })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success) {
+    throw new Error(data.error || 'No se pudo guardar el usuario en el servidor');
   }
+  if (data.user) stored = normalizeUser({ ...normalized, ...data.user });
   // Actualizar cache local
   const users = await dbGetUsers();
-  const idx = users.findIndex(u => u.id === normalized.id);
-  if (idx >= 0) users[idx] = normalized;
-  else users.push(normalized);
+  const idx = users.findIndex(u => u.id === stored.id);
+  if (idx >= 0) users[idx] = stored;
+  else users.push(stored);
   localStorage.setItem('pk_system_users', JSON.stringify(users));
+  return stored;
 }
 
 export async function dbDeleteUser(userId: string): Promise<void> {

@@ -514,7 +514,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     setClonedSourceUser(null);
     setFormName(user.name);
     setFormUsername(user.username);
-    setFormPassword(user.password);
+    setFormPassword(''); // Las claves se guardan con hash: vacío = conservar la actual
     setFormRole(user.role);
     setFormIsActive(user.isActive);
 
@@ -719,7 +719,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
     const cleanUsername = formUsername.trim().toLowerCase();
     const cleanPassword = formPassword.trim();
 
-    if (!cleanName || !cleanUsername || !cleanPassword) {
+    if (!cleanName || !cleanUsername || (!selectedUser && !cleanPassword)) {
       setErrorMessage('Todos los campos son obligatorios.');
       return;
     }
@@ -754,6 +754,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
         id: selectedUser ? selectedUser.id : `usr-${Date.now()}`,
         name: cleanName,
         username: cleanUsername,
+        // Vacío al editar → el servidor conserva la clave actual
         password: cleanPassword,
         role: effectiveRole,
         assignedProfiles: formAssignedProfileIds.length > 0 ? formAssignedProfileIds : [effectiveRole],
@@ -1465,19 +1466,9 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                           <span>Clave:</span>
                           <strong className="text-slate-800 dark:text-slate-200 font-mono font-medium">
-                            {revealedPasswords[user.id] ? user.password : '••••••••'}
+                            ••••••••
                           </strong>
-                          {currentUser.role === 'master' && (
-                            <button
-                              type="button"
-                              onClick={() => setRevealedPasswords(prev => ({ ...prev, [user.id]: !prev[user.id] }))}
-                              className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer rounded"
-                              title={revealedPasswords[user.id] ? "Ocultar clave" : "Mostrar clave"}
-                              aria-label={revealedPasswords[user.id] ? "Ocultar clave" : "Mostrar clave"}
-                            >
-                              {revealedPasswords[user.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                            </button>
-                          )}
+                          <span className="text-[10px] text-slate-400" title="Las claves se almacenan cifradas (hash) y no pueden mostrarse">(protegida)</span>
                         </div>
 
                         <div className="flex items-center gap-1.5">
@@ -2849,11 +2840,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       Contraseña / Clave
                     </label>
                     <input
-                      type="text"
+                      type="password"
+                      autoComplete="new-password"
                       value={formPassword}
                       onChange={(e) => setFormPassword(e.target.value)}
-                      placeholder="ej. pass123"
-                      required
+                      placeholder={selectedUser ? 'Dejar vacío para conservar la actual' : 'ej. pass123'}
+                      required={!selectedUser}
                       className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400 font-mono"
                     />
                   </div>

@@ -4,6 +4,10 @@ import App from './App.tsx';
 import './index.css';
 import { ThemeManager } from './utils/themeManager';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
+import { installAuthFetchInterceptor } from './utils/authSession';
+
+// Debe instalarse antes de cualquier petición a /api
+installAuthFetchInterceptor();
 
 // Aplicar el tema predeterminado inmediatamente antes del renderizado
 try {

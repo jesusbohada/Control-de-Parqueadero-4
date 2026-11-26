@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { setAuthToken } from '../utils/authSession';
 import { 
   Lock, 
   User, 
@@ -272,7 +273,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
       });
       const data = await res.json();
 
-      if (data.success && data.user) {
+      if (data.success && data.user && data.token) {
+        setAuthToken(data.token);
         performLogin(data.user);
         return;
       }
@@ -283,43 +285,15 @@ export const LoginView: React.FC<LoginViewProps> = ({
         setIsLoggingIn(false);
         return;
       }
+
+      setError(data.error || 'No fue posible iniciar sesión. Intente nuevamente.');
     } catch {
-      // Contingencia local si no hay conexión con el backend
+      // Sin servidor no hay sesión válida: la validación de claves solo ocurre en el servidor.
+      setError('No hay conexión con el servidor. Verifique que el servicio esté activo e intente nuevamente.');
     }
 
-    // 2. Contingencia local de emergencia
-    const foundUser = users.find(u => {
-      const uName = u.username.toLowerCase();
-      if (uName === cleanUser) return true;
-      if (cleanUser === 'cajero' && uName === 'caja') return true;
-      if (cleanUser === 'caja' && uName === 'cajero') return true;
-      return false;
-    });
-
-    if (!foundUser) {
-      setError('El usuario ingresado no existe en el sistema.');
-      playSound('alert', true);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    if (foundUser.isActive === false) {
-      setError('Este usuario se encuentra desactivado.');
-      playSound('alert', true);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    const isPasswordMatch = foundUser.password === cleanPass;
-
-    if (!isPasswordMatch) {
-      setError('Contraseña incorrecta. Verifica e intenta nuevamente.');
-      playSound('alert', true);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    performLogin(foundUser);
+    playSound('alert', true);
+    setIsLoggingIn(false);
   };
 
   return (

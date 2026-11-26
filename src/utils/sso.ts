@@ -1,103 +1,54 @@
-import { SystemUser } from '../types';
-
-export interface SsoPayload {
-  user: {
-    id: string;
-    username: string;
-    name: string;
-    role: SystemUser['role'];
-    assignedProfiles?: string[];
-    permissions?: SystemUser['permissions'];
-    uiVisibility?: SystemUser['uiVisibility'];
-    isActive?: boolean;
-    createdAt?: string;
-  };
-  fromCentral: boolean;
-  timestamp: number;
-}
-
 /**
- * Codifica de manera ultra robusta y segura para URLs el token de sesión SSO.
- * Utiliza Base64 URL-safe (reemplaza '+' por '-' y '/' por '_', sin padding '=')
- * para garantizar compatibilidad universal sin alteraciones por navegadores o proxies.
+ * SSO Central → Sucursal.
+ *
+ * El token lo firma el servidor Central (POST /api/auth/sso-token) con la clave compartida
+ * SYNC_SHARED_KEY; la sucursal lo valida en su propio servidor (POST /api/auth/sso-exchange)
+ * y emite una sesión local. Es de un solo uso y vence a los 2 minutos.
+ * Si SYNC_SHARED_KEY no está configurada, el SSO queda deshabilitado y la sucursal pide login.
  */
-export function encodeSsoToken(user: SystemUser): string {
+
+/** Solicita al servidor local un token SSO firmado para el usuario en sesión. */
+export async function requestSsoToken(): Promise<string | null> {
   try {
-    const payload: SsoPayload = {
-      user: {
-        id: user.id,
-        username: user.username,
-        name: user.name,
-        role: user.role,
-        assignedProfiles: user.assignedProfiles || [user.role],
-        permissions: user.permissions,
-        uiVisibility: user.uiVisibility,
-        isActive: user.isActive,
-        createdAt: user.createdAt
-      },
-      fromCentral: true,
-      timestamp: Date.now()
-    };
-
-    const jsonStr = JSON.stringify(payload);
-    // Codificación UTF-8 segura compatible con tildes y caracteres especiales
-    const base64 = btoa(unescape(encodeURIComponent(jsonStr)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-
-    return base64;
+    const res = await fetch('/api/auth/sso-token', { method: 'POST' });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success && data.token) return data.token as string;
+    if (data.error) console.warn('[SSO]', data.error);
   } catch (err) {
-    console.error('[SSO Encode Error]', err);
-    // Fallback: URI component codificado directo
-    return encodeURIComponent(JSON.stringify({ user, fromCentral: true, timestamp: Date.now() }));
+    console.warn('[SSO] No se pudo obtener el token SSO:', err);
   }
+  return null;
 }
 
 /**
- * Decodifica de forma segura el token SSO soportando:
- * 1. URL-Safe Base64 (- y _)
- * 2. Standard Base64 (+ y / con o sin padding)
- * 3. Base64 con espacios convertidos desde '+'
- * 4. Fallback de JSON codificado en URI
+ * Abre una pestaña hacia la sucursal con SSO. La pestaña se abre de inmediato (evita el
+ * bloqueo de ventanas emergentes) y se redirige cuando llega el token.
+ * `buildUrl` recibe el sufijo de consulta (`sso=...`) o cadena vacía si el SSO no está disponible.
  */
-export function decodeSsoToken(rawToken: string | null | undefined): SystemUser | null {
-  if (!rawToken || typeof rawToken !== 'string') return null;
-
-  const trimmed = rawToken.trim();
-  if (!trimmed) return null;
-
-  // 1. Intento principal: Base64 (URL-Safe o estándar)
-  try {
-    let clean = trimmed.replace(/-/g, '+').replace(/_/g, '/').replace(/ /g, '+');
-    while (clean.length % 4 !== 0) {
-      clean += '=';
-    }
-    const jsonStr = decodeURIComponent(escape(atob(clean)));
-    const parsed = JSON.parse(jsonStr);
-    if (parsed && parsed.user && typeof parsed.user === 'object') {
-      return parsed.user as SystemUser;
-    }
-    if (parsed && parsed.username && parsed.role) {
-      return parsed as SystemUser;
-    }
-  } catch (e) {
-    // Si falla atob, continuar con fallback
+export async function openWithSso(buildUrl: (ssoQuery: string) => string): Promise<void> {
+  const win = window.open('about:blank', '_blank');
+  const token = await requestSsoToken();
+  const target = buildUrl(token ? `sso=${encodeURIComponent(token)}` : '');
+  if (win) {
+    win.location.href = target;
+  } else {
+    window.open(target, '_blank');
   }
+}
 
-  // 2. Intento secundario: JSON directo URI-encoded
+/** Canjea en el servidor local el token SSO recibido por URL. */
+export async function exchangeSsoToken(token: string): Promise<{ user: any; token: string } | null> {
   try {
-    const decodedUri = decodeURIComponent(trimmed);
-    const parsed = JSON.parse(decodedUri);
-    if (parsed && parsed.user && typeof parsed.user === 'object') {
-      return parsed.user as SystemUser;
-    }
-    if (parsed && parsed.username && parsed.role) {
-      return parsed as SystemUser;
-    }
-  } catch (e) {
-    // ignorar
+    const res = await fetch('/api/auth/sso-exchange', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success && data.token && data.user) return { user: data.user, token: data.token };
+    console.warn('[SSO]', data.error || 'Token SSO rechazado');
+  } catch (err) {
+    console.warn('[SSO] Error canjeando token:', err);
   }
-
   return null;
 }

@@ -46,7 +46,7 @@ import {
 } from '../services/centralSyncService';
 import { formatCurrency } from '../utils/billing';
 import { playSound } from '../utils/audio';
-import { encodeSsoToken } from '../utils/sso';
+import { openWithSso } from '../utils/sso';
 import { DEFAULT_MASTER_PERMISSIONS } from '../data/initialData';
 
 export interface CentralDashboardProps {
@@ -891,30 +891,8 @@ export const CentralDashboard: React.FC<CentralDashboardProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      let activeUser = currentUser;
-                      if (!activeUser && typeof window !== 'undefined') {
-                        try {
-                          const saved = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
-                          if (saved) activeUser = JSON.parse(saved);
-                        } catch (e) {}
-                      }
-                      if (!activeUser) {
-                        activeUser = {
-                          id: 'user-master-01',
-                          username: 'admin',
-                          name: 'Administrador Central',
-                          role: 'master',
-                          password: '',
-                          isActive: true,
-                          permissions: { ...DEFAULT_MASTER_PERMISSIONS },
-                          createdAt: new Date().toISOString()
-                        };
-                      }
-                      const ssoToken = encodeSsoToken(activeUser);
                       const base = selectedBranch.systemUrl.replace(/\/wolfzonepos/, '');
-                      const sep = base.includes('?') ? '&' : '?';
-                      const target = `${base}${sep}sso=${encodeURIComponent(ssoToken)}`;
-                      window.open(target, '_blank');
+                      openWithSso(sso => (sso ? `${base}${base.includes('?') ? '&' : '?'}${sso}` : base)).catch(console.warn);
                     }}
                     className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors shadow-xs cursor-pointer"
                     title="Abrir consola de la sucursal con sesión iniciada (SSO)"

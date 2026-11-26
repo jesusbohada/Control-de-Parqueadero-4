@@ -12,6 +12,22 @@ import net from 'net';
 import crypto from 'crypto';
 import { WebSocketServer, WebSocket } from 'ws';
 import { SystemUser } from './src/types.ts';
+import {
+  apiAuthMiddleware,
+  configureAuthz,
+  requirePermission,
+  requireMaster,
+  verifyPassword,
+  hashPassword,
+  isPasswordHash,
+  preparePasswordForStorage,
+  exposePasswordFor,
+  issueSessionToken,
+  revokeSession,
+  getSyncKey,
+  signSsoToken,
+  verifySsoToken,
+} from './server/auth.ts';
 import { formatReceiptText } from './src/utils/receiptFormatter.ts';
 import { generateTicketHtml } from './src/utils/ticketHtmlRenderer.ts';
 import pool, { initDatabase, isPostgresReady, memoryStoreRef, DATABASE_URL } from './src/db.ts';
@@ -123,18 +139,78 @@ async function getGeminiClient(): Promise<GoogleGenAI | null> {
   return geminiClient;
 }
 
+/**
+ * Seguridad: amplía la columna `pin` para alojar hashes y convierte las claves
+ * legadas en texto plano a hash scrypt. Idempotente.
+ */
+async function migrateStoredPasswords() {
+  try {
+    if (isPostgresReady()) {
+      await pool.query('ALTER TABLE users ALTER COLUMN pin TYPE TEXT');
+      const r = await pool.query('SELECT id, pin FROM users');
+      let migrated = 0;
+      for (const row of r.rows) {
+        if (row.pin && !isPasswordHash(row.pin)) {
+          await pool.query('UPDATE users SET pin = $1 WHERE id = $2', [hashPassword(String(row.pin).trim()), row.id]);
+          migrated++;
+        }
+      }
+      if (migrated > 0) console.log(`[Seguridad] ${migrated} clave(s) migradas de texto plano a hash scrypt.`);
+    } else {
+      for (const [id, u] of memoryStoreRef.users.entries()) {
+        if (u.password && !isPasswordHash(u.password)) {
+          memoryStoreRef.users.set(id, { ...u, password: hashPassword(String(u.password).trim()) });
+        }
+      }
+    }
+  } catch (e: any) {
+    console.error('[Seguridad] Error migrando claves a hash:', e.message);
+  }
+}
+
+/** Fila de la tabla users → SystemUser, exponiendo la clave solo según el solicitante. */
+function rowToPublicUser(r: any, viewer?: Express.Request['auth'] | null): SystemUser {
+  return {
+    id: r.id,
+    username: r.username,
+    role: r.role,
+    name: r.name,
+    password: exposePasswordFor(r.pin, viewer),
+    isActive: r.is_active !== undefined && r.is_active !== null ? Boolean(r.is_active) : (r.permissions?.isActive ?? true),
+    permissions: r.permissions || {},
+    createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at)
+  } as SystemUser;
+}
+
+function sanitizeUserForClient(u: SystemUser, viewer?: Express.Request['auth'] | null): SystemUser {
+  return { ...u, password: exposePasswordFor(u.password, viewer) };
+}
+
+async function getStoredPin(userId: string): Promise<string | null> {
+  if (isPostgresReady()) {
+    const r = await pool.query('SELECT pin FROM users WHERE id = $1 LIMIT 1', [userId]);
+    return r.rows.length > 0 ? (r.rows[0].pin || null) : null;
+  }
+  return memoryStoreRef.users.get(userId)?.password || null;
+}
+
 async function startServer() {
   // Inicialización de la base de datos PostgreSQL local
   await initDatabase();
+  await migrateStoredPasswords();
 
   const app = express();
   const PORT = process.env.PORT && Number(process.env.PORT) !== 8080 ? Number(process.env.PORT) : 3000;
 
-  // CORS Wildcard for local network synchronization
+  // CORS para sincronización entre sedes.
+  // La autenticación viaja en encabezados (Authorization / X-Sync-Key), nunca en cookies,
+  // por lo que una página de otro origen no puede usar credenciales ajenas.
   app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
+    const requestedHeaders = req.header('access-control-request-headers');
+    res.setHeader('Access-Control-Allow-Headers', requestedHeaders || 'Content-Type, Authorization, X-Sync-Key');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Expose-Headers', 'X-Auth-Required');
     if (req.method === 'OPTIONS') {
       return res.sendStatus(204);
     }
@@ -142,6 +218,37 @@ async function startServer() {
   });
 
   app.use(express.json({ limit: '10mb' }));
+
+  // Autenticación obligatoria para /api (excepto rutas públicas declaradas en server/auth.ts)
+  configureAuthz(async (id: string) => {
+    if (isPostgresReady()) {
+      const r = await pool.query('SELECT role, is_active, permissions FROM users WHERE id = $1 LIMIT 1', [id]);
+      if (r.rows.length === 0) return null;
+      const row = r.rows[0];
+      return { role: row.role, isActive: row.is_active !== false, permissions: row.permissions || {} };
+    }
+    const u = memoryStoreRef.users.get(id);
+    return u ? { role: u.role, isActive: u.isActive !== false, permissions: (u.permissions || {}) as any } : null;
+  });
+  app.use(apiAuthMiddleware);
+
+  // Los scripts FarmaDesk (.bat/.ps1/.py) interpolan branchId y Host: se validan para evitar
+  // inyección de comandos en el equipo que ejecuta el script descargado.
+  app.use('/api/farmadesk', (req, res, next) => {
+    const rawBranch = req.query.branchId;
+    if (rawBranch !== undefined && !(typeof rawBranch === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(rawBranch))) {
+      return res.status(400).json({ success: false, error: 'branchId inválido' });
+    }
+    const host = req.headers.host || '';
+    if (host && !/^[A-Za-z0-9.\-]+(:\d{1,5})?$|^\[[0-9a-fA-F:]+\](:\d{1,5})?$/.test(host)) {
+      return res.status(400).json({ success: false, error: 'Host inválido' });
+    }
+    next();
+  });
+
+  if (!getSyncKey()) {
+    console.warn('⚠️  [Seguridad] SYNC_SHARED_KEY no configurada: sincronización entre sedes y SSO en modo compatible/deshabilitado.');
+  }
 
   // ==============================================================================
   // API Health Check & PostgreSQL Pool Connectivity Status
@@ -342,7 +449,7 @@ async function startServer() {
   });
 
   // 0.3 Consulta paginada y filtrada de una tabla SQL
-  app.post('/api/postgres/table-data', async (req, res) => {
+  app.post('/api/postgres/table-data', requirePermission('canManageDatabase'), async (req, res) => {
     const { table, page = 1, limit = 50, search = '', sortBy = '', sortDir = 'ASC' } = req.body || {};
     const start = performance.now();
 
@@ -420,7 +527,7 @@ async function startServer() {
   });
 
   // 0.5 Generar Volcado SQL Completo descargable (.sql)
-  app.get('/api/postgres/dump', async (req, res) => {
+  app.get('/api/postgres/dump', requirePermission('canManageDatabase'), async (req, res) => {
     try {
       if (!isPostgresReady()) {
         return res.status(503).json({ success: false, error: 'PostgreSQL no está disponible' });
@@ -480,7 +587,7 @@ async function startServer() {
   });
 
   // 0.5.1 Respaldo de una tabla SQL individual (SQL o JSON)
-  app.get('/api/postgres/dump-table', async (req, res) => {
+  app.get('/api/postgres/dump-table', requirePermission('canManageDatabase'), async (req, res) => {
     try {
       if (!isPostgresReady()) {
         return res.status(503).json({ success: false, error: 'PostgreSQL no está disponible' });
@@ -554,7 +661,7 @@ async function startServer() {
   });
 
   // 0.5.2 Restauración de una tabla SQL individual desde JSON / Array
-  app.post('/api/postgres/restore-table', async (req, res) => {
+  app.post('/api/postgres/restore-table', requirePermission('canManageDatabase'), async (req, res) => {
     try {
       if (!isPostgresReady()) {
         return res.status(503).json({ success: false, error: 'PostgreSQL no está activo' });
@@ -721,7 +828,7 @@ async function startServer() {
   });
 
   // 0.5.4 Restauración de un backup previo desde la carpeta /backups/ o carga directa
-  app.post('/api/database/restore-backup-file', async (req, res) => {
+  app.post('/api/database/restore-backup-file', requirePermission('canManageDatabase'), async (req, res) => {
     try {
       const { fileName, fileContent } = req.body || {};
       let backupData: any = null;
@@ -874,7 +981,7 @@ async function startServer() {
                 name = EXCLUDED.name,
                 pin = EXCLUDED.pin,
                 permissions = EXCLUDED.permissions
-            `, [u.id, u.username, u.role, u.name, u.password || (u as any).pin || '', JSON.stringify(u.permissions || {}), u.createdAt || new Date().toISOString()]);
+            `, [u.id, u.username, u.role, u.name, preparePasswordForStorage(u.password || (u as any).pin || '', await getStoredPin(u.id)), JSON.stringify(u.permissions || {}), u.createdAt || new Date().toISOString()]);
           }
           memoryStoreRef.users.set(u.id, u);
           uc++;
@@ -1152,7 +1259,7 @@ async function startServer() {
   });
 
   // 0.7 Mantenimiento de PostgreSQL (VACUUM / REINDEX)
-  app.post('/api/postgres/maintenance', async (req, res) => {
+  app.post('/api/postgres/maintenance', requirePermission('canManageDatabase'), async (req, res) => {
     const { action = 'vacuum' } = req.body || {};
     const start = performance.now();
     try {
@@ -1328,24 +1435,15 @@ async function startServer() {
 
         // 5. Usuarios
         let usersRes = await pool.query('SELECT * FROM users ORDER BY name ASC');
-        let users: SystemUser[] = usersRes.rows.map(r => ({
-          id: r.id,
-          username: r.username,
-          role: r.role,
-          name: r.name,
-          password: r.pin || '123456',
-          isActive: r.is_active !== undefined && r.is_active !== null ? Boolean(r.is_active) : (r.permissions?.isActive ?? true),
-          permissions: r.permissions || {},
-          createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at)
-        } as SystemUser));
+        let users: SystemUser[] = usersRes.rows.map(r => rowToPublicUser(r, req.auth));
         if (users.length === 0) {
           for (const u of INITIAL_USERS) {
             await pool.query(
               'INSERT INTO users (id, username, role, name, pin, permissions, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO NOTHING',
-              [u.id, u.username, u.role, u.name, u.password || (u as any).pin || '', JSON.stringify(u.permissions || {}), u.createdAt || new Date().toISOString()]
+              [u.id, u.username, u.role, u.name, preparePasswordForStorage(u.password || (u as any).pin || ''), JSON.stringify(u.permissions || {}), u.createdAt || new Date().toISOString()]
             );
           }
-          users = INITIAL_USERS;
+          users = INITIAL_USERS.map(u => sanitizeUserForClient(u, req.auth));
         }
 
         return res.json({
@@ -1889,25 +1987,16 @@ async function startServer() {
     try {
       if (isPostgresReady()) {
         const usersRes = await pool.query('SELECT * FROM users ORDER BY name ASC');
-        const users: SystemUser[] = usersRes.rows.map(r => ({
-          id: r.id,
-          username: r.username,
-          role: r.role,
-          name: r.name,
-          password: r.pin || '123456',
-          isActive: r.is_active !== undefined && r.is_active !== null ? Boolean(r.is_active) : (r.permissions?.isActive ?? true),
-          permissions: r.permissions || {},
-          createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at)
-        } as SystemUser));
+        const users: SystemUser[] = usersRes.rows.map(r => rowToPublicUser(r, req.auth));
         return res.json({ success: true, users: users.map(normalizeUser) });
       }
-      res.json({ success: true, users: Array.from(memoryStoreRef.users.values()).map(normalizeUser) });
+      res.json({ success: true, users: Array.from(memoryStoreRef.users.values()).map(u => sanitizeUserForClient(normalizeUser(u), req.auth)) });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
   });
 
-  app.post('/api/users', async (req, res) => {
+  app.post('/api/users', requirePermission('canManageUsers'), async (req, res) => {
     const { user } = req.body;
     if (!user?.id || !user?.username) return res.status(400).json({ error: 'Datos de usuario inválidos' });
     try {
@@ -1927,15 +2016,16 @@ async function startServer() {
           user.username,
           user.role || 'cashier',
           user.name || user.username,
-          user.pin || user.password || '',
+          preparePasswordForStorage(user.pin || user.password || '', await getStoredPin(user.id)),
           user.isActive !== false,
           JSON.stringify(user.permissions || {}),
           user.createdAt || new Date().toISOString()
         ]);
       } else {
-        memoryStoreRef.users.set(user.id, user);
+        const existing = memoryStoreRef.users.get(user.id);
+        memoryStoreRef.users.set(user.id, { ...user, password: preparePasswordForStorage(user.pin || user.password || '', existing?.password) });
       }
-      res.json({ success: true, user: normalizeUser(user) });
+      res.json({ success: true, user: { ...normalizeUser(user), password: exposePasswordFor(await getStoredPin(user.id), req.auth) } });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -1962,14 +2052,17 @@ async function startServer() {
             user.username,
             user.role || 'cashier',
             user.name || user.username,
-            user.pin || user.password || '',
+            preparePasswordForStorage(user.pin || user.password || '', await getStoredPin(user.id)),
             user.isActive !== false,
             JSON.stringify(user.permissions || {}),
             user.createdAt || new Date().toISOString()
           ]);
         }
       } else {
-        users.forEach(u => memoryStoreRef.users.set(u.id, u));
+        users.forEach(u => {
+          const existing = memoryStoreRef.users.get(u.id);
+          memoryStoreRef.users.set(u.id, { ...u, password: preparePasswordForStorage(u.pin || u.password || '', existing?.password) });
+        });
       }
       res.json({ success: true, count: users.length });
     } catch (err: any) {
@@ -1977,7 +2070,7 @@ async function startServer() {
     }
   });
 
-  app.delete('/api/users/:id', async (req, res) => {
+  app.delete('/api/users/:id', requirePermission('canManageUsers'), async (req, res) => {
     const { id } = req.params;
     try {
       if (isPostgresReady()) {
@@ -2043,20 +2136,84 @@ async function startServer() {
         return res.status(403).json({ success: false, error: 'Este usuario se encuentra desactivado. Consulta con el Administrador.' });
       }
 
-      if (foundUser.password !== cleanPass) {
+      const check = verifyPassword(foundUser.password, cleanPass);
+      if (!check.ok) {
         return res.status(401).json({ success: false, error: 'Contraseña o PIN incorrecto' });
       }
 
+      // Migración transparente de clave legada en texto plano → hash
+      if (check.needsRehash) {
+        const newHash = hashPassword(cleanPass);
+        if (isPostgresReady()) {
+          await pool.query('UPDATE users SET pin = $1 WHERE id = $2', [newHash, foundUser.id]);
+        } else {
+          const mem = memoryStoreRef.users.get(foundUser.id);
+          if (mem) memoryStoreRef.users.set(foundUser.id, { ...mem, password: newHash });
+        }
+      }
+
+      const session = issueSessionToken(foundUser);
+      const principal = { kind: 'user' as const, uid: foundUser.id, username: foundUser.username, name: foundUser.name, role: foundUser.role };
       res.json({
         success: true,
-        user: foundUser,
-        token: `pk_sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        user: sanitizeUserForClient(foundUser, principal),
+        token: session.token,
+        expiresAt: session.expiresAt,
         loginTimestamp: new Date().toISOString()
       });
     } catch (err: any) {
       console.error('[Auth Login Error]', err);
       res.status(500).json({ success: false, error: err.message });
     }
+  });
+
+  // Sesión actual (valida el token del cliente)
+  app.get('/api/auth/me', (req, res) => {
+    const a = req.auth;
+    if (!a || a.kind !== 'user') return res.status(401).json({ success: false, code: 'AUTH_REQUIRED' });
+    res.json({ success: true, user: { id: a.uid, username: a.username, name: a.name, role: a.role }, expiresAt: a.exp ? new Date(a.exp).toISOString() : null });
+  });
+
+  app.post('/api/auth/logout', (req, res) => {
+    revokeSession(req.auth);
+    res.json({ success: true });
+  });
+
+  // Clave compartida de sincronización para que el navegador de la terminal hable con el Central.
+  // Solo para usuarios autenticados; null si no está configurada (modo compatible).
+  app.get('/api/auth/sync-key', (req, res) => {
+    if (!req.auth || req.auth.kind !== 'user') return res.status(401).json({ success: false, code: 'AUTH_REQUIRED' });
+    res.json({ success: true, syncKey: getSyncKey() });
+  });
+
+  // SSO Central → Sucursal: el Central firma un token de un solo uso (2 min) para el usuario en sesión.
+  app.post('/api/auth/sso-token', async (req, res) => {
+    const a = req.auth;
+    if (!a || a.kind !== 'user') return res.status(401).json({ success: false, code: 'AUTH_REQUIRED' });
+    let permissions: Record<string, any> | undefined;
+    try {
+      if (isPostgresReady()) {
+        const r = await pool.query('SELECT permissions FROM users WHERE id = $1 LIMIT 1', [a.uid]);
+        permissions = r.rows[0]?.permissions || undefined;
+      } else {
+        permissions = (memoryStoreRef.users.get(a.uid)?.permissions as any) || undefined;
+      }
+    } catch { /* sin permisos detallados: la sucursal aplicará los del rol */ }
+    const token = signSsoToken({ id: a.uid, username: a.username, name: a.name, role: a.role, permissions });
+    if (!token) {
+      return res.status(409).json({ success: false, error: 'SSO deshabilitado: configure SYNC_SHARED_KEY (la misma clave) en el Central y en la sucursal.' });
+    }
+    res.json({ success: true, token });
+  });
+
+  // SSO: la sucursal valida la firma del Central y emite su propia sesión local.
+  app.post('/api/auth/sso-exchange', (req, res) => {
+    const ssoUser = verifySsoToken(String(req.body?.token || ''));
+    if (!ssoUser) {
+      return res.status(401).json({ success: false, error: 'Token SSO inválido, vencido o ya utilizado.' });
+    }
+    const session = issueSessionToken(ssoUser);
+    res.json({ success: true, user: ssoUser, token: session.token, expiresAt: session.expiresAt });
   });
 
   app.post('/api/auth/verify-pin', async (req, res) => {
@@ -2087,7 +2244,7 @@ async function startServer() {
       const matchedUser = candidateUsers.find(u => {
         if (userId && u.id !== userId) return false;
         if (u.isActive === false) return false;
-        return u.password === cleanPin;
+        return verifyPassword(u.password, cleanPin).ok;
       });
 
       if (!matchedUser) {
@@ -2141,7 +2298,7 @@ async function startServer() {
     }
   });
 
-  app.post('/api/config/gemini', async (req, res) => {
+  app.post('/api/config/gemini', requireMaster, async (req, res) => {
     try {
       const { apiKey } = req.body;
       if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 8) {
@@ -2237,7 +2394,7 @@ async function startServer() {
     }
   });
 
-  app.delete('/api/config/gemini', async (req, res) => {
+  app.delete('/api/config/gemini', requireMaster, async (req, res) => {
     cachedGeminiApiKey = null;
     delete process.env.GEMINI_API_KEY;
     geminiClient = null;
@@ -2410,7 +2567,7 @@ async function startServer() {
     }
   });
 
-  app.post('/api/dian/certificate/upload', async (req, res) => {
+  app.post('/api/dian/certificate/upload', requireMaster, async (req, res) => {
     const { fileName, fileBase64, password } = req.body;
     if (!fileBase64) {
       return res.status(400).json({ success: false, error: 'Archivo de certificado requerido' });
@@ -2950,7 +3107,7 @@ async function startServer() {
     }
   });
 
-  app.get('/api/database/backup', async (req, res) => {
+  app.get('/api/database/backup', requirePermission('canManageDatabase'), async (req, res) => {
     try {
       if (isPostgresReady()) {
         const [spots, active, paid, shifts, configs, users, audit, subs] = await Promise.all([
@@ -2997,7 +3154,7 @@ async function startServer() {
     }
   });
 
-  app.post('/api/database/clear', async (req, res) => {
+  app.post('/api/database/clear', requirePermission('canManageDatabase'), async (req, res) => {
     try {
       if (isPostgresReady()) {
         await pool.query('TRUNCATE active_tickets, paid_tickets, cash_shifts, audit_logs CASCADE');
@@ -3241,7 +3398,7 @@ async function startServer() {
     }
   });
 
-  app.get('/api/database/backups/download/:fileName', (req, res) => {
+  app.get('/api/database/backups/download/:fileName', requirePermission('canManageDatabase'), (req, res) => {
     try {
       const sanitized = path.basename(req.params.fileName);
       const targetPath = path.join(process.cwd(), 'backups', sanitized);
@@ -6777,11 +6934,11 @@ if __name__ == '__main__':
   });
 
   // API to update the application from Git
-  app.post('/api/system/update', (req, res) => {
+  app.post('/api/system/update', requireMaster, (req, res) => {
     const { force = false } = req.body;
     
-    // Parámetros de git con bypass seguro de SSL para evitar errores de certificados CAfile en Linux
-    const gitOpts = '-c http.sslVerify=false';
+    // Verificación TLS activa: si falla en Linux, instale/actualice ca-certificates (no desactivar sslVerify).
+    const gitOpts = '';
     const gitCmd = force
       ? `git ${gitOpts} fetch --all && (git reset --hard origin/main || git reset --hard origin/master || git reset --hard) && (git ${gitOpts} pull origin main || git ${gitOpts} pull origin master || git ${gitOpts} pull)`
       : `git ${gitOpts} pull origin main || git ${gitOpts} pull origin master || git ${gitOpts} pull`;
@@ -6856,7 +7013,7 @@ if __name__ == '__main__':
   });
 
   // API to rollback/revert to a specific Git commit or state (Securizado contra inyección de comandos)
-  app.post('/api/system/rollback', (req, res) => {
+  app.post('/api/system/rollback', requireMaster, (req, res) => {
     const { targetCommit, version } = req.body || {};
     const rawTarget = String(targetCommit || version || '').trim();
     if (!rawTarget) {
@@ -6952,7 +7109,7 @@ if __name__ == '__main__':
   });
 
   // API to serve the workspace as a ZIP file (runs on Cloud server)
-  app.get('/api/system/download-zip', (req, res) => {
+  app.get('/api/system/download-zip', requireMaster, (req, res) => {
     try {
       const zip = new AdmZip();
       const rootDir = process.cwd();
@@ -7001,7 +7158,7 @@ if __name__ == '__main__':
   });
 
   // API to update the local workspace by downloading the ZIP from the Cloud (Deshabilitado por seguridad)
-  app.post('/api/system/update-zip', async (_req, res) => {
+  app.post('/api/system/update-zip', requireMaster, async (_req, res) => {
     return res.status(403).json({
       success: false,
       error: 'La actualización en caliente mediante descarga de ZIP remoto está deshabilitada por políticas de seguridad.'
@@ -7009,7 +7166,7 @@ if __name__ == '__main__':
   });
 
   // API to receive a local ZIP upload and perform extraction/update (Deshabilitado por seguridad)
-  app.post('/api/system/upload-zip', (_req, res) => {
+  app.post('/api/system/upload-zip', requireMaster, (_req, res) => {
     return res.status(403).json({
       success: false,
       error: 'La subida y extracción directa de archivos ZIP está deshabilitada por seguridad para prevenir vulnerabilidades de Zip Slip y RCE.'
@@ -7017,7 +7174,7 @@ if __name__ == '__main__':
   });
 
   // API to initialize git repository and link it to remote (Securizado contra inyección de argumentos)
-  app.post('/api/system/initialize-git', async (req, res) => {
+  app.post('/api/system/initialize-git', requireMaster, async (req, res) => {
     const { repositoryUrl } = req.body || {};
     if (!repositoryUrl) {
       return res.status(400).json({ success: false, error: 'Se requiere la URL del repositorio de Git.' });
@@ -7114,7 +7271,7 @@ if __name__ == '__main__':
   });
 
   // API to auto-install Git on local computer (supports Windows winget)
-  app.post('/api/system/install-git', (req, res) => {
+  app.post('/api/system/install-git', requireMaster, (req, res) => {
     if (process.platform !== 'win32') {
       return res.status(400).json({
         success: false,

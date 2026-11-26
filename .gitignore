@@ -20,3 +20,6 @@ backups/*.bak
 data/*.json
 data/*.backup.json
 !data/.gitkeep
+
+# Secreto de firma de sesiones (generado automáticamente)
+data/.session_secret
