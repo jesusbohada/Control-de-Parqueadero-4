@@ -105,6 +105,9 @@ import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
 import { Sidebar } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
 import { OperationsView } from './components/OperationsView';
+import { PatioPos } from './components/patio/PatioPos';
+import { PatioUiSwitch } from './components/patio/PatioUiSwitch';
+import { usePatioUiVersion } from './components/patio/usePatioUiVersion';
 import { ParkingMap } from './components/ParkingMap';
 import { RealTimeReports } from './components/RealTimeReports';
 import { CashShiftModal } from './components/CashShiftModal';
@@ -3600,6 +3603,8 @@ export default function App() {
 
   // Cross-view selection (e.g. from Map to Operations)
   const [selectedPlateForExit, setSelectedPlateForExit] = useState<string | null>(null);
+  // Vista del Patio POS (clásica por defecto; la nueva es opcional por usuario)
+  const [patioUi, setPatioUi] = usePatioUiVersion(currentUser?.id);
 
   // Floating print toast notification
   const [printToast, setPrintToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -5014,24 +5019,48 @@ export default function App() {
           >
             {/* OPERACIONES PATIO */}
         {activeView === 'operations' && (
-          <OperationsView
-            spots={effectiveSpots}
-            activeTickets={effectiveActiveTickets}
-            rates={rates}
-            businessInfo={effectiveBusinessInfo}
-            soundEnabled={soundEnabled}
-            onRegisterEntry={handleRegisterEntry}
-            onRegisterExit={handleRegisterExit}
-            onPrintTicket={handleOpenPrintModal}
-            selectedPlateForExit={selectedPlateForExit}
-            onClearSelectedPlate={() => setSelectedPlateForExit(null)}
-            currentUser={currentUser}
-            paymentGatewayConfig={paymentGatewayConfig}
-            onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
-            onOpenAnprCamera={() => setActiveView('anpr_camera')}
-            vehicleCategories={vehicleCategories}
-            commercialAgreements={commercialAgreements}
-          />
+          <>
+            <PatioUiSwitch value={patioUi} onChange={setPatioUi} />
+            {patioUi === 'nueva' ? (
+              <PatioPos
+                spots={effectiveSpots}
+                activeTickets={effectiveActiveTickets}
+                rates={rates}
+                businessInfo={effectiveBusinessInfo}
+                soundEnabled={soundEnabled}
+                onRegisterEntry={handleRegisterEntry}
+                onRegisterExit={handleRegisterExit}
+                onPrintTicket={handleOpenPrintModal}
+                selectedPlateForExit={selectedPlateForExit}
+                onClearSelectedPlate={() => setSelectedPlateForExit(null)}
+                currentUser={currentUser}
+                paymentGatewayConfig={paymentGatewayConfig}
+                onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
+                vehicleCategories={vehicleCategories}
+                commercialAgreements={commercialAgreements}
+                onOpenClassic={(plate) => { setPatioUi('clasica'); if (plate) setSelectedPlateForExit(plate); }}
+              />
+            ) : (
+              <OperationsView
+                spots={effectiveSpots}
+                activeTickets={effectiveActiveTickets}
+                rates={rates}
+                businessInfo={effectiveBusinessInfo}
+                soundEnabled={soundEnabled}
+                onRegisterEntry={handleRegisterEntry}
+                onRegisterExit={handleRegisterExit}
+                onPrintTicket={handleOpenPrintModal}
+                selectedPlateForExit={selectedPlateForExit}
+                onClearSelectedPlate={() => setSelectedPlateForExit(null)}
+                currentUser={currentUser}
+                paymentGatewayConfig={paymentGatewayConfig}
+                onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
+                onOpenAnprCamera={() => setActiveView('anpr_camera')}
+                vehicleCategories={vehicleCategories}
+                commercialAgreements={commercialAgreements}
+              />
+            )}
+          </>
         )}
 
         {activeView === 'map' && (

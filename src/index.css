@@ -6,6 +6,9 @@
 @theme {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Vista nueva del Patio POS: títulos y placa (con alternativas del sistema si no hay internet) */
+  --font-display: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-plate: 'Barlow Condensed', 'Arial Narrow', 'Roboto Condensed', sans-serif;
 }
 
 /* ==========================================================================
@@ -730,6 +733,22 @@ html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #94A3B8 !important;
   opacity: 1 !important;
+}
+
+/* Excepción: el campo dentro de la placa amarilla (Patio POS nuevo) conserva su aspecto en ambos temas */
+:root[data-theme="light"] input.wz-plate-input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+html.light input.wz-plate-input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+:root[data-theme="dark"] input.wz-plate-input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]),
+html.dark input.wz-plate-input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="range"]) {
+  background-color: transparent !important;
+  color: #0F172A !important;
+  border-color: transparent !important;
+}
+:root[data-theme="light"] input.wz-plate-input::placeholder,
+html.light input.wz-plate-input::placeholder,
+:root[data-theme="dark"] input.wz-plate-input::placeholder,
+html.dark input.wz-plate-input::placeholder {
+  color: rgba(15, 23, 42, 0.28) !important;
 }
 
 /* 3. ALTO CONTRASTE TÁCTIL WCAG AAA (Cuando data-contrast-level="high") */
