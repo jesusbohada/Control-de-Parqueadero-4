@@ -3,7 +3,8 @@
 Sistema POS de parqueadero multi-sede. Responder siempre en español.
 
 ## Stack
-- Backend: `server.ts` (Express + `pg` + `ws`, ~7.7k líneas, un solo archivo). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
+- Backend: `server.ts` (Express + `pg` + `ws`, ~5.7k líneas) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, databaseMaintenance, farmadesk, printing, subscribers, system). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
+- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`. Pendiente de extraer: tickets, shifts, users/auth, config, dian, spots, postgres, bootstrap y sync.
 - Frontend: React 19 + Vite 6 + Tailwind 4, en `src/`. Entrada `src/App.tsx` (~5.9k líneas).
 - BD: PostgreSQL 16 (`database_schema.sql`); fallback en memoria (`memoryStoreRef`) si PG no está listo.
 - Impresión térmica / cajón: `scripts/*.ps1` vía `execFile('powershell.exe')`.
