@@ -1697,7 +1697,7 @@ Estado Auditoría: ${item.isAudited ? 'AUDITADO OK' : 'PENDIENTE'}
                         <div className="flex justify-between">
                           <span>Día Operativo:</span>
                           <span className="font-bold font-mono">
-                            {selectedRecordForTicket.operationalDayDate || (selectedRecordForTicket.shift.startTime ? new Date(selectedRecordForTicket.shift.startTime).toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO'))} (Turno #{selectedRecordForTicket.shift.shiftNumber || 1})
+                            {(() => { const d = (Array.isArray(closedDays) ? closedDays : []).find(cd => cd.id === selectedRecordForTicket.shift?.operationalDayId); return d?.date ? new Date(d.date + 'T12:00:00').toLocaleDateString('es-CO') : ''; })() || (selectedRecordForTicket.shift.startTime ? new Date(selectedRecordForTicket.shift.startTime).toLocaleDateString('es-CO') : new Date().toLocaleDateString('es-CO'))} (Turno #{selectedRecordForTicket.shift.shiftNumber || 1})
                           </span>
                         </div>
                       )}
