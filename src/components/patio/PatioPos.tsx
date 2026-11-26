@@ -50,6 +50,9 @@ export interface PatioPosProps {
   commercialAgreements?: CommercialAgreement[];
   /** Abre la vista clásica (opcionalmente con ese vehículo listo para cobrar). */
   onOpenClassic: (plateForExit?: string) => void;
+  /** Plaza tocada en el mapa de plazas: se preselecciona para la entrada. */
+  preselectedEntrySpot?: { spotCode: string; vehicleType: VehicleType } | null;
+  onClearPreselectedEntrySpot?: () => void;
 }
 
 type Toast = { id: number; tone: 'ok' | 'warn'; title: string; body?: string };
@@ -65,7 +68,7 @@ const chipOff = 'border border-slate-200 bg-white text-slate-700 hover:-translat
 export const PatioPos: React.FC<PatioPosProps> = ({
   spots, activeTickets, rates, businessInfo, soundEnabled, onRegisterEntry, onRegisterExit, onPrintTicket,
   selectedPlateForExit, onClearSelectedPlate, currentUser, paymentGatewayConfig, onOpenTicketScanner,
-  vehicleCategories = [], onOpenClassic,
+  vehicleCategories = [], onOpenClassic, preselectedEntrySpot, onClearPreselectedEntrySpot,
 }) => {
   const reduceMotion = useReducedMotion();
   const canEnter = !currentUser || currentUser.permissions.canRegisterEntry !== false;
@@ -125,6 +128,16 @@ export const PatioPos: React.FC<PatioPosProps> = ({
     if (availableSpots.length === 0) setEntrySpot('');
     else if (!availableSpots.some(s => s.code === entrySpot)) setEntrySpot(availableSpots[0].code);
   }, [availableSpots, entrySpot]);
+
+  // Plaza elegida desde el mapa de plazas
+  useEffect(() => {
+    if (!preselectedEntrySpot) return;
+    if (categories.some(cat => cat.id === preselectedEntrySpot.vehicleType)) setEntryType(preselectedEntrySpot.vehicleType);
+    setEntrySpot(preselectedEntrySpot.spotCode);
+    onClearPreselectedEntrySpot?.();
+    setTimeout(() => plateRef.current?.focus(), 80);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preselectedEntrySpot]);
 
   // Abonados (misma consulta que la vista clásica)
   const [entrySubscriber, setEntrySubscriber] = useState<ParkingSubscriber | null>(null);
