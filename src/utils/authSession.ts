@@ -92,6 +92,27 @@ export function withAccessToken(url: string): string {
   return `${url}${sep}access_token=${encodeURIComponent(token)}`;
 }
 
+/**
+ * Credenciales para el handshake WebSocket (los navegadores no permiten encabezados):
+ * token de sesión hacia el propio servidor; clave de sync hacia otros servidores.
+ */
+export function appendWsCredentials(wsUrl: string): string {
+  try {
+    const url = new URL(wsUrl);
+    const sameHost = url.host === window.location.host;
+    if (sameHost) {
+      const token = getAuthToken();
+      if (token) url.searchParams.set('auth', token);
+    } else {
+      const syncKey = getSyncKey();
+      if (syncKey) url.searchParams.set('syncKey', syncKey);
+    }
+    return url.toString();
+  } catch {
+    return wsUrl;
+  }
+}
+
 function resolveUrl(input: RequestInfo | URL): URL | null {
   try {
     if (typeof input === 'string') return new URL(input, window.location.href);

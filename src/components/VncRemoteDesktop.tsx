@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { withAccessToken } from '../utils/authSession';
 import { 
   Monitor, 
   X, 
@@ -115,6 +116,17 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
   onPrintTicket
 }) => {
   // Configuración VNC
+  // Llave del agente FarmaDesk de esta sede (la entrega el servidor solo con sesión)
+  const [agentKey, setAgentKey] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/farmadesk/agent-key?branchId=${encodeURIComponent(branchId)}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => { if (!cancelled && d?.agentKey) setAgentKey(d.agentKey); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [branchId]);
+
   const [quality, setQuality] = useState<'alta' | 'media' | 'baja'>('alta');
   const [fps, setFps] = useState<number>(30);
   const [scale, setScale] = useState<number>(100);
@@ -955,7 +967,9 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
     ? branch.vncPassword.trim() 
     : generateFarmadeskPassword(branchName || branchId);
 
-  const ps1Command = `powershell -ExecutionPolicy Bypass -Command "irm '${window.location.protocol}//${window.location.host}/api/farmadesk/script/agent.ps1?branchId=${branchId}' | iex"`;
+  const ps1Command = agentKey
+    ? `powershell -ExecutionPolicy Bypass -Command "irm '${window.location.protocol}//${window.location.host}/api/farmadesk/script/agent.ps1?branchId=${encodeURIComponent(branchId)}&agentKey=${agentKey}' | iex"`
+    : 'Obteniendo llave del agente... (requiere sesión con permisos)';
 
   return (
     <div className="fixed inset-0 z-[9999] bg-slate-950 flex flex-col select-none overflow-hidden text-slate-100">
@@ -2093,7 +2107,7 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
 
                         <div className="space-y-2">
                           <a
-                            href={`/api/farmadesk/script/agent.bat?branchId=${branchId}`}
+                            href={withAccessToken(`/api/farmadesk/script/agent.bat?branchId=${encodeURIComponent(branchId)}`)}
                             download={`Iniciar-Agente-Remoto-${branchId}.bat`}
                             onClick={() => {
                               playSound('success');
@@ -3328,7 +3342,7 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
               </span>
               <div className="grid grid-cols-2 gap-3">
                 <a
-                  href={`/api/farmadesk/script/agent.bat?branchId=${branchId}`}
+                  href={withAccessToken(`/api/farmadesk/script/agent.bat?branchId=${encodeURIComponent(branchId)}`)}
                   download={`Iniciar-Agente-Remoto-${branchId}.bat`}
                   className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-700 transition-colors"
                 >
@@ -3336,7 +3350,7 @@ export const VncRemoteDesktop: React.FC<VncRemoteDesktopProps> = ({
                   <span>Descargar Agente .bat (1-Clic)</span>
                 </a>
                 <a
-                  href={`/api/farmadesk/script/agent.ps1?branchId=${branchId}`}
+                  href={withAccessToken(`/api/farmadesk/script/agent.ps1?branchId=${encodeURIComponent(branchId)}`)}
                   download={`farmadesk-agent-${branchId}.ps1`}
                   className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-700 transition-colors"
                 >

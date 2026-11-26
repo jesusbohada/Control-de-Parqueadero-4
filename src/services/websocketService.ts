@@ -4,6 +4,7 @@
  */
 
 import { detectCurrentPublicIp } from './centralSyncService';
+import { appendWsCredentials } from '../utils/authSession';
 
 export interface WebSocketMessage {
   event: string;
@@ -127,6 +128,10 @@ export class FarmaDeskSocketClient {
   }
 
   private resolveWsUrl(): string {
+    return appendWsCredentials(this.resolveWsUrlRaw());
+  }
+
+  private resolveWsUrlRaw(): string {
     const path = this.paths[this.pathIndex % this.paths.length];
 
     if (this.serverHost && this.serverHost.trim()) {

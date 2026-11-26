@@ -27,6 +27,17 @@ import {
   getSyncKey,
   signSsoToken,
   verifySsoToken,
+  AttemptLimiter,
+  limitFailedAttempts,
+  clientIp,
+  isDefaultOrTrivialPassword,
+  validateNewPassword,
+  registerWeakPasswords,
+  agentKeyFor,
+  verifyAgentKey,
+  authorizeWsRequest,
+  rejectWsUpgrade,
+  type WsAuthResult,
 } from './server/auth.ts';
 import { formatReceiptText } from './src/utils/receiptFormatter.ts';
 import { generateTicketHtml } from './src/utils/ticketHtmlRenderer.ts';
@@ -231,6 +242,17 @@ async function startServer() {
     return u ? { role: u.role, isActive: u.isActive !== false, permissions: (u.permissions || {}) as any } : null;
   });
   app.use(apiAuthMiddleware);
+
+  // Anti fuerza bruta: claves de fábrica conocidas y límites de intentos fallidos
+  registerWeakPasswords(INITIAL_USERS.map(u => u.password));
+  const loginUserLimiter = new AttemptLimiter(5, 15 * 60_000, 15 * 60_000);  // por IP + usuario
+  const loginIpLimiter = new AttemptLimiter(30, 15 * 60_000, 15 * 60_000);   // por IP
+  const pinLimiter = new AttemptLimiter(5, 10 * 60_000, 10 * 60_000);        // PIN supervisor / FarmaDesk
+  const limitLogin = [
+    limitFailedAttempts(loginUserLimiter, req => [`${clientIp(req)}|${String(req.body?.username || '').trim().toLowerCase()}`]),
+    limitFailedAttempts(loginIpLimiter, req => [clientIp(req)]),
+  ];
+  const limitPin = limitFailedAttempts(pinLimiter, req => [`${clientIp(req)}|${req.auth?.uid || req.body?.branchId || ''}`]);
 
   // Los scripts FarmaDesk (.bat/.ps1/.py) interpolan branchId y Host: se validan para evitar
   // inyección de comandos en el equipo que ejecuta el script descargado.
@@ -1999,6 +2021,11 @@ async function startServer() {
   app.post('/api/users', requirePermission('canManageUsers'), async (req, res) => {
     const { user } = req.body;
     if (!user?.id || !user?.username) return res.status(400).json({ error: 'Datos de usuario inválidos' });
+    const incomingPassword = String(user.pin || user.password || '').trim();
+    if (incomingPassword && !isPasswordHash(incomingPassword)) {
+      const policyError = validateNewPassword(incomingPassword, user.username);
+      if (policyError) return res.status(400).json({ success: false, error: policyError });
+    }
     try {
       if (isPostgresReady()) {
         await pool.query(`
@@ -2031,7 +2058,7 @@ async function startServer() {
     }
   });
 
-  app.post('/api/users/bulk', async (req, res) => {
+  app.post('/api/users/bulk', requirePermission('canManageUsers'), async (req, res) => {
     const { users } = req.body;
     if (!Array.isArray(users)) return res.status(400).json({ error: 'Array de usuarios esperado' });
     try {
@@ -2087,7 +2114,7 @@ async function startServer() {
   // -------------------------------------------------------------
   // AUTENTICACIÓN Y VALIDACIÓN DE SESIONES
   // -------------------------------------------------------------
-  app.post('/api/auth/login', async (req, res) => {
+  app.post('/api/auth/login', ...limitLogin, async (req, res) => {
     try {
       const { username, password } = req.body;
       const cleanUser = String(username || '').trim().toLowerCase();
@@ -2152,13 +2179,16 @@ async function startServer() {
         }
       }
 
-      const session = issueSessionToken(foundUser);
+      // Clave de fábrica o trivial → sesión restringida hasta que la cambie
+      const mustChangePassword = isDefaultOrTrivialPassword(cleanPass, foundUser.username);
+      const session = issueSessionToken(foundUser, { mustChangePassword });
       const principal = { kind: 'user' as const, uid: foundUser.id, username: foundUser.username, name: foundUser.name, role: foundUser.role };
       res.json({
         success: true,
         user: sanitizeUserForClient(foundUser, principal),
         token: session.token,
         expiresAt: session.expiresAt,
+        mustChangePassword,
         loginTimestamp: new Date().toISOString()
       });
     } catch (err: any) {
@@ -2172,6 +2202,38 @@ async function startServer() {
     const a = req.auth;
     if (!a || a.kind !== 'user') return res.status(401).json({ success: false, code: 'AUTH_REQUIRED' });
     res.json({ success: true, user: { id: a.uid, username: a.username, name: a.name, role: a.role }, expiresAt: a.exp ? new Date(a.exp).toISOString() : null });
+  });
+
+  // Cambio de contraseña del usuario en sesión (obligatorio si ingresó con una clave de fábrica)
+  app.post('/api/auth/change-password', limitPin, async (req, res) => {
+    const a = req.auth;
+    if (!a || a.kind !== 'user') return res.status(401).json({ success: false, code: 'AUTH_REQUIRED' });
+    const currentPassword = String(req.body?.currentPassword || '').trim();
+    const newPassword = String(req.body?.newPassword || '').trim();
+    try {
+      const stored = await getStoredPin(a.uid);
+      if (!verifyPassword(stored, currentPassword).ok) {
+        return res.status(401).json({ success: false, error: 'La contraseña actual no es correcta.' });
+      }
+      const policyError = validateNewPassword(newPassword, a.username);
+      if (policyError) return res.status(400).json({ success: false, error: policyError });
+      if (verifyPassword(stored, newPassword).ok) {
+        return res.status(400).json({ success: false, error: 'La nueva contraseña debe ser distinta de la actual.' });
+      }
+      const newHash = hashPassword(newPassword);
+      if (isPostgresReady()) {
+        await pool.query('UPDATE users SET pin = $1 WHERE id = $2', [newHash, a.uid]);
+      } else {
+        const mem = memoryStoreRef.users.get(a.uid);
+        if (mem) memoryStoreRef.users.set(a.uid, { ...mem, password: newHash });
+      }
+      revokeSession(a);
+      const session = issueSessionToken({ id: a.uid, username: a.username, name: a.name, role: a.role });
+      console.log(`[Seguridad] Contraseña actualizada para @${a.username}`);
+      res.json({ success: true, token: session.token, expiresAt: session.expiresAt });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
   });
 
   app.post('/api/auth/logout', (req, res) => {
@@ -2207,7 +2269,7 @@ async function startServer() {
   });
 
   // SSO: la sucursal valida la firma del Central y emite su propia sesión local.
-  app.post('/api/auth/sso-exchange', (req, res) => {
+  app.post('/api/auth/sso-exchange', limitLogin[1], (req, res) => {
     const ssoUser = verifySsoToken(String(req.body?.token || ''));
     if (!ssoUser) {
       return res.status(401).json({ success: false, error: 'Token SSO inválido, vencido o ya utilizado.' });
@@ -2216,7 +2278,7 @@ async function startServer() {
     res.json({ success: true, user: ssoUser, token: session.token, expiresAt: session.expiresAt });
   });
 
-  app.post('/api/auth/verify-pin', async (req, res) => {
+  app.post('/api/auth/verify-pin', limitPin, async (req, res) => {
     try {
       const { pin, userId, requiredRole, requiredPermission } = req.body;
       const cleanPin = String(pin || '').trim();
@@ -4070,7 +4132,7 @@ async function startServer() {
     const branchId = (req.query.branchId as string) || 'suc-001';
     const host = req.headers.host || `localhost:${PORT}`;
     const httpProtocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
-    const ps1Url = `${httpProtocol}://${host}/api/farmadesk/script/agent.ps1?branchId=${branchId}`;
+    const ps1Url = `${httpProtocol}://${host}/api/farmadesk/script/agent.ps1?branchId=${branchId}&agentKey=${agentKeyFor(branchId)}`;
 
     const batScript = `@echo off
 chcp 65001 >nul
@@ -4098,9 +4160,13 @@ goto :eof
 
   app.get('/api/farmadesk/script/agent.ps1', (req, res) => {
     const branchId = (req.query.branchId as string) || 'suc-001';
+    // Ruta pública para `iex`: exige sesión o la llave del agente de esa sede
+    if (!req.auth && !verifyAgentKey(branchId, req.query.agentKey)) {
+      return res.status(401).type('text/plain').send('# Acceso denegado: descargue el agente desde el panel FarmaDesk con sesión iniciada.');
+    }
     const host = req.headers.host || `localhost:${PORT}`;
     const wsProtocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'wss' : 'ws';
-    const wsUrl = `${wsProtocol}://${host}/ws?type=farmadesk-agent&branchId=${branchId}`;
+    const wsUrl = `${wsProtocol}://${host}/ws?type=farmadesk-agent&branchId=${branchId}&agentKey=${agentKeyFor(branchId)}`;
 
     const ps1Script = `# ==============================================================================
 # FARMADESK® REMOTE DESKTOP AGENT v3.2 - WINDOWS NATIVE STREAMER & CONTROLLER
@@ -4329,7 +4395,7 @@ while ($true) {
     const branchId = (req.query.branchId as string) || 'suc-001';
     const host = req.headers.host || `localhost:${PORT}`;
     const wsProtocol = req.protocol === 'https' || req.headers['x-forwarded-proto'] === 'https' ? 'wss' : 'ws';
-    const wsUrl = `${wsProtocol}://${host}/ws?type=farmadesk-agent&branchId=${branchId}`;
+    const wsUrl = `${wsProtocol}://${host}/ws?type=farmadesk-agent&branchId=${branchId}&agentKey=${agentKeyFor(branchId)}`;
 
     const pyScript = `# ==============================================================================
 # FARMADESK® AGENT MULTIPLATAFORMA (PYTHON 3)
@@ -4440,6 +4506,12 @@ if __name__ == '__main__':
   const permanentPinsStore = new Map<string, string>(); // branchId -> PIN
 
   // 1. Generar Código de Asistencia Remota (6 dígitos temporales estilo Chrome Remote Desktop)
+  // Llave del agente de control remoto de una sede (para armar el comando de instalación)
+  app.get('/api/farmadesk/agent-key', requirePermission('canViewVncRemoteDesktop', 'canManageBranchLocations'), (req, res) => {
+    const branchId = (req.query.branchId as string) || 'suc-001';
+    res.json({ success: true, branchId, agentKey: agentKeyFor(branchId) });
+  });
+
   app.post('/api/farmadesk/access-code/generate', (req, res) => {
     const { branchId, branchName } = req.body;
     const targetBranchId = branchId || 'branch-01';
@@ -4467,7 +4539,7 @@ if __name__ == '__main__':
   });
 
   // 2. Verificar Código de Asistencia Remota
-  app.post('/api/farmadesk/access-code/verify', (req, res) => {
+  app.post('/api/farmadesk/access-code/verify', limitPin, (req, res) => {
     const { code } = req.body;
     if (!code) {
       return res.status(400).json({ success: false, message: 'Código requerido' });
@@ -4494,7 +4566,7 @@ if __name__ == '__main__':
   });
 
   // 3. Verificar PIN de Seguridad para Acceso Permanente (Mis Equipos)
-  app.post('/api/farmadesk/pin/verify', (req, res) => {
+  app.post('/api/farmadesk/pin/verify', limitPin, (req, res) => {
     const { branchId, pin } = req.body;
     const targetBranchId = branchId || 'branch-01';
     const cleanPin = pin ? pin.toString().trim() : '';
@@ -7566,8 +7638,14 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
       const urlObj = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
       const pathname = urlObj.pathname;
       if (pathname === '/api/ws' || pathname === '/ws') {
+        const wsAuth = authorizeWsRequest(request);
+        if (!wsAuth.ok) {
+          console.warn(`[WebSocket RECHAZADO] ${clientIp(request)} → ${wsAuth.reason}`);
+          rejectWsUpgrade(socket, wsAuth.reason);
+          return;
+        }
         wss.handleUpgrade(request, socket, head, (ws) => {
-          wss.emit('connection', ws, request);
+          wss.emit('connection', ws, request, wsAuth);
         });
       }
     } catch (e) {
@@ -7585,7 +7663,11 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
   const connectedClients = new Map<string, RegisteredClient>();
 
   // WebSocket connection handler
-  wss.on('connection', (ws: WebSocket, request) => {
+  // Eventos que mueven el mouse/teclado o ejecutan acciones en una sede: solo conexiones de confianza
+  const WS_CONTROL_EVENTS = new Set(['farmadesk:admin:input', 'admin:control:action', 'farmadesk:remote-key:send']);
+
+  wss.on('connection', (ws: WebSocket, request, wsAuth?: WsAuthResult) => {
+    const wsTrusted = wsAuth?.trusted === true;
     let type = 'branch';
     let branchId = 'suc-001';
     const wsClientIp = extractClientIp(request);
@@ -7621,6 +7703,11 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
       try {
         const payload = JSON.parse(messageStr.toString());
         const { event, data } = payload;
+
+        if (WS_CONTROL_EVENTS.has(event) && !wsTrusted) {
+          console.warn(`[WebSocket] Evento de control '${event}' bloqueado desde conexión sin credenciales (${clientId})`);
+          return;
+        }
 
         // FARMADESK: Frame de pantalla real enviado por el Agente instalado en la PC
         if (event === 'farmadesk:agent:frame') {
@@ -7855,8 +7942,14 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
         const urlObj = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
         const pathname = urlObj.pathname;
         if (pathname === '/api/ws' || pathname === '/ws') {
+          const wsAuth = authorizeWsRequest(request);
+          if (!wsAuth.ok) {
+            console.warn(`[WebSocket RECHAZADO] ${clientIp(request)} → ${wsAuth.reason}`);
+            rejectWsUpgrade(socket, wsAuth.reason);
+            return;
+          }
           wss.handleUpgrade(request, socket, head, (ws) => {
-            wss.emit('connection', ws, request);
+            wss.emit('connection', ws, request, wsAuth);
           });
         }
       } catch (e) {
@@ -7881,8 +7974,14 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
         const urlObj = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
         const pathname = urlObj.pathname;
         if (pathname === '/api/ws' || pathname === '/ws') {
+          const wsAuth = authorizeWsRequest(request);
+          if (!wsAuth.ok) {
+            console.warn(`[WebSocket RECHAZADO] ${clientIp(request)} → ${wsAuth.reason}`);
+            rejectWsUpgrade(socket, wsAuth.reason);
+            return;
+          }
           wss.handleUpgrade(request, socket, head, (ws) => {
-            wss.emit('connection', ws, request);
+            wss.emit('connection', ws, request, wsAuth);
           });
         }
       } catch (e) {
