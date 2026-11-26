@@ -3,8 +3,8 @@
 Sistema POS de parqueadero multi-sede. Responder siempre en español.
 
 ## Stack
-- Backend: `server.ts` (Express + `pg` + `ws`, ~5.7k líneas) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, databaseMaintenance, farmadesk, printing, subscribers, system). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
-- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`. Pendiente de extraer: tickets, shifts, users/auth, config, dian, spots, postgres, bootstrap y sync.
+- Backend: `server.ts` (Express + `pg` + `ws`, ~3.1k líneas) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, bootstrap, configs, databaseMaintenance, dian, farmadesk, postgresAdmin, printing, shifts, spots, subscribers, system, tickets, users). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
+- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`. Pendiente de extraer: sync (`/api/sync/*`) y el servidor WebSocket.
 - Frontend: React 19 + Vite 6 + Tailwind 4, en `src/`. Entrada `src/App.tsx` (~5.9k líneas).
 - BD: PostgreSQL 16 (`database_schema.sql`); fallback en memoria (`memoryStoreRef`) si PG no está listo.
 - Impresión térmica / cajón: `scripts/*.ps1` vía `execFile('powershell.exe')`.
@@ -21,7 +21,7 @@ Sistema POS de parqueadero multi-sede. Responder siempre en español.
 - Rutas API: `grep -n "app\.\(get\|post\|put\|delete\|patch\)(" server.ts`
 - Tipos/permisos RBAC: `src/types.ts` (`UserPermissions`).
 - Sync central ↔ sucursales: `src/services/centralSyncService.ts`, `/api/sync/*`.
-- Tickets/turnos: `/api/tickets/*`, `/api/shifts/*`, `src/components/OperationsView.tsx`, `CashShiftModal.tsx`.
+- Tickets/turnos: `server/routes/tickets.ts`, `server/routes/shifts.ts`, `src/components/OperationsView.tsx`, `CashShiftModal.tsx`.
 
 ## Reglas de trabajo
 - Archivos gigantes: usar `grep -n` + lectura por rangos (`offset/limit`); nunca leer `server.ts` o `App.tsx` completos.
