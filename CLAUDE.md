@@ -18,7 +18,7 @@ Sistema POS de parqueadero multi-sede. Responder siempre en español.
 - Restablecer clave de un usuario: `npx tsx scripts/reset_user_password.ts`.
 
 ## Mapa rápido (leer solo lo necesario)
-- Rutas API: `grep -n "app\.\(get\|post\|put\|delete\|patch\)(" server.ts`
+- Rutas API: `grep -rn "app\.\(get\|post\|put\|delete\|patch\)(" server.ts server/routes`
 - Tipos/permisos RBAC: `src/types.ts` (`UserPermissions`).
 - Sync central ↔ sucursales: `src/services/centralSyncService.ts`, `/api/sync/*`.
 - Tickets/turnos: `server/routes/tickets.ts`, `server/routes/shifts.ts`, `src/components/OperationsView.tsx`, `CashShiftModal.tsx`.
