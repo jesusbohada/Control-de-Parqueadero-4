@@ -3,8 +3,8 @@
 Sistema POS de parqueadero multi-sede. Responder siempre en español.
 
 ## Stack
-- Backend: `server.ts` (Express + `pg` + `ws`, ~0.8k líneas: arranque, middleware y WebSocket) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, bootstrap, configs, databaseMaintenance, dian, farmadesk, postgresAdmin, printing, shifts, spots, subscribers, sync, system, tickets, users). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
-- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`. Pendiente de extraer: el servidor WebSocket.
+- Backend: `server.ts` (Express + `pg`, ~0.5k líneas: arranque y middleware) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor), `ws.ts` (hub WebSocket) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, bootstrap, configs, databaseMaintenance, dian, farmadesk, postgresAdmin, printing, shifts, spots, subscribers, sync, system, tickets, users). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
+- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`.
 - Frontend: React 19 + Vite 6 + Tailwind 4, en `src/`. Entrada `src/App.tsx` (~5.9k líneas).
 - BD: PostgreSQL 16 (`database_schema.sql`); fallback en memoria (`memoryStoreRef`) si PG no está listo.
 - Impresión térmica / cajón: `scripts/*.ps1` vía `execFile('powershell.exe')`.
