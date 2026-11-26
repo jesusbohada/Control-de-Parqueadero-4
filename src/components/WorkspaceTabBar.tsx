@@ -10,18 +10,13 @@ import {
   Plus, 
   X, 
   Printer, 
-  Clock, 
   ShieldAlert, 
   CheckCircle2, 
   Pin, 
   Layers, 
-  Sparkles, 
   ChevronDown, 
   RotateCcw, 
-  FileText,
-  CreditCard,
   Building2,
-  HardDrive
 } from 'lucide-react';
 import { ActiveWorkspaceView, WorkspaceCategory } from '../types/routes';
 

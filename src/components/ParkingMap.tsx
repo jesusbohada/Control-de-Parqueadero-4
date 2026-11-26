@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Car, 
-  Bike, 
-  Truck, 
   Clock, 
   CheckCircle2, 
-  XCircle, 
   AlertTriangle, 
   Plus, 
   Filter, 
   LogOut,
-  Info,
   Grid
 } from 'lucide-react';
 import { ParkingSpot, ParkingTicket, RatesConfig, VehicleType, VehicleCategoryConfig, SystemUser } from '../types';

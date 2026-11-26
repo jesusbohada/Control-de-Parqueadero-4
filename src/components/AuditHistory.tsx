@@ -3,11 +3,9 @@ import {
   ShieldCheck, 
   Search, 
   Calendar, 
-  Filter, 
   RefreshCw, 
   Download, 
   FileSpreadsheet, 
-  Printer, 
   ChevronLeft, 
   ChevronRight, 
   Car, 
@@ -22,12 +20,7 @@ import {
   Copy, 
   Check, 
   Activity, 
-  FileCode, 
   Layers, 
-  Info,
-  ArrowUpDown,
-  Tag,
-  AlertCircle
 } from 'lucide-react';
 import { dbGetAuditLogs } from '../db/terminalDatabase';
 import { AuditLogEntry } from '../types';

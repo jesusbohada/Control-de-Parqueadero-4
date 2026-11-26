@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Printer, X, CheckCircle2, QrCode, Car, Bike, Truck, Shield, FileCheck } from 'lucide-react';
-import { ParkingTicket, ParkingBusinessInfo, RatesConfig, PaymentMethod, VehicleCategoryConfig, OperationalDay, CashShift } from '../types';
+import { Printer, X, CheckCircle2, Shield } from 'lucide-react';
+import { ParkingTicket, ParkingBusinessInfo, RatesConfig, VehicleCategoryConfig, OperationalDay, CashShift } from '../types';
 import { formatCurrency, getVehicleRate } from '../utils/billing';
-import { getPaymentMethodMeta, formatPaymentDetailsSummary } from '../utils/paymentUtils';
+import { getPaymentMethodMeta } from '../utils/paymentUtils';
 import { DynamicQrCode } from './DynamicQrCode';
 import { DynamicBarcode } from './DynamicBarcode';
 import { printInstantThermal } from '../services/printerService';

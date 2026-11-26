@@ -3,21 +3,13 @@ import {
   AlertTriangle,
   Database,
   RefreshCw,
-  Download,
   Upload,
   CheckCircle2,
   HardDrive,
   FileText,
   ShieldAlert,
-  ArrowRight,
   RotateCcw,
-  Sparkles,
-  Info,
   Clock,
-  User,
-  Activity,
-  Layers,
-  Check
 } from 'lucide-react';
 
 export interface BackupItem {

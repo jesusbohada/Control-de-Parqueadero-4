@@ -1,9 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Car, 
-  Bike, 
-  Truck, 
-  Zap, 
   Plus, 
   Edit, 
   Trash2, 
@@ -11,20 +8,12 @@ import {
   X, 
   AlertCircle, 
   Settings2, 
-  Layers, 
-  DollarSign,
-  Tag,
-  Shield,
-  HelpCircle,
-  Bus,
-  Compass,
   Search
 } from 'lucide-react';
 import { VehicleCategoryConfig, SystemUser } from '../types';
 import { 
   VEHICLE_TERRESTRIAL_ICONS, 
   renderVehicleIcon, 
-  getVehicleIconComponent 
 } from '../utils/vehicleIcons';
 
 interface VehicleCategoriesModalProps {

@@ -1,5 +1,5 @@
-import { PrinterConfig, ParkingBusinessInfo, RatesConfig, ParkingTicket, CashShift, OperationalDay } from '../types';
-import { formatReceiptText, FormatReceiptOptions } from '../utils/receiptFormatter';
+import { ParkingBusinessInfo, RatesConfig, ParkingTicket, CashShift, OperationalDay } from '../types';
+import { formatReceiptText } from '../utils/receiptFormatter';
 
 export interface SystemPrinterInfo {
   id: string;

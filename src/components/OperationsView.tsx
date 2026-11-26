@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Car, 
-  Bike, 
-  Truck, 
   Search, 
   ArrowDownRight, 
   ArrowUpRight, 
   Clock, 
-  DollarSign, 
   CreditCard, 
   Banknote, 
   QrCode, 
@@ -18,24 +15,17 @@ import {
   Check, 
   Sparkles, 
   RefreshCw, 
-  Hash, 
-  Tag, 
   Smartphone, 
   Layers, 
   Building2, 
-  Settings2, 
   CheckCircle2, 
   Wallet, 
   Coins, 
   Zap, 
   FileCheck, 
-  ChevronDown,
   X,
   ShieldCheck,
   FileText,
-  Bus,
-  RotateCcw,
-  Compass,
   ExternalLink,
   Copy,
   Globe,
@@ -69,11 +59,7 @@ import { calculateParkingFee, formatCurrency, formatPlate, calculateAgreementDis
 import { playSound } from '../utils/audio';
 import { renderVehicleIcon } from '../utils/vehicleIcons';
 import { 
-  PlateCountryRule,
-  NATIONAL_PLATE_RULE, 
   FOREIGN_COUNTRY_OPTIONS, 
-  FOREIGN_COUNTRY_RULES,
-  getActivePlateRule,
   validatePlateData
 } from '../utils/plateValidation';
 import { 
@@ -86,9 +72,8 @@ import {
 } from '../utils/paymentUtils';
 import { PaymentQrModal } from './PaymentQrModal';
 import { DynamicQrCode } from './DynamicQrCode';
-import { DynamicBarcode } from './DynamicBarcode';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
-import { generateDianCUFE, transmitInvoiceToDian } from '../utils/dianService';
+import { transmitInvoiceToDian } from '../utils/dianService';
 
 interface OperationsViewProps {
   spots: ParkingSpot[];

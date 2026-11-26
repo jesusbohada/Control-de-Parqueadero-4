@@ -9,11 +9,6 @@ import {
   VehicleCategoryConfig,
   ExpenseConcept,
   ExpenseCategory,
-  BranchSyncAuditRecord,
-  ParkingSpot,
-  ParkingTicket,
-  CashShift,
-  SystemUser
 } from '../types';
 
 export const DEFAULT_SERVER_DATA_CONFIG: ServerDataConnectionConfig = {

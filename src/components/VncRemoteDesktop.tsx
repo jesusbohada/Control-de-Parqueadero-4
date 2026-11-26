@@ -10,7 +10,6 @@ import {
   Send, 
   Sliders, 
   Keyboard, 
-  MousePointer, 
   ShieldAlert, 
   Wifi, 
   Settings, 
@@ -28,27 +27,19 @@ import {
   Zap,
   ExternalLink,
   Copy,
-  ChevronDown,
   ChevronUp,
   Video,
   Download,
   Share2,
   Radio,
-  Server,
-  Code,
   Sparkles,
   BookOpen,
-  Lock,
-  Unlock,
   Clipboard,
   ShieldCheck,
-  Globe,
   Cast,
   Heart,
   Eye,
   EyeOff,
-  WifiOff,
-  SlidersHorizontal
 } from 'lucide-react';
 import { playSound } from '../utils/audio';
 import { FarmaDeskSocketClient } from '../services/websocketService';
@@ -58,7 +49,6 @@ import {
   FarmaDeskRtcEngine, 
   AccessCodeInfo, 
   SessionHealthMetrics, 
-  CrdConnectionState 
 } from '../services/farmadeskRtcService';
 
 import { 
@@ -75,7 +65,6 @@ import { calculateParkingFee, formatCurrency, formatPlate } from '../utils/billi
 import { 
   FOREIGN_COUNTRY_OPTIONS, 
   validatePlateData, 
-  getActivePlateRule 
 } from '../utils/plateValidation';
 
 interface VncRemoteDesktopProps {

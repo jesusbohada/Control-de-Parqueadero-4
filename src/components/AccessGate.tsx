@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
 import { 
   ShieldAlert, 
-  Lock, 
   ArrowRight, 
   KeyRound, 
   Terminal, 
-  CheckCircle2, 
   FolderLock,
-  ExternalLink,
   ShieldCheck,
   Sliders,
   BarChart3,
   Radio,
   Car,
   ChevronRight,
-  Sparkles
 } from 'lucide-react';
 import { ProtectedRouteConfig, DEFAULT_PROTECTED_ROUTES, saveAuthorizedRoute, logRouteAuditEvent } from '../types/routes';
 

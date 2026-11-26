@@ -8,11 +8,10 @@ import {
   Zap,
   Building2, 
   ShieldCheck, 
-  ArrowRight,
   ExternalLink,
   Globe
 } from 'lucide-react';
-import { PaymentMethod, PaymentGatewayConfig, WalletOption, QrOption, BreBKey, BankAccountOption } from '../types';
+import { PaymentMethod, PaymentGatewayConfig } from '../types';
 import { formatCurrency } from '../utils/billing';
 import { DynamicQrCode } from './DynamicQrCode';
 

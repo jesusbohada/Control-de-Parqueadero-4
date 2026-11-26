@@ -4,7 +4,6 @@ import {
   ExpenseConcept,
   ExpenseCategory,
   SystemUser,
-  BranchLocation,
   CentralUpdatePackage
 } from '../types';
 

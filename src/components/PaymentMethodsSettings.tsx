@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CreditCard, 
-  Banknote, 
   Smartphone, 
   QrCode, 
   Zap, 
-  Layers, 
   Building2, 
   Check, 
   Save, 
@@ -14,12 +12,7 @@ import {
   Trash2, 
   Edit3, 
   Sliders, 
-  ArrowRightLeft,
-  ShieldCheck,
-  ToggleLeft,
-  ToggleRight,
   ExternalLink,
-  Globe
 } from 'lucide-react';
 import { 
   PaymentGatewayConfig, 
@@ -32,11 +25,6 @@ import {
 } from '../types';
 import { 
   DEFAULT_PAYMENT_GATEWAY_CONFIG, 
-  DEFAULT_WALLETS, 
-  DEFAULT_QR_CODES, 
-  DEFAULT_BRE_B_KEYS, 
-  DEFAULT_TERMINALS,
-  DEFAULT_BANK_ACCOUNTS,
   ensurePaymentGatewayConfigDefaults
 } from '../utils/paymentUtils';
 

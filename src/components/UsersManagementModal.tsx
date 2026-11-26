@@ -26,14 +26,9 @@ import {
   Bookmark,
   Sparkles,
   Save,
-  Layers,
-  ArrowRight,
   RotateCcw,
   Search,
   Server,
-  Radio,
-  FileText,
-  Printer
 } from 'lucide-react';
 import { 
   SystemUser, 

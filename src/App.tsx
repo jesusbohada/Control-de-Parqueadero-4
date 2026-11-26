@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ParkingSpot, 
@@ -88,7 +88,6 @@ import {
   dbSaveBusinessInfo,
   dbSaveCashShift,
   dbAddAuditLog,
-  dbGetUsers,
   dbSaveUser,
   dbSaveUsers,
   dbDeleteUser,
@@ -101,7 +100,7 @@ import {
   dbSaveRoleMatrix,
   dbGetRoleMatrix
 } from './db/terminalDatabase';
-import { Building2, XCircle, Monitor, Radio, Cpu, HardDrive, RefreshCw, Terminal, Keyboard, MousePointer, ShieldAlert, Wifi, Sliders, Send, Settings, User, ExternalLink, Car, Database, ShieldCheck, Printer, Layers } from 'lucide-react';
+import { Building2, XCircle, HardDrive, Car, Database, ShieldCheck, Printer, Layers } from 'lucide-react';
 import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
 import { Sidebar } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
@@ -113,13 +112,11 @@ import { RatesSettingsModal } from './components/RatesSettingsModal';
 import { TicketModal } from './components/TicketModal';
 import { TerminalDatabaseModal } from './components/TerminalDatabaseModal';
 import { ProtectedRoutesManager } from './components/ProtectedRoutesManager';
-import { AccessGate } from './components/AccessGate';
 import { LoginView } from './components/LoginView';
 import { UsersManagementModal } from './components/UsersManagementModal';
 import { VehicleCategoriesModal } from './components/VehicleCategoriesModal';
 import { ExpenseConceptsModal } from './components/ExpenseConceptsModal';
 import { CommercialAgreementsModal } from './components/CommercialAgreementsModal';
-import { CashShiftsHistoryModal } from './components/CashShiftsHistoryModal';
 import { SpotsManagementModal } from './components/SpotsManagementModal';
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary';
 import { SubscribersModal } from './components/SubscribersModal';
@@ -137,9 +134,8 @@ import { TicketScannerModal } from './components/TicketScannerModal';
 import { BarcodeScanToast } from './components/BarcodeScanToast';
 import { WorkspaceTabBar, WorkspaceTabItem } from './components/WorkspaceTabBar';
 import { useBarcodeScanner } from './hooks/useBarcodeScanner';
-import { ThemeId, EnvThemeId } from './types/theme';
-import { ThemeManager, ContrastLevel, ThemeMode } from './utils/themeManager';
-import { calculateParkingFee, formatPlate, formatCurrency } from './utils/billing';
+import { ThemeManager, ContrastLevel } from './utils/themeManager';
+import { calculateParkingFee, formatPlate } from './utils/billing';
 import { playSound } from './utils/audio';
 import { ensurePaymentGatewayConfigDefaults } from './utils/paymentUtils';
 import {
@@ -151,22 +147,17 @@ import {
   getServerDataConfig,
   getInstalledGlobalVersion,
   getInstalledGlobalDate,
-  setInstalledGlobalVersion,
   setInstalledGlobalVersionAndDate,
-  fetchCentralGlobalVersion,
   pushBranchOperationsToCentral,
-  fetchBranchesOperations
 } from './services/centralSyncService';
 import { FarmaDeskSocketClient } from './services/websocketService';
 import { webNotificationService } from './services/webNotificationService';
 import { SystemRecoveryModal, IntegrityCheckResult } from './components/SystemRecoveryModal';
 import { AuditHistory } from './components/AuditHistory';
 import { 
-  DEFAULT_PROTECTED_ROUTES, 
   ProtectedRouteConfig, 
   saveAuthorizedRoute, 
   clearAuthorizedRoutesSession,
-  getStoredAuthorizedRoutes,
   getStoredDynamicRoutes,
   saveDynamicRoutes
 } from './types/routes';

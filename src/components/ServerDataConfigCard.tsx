@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Server,
   Database,
   Radio,
-  Wifi,
-  WifiOff,
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
   Save,
-  Shield,
   ShieldCheck,
-  Key,
-  User,
-  Monitor,
   Globe,
-  Sliders,
   Sparkles,
-  ArrowRight,
   Info,
   HelpCircle,
   ChevronDown,
   ChevronUp,
-  Laptop
 } from 'lucide-react';
 import { ServerDataConnectionConfig } from '../types';
 import {

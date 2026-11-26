@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import jsQR from 'jsqr';
 import {
-  Camera,
   QrCode,
   Barcode,
   X,
@@ -12,18 +11,14 @@ import {
   ZapOff,
   Car,
   Clock,
-  DollarSign,
   ArrowRight,
   Search,
   Upload,
   Sparkles,
-  Info,
   ShieldCheck,
-  Check,
   RotateCcw,
   Settings2,
   Volume2,
-  Sliders,
   Keyboard,
   SlidersHorizontal
 } from 'lucide-react';
@@ -32,7 +27,7 @@ import { calculateParkingFee, formatPlate, formatCurrency } from '../utils/billi
 import { playSound } from '../utils/audio';
 import { DynamicBarcode } from './DynamicBarcode';
 import { useBarcodeScanner } from '../hooks/useBarcodeScanner';
-import { barcodeScannerService, BarcodeScannerConfig, BarcodeAutoAction } from '../services/barcodeScannerService';
+import { barcodeScannerService, BarcodeScannerConfig } from '../services/barcodeScannerService';
 
 export interface TicketScannerModalProps {
   isOpen: boolean;

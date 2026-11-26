@@ -8,15 +8,11 @@ import {
   AlertTriangle,
   Clock,
   ShieldCheck,
-  Building2,
-  DollarSign,
-  Package,
   Layers,
   X,
   ArrowDownUp,
   Cpu,
   Check,
-  Sparkles,
   Info,
   Radio,
   SlidersHorizontal,
@@ -24,7 +20,6 @@ import {
   Database,
   Activity,
   ArrowRight,
-  ChevronRight,
   Laptop,
   Zap,
   Copy,
@@ -35,12 +30,9 @@ import {
   Pause,
   RotateCcw,
   Gauge,
-  Bell,
-  HardDrive,
   Sliders,
   Shield,
   PieChart,
-  BarChart2,
   Car,
   Globe
 } from 'lucide-react';
@@ -64,13 +56,11 @@ import {
   fetchCentralGlobalVersion,
   DEFAULT_SERVER_DATA_CONFIG
 } from '../services/centralSyncService';
-import { getSyncMasterPolicy, SyncDomainItem } from '../services/syncDomainRegistry';
+import { getSyncMasterPolicy } from '../services/syncDomainRegistry';
 import {
   FarmaDeskSocketClient,
   FarmaDeskDiagnosticResult,
   FarmaDeskLinkHealthMetrics,
-  LinkHealthTier,
-  ProactiveNetworkAlert,
   QosPriorityMode,
   QosTrafficConfig
 } from '../services/websocketService';

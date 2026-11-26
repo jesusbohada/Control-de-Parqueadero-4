@@ -4,7 +4,6 @@ import html2canvas from 'html2canvas-pro';
 import { 
   History, 
   Search, 
-  Filter, 
   Calendar, 
   Clock, 
   User, 
@@ -18,21 +17,11 @@ import {
   MoreVertical, 
   Download, 
   Edit3, 
-  Eye, 
   DollarSign, 
-  ArrowUpCircle, 
-  ArrowDownCircle, 
-  CreditCard, 
-  Smartphone, 
-  QrCode, 
-  Sparkles,
-  Layers,
   Building2,
   FileSpreadsheet,
   Copy,
   Check,
-  ChevronRight,
-  ChevronDown,
   Info
 } from 'lucide-react';
 import { CashShift, OperationalDay, ParkingTicket, ParkingBusinessInfo, SystemUser } from '../types';

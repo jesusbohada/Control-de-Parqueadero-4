@@ -3,18 +3,11 @@ import {
   Monitor,
   Radio,
   Zap,
-  Activity,
   CheckCircle2,
-  XCircle,
-  Wifi,
-  ShieldCheck,
   Building2,
   MapPin,
-  RefreshCw,
   Send,
   Terminal,
-  Clock,
-  ArrowRight,
   BookOpen
 } from 'lucide-react';
 import { BranchLocation, SystemUser, RemoteExecutionOrder, RemoteCommandType } from '../types';

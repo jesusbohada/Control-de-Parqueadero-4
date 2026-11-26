@@ -6,11 +6,8 @@ import {
   X, 
   CheckCircle2, 
   AlertTriangle, 
-  Building2, 
   Radio, 
-  Cpu, 
   Globe, 
-  Printer, 
   ShieldCheck, 
   RefreshCw, 
   Layers, 
@@ -19,16 +16,13 @@ import {
   Sliders, 
   Clock, 
   Plus, 
-  FileText, 
   Zap,
-  HardDrive,
-  Users,
   Edit3,
   Trash2,
   Warehouse as WarehouseIcon,
   Check
 } from 'lucide-react';
-import { SystemNodeConfig, SystemWorkMode, BillingSystemMode, BranchLocation, SystemUser, Warehouse } from '../types';
+import { SystemNodeConfig, BranchLocation, SystemUser, Warehouse } from '../types';
 
 interface SystemWorkModeConfigModalProps {
   isOpen: boolean;

@@ -2,15 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
   BellOff, 
-  CheckCircle2, 
   AlertTriangle, 
-  ShieldAlert, 
   Volume2, 
   Package, 
   Building2, 
-  Radio, 
   Sparkles,
-  ExternalLink
 } from 'lucide-react';
 import { 
   webNotificationService, 

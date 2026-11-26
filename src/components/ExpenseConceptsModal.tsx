@@ -1,22 +1,15 @@
 import React, { useState } from 'react';
 import { 
-  DollarSign, 
   Plus, 
   Edit, 
   Trash2, 
   Check, 
   X, 
   Receipt, 
-  FileText, 
-  Tag, 
   AlertCircle,
   FolderPlus,
-  Layers,
   Search,
-  Sparkles,
   Palette,
-  CheckCircle2,
-  ListOrdered,
   FolderTree
 } from 'lucide-react';
 import { ExpenseConcept, ExpenseCategory, SystemUser } from '../types';

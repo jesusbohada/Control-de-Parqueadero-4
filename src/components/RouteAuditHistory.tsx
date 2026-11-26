@@ -2,10 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ShieldCheck, 
-  ShieldAlert, 
   History, 
   Search, 
-  Filter, 
   Download, 
   Trash2, 
   User, 
@@ -17,17 +15,10 @@ import {
   Edit3, 
   RotateCcw, 
   FileSpreadsheet, 
-  ArrowRight, 
-  ExternalLink,
-  Sliders,
-  Calendar,
-  Layers,
-  Sparkles,
   Info
 } from 'lucide-react';
 import { 
   RouteAuditRecord, 
-  RouteAuditEventType, 
   getStoredRouteAuditHistory, 
   clearRouteAuditHistory, 
   logRouteAuditEvent 

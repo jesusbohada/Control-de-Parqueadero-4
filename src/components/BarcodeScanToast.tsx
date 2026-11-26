@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Barcode, 
-  CheckCircle2, 
   AlertTriangle, 
   XCircle, 
   Sparkles, 
-  Clock, 
-  DollarSign, 
-  Car, 
   X,
-  Zap,
   HelpCircle,
   AlertOctagon,
-  RefreshCw,
   Search
 } from 'lucide-react';
 import { BarcodeScanEventData, barcodeScannerService } from '../services/barcodeScannerService';
