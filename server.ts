@@ -6488,7 +6488,7 @@ if __name__ == '__main__':
         ]
       };
 
-      let releasesData = defaultReleasesData;
+      let releasesData: any = defaultReleasesData;
       if (fs.existsSync(softwareReleasesPath)) {
         try {
           releasesData = JSON.parse(fs.readFileSync(softwareReleasesPath, 'utf8'));

@@ -1133,7 +1133,9 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
       };
     });
 
-    return [...baseSystemProfiles, ...templateProfiles];
+    // Los perfiles base no tienen plantilla editable asociada
+    const baseWithTemplate = baseSystemProfiles.map(p => ({ ...p, rawTemplate: undefined as (typeof templates)[number] | undefined }));
+    return [...baseWithTemplate, ...templateProfiles];
   }, [roleMatrix, templates, users]);
 
   if (!isOpen && !embedded) return null;
@@ -2020,7 +2022,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>
@@ -2131,7 +2133,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>
@@ -2240,7 +2242,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>
@@ -2367,7 +2369,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>
@@ -2482,7 +2484,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>
@@ -2600,7 +2602,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>
@@ -2720,7 +2722,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                           desc={item.desc}
                                           checked={Boolean((roleConfig.permissions as any)[item.key] ?? item.defaultVal ?? false)}
                                           disabled={isMaster}
-                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof UserPermissions)}
+                                          onChange={() => handleMatrixPermissionToggle(item.key as keyof Omit<UserPermissions, 'uiVisibility'>)}
                                         />
                                       ))}
                                     </div>

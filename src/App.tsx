@@ -3284,12 +3284,12 @@ export default function App() {
         }
         break;
       case 'subscribers':
-        if ((perms.canViewSubscribers === false && user.role !== 'master' && user.role !== 'supervisor') || vis?.showSubscribersModule === false) {
+        if ((perms.canViewSubscribers === false && user.role !== 'supervisor') || vis?.showSubscribersModule === false) {
           return { allowed: false, name: 'Abonados y Mensualidades' };
         }
         break;
       case 'anpr_camera':
-        if (!perms.canViewANPRCameraModule && user.role !== 'master' && user.role !== 'supervisor') {
+        if (!perms.canViewANPRCameraModule && user.role !== 'supervisor') {
           return { allowed: false, name: 'Cámara ANPR' };
         }
         break;
@@ -3329,7 +3329,7 @@ export default function App() {
         }
         break;
       case 'printer_config':
-        if ((perms.canConfigurePrinters === false && !perms.canEditBusinessInfo && user.role !== 'master') || vis?.showPrinterConfigModule === false) {
+        if ((perms.canConfigurePrinters === false && !perms.canEditBusinessInfo) || vis?.showPrinterConfigModule === false) {
           return { allowed: false, name: 'Configuración de Impresoras Térmicas' };
         }
         break;
@@ -3350,7 +3350,7 @@ export default function App() {
         }
         break;
       case 'branches':
-        if ((perms.canManageBranchLocations === false && user.role !== 'master') || vis?.showBranchesGrid === false) {
+        if ((perms.canManageBranchLocations === false) || vis?.showBranchesGrid === false) {
           return { allowed: false, name: 'Sedes y Sucursales' };
         }
         break;
@@ -3360,7 +3360,7 @@ export default function App() {
         }
         break;
       case 'work_mode':
-        if ((perms.canConfigureTechnicalTerminalProps === false && user.role !== 'master') || vis?.showWorkModeBadge === false) {
+        if ((perms.canConfigureTechnicalTerminalProps === false) || vis?.showWorkModeBadge === false) {
           return { allowed: false, name: 'Modo de Red y Terminal' };
         }
         break;

@@ -104,7 +104,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
   const [warehouseForm, setWarehouseForm] = useState<{
     code: string;
     name: string;
-    type: 'general' | 'parking_yard' | 'insumos' | 'vip';
+    type: Warehouse['type'];
     capacity: number;
     address: string;
     notes: string;
@@ -135,7 +135,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
     setWarehouseForm({
       code: wh.code,
       name: wh.name,
-      type: (wh.type as any) || 'general',
+      type: wh.type || 'general',
       capacity: wh.capacity || 50,
       address: wh.address || '',
       notes: wh.notes || ''
