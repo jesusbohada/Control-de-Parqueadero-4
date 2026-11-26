@@ -148,6 +148,34 @@ function setGeminiApiKey(key: string | null): GoogleGenAI | null {
  * Seguridad: amplía la columna `pin` para alojar hashes y convierte las claves
  * legadas en texto plano a hash scrypt. Idempotente.
  */
+/**
+ * Instalación nueva: si no hay ningún usuario, crea los usuarios de fábrica (claves en hash).
+ * Antes esto solo ocurría en /api/data/bootstrap, que exige sesión, y una base vacía quedaba
+ * sin forma de iniciar sesión. Las claves de fábrica obligan a cambiarlas en el primer ingreso.
+ */
+async function seedInitialUsersIfEmpty() {
+  try {
+    if (isPostgresReady()) {
+      const r = await pool.query('SELECT COUNT(*)::int AS n FROM users');
+      if (r.rows[0]?.n > 0) return;
+      for (const u of INITIAL_USERS) {
+        await pool.query(
+          'INSERT INTO users (id, username, role, name, pin, permissions, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (id) DO NOTHING',
+          [u.id, u.username, u.role, u.name, hashPassword(String(u.password || '').trim()), JSON.stringify(u.permissions || {}), u.createdAt || new Date().toISOString()]
+        );
+      }
+    } else {
+      if (memoryStoreRef.users.size > 0) return;
+      for (const u of INITIAL_USERS) {
+        memoryStoreRef.users.set(u.id, { ...u, password: hashPassword(String(u.password || '').trim()) });
+      }
+    }
+    console.log(`[Seguridad] Base sin usuarios: se crearon ${INITIAL_USERS.length} usuarios de fábrica (deben cambiar su clave al ingresar).`);
+  } catch (e: any) {
+    console.error('[Seguridad] Error creando usuarios de fábrica:', e.message);
+  }
+}
+
 async function migrateStoredPasswords() {
   try {
     if (isPostgresReady()) {
@@ -242,6 +270,7 @@ async function getStoredPin(userId: string): Promise<string | null> {
 async function startServer() {
   // Inicialización de la base de datos PostgreSQL local
   await initDatabase();
+  await seedInitialUsersIfEmpty();
   await migrateStoredPasswords();
 
   const app = express();
