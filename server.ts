@@ -39,6 +39,7 @@ import {
   rejectWsUpgrade,
   type WsAuthResult,
 } from './server/auth.ts';
+import { startCentralSync, pullFromCentralNow, getCentralSyncStatus, type CentralUser } from './server/centralSync.ts';
 import { formatReceiptText } from './src/utils/receiptFormatter.ts';
 import { generateTicketHtml } from './src/utils/ticketHtmlRenderer.ts';
 import pool, { initDatabase, isPostgresReady, memoryStoreRef, DATABASE_URL } from './src/db.ts';
@@ -195,6 +196,46 @@ function rowToPublicUser(r: any, viewer?: Express.Request['auth'] | null): Syste
 
 function sanitizeUserForClient(u: SystemUser, viewer?: Express.Request['auth'] | null): SystemUser {
   return { ...u, password: exposePasswordFor(u.password, viewer) };
+}
+
+/** id → hash de clave de todos los usuarios (solo valores con hash). */
+async function getAllStoredPins(): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (isPostgresReady()) {
+    const r = await pool.query('SELECT id, pin FROM users');
+    for (const row of r.rows) if (isPasswordHash(row.pin)) map.set(row.id, row.pin);
+  } else {
+    for (const [id, u] of memoryStoreRef.users.entries()) if (isPasswordHash(u.password)) map.set(id, u.password);
+  }
+  return map;
+}
+
+/** Aplica en la BD local los usuarios recibidos del Central (sync servidor↔servidor). */
+async function applyUsersFromCentral(users: CentralUser[]): Promise<number> {
+  let applied = 0;
+  for (const u of users) {
+    const existingPin = await getStoredPin(u.id);
+    const pin = preparePasswordForStorage(u.password || '', existingPin);
+    const permissions = u.permissions || {};
+    if (isPostgresReady()) {
+      await pool.query(`
+        INSERT INTO users (id, username, role, name, pin, is_active, permissions, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (id) DO UPDATE SET
+          username = EXCLUDED.username,
+          role = EXCLUDED.role,
+          name = EXCLUDED.name,
+          pin = EXCLUDED.pin,
+          is_active = EXCLUDED.is_active,
+          permissions = EXCLUDED.permissions
+      `, [u.id, u.username, u.role || 'cashier', u.name || u.username, pin, u.isActive !== false, JSON.stringify(permissions), u.createdAt || new Date().toISOString()]);
+    } else {
+      const prev = memoryStoreRef.users.get(u.id);
+      memoryStoreRef.users.set(u.id, { ...(prev || {}), ...u, password: pin, permissions } as any);
+    }
+    applied++;
+  }
+  return applied;
 }
 
 async function getStoredPin(userId: string): Promise<string | null> {
@@ -5245,7 +5286,7 @@ if __name__ == '__main__':
   });
 
   // 2. POST /api/sync/server-config
-  app.post('/api/sync/server-config', (req, res) => {
+  app.post('/api/sync/server-config', requireMaster, (req, res) => {
     try {
       const { config } = req.body;
       if (!config) {
@@ -5322,7 +5363,7 @@ if __name__ == '__main__':
   });
 
   // 5. POST /api/sync/central-packages (Central publishes update package)
-  app.post('/api/sync/central-packages', (req, res) => {
+  app.post('/api/sync/central-packages', requirePermission('canManageBranchLocations'), (req, res) => {
     try {
       const clientIp = extractClientIp(req);
       const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
@@ -5495,7 +5536,7 @@ if __name__ == '__main__':
     }
   });
 
-  app.post('/api/sync/master-policy', (req, res) => {
+  app.post('/api/sync/master-policy', requirePermission('canManageBranchLocations'), (req, res) => {
     try {
       const { policy } = req.body;
       if (!policy || !policy.domains) {
@@ -5635,7 +5676,7 @@ if __name__ == '__main__':
   });
 
   // 7c. POST /api/sync/global-version (Servidor Central sube/publica manualmente una nueva versión de Globales)
-  app.post('/api/sync/global-version', (req, res) => {
+  app.post('/api/sync/global-version', requirePermission('canManageBranchLocations'), (req, res) => {
     try {
       const clientIp = extractClientIp(req);
       const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
@@ -6342,7 +6383,7 @@ if __name__ == '__main__':
     return true;
   };
 
-  app.delete('/api/sync/branches/:id', (req, res) => {
+  app.delete('/api/sync/branches/:id', requirePermission('canManageBranchLocations'), (req, res) => {
     try {
       const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
       const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
@@ -6365,7 +6406,7 @@ if __name__ == '__main__':
     }
   });
 
-  app.post('/api/sync/branches/delete', (req, res) => {
+  app.post('/api/sync/branches/delete', requirePermission('canManageBranchLocations'), (req, res) => {
     try {
       const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
       const senderBranchId = req.headers['x-wolf-branch-id'] || req.body?.branchId;
@@ -6542,7 +6583,7 @@ if __name__ == '__main__':
   });
 
   // 11. POST /api/sync/software-releases/dispatch (Central manually dispatches software release)
-  app.post('/api/sync/software-releases/dispatch', (req, res) => {
+  app.post('/api/sync/software-releases/dispatch', requireMaster, (req, res) => {
     try {
       const { releaseId, version, targetScope, targetBranchIds, dispatchedBy, changelog, newModules, allowBetaForBranches } = req.body;
       
@@ -6593,7 +6634,7 @@ if __name__ == '__main__':
   });
 
   // 11.5 POST /api/sync/software-releases/upload (Central uploads/registers a new software release build)
-  app.post('/api/sync/software-releases/upload', (req, res) => {
+  app.post('/api/sync/software-releases/upload', requireMaster, (req, res) => {
     try {
       const {
         version,
@@ -6710,7 +6751,7 @@ if __name__ == '__main__':
   });
 
   // 12.5 POST /api/sync/software-releases/dispatch-live (Dispatch currently running Central Server build)
-  app.post('/api/sync/software-releases/dispatch-live', (req, res) => {
+  app.post('/api/sync/software-releases/dispatch-live', requireMaster, (req, res) => {
     try {
       const {
         targetScope,
@@ -6813,12 +6854,29 @@ if __name__ == '__main__':
   });
 
   // API to get global configuration stored on the server
-  app.get('/api/sync/global-config', (req, res) => {
+  // Estado de la sincronización servidor↔servidor con el Central (solo usuarios con sesión)
+  app.get('/api/sync/central-link', (req, res) => {
+    if (req.auth?.kind !== 'user') return res.status(401).json({ success: false, code: 'AUTH_REQUIRED' });
+    res.json({ success: true, data: getCentralSyncStatus() });
+  });
+
+  app.post('/api/sync/central-link/pull-now', requirePermission('canManageUsers', 'canManageBranchLocations'), async (_req, res) => {
+    res.json({ success: true, data: await pullFromCentralNow() });
+  });
+
+  app.get('/api/sync/global-config', async (req, res) => {
     try {
       const configPath = path.join(process.cwd(), 'global-config.json');
       if (fs.existsSync(configPath)) {
         const fileContent = fs.readFileSync(configPath, 'utf8');
         const data = JSON.parse(fileContent);
+        if (Array.isArray(data.users)) {
+          // Solo un servidor de sucursal autenticado con la clave de sync recibe los hashes (desde la BD);
+          // los navegadores nunca reciben claves.
+          const isSyncNode = req.auth?.kind === 'sync';
+          const pins = isSyncNode ? await getAllStoredPins() : new Map<string, string>();
+          data.users = data.users.map((u: any) => ({ ...u, password: isSyncNode ? (pins.get(u.id) || '') : '' }));
+        }
         return res.json({ success: true, data });
       }
       return res.json({ success: true, data: null });
@@ -6969,7 +7027,7 @@ if __name__ == '__main__':
   });
 
   // API to save global configuration on the server
-  app.post('/api/sync/global-config', (req, res) => {
+  app.post('/api/sync/global-config', requirePermission('canManageUsers', 'canEditRates', 'canManageBranchLocations', 'canEditBusinessInfo'), (req, res) => {
     try {
       const clientIp = extractClientIp(req);
       const senderRole = req.headers['x-wolf-node-role'] || req.body?.nodeRole;
@@ -6987,6 +7045,13 @@ if __name__ == '__main__':
       const { config } = req.body;
       if (!config) {
         return res.status(400).json({ success: false, error: 'No se recibió configuración válida.' });
+      }
+      // Las claves viven solo en la BD (con hash); el archivo global nunca las almacena.
+      if (Array.isArray(config.users)) {
+        config.users = config.users.map((u: any) => {
+          const { password: _p, pin: _pin, ...rest } = u || {};
+          return rest;
+        });
       }
       const configPath = path.join(process.cwd(), 'global-config.json');
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
@@ -7920,6 +7985,8 @@ Responde ÚNICAMENTE en formato JSON estricto válido con las siguientes llaves:
   }
 
   // Iniciar servidor principal en el puerto asignado (por defecto 3000 para LAN POS)
+  startCentralSync(applyUsersFromCentral);
+
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`[Servidor Central LAN - App POS] Activo en http://0.0.0.0:${PORT} (Puerto LAN ${PORT})`);
   }).on('error', (err: any) => {
