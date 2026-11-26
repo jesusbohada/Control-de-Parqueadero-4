@@ -1,40 +1,23 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   Server,
   Building2,
   Radio,
-  Wifi,
-  WifiOff,
   Activity,
   Cpu,
   HardDrive,
   RefreshCw,
   MapPin,
   Search,
-  ArrowUpRight,
   ExternalLink,
   ShieldCheck,
-  AlertTriangle,
-  XCircle,
-  CheckCircle2,
-  Clock,
   Car,
   DollarSign,
-  Layers,
-  Sliders,
   ChevronRight,
-  Maximize2,
-  Minimize2,
   ZoomIn,
   ZoomOut,
   Play,
   Pause,
-  Send,
-  Terminal,
-  Sparkles,
-  Eye,
-  Info,
   TrendingUp,
   X
 } from 'lucide-react';
@@ -47,7 +30,6 @@ import {
 import { formatCurrency } from '../utils/billing';
 import { playSound } from '../utils/audio';
 import { openWithSso } from '../utils/sso';
-import { DEFAULT_MASTER_PERMISSIONS } from '../data/initialData';
 
 export interface CentralDashboardProps {
   branches?: BranchLocation[];

@@ -9,14 +9,11 @@ import {
   Clock,
   DollarSign,
   Car,
-  TrendingUp,
   Download,
   Plus,
-  ArrowRight,
   ShieldCheck,
   Activity,
   Layers,
-  FileSpreadsheet,
   Cpu,
   Package,
   X,
@@ -24,7 +21,6 @@ import {
   Check,
   BarChart3,
   MapPin,
-  ExternalLink,
   ChevronRight,
   Sparkles,
   Info,
@@ -32,10 +28,7 @@ import {
   Radio,
   Lock,
   Terminal,
-  RotateCcw,
-  GitBranch,
   Sliders,
-  CheckCheck,
   Boxes,
   Upload,
   FileUp,
@@ -59,9 +52,7 @@ import {
 import { ServerDataConfigCard } from './ServerDataConfigCard';
 import { SyncDomainManager } from './SyncDomainManager';
 import {
-  getSyncMasterPolicy,
   buildFilteredCentralPackage,
-  SyncMasterPolicyConfig
 } from '../services/syncDomainRegistry';
 import {
   fetchCentralSoftwareReleases,
@@ -71,7 +62,6 @@ import {
   fetchLiveServerVersion,
   fetchCentralGlobalVersion,
   publishCentralGlobalVersion,
-  fetchBranchesOperations,
   setInstalledGlobalVersionAndDate,
   getServerDataConfig
 } from '../services/centralSyncService';

@@ -1,10 +1,8 @@
 import { 
   PaymentMethod, 
-  PaymentMethodConfig, 
   PaymentGatewayConfig, 
   ParkingTicket, 
   PaymentTransactionDetails, 
-  SplitPaymentItem,
   WalletOption,
   QrOption,
   BreBKey,

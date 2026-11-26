@@ -12,15 +12,9 @@ import {
   Percent, 
   DollarSign, 
   FileText, 
-  CheckCircle2, 
-  AlertTriangle,
   Tag,
-  ShieldCheck,
-  Phone,
-  User,
-  Car
 } from 'lucide-react';
-import { CommercialAgreement, AgreementDiscountType, VehicleType } from '../types';
+import { CommercialAgreement, AgreementDiscountType } from '../types';
 import { playSound } from '../utils/audio';
 import { formatCurrency } from '../utils/billing';
 

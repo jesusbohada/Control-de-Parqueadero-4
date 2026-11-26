@@ -9,18 +9,13 @@ import {
   RotateCcw, 
   ExternalLink, 
   Lock, 
-  KeyRound, 
   Check, 
   AlertCircle,
-  FolderLock,
-  Layers,
   Sparkles,
-  ArrowRight,
   Code,
   History,
   Shield,
   Search,
-  Filter
 } from 'lucide-react';
 import { 
   ProtectedRouteConfig, 

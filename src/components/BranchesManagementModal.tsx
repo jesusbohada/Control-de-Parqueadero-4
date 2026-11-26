@@ -4,9 +4,6 @@ import {
   MapPin, 
   Plus, 
   Search, 
-  Filter, 
-  CheckCircle2, 
-  AlertTriangle, 
   RefreshCw, 
   Monitor, 
   DollarSign, 
@@ -19,17 +16,11 @@ import {
   Wifi, 
   WifiOff, 
   Globe, 
-  Key, 
   Sliders, 
-  ShieldCheck,
-  Phone,
-  User,
   Radio,
   ExternalLink,
   Server,
-  TrendingUp,
   BarChart3,
-  Clock,
   ArrowRight,
   Home
 } from 'lucide-react';
@@ -52,7 +43,6 @@ import {
 } from '../services/centralSyncService';
 import { playSound } from '../utils/audio';
 import { openWithSso } from '../utils/sso';
-import { DEFAULT_MASTER_PERMISSIONS } from '../data/initialData';
 
 interface BranchesManagementModalProps {
   isOpen: boolean;

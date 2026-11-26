@@ -8,9 +8,6 @@ import {
   Save, 
   RotateCcw, 
   Check, 
-  Clock, 
-  ShieldAlert,
-  Percent,
   Coins,
   CreditCard,
   FileCheck,
@@ -19,38 +16,28 @@ import {
   Calculator,
   Info,
   Layers,
-  Receipt,
   Plus,
   Bus,
   Zap,
   Compass,
-  Grid,
   Printer,
   X,
   Trash2,
   Globe,
   Server,
   Cpu,
-  Key,
-  Lock,
   CheckCircle2,
   AlertCircle,
-  FileText,
   Radio,
   Eye,
   EyeOff,
-  HelpCircle,
-  Send,
-  Sparkles,
-  ExternalLink,
-  RefreshCw
 } from 'lucide-react';
-import { RatesConfig, ParkingBusinessInfo, VehicleType, PaymentGatewayConfig, SystemUser, VehicleCategoryConfig, ExpenseConcept, ExpenseCategory, SystemNodeConfig, PrinterConfig } from '../types';
+import { RatesConfig, ParkingBusinessInfo, VehicleType, PaymentGatewayConfig, SystemUser, VehicleCategoryConfig, PrinterConfig } from '../types';
 import { DEFAULT_RATES, DEFAULT_BUSINESS_INFO } from '../data/initialData';
 import { PaymentMethodsSettings } from './PaymentMethodsSettings';
 import { generateDianCUFE } from '../utils/dianService';
 import { DynamicQrCode } from './DynamicQrCode';
-import { calculateParkingFeeForMinutes, formatCurrency, getVehicleRate } from '../utils/billing';
+import { calculateParkingFeeForMinutes, formatCurrency } from '../utils/billing';
 
 interface RatesSettingsModalProps {
   rates: RatesConfig;

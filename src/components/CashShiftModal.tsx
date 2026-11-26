@@ -4,7 +4,6 @@ import {
   CreditCard, 
   QrCode, 
   PlusCircle, 
-  MinusCircle, 
   ShieldCheck, 
   Printer, 
   AlertCircle,
@@ -13,20 +12,13 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   Smartphone,
-  Layers,
-  Building2,
   Banknote,
   Zap,
   Calendar,
   Clock,
-  User,
-  ChevronRight,
-  FileCheck,
   X,
-  Tag,
   Receipt,
   EyeOff,
-  Settings,
   Upload,
   FileText,
   Image as ImageIcon,
@@ -39,7 +31,6 @@ import {
   ZoomOut,
   RotateCw,
   RotateCcw,
-  Maximize2,
   Coins, 
   Wallet,
   History,
@@ -47,7 +38,7 @@ import {
   HelpCircle,
   FileSpreadsheet
 } from 'lucide-react';
-import { CashShift, CashMovement, ParkingTicket, SystemUser, OperationalDay, ParkingBusinessInfo, ExpenseConcept, ExpenseCategory } from '../types';
+import { CashShift, ParkingTicket, SystemUser, OperationalDay, ParkingBusinessInfo, ExpenseConcept, ExpenseCategory } from '../types';
 import { formatCurrency } from '../utils/billing';
 import { getTicketPaymentBreakdown } from '../utils/paymentUtils';
 import { exportCashMovementsToCsv } from '../utils/exportReportUtils';

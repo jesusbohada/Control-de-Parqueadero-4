@@ -5,23 +5,17 @@ import {
   Volume2, 
   VolumeX, 
   Radio, 
-  BookOpen, 
   RefreshCw, 
   Lock, 
   Sun, 
   Moon, 
   Menu,
-  ChevronRight,
   MapPin,
   Calendar,
-  Home,
-  ShieldCheck,
-  Eye,
   Sliders,
   Sparkles,
   Car,
   HardDrive,
-  Check,
   Laptop,
   Printer,
   Users,
@@ -40,7 +34,7 @@ import {
 } from '../types';
 import { formatCurrency } from '../utils/billing';
 import { WorkspaceCategory, ActiveWorkspaceView } from '../types/routes';
-import { ContrastLevel, ThemeManager, ThemeMode, ThemeScope } from '../utils/themeManager';
+import { ContrastLevel, ThemeManager, ThemeMode } from '../utils/themeManager';
 
 export interface DiskSpaceInfo {
   freeMB: number;

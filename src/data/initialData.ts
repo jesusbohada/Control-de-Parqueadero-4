@@ -10,7 +10,6 @@ import {
   UserRole,
   SystemUser,
   UserPermissionTemplate,
-  PaymentGatewayConfig,
   VehicleCategoryConfig,
   ExpenseConcept,
   ExpenseCategory,

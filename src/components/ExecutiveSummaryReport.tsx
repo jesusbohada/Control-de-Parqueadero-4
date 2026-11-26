@@ -7,23 +7,16 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer, 
-  ReferenceLine,
-  Legend
 } from 'recharts';
 import { 
   TrendingUp, 
-  TrendingDown, 
   DollarSign, 
   Clock, 
-  Calendar, 
   Car, 
-  Zap, 
   Award, 
   ArrowUpRight, 
   ArrowDownRight, 
-  Filter, 
   BarChart3,
-  Layers,
   Sparkles,
   Info
 } from 'lucide-react';
