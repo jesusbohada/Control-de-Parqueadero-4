@@ -65,6 +65,12 @@ Los agentes instalados antes de esta actualización **no se conectarán**: ahora
 - **La sede no recibe usuarios:** revisa que `SYNC_SHARED_KEY` sea idéntica en ambos equipos y que `CENTRAL_SERVER_URL` responda desde la sede (`http://<IP>:3000/api/health` en el navegador).
 - **Volver atrás:** restaura el `.env` y `data\` del respaldo y vuelve al commit anterior con `git checkout <commit>`; reinicia.
 
-## Riesgo conocido (pendiente)
+## Conexión a la base de datos
 
-Si la base de datos configurada en `DATABASE_URL` no responde, el servidor intenta conectarse por su cuenta a `wolfzonepos_db` en el puerto 5433/5432 probando contraseñas comunes, y reescribe el `.env`. En un equipo con varias bases esto puede conectar a la equivocada. Se corregirá en un cambio aparte; mientras tanto, verifica en el arranque la línea `[PostgreSQL] Conexión establecida exitosamente a: ...`.
+Desde esta versión el servidor lee `DATABASE_URL` del `.env` y **nunca cambia a otra base de datos**:
+- Si la base configurada no responde, reintenta unos segundos (PostgreSQL puede estar arrancando).
+- Si no existe todavía, la crea con ese mismo nombre.
+- Solo prueba otros puertos/contraseñas en este mismo equipo y con la misma base; si la base está en otro equipo, no prueba nada más y opera en contingencia local.
+- No reescribe un `.env` que ya tiene `DATABASE_URL`.
+
+Al arrancar, confirma la línea `[PostgreSQL] Conexión establecida exitosamente a: .../<tu base>`.

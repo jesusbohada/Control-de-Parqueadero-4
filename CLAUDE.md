@@ -6,7 +6,7 @@ Sistema POS de parqueadero multi-sede. Responder siempre en español.
 - Backend: `server.ts` (Express + `pg`, ~0.5k líneas: arranque y middleware) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor), `ws.ts` (hub WebSocket) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, bootstrap, configs, databaseMaintenance, dian, farmadesk, postgresAdmin, printing, shifts, spots, subscribers, sync, system, tickets, users). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
 - Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`.
 - Frontend: React 19 + Vite 6 + Tailwind 4, en `src/`. Entrada `src/App.tsx` (~5.9k líneas).
-- BD: PostgreSQL 16 (`database_schema.sql`); fallback en memoria (`memoryStoreRef`) si PG no está listo.
+- BD: PostgreSQL 16 (`database_schema.sql`); `src/db.ts` usa `DATABASE_URL` (.env) y nunca cambia a otra base (solo prueba otros puertos/claves locales para la MISMA base); fallback en memoria (`memoryStoreRef`) si PG no está listo. Al probar servidores, verificar en el log a qué base conectó.
 - Impresión térmica / cajón: `scripts/*.ps1` vía `execFile('powershell.exe')`.
 - IA: Gemini (`@google/genai`) para pronósticos y ANPR.
 
