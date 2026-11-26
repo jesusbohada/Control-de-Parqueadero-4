@@ -10,8 +10,11 @@ Sistema POS de parqueadero multi-sede. Responder siempre en español.
 - IA: Gemini (`@google/genai`) para pronósticos y ANPR.
 
 ## Comandos
-- Typecheck: `npx tsc --noEmit` (hoy hay ~34 errores preexistentes; no agregar nuevos).
-- Build: `npm run build`. No hay suite de pruebas automatizadas todavía.
+- Verificación completa: `npm run verify` (typecheck + pruebas). Debe pasar antes de cada commit.
+- Typecheck: `npm run typecheck` (0 errores; no introducir nuevos).
+- Pruebas: `npm test` (`node:test` + tsx, en `tests/*.test.ts`). Cubren tarifas, contabilidad/PUC y seguridad.
+- Build: `npm run build`. CI: `.github/workflows/ci.yml`.
+- Restablecer clave de un usuario: `npx tsx scripts/reset_user_password.ts`.
 
 ## Mapa rápido (leer solo lo necesario)
 - Rutas API: `grep -n "app\.\(get\|post\|put\|delete\|patch\)(" server.ts`
