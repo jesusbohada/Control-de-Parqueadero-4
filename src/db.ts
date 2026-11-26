@@ -1,14 +1,64 @@
+import 'dotenv/config'; // el .env debe estar cargado antes de crear el pool (antes se ignoraba DATABASE_URL del .env)
 import pg from 'pg';
 import fs from 'fs';
 import path from 'path';
 
 const { Pool } = pg;
 
+const DEFAULT_DATABASE_URL = 'postgresql://postgres:password@localhost:5433/wolfzonepos_db';
+const DEFAULT_DATABASE_NAME = 'wolfzonepos_db';
+
+/** true si el operador configuró DATABASE_URL (variable de entorno o .env). */
+export const DATABASE_URL_CONFIGURED = Boolean(process.env.DATABASE_URL?.trim());
+
 /**
- * Cadena de conexión a PostgreSQL.
- * Utiliza process.env.DATABASE_URL con fallback inteligente a puerto 5433 (o 5432)
+ * Cadena de conexión a PostgreSQL: process.env.DATABASE_URL o, en una instalación sin
+ * configurar, el valor por defecto (puerto 5433, base wolfzonepos_db).
  */
-export let DATABASE_URL = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5433/wolfzonepos_db';
+export let DATABASE_URL = process.env.DATABASE_URL?.trim() || DEFAULT_DATABASE_URL;
+
+/** Nombre de la base de datos de una URL de conexión (por defecto wolfzonepos_db). */
+export function databaseNameOf(url: string): string {
+  try {
+    const name = decodeURIComponent(new URL(url).pathname.replace(/^\//, ''));
+    return name || DEFAULT_DATABASE_NAME;
+  } catch {
+    return DEFAULT_DATABASE_NAME;
+  }
+}
+
+function isLocalHost(url: string): boolean {
+  try {
+    const h = new URL(url).hostname;
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]';
+  } catch {
+    return false;
+  }
+}
+
+export interface DiscoveryCandidate { port: number; testUrl: string; rootUrl: string; }
+
+/**
+ * Combinaciones de puerto/contraseña que se prueban si la URL configurada no conecta.
+ * Regla de seguridad: SIEMPRE la misma base de datos que la configurada (nunca otra), y solo
+ * en este equipo. Si la base configurada está en otro equipo, no se prueba nada más.
+ */
+export function discoveryCandidates(configuredUrl: string, configured: boolean): DiscoveryCandidate[] {
+  if (configured && !isLocalHost(configuredUrl)) return [];
+  const dbName = databaseNameOf(configuredUrl);
+  let configuredPort = 5433;
+  try { configuredPort = Number(new URL(configuredUrl).port) || 5432; } catch { /* valor por defecto */ }
+  const ports = Array.from(new Set([configuredPort, 5433, 5432]));
+  const passwords = ['password', 'postgres', '123456', 'admin', 'root', '1234', '12345678', '12345', ''];
+  const out: DiscoveryCandidate[] = [];
+  for (const port of ports) {
+    for (const pass of passwords) {
+      const auth = `postgres:${encodeURIComponent(pass)}@localhost:${port}`;
+      out.push({ port, testUrl: `postgresql://${auth}/${encodeURIComponent(dbName)}`, rootUrl: `postgresql://${auth}/postgres` });
+    }
+  }
+  return out;
+}
 
 let activePoolInstance = new Pool({
   connectionString: DATABASE_URL,
@@ -217,97 +267,95 @@ function saveDatabaseUrlToEnv(url: string) {
  * Incluye sondeo inteligente de contraseñas habituales, puertos (5433 / 5432) y auto-creación de DB.
  */
 export async function initDatabase(): Promise<boolean> {
-  const portsToTest = [5433, 5432];
-  const passwordsToTest = ['password', 'postgres', '123456', 'admin', 'root', '1234', '12345678', '12345', ''];
+  const safeUrl = (u: string) => u.replace(/:[^:@/]+@/, ':****@');
+  const dbName = databaseNameOf(DATABASE_URL);
 
-  // 1. Intento inicial con la URL configurada directamente
-  try {
-    const client = await activePoolInstance.connect();
+  // 1. La URL configurada, con reintentos por si PostgreSQL todavía está arrancando (inicio de Windows).
+  const attempts = DATABASE_URL_CONFIGURED ? 5 : 1;
+  for (let i = 1; i <= attempts; i++) {
     try {
-      await client.query('SELECT 1');
-      console.log(`[PostgreSQL] Conexión establecida exitosamente a: ${DATABASE_URL.replace(/:[^:@]+@/, ':****@')}`);
-      await client.query(INIT_SCHEMA_SQL);
-      console.log('[PostgreSQL] Esquema y tablas validados/creados correctamente en la base de datos.');
-      isConnected = true;
-      return true;
-    } finally {
-      client.release();
+      const client = await activePoolInstance.connect();
+      try {
+        await client.query('SELECT 1');
+        console.log(`[PostgreSQL] Conexión establecida exitosamente a: ${safeUrl(DATABASE_URL)}`);
+        await client.query(INIT_SCHEMA_SQL);
+        console.log('[PostgreSQL] Esquema y tablas validados/creados correctamente en la base de datos.');
+        isConnected = true;
+        return true;
+      } finally {
+        client.release();
+      }
+    } catch (err: any) {
+      // Solo se reintenta si PostgreSQL no responde (p. ej. aún arrancando); no si la base
+      // no existe o la contraseña es incorrecta.
+      const definitive = /does not exist|no existe|password|contrase|autentica|authentication/i.test(String(err.message));
+      if (i < attempts && !definitive) {
+        console.warn(`[PostgreSQL] Intento ${i}/${attempts} fallido (${err.message}). Reintentando...`);
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
+      }
+      if (DATABASE_URL_CONFIGURED) {
+        console.warn(`[PostgreSQL] No conecta la base configurada ${safeUrl(DATABASE_URL)}: ${err.message}`);
+      }
+      break;
     }
-  } catch (initialErr: any) {
-    // Probar auto-detección silenciosa
   }
 
-  // 2. Probar combinaciones de puertos y contraseñas comunes
-  for (const port of portsToTest) {
-    for (const pass of passwordsToTest) {
-      const testUrl = `postgresql://postgres:${encodeURIComponent(pass)}@localhost:${port}/wolfzonepos_db`;
-      const rootUrl = `postgresql://postgres:${encodeURIComponent(pass)}@localhost:${port}/postgres`;
-
-      try {
-        const candidatePool = new Pool({
-          connectionString: testUrl,
-          max: 20,
-          idleTimeoutMillis: 30000,
-          connectionTimeoutMillis: 1800,
-        });
-
-        let testClient;
+  // 2. Probar otros puertos/contraseñas locales, SIEMPRE con la misma base de datos.
+  const candidates = discoveryCandidates(DATABASE_URL, DATABASE_URL_CONFIGURED);
+  if (candidates.length === 0) {
+    console.error(`[PostgreSQL] La base configurada está en otro equipo y no respondió. No se intentará otra base. El sistema operará con contingencia local.`);
+  }
+  for (const { port, testUrl, rootUrl } of candidates) {
+    if (testUrl === DATABASE_URL) continue;
+    const candidatePool = new Pool({ connectionString: testUrl, max: 20, idleTimeoutMillis: 30000, connectionTimeoutMillis: 1800 });
+    let testClient: pg.PoolClient | undefined;
+    try {
+      testClient = await candidatePool.connect();
+      await testClient.query('SELECT 1');
+      await testClient.query(INIT_SCHEMA_SQL);
+      testClient.release();
+      return adoptPool(candidatePool, testUrl, `en puerto ${port} (base ${dbName})`, true);
+    } catch (dbErr: any) {
+      if (testClient) testClient.release();
+      // La base configurada no existe todavía (instalación nueva): crearla con ese mismo nombre.
+      if (dbErr.message && (dbErr.message.includes('does not exist') || dbErr.message.includes('no existe'))) {
         try {
-          testClient = await candidatePool.connect();
-          await testClient.query('SELECT 1');
-          await testClient.query(INIT_SCHEMA_SQL);
-          testClient.release();
-
-          console.log(`[PostgreSQL] ¡Autenticación exitosa en puerto ${port} con contraseña detectada!`);
-          setActivePool(candidatePool, testUrl);
-          isConnected = true;
-
-          saveDatabaseUrlToEnv(testUrl);
-
-          return true;
-        } catch (dbErr: any) {
-          if (testClient) testClient.release();
-
-          // Si el error es que la base de datos wolfzonepos_db no existe ("database does not exist"), crearla usando la BD postgres
-          if (dbErr.message && (dbErr.message.includes('does not exist') || dbErr.message.includes('no existe'))) {
-            try {
-              const rootPool = new Pool({
-                connectionString: rootUrl,
-                max: 2,
-                connectionTimeoutMillis: 2000,
-              });
-              const rootClient = await rootPool.connect();
-              await rootClient.query('CREATE DATABASE wolfzonepos_db;');
-              rootClient.release();
-              await rootPool.end();
-
-              // Ahora conectar a la nueva base creada
-              const newClient = await candidatePool.connect();
-              await newClient.query('SELECT 1');
-              await newClient.query(INIT_SCHEMA_SQL);
-              newClient.release();
-
-              console.log(`[PostgreSQL] ¡Base de datos wolfzonepos_db creada y conectada en puerto ${port}!`);
-              setActivePool(candidatePool, testUrl);
-              isConnected = true;
-
-              saveDatabaseUrlToEnv(testUrl);
-
-              return true;
-            } catch {
-              // ignore
-            }
-          }
+          const rootPool = new Pool({ connectionString: rootUrl, max: 2, connectionTimeoutMillis: 2000 });
+          const rootClient = await rootPool.connect();
+          await rootClient.query(`CREATE DATABASE "${dbName.replace(/"/g, '""')}"`);
+          rootClient.release();
+          await rootPool.end();
+          const newClient = await candidatePool.connect();
+          await newClient.query('SELECT 1');
+          await newClient.query(INIT_SCHEMA_SQL);
+          newClient.release();
+          return adoptPool(candidatePool, testUrl, `: base ${dbName} creada en puerto ${port}`, false);
+        } catch {
+          // siguiente combinación
         }
-      } catch {
-        // Continuar siguiente combinación
       }
+      await candidatePool.end().catch(() => {});
     }
   }
 
   isConnected = false;
-  console.warn(`[PostgreSQL Local] No se pudo autenticar con contraseñas comunes en puertos 5433/5432. El sistema operará con contingencia local.`);
+  console.warn(`[PostgreSQL Local] No se pudo conectar a la base ${dbName}. El sistema operará con contingencia local.`);
   return false;
+}
+
+function adoptPool(candidatePool: pg.Pool, testUrl: string, detail: string, usedAlternative: boolean): boolean {
+  console.log(`[PostgreSQL] Conectado ${detail}.`);
+  setActivePool(candidatePool, testUrl);
+  isConnected = true;
+  if (DATABASE_URL_CONFIGURED) {
+    if (!usedAlternative) return true;
+    // No se reescribe un .env que el operador configuró: solo se avisa.
+    console.warn('[PostgreSQL] La DATABASE_URL configurada no funcionó tal cual; se usó otro puerto o contraseña para la MISMA base. Corrija DATABASE_URL en el .env.');
+  } else {
+    saveDatabaseUrlToEnv(testUrl);
+  }
+  return true;
 }
 
 /**
