@@ -42,7 +42,8 @@ import { registerSyncRoutes } from './server/routes/sync.ts';
 import { startCentralSync, type CentralUser } from './server/centralSync.ts';
 import pool, { initDatabase, isPostgresReady, memoryStoreRef, DATABASE_URL } from './src/db.ts';
 import { 
-  INITIAL_USERS, 
+  INITIAL_USERS,
+  normalizeUserPermissions,
 } from './src/data/initialData.ts';
 
 dotenv.config();
@@ -272,10 +273,11 @@ async function startServer() {
       const r = await pool.query('SELECT role, is_active, permissions FROM users WHERE id = $1 LIMIT 1', [id]);
       if (r.rows.length === 0) return null;
       const row = r.rows[0];
-      return { role: row.role, isActive: row.is_active !== false, permissions: row.permissions || {} };
+      // Igual que el login: los permisos ausentes toman el valor por defecto del rol.
+      return { role: row.role, isActive: row.is_active !== false, permissions: normalizeUserPermissions(row.permissions || {}, row.role) as any };
     }
     const u = memoryStoreRef.users.get(id);
-    return u ? { role: u.role, isActive: u.isActive !== false, permissions: (u.permissions || {}) as any } : null;
+    return u ? { role: u.role, isActive: u.isActive !== false, permissions: normalizeUserPermissions(u.permissions || {}, u.role) as any } : null;
   });
   app.use(apiAuthMiddleware);
 

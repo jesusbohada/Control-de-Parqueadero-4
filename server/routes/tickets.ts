@@ -3,12 +3,24 @@
  */
 import express from 'express';
 import pool, { isPostgresReady, memoryStoreRef } from '../../src/db.ts';
+import { requirePermission } from '../auth.ts';
+
+// Permisos por ruta (master siempre pasa). canManageDatabase cubre el editor de tablas y restauraciones.
+// Entrada y salida son las operaciones de caja; las rutas de "upsert" crudo no las usa el POS.
+export const TICKET_ROUTE_PERMISSIONS = {
+  entry: ['canRegisterEntry', 'canManageDatabase'],
+  checkout: ['canRegisterExit', 'canForceRegisterExit', 'canManageDatabase'],
+  removeActive: ['canRegisterExit', 'canForceRegisterExit', 'canCancelTicket', 'canManageDatabase'],
+  upsertActive: ['canEditActiveTicketPlate', 'canManageDatabase'],
+  upsertPaid: ['canManageDatabase'],
+} as const;
+const guardTicket = (k: keyof typeof TICKET_ROUTE_PERMISSIONS) => requirePermission(...TICKET_ROUTE_PERMISSIONS[k]);
 
 export function registerTicketRoutes(app: express.Express) {
   // ==============================================================================
   // 2. TICKETS - Registro de entrada con actualización de plaza a OCUPADO
   // ==============================================================================
-  app.post('/api/tickets/entry', async (req, res) => {
+  app.post('/api/tickets/entry', guardTicket('entry'), async (req, res) => {
     const { ticket, spotCode } = req.body;
     if (!ticket || !ticket.id) {
       return res.status(400).json({ success: false, error: 'Datos de ticket requeridos' });
@@ -100,7 +112,7 @@ export function registerTicketRoutes(app: express.Express) {
   // ==============================================================================
   // 3. TICKETS - Checkout transaccional (BEGIN / COMMIT / ROLLBACK)
   // ==============================================================================
-  app.post('/api/tickets/checkout', async (req, res) => {
+  app.post('/api/tickets/checkout', guardTicket('checkout'), async (req, res) => {
     const { ticket } = req.body;
     if (!ticket || !ticket.id) {
       return res.status(400).json({ success: false, error: 'Datos de ticket requeridos' });
@@ -199,7 +211,7 @@ export function registerTicketRoutes(app: express.Express) {
   });
 
   // Guardar / Actualizar Ticket Activo (individual)
-  app.post('/api/tickets/active', async (req, res) => {
+  app.post('/api/tickets/active', guardTicket('upsertActive'), async (req, res) => {
     const { ticket } = req.body;
     if (!ticket?.id) return res.status(400).json({ error: 'Ticket inválido' });
     try {
@@ -237,7 +249,7 @@ export function registerTicketRoutes(app: express.Express) {
   });
 
   // Eliminar Ticket Activo (anulación)
-  app.delete('/api/tickets/active/:id', async (req, res) => {
+  app.delete('/api/tickets/active/:id', guardTicket('removeActive'), async (req, res) => {
     const { id } = req.params;
     try {
       if (isPostgresReady()) {
@@ -260,7 +272,7 @@ export function registerTicketRoutes(app: express.Express) {
   });
 
   // Guardar Ticket Pagado
-  app.post('/api/tickets/paid', async (req, res) => {
+  app.post('/api/tickets/paid', guardTicket('upsertPaid'), async (req, res) => {
     const { ticket } = req.body;
     if (!ticket?.id) return res.status(400).json({ error: 'Ticket inválido' });
     try {

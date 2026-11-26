@@ -3,12 +3,26 @@
  */
 import express from 'express';
 import pool, { isPostgresReady, memoryStoreRef } from '../../src/db.ts';
+import { requirePermission } from '../auth.ts';
+
+// Permisos por ruta (master siempre pasa). Entrada y salida también guardan plazas en bloque
+// (ocupar/liberar), por eso /bulk acepta los permisos de caja. El panel de plazas se abre con
+// canManageSpots o canEditRates (ver Sidebar), y canManageDatabase cubre el editor de tablas.
+const SPOT_ADMIN = ['canManageSpots', 'canEditRates', 'canManageDatabase'] as const;
+export const SPOT_ROUTE_PERMISSIONS = {
+  saveOne: [...SPOT_ADMIN],
+  saveBulk: [...SPOT_ADMIN, 'canRegisterEntry', 'canRegisterExit', 'canForceRegisterExit', 'canChangeSpotStatus', 'canForceReleaseSpot'],
+  remove: [...SPOT_ADMIN],
+  statusBulk: [...SPOT_ADMIN, 'canChangeSpotStatus'],
+  reconcile: [...SPOT_ADMIN, 'canForceReleaseSpot'],
+} as const;
+const guardSpot = (k: keyof typeof SPOT_ROUTE_PERMISSIONS) => requirePermission(...SPOT_ROUTE_PERMISSIONS[k]);
 
 export function registerSpotRoutes(app: express.Express) {
   // ==============================================================================
   // 7. PLAZAS / SPOTS
   // ==============================================================================
-  app.post('/api/spots', async (req, res) => {
+  app.post('/api/spots', guardSpot('saveOne'), async (req, res) => {
     const { spot } = req.body;
     if (!spot?.id) return res.status(400).json({ error: 'Plaza inválida' });
     try {
@@ -41,7 +55,7 @@ export function registerSpotRoutes(app: express.Express) {
     }
   });
 
-  app.post('/api/spots/bulk', async (req, res) => {
+  app.post('/api/spots/bulk', guardSpot('saveBulk'), async (req, res) => {
     const { spots } = req.body;
     if (!Array.isArray(spots)) return res.status(400).json({ error: 'Array de spots esperado' });
     try {
@@ -76,7 +90,7 @@ export function registerSpotRoutes(app: express.Express) {
     }
   });
 
-  app.delete('/api/spots/:id', async (req, res) => {
+  app.delete('/api/spots/:id', guardSpot('remove'), async (req, res) => {
     const { id } = req.params;
     try {
       if (isPostgresReady()) {
@@ -98,7 +112,7 @@ export function registerSpotRoutes(app: express.Express) {
     }
   });
 
-  app.post('/api/spots/delete-bulk', async (req, res) => {
+  app.post('/api/spots/delete-bulk', guardSpot('remove'), async (req, res) => {
     const { ids } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ success: false, error: 'Array de IDs requerido' });
@@ -123,7 +137,7 @@ export function registerSpotRoutes(app: express.Express) {
     }
   });
 
-  app.patch('/api/spots/status-bulk', async (req, res) => {
+  app.patch('/api/spots/status-bulk', guardSpot('statusBulk'), async (req, res) => {
     const { ids, status } = req.body;
     if (!Array.isArray(ids) || !status) {
       return res.status(400).json({ success: false, error: 'IDs y nuevo estado requeridos' });
@@ -149,7 +163,7 @@ export function registerSpotRoutes(app: express.Express) {
     }
   });
 
-  app.post('/api/spots/reconcile', async (req, res) => {
+  app.post('/api/spots/reconcile', guardSpot('reconcile'), async (req, res) => {
     try {
       if (isPostgresReady()) {
         const ticketsRes = await pool.query('SELECT id, ticket_number, plate, spot_code, details FROM active_tickets');

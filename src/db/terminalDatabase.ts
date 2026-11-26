@@ -324,13 +324,19 @@ export function setActiveSessionUser(user: SystemUser | null): void {
 // -------------------------------------------------------------
 // OPERACIONES ATÓMICAS DE NEGOCIO (POSTGRESQL VIA REST API)
 // -------------------------------------------------------------
+/** Avisa en consola si el servidor rechazó una escritura (p. ej. 403 por falta de permiso). */
+function checkWrite(label: string, res: Response): Response {
+  if (!res.ok) console.warn(`[${label}] El servidor rechazó la operación (HTTP ${res.status}).`);
+  return res;
+}
+
 export async function dbSaveSpot(spot: ParkingSpot): Promise<void> {
   try {
-    await fetch('/api/spots', {
+    checkWrite('dbSaveSpot', await fetch('/api/spots', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ spot })
-    });
+    }));
   } catch (e) {
     console.warn('[dbSaveSpot] Error en API:', e);
   }
@@ -338,11 +344,11 @@ export async function dbSaveSpot(spot: ParkingSpot): Promise<void> {
 
 export async function dbSaveSpots(spots: ParkingSpot[]): Promise<void> {
   try {
-    await fetch('/api/spots/bulk', {
+    checkWrite('dbSaveSpots', await fetch('/api/spots/bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ spots })
-    });
+    }));
     localStorage.setItem('pk_spots_data', JSON.stringify(spots));
   } catch (e) {
     console.warn('[dbSaveSpots] Error en API:', e);
@@ -351,9 +357,9 @@ export async function dbSaveSpots(spots: ParkingSpot[]): Promise<void> {
 
 export async function dbDeleteSpot(spotId: string): Promise<void> {
   try {
-    await fetch(`/api/spots/${encodeURIComponent(spotId)}`, {
+    checkWrite('dbDeleteSpot', await fetch(`/api/spots/${encodeURIComponent(spotId)}`, {
       method: 'DELETE',
-    });
+    }));
   } catch (e) {
     console.warn('[dbDeleteSpot] Error en API:', e);
   }
@@ -361,11 +367,11 @@ export async function dbDeleteSpot(spotId: string): Promise<void> {
 
 export async function dbDeleteMultipleSpots(spotIds: string[]): Promise<void> {
   try {
-    await fetch('/api/spots/delete-bulk', {
+    checkWrite('dbDeleteMultipleSpots', await fetch('/api/spots/delete-bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids: spotIds })
-    });
+    }));
   } catch (e) {
     console.warn('[dbDeleteMultipleSpots] Error en API:', e);
   }
@@ -373,11 +379,11 @@ export async function dbDeleteMultipleSpots(spotIds: string[]): Promise<void> {
 
 export async function dbUpdateMultipleSpotStatus(spotIds: string[], status: 'available' | 'reserved' | 'maintenance'): Promise<void> {
   try {
-    await fetch('/api/spots/status-bulk', {
+    checkWrite('dbUpdateMultipleSpotStatus', await fetch('/api/spots/status-bulk', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids: spotIds, status })
-    });
+    }));
   } catch (e) {
     console.warn('[dbUpdateMultipleSpotStatus] Error en API:', e);
   }
@@ -401,11 +407,11 @@ export async function dbReconcileSpots(): Promise<{ success: boolean; spots?: Pa
  */
 export async function dbSaveActiveTicket(ticket: ParkingTicket): Promise<void> {
   try {
-    await fetch('/api/tickets/entry', {
+    checkWrite('dbSaveActiveTicket', await fetch('/api/tickets/entry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticket, spotCode: ticket.spotCode })
-    });
+    }));
   } catch (e) {
     console.warn('[dbSaveActiveTicket] Error en API:', e);
   }
@@ -413,9 +419,9 @@ export async function dbSaveActiveTicket(ticket: ParkingTicket): Promise<void> {
 
 export async function dbRemoveActiveTicket(ticketId: string): Promise<void> {
   try {
-    await fetch(`/api/tickets/active/${encodeURIComponent(ticketId)}`, {
+    checkWrite('dbRemoveActiveTicket', await fetch(`/api/tickets/active/${encodeURIComponent(ticketId)}`, {
       method: 'DELETE'
-    });
+    }));
   } catch (e) {
     console.warn('[dbRemoveActiveTicket] Error en API:', e);
   }
@@ -426,11 +432,11 @@ export async function dbRemoveActiveTicket(ticketId: string): Promise<void> {
  */
 export async function dbSavePaidTicket(ticket: ParkingTicket): Promise<void> {
   try {
-    await fetch('/api/tickets/checkout', {
+    checkWrite('dbSavePaidTicket', await fetch('/api/tickets/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticket })
-    });
+    }));
   } catch (e) {
     console.warn('[dbSavePaidTicket] Error en API:', e);
   }
