@@ -3,8 +3,8 @@
 Sistema POS de parqueadero multi-sede. Responder siempre en español.
 
 ## Stack
-- Backend: `server.ts` (Express + `pg` + `ws`, ~3.1k líneas) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, bootstrap, configs, databaseMaintenance, dian, farmadesk, postgresAdmin, printing, shifts, spots, subscribers, system, tickets, users). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
-- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`. Pendiente de extraer: sync (`/api/sync/*`) y el servidor WebSocket.
+- Backend: `server.ts` (Express + `pg` + `ws`, ~0.8k líneas: arranque, middleware y WebSocket) + módulos en `server/`: `auth.ts` (seguridad), `centralSync.ts` (sync servidor↔servidor) y `routes/*.ts` (`registerXRoutes(app, deps)`: ai, audit, bootstrap, configs, databaseMaintenance, dian, farmadesk, postgresAdmin, printing, shifts, spots, subscribers, sync, system, tickets, users). Arranque: `npm run dev` (tsx). Puerto 3000 (LAN), 3001 (WAN sucursales), 9050 (FarmaDesk).
+- Rutas nuevas: en el módulo de `server/routes/` correspondiente, no en `server.ts`. Pendiente de extraer: el servidor WebSocket.
 - Frontend: React 19 + Vite 6 + Tailwind 4, en `src/`. Entrada `src/App.tsx` (~5.9k líneas).
 - BD: PostgreSQL 16 (`database_schema.sql`); fallback en memoria (`memoryStoreRef`) si PG no está listo.
 - Impresión térmica / cajón: `scripts/*.ps1` vía `execFile('powershell.exe')`.
@@ -20,7 +20,7 @@ Sistema POS de parqueadero multi-sede. Responder siempre en español.
 ## Mapa rápido (leer solo lo necesario)
 - Rutas API: `grep -rn "app\.\(get\|post\|put\|delete\|patch\)(" server.ts server/routes`
 - Tipos/permisos RBAC: `src/types.ts` (`UserPermissions`).
-- Sync central ↔ sucursales: `src/services/centralSyncService.ts`, `/api/sync/*`.
+- Sync central ↔ sucursales: `server/routes/sync.ts` (`/api/sync/*`), `src/services/centralSyncService.ts`.
 - Tickets/turnos: `server/routes/tickets.ts`, `server/routes/shifts.ts`, `src/components/OperationsView.tsx`, `CashShiftModal.tsx`.
 
 ## Reglas de trabajo
