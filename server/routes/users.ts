@@ -162,6 +162,7 @@ export function registerUserRoutes(app: express.Express, ctx: RegisterUserRoutes
           WHERE LOWER(username) = $1 
              OR (LOWER($1) = 'cajero' AND LOWER(username) = 'caja') 
              OR (LOWER($1) = 'caja' AND LOWER(username) = 'cajero')
+          ORDER BY (LOWER(username) = $1) DESC
           LIMIT 1
         `;
         const qRes = await pool.query(query, [cleanUser]);
@@ -180,9 +181,10 @@ export function registerUserRoutes(app: express.Express, ctx: RegisterUserRoutes
         }
       } else {
         const list = Array.from(memoryStoreRef.users.values());
-        foundUser = list.find(u => {
+        // La coincidencia exacta tiene prioridad sobre el alias cajero ↔ caja
+        foundUser = list.find(u => u.username.toLowerCase() === cleanUser) || list.find(u => {
           const uName = u.username.toLowerCase();
-          return uName === cleanUser || (cleanUser === 'cajero' && uName === 'caja') || (cleanUser === 'caja' && uName === 'cajero');
+          return (cleanUser === 'cajero' && uName === 'caja') || (cleanUser === 'caja' && uName === 'cajero');
         }) || null;
       }
 
