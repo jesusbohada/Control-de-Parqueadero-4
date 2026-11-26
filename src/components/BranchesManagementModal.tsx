@@ -51,7 +51,7 @@ import {
   pingSingleBranchFromCentral 
 } from '../services/centralSyncService';
 import { playSound } from '../utils/audio';
-import { encodeSsoToken } from '../utils/sso';
+import { openWithSso } from '../utils/sso';
 import { DEFAULT_MASTER_PERMISSIONS } from '../data/initialData';
 
 interface BranchesManagementModalProps {
@@ -194,60 +194,23 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
   const handleConnect = (branch: BranchLocation, mode: 'system' | 'system_lan' | 'system_wan' | 'desktop') => {
     playSound('beep');
 
-    // Preparar token de sesión SSO desde el usuario logueado en Central para auto-login
-    let activeUser = currentUser;
-    if (!activeUser && typeof window !== 'undefined') {
-      try {
-        const saved = sessionStorage.getItem('pk_current_user') || localStorage.getItem('pk_current_user');
-        if (saved) activeUser = JSON.parse(saved);
-      } catch (e) {}
-    }
-    if (!activeUser) {
-      activeUser = {
-        id: 'user-master-01',
-        username: 'admin',
-        name: 'Administrador Central',
-        role: 'master',
-        password: '',
-        isActive: true,
-        permissions: { ...DEFAULT_MASTER_PERMISSIONS },
-        createdAt: new Date().toISOString()
-      };
-    }
-
-    const ssoToken = encodeSsoToken(activeUser);
-    const ssoParam = `&sso=${encodeURIComponent(ssoToken)}`;
+    // El token SSO lo firma el servidor Central para el usuario en sesión (ver utils/sso.ts)
+    const withSso = (base: string) => (sso: string) => (sso ? `${base}${base.includes('?') ? '&' : '?'}${sso}` : base);
 
     if (mode === 'system_lan') {
       const lanHost = branch.localIp || (branch.id === 'branch_1793114761863' ? '192.168.14.227' : '192.168.1.100');
       const lanPort = 3000;
-      const targetUrl = `http://${lanHost}:${lanPort}/?branchId=${branch.id}${ssoParam}`;
-      try {
-        window.open(targetUrl, '_blank');
-      } catch (err) {
-        console.warn('Popup bloqueado:', err);
-      }
+      openWithSso(withSso(`http://${lanHost}:${lanPort}/?branchId=${branch.id}`)).catch(err => console.warn('Popup bloqueado:', err));
     } else if (mode === 'system_wan') {
       const wanHost = branch.domain || branch.ddnsDomain || branch.publicIp || branch.reportedPublicIp || '152.200.144.62';
       const wanPort = branch.port && branch.port !== 3000 ? branch.port : 3001;
-      const targetUrl = `http://${wanHost}:${wanPort}/?branchId=${branch.id}${ssoParam}`;
-      try {
-        window.open(targetUrl, '_blank');
-      } catch (err) {
-        console.warn('Popup bloqueado:', err);
-      }
+      openWithSso(withSso(`http://${wanHost}:${wanPort}/?branchId=${branch.id}`)).catch(err => console.warn('Popup bloqueado:', err));
     } else if (mode === 'system') {
       const port = branch.port || 3000;
       const base = branch.systemUrl 
         ? branch.systemUrl.replace(/\/wolfzonepos/, '')
         : `http://${branch.ipAddress || branch.publicIp || 'localhost'}:${port}/?branchId=${branch.id}`;
-      const sep = base.includes('?') ? '&' : '?';
-      const targetUrl = `${base}${sep}sso=${encodeURIComponent(ssoToken)}`;
-      try {
-        window.open(targetUrl, '_blank');
-      } catch (err) {
-        console.warn('Popup bloqueado:', err);
-      }
+      openWithSso(withSso(base)).catch(err => console.warn('Popup bloqueado:', err));
     } else {
       if (onConnectRemoteBranch) {
         onConnectRemoteBranch(branch, 'desktop');
@@ -1964,16 +1927,12 @@ export const BranchesManagementModal: React.FC<BranchesManagementModalProps> = (
                     </div>
                     {editingBranch.ipAddress && (
                       <a
-                        href={`http://${editingBranch.ipAddress}:${editingBranch.port || 3000}/?branchId=${editingBranch.id}&sso=${encodeURIComponent(encodeSsoToken(currentUser || {
-                          id: 'user-master-01',
-                          username: 'admin',
-                          name: 'Administrador Central',
-                          role: 'master',
-                          password: '',
-                          isActive: true,
-                          permissions: DEFAULT_MASTER_PERMISSIONS,
-                          createdAt: new Date().toISOString()
-                        }))}`}
+                        href={`http://${editingBranch.ipAddress}:${editingBranch.port || 3000}/?branchId=${editingBranch.id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const base = `http://${editingBranch.ipAddress}:${editingBranch.port || 3000}/?branchId=${editingBranch.id}`;
+                          openWithSso(sso => (sso ? `${base}&${sso}` : base)).catch(console.warn);
+                        }}
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-bold ml-auto"

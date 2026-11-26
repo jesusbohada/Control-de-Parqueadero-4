@@ -699,6 +699,7 @@ export interface Warehouse {
   notes?: string;
   createdAt?: string;
   itemsCount?: number;                    // Cantidad de ítems/insumos en inventario
+  isMain?: boolean;                       // Bodega principal (Matriz)
 }
 
 export type PosPointStatus = 'online' | 'busy' | 'offline' | 'locked' | 'maintenance';

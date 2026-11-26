@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Configurar Git para tolerar entornos con CA desactualizada
-RUN git config --global http.sslVerify false
 
 WORKDIR /app
 

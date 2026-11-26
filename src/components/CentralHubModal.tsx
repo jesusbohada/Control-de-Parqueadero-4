@@ -162,7 +162,13 @@ export const CentralHubModal: React.FC<CentralHubModalProps> = ({
   const [newGlobalSelectedBranchIds, setNewGlobalSelectedBranchIds] = useState<string[]>([]);
 
   // Detección de rol de red para blindaje: Si esta máquina es sucursal, bloquea el envío de globales
-  const serverConfig = getServerDataConfig();
+  // getServerDataConfig es asíncrona: antes se leía la Promise directamente y el blindaje nunca se activaba.
+  const [serverConfig, setServerConfig] = useState<Awaited<ReturnType<typeof getServerDataConfig>> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getServerDataConfig().then(cfg => { if (!cancelled) setServerConfig(cfg); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
   const isRemoteBranchNode = serverConfig?.nodeRole === 'branch' || Boolean(serverConfig?.remoteDbHost && serverConfig.remoteDbHost !== 'localhost' && serverConfig.remoteDbHost !== '127.0.0.1');
 
   const loadCentralGlobalStatus = async () => {

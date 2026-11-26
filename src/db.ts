@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(100) NOT NULL UNIQUE,
     role VARCHAR(50) NOT NULL,
     name VARCHAR(150),
-    pin VARCHAR(50),
+    pin TEXT, -- hash scrypt (scrypt$salt$hash)
     permissions JSONB DEFAULT '{}'::jsonb,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP

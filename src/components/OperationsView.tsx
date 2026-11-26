@@ -42,7 +42,8 @@ import {
   Maximize2,
   Camera,
   Handshake,
-  Stamp
+  Stamp,
+  Lock
 } from 'lucide-react';
 import { 
   ParkingSpot, 

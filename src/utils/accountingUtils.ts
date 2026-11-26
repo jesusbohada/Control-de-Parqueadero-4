@@ -67,11 +67,13 @@ export function computeAccountingSummary(
   let standardTicketsAmount = 0;
 
   tickets.forEach((t) => {
+    // totalAmount = lo efectivamente cobrado (base + IVA − descuento).
+    // Bruto = lo que se habría cobrado sin descuento; así neto (bruto − descuentos) = recaudo
+    // y los débitos por medio de pago cuadran con los créditos de ingreso + IVA.
     const total = t.totalAmount || 0;
-    const base = t.baseAmount || total;
     const discount = t.discountAmount || 0;
-    
-    grossRevenue += (base + discount);
+
+    grossRevenue += (total + discount);
     discounts += discount;
 
     if (t.electronicInvoice || t.paymentDetails?.isElectronicInvoice) {

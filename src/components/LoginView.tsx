@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { setAuthToken, serverLogout } from '../utils/authSession';
 import { 
   Lock, 
   User, 
@@ -187,6 +188,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  // Cambio obligatorio de contraseña tras ingresar con una clave de fábrica
+  const [pendingChange, setPendingChange] = useState<{ user: SystemUser; currentPassword: string } | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changeError, setChangeError] = useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Detección de Pantalla Completa (F11 / Modo Quiosco POS)
@@ -238,6 +245,43 @@ export const LoginView: React.FC<LoginViewProps> = ({
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pendingChange) return;
+    setChangeError(null);
+    if (newPassword.trim() !== confirmPassword.trim()) {
+      setChangeError('Las contraseñas no coinciden.');
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: pendingChange.currentPassword, newPassword: newPassword.trim() })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success && data.token) {
+        setAuthToken(data.token);
+        const user = pendingChange.user;
+        setPendingChange(null);
+        performLogin(user);
+        return;
+      }
+      setChangeError(data.error || 'No fue posible cambiar la contraseña.');
+    } catch {
+      setChangeError('No hay conexión con el servidor.');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
+
+  const handleCancelPasswordChange = () => {
+    setPendingChange(null);
+    setPassword('');
+    serverLogout();
+  };
+
   const handleMascotClick = () => {
     playSound('beep', true);
   };
@@ -272,8 +316,24 @@ export const LoginView: React.FC<LoginViewProps> = ({
       });
       const data = await res.json();
 
-      if (data.success && data.user) {
+      if (data.success && data.user && data.token) {
+        setAuthToken(data.token);
+        if (data.mustChangePassword) {
+          setPendingChange({ user: data.user, currentPassword: cleanPass });
+          setNewPassword('');
+          setConfirmPassword('');
+          setChangeError(null);
+          setIsLoggingIn(false);
+          return;
+        }
         performLogin(data.user);
+        return;
+      }
+
+      if (res.status === 429) {
+        setError(data.error || 'Demasiados intentos fallidos. Espere unos minutos.');
+        playSound('alert', true);
+        setIsLoggingIn(false);
         return;
       }
 
@@ -283,43 +343,15 @@ export const LoginView: React.FC<LoginViewProps> = ({
         setIsLoggingIn(false);
         return;
       }
+
+      setError(data.error || 'No fue posible iniciar sesión. Intente nuevamente.');
     } catch {
-      // Contingencia local si no hay conexión con el backend
+      // Sin servidor no hay sesión válida: la validación de claves solo ocurre en el servidor.
+      setError('No hay conexión con el servidor. Verifique que el servicio esté activo e intente nuevamente.');
     }
 
-    // 2. Contingencia local de emergencia
-    const foundUser = users.find(u => {
-      const uName = u.username.toLowerCase();
-      if (uName === cleanUser) return true;
-      if (cleanUser === 'cajero' && uName === 'caja') return true;
-      if (cleanUser === 'caja' && uName === 'cajero') return true;
-      return false;
-    });
-
-    if (!foundUser) {
-      setError('El usuario ingresado no existe en el sistema.');
-      playSound('alert', true);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    if (foundUser.isActive === false) {
-      setError('Este usuario se encuentra desactivado.');
-      playSound('alert', true);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    const isPasswordMatch = foundUser.password === cleanPass;
-
-    if (!isPasswordMatch) {
-      setError('Contraseña incorrecta. Verifica e intenta nuevamente.');
-      playSound('alert', true);
-      setIsLoggingIn(false);
-      return;
-    }
-
-    performLogin(foundUser);
+    playSound('alert', true);
+    setIsLoggingIn(false);
   };
 
   return (
@@ -500,6 +532,68 @@ export const LoginView: React.FC<LoginViewProps> = ({
           <span className="hidden sm:inline">{isFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa (F11)'}</span>
         </button>
       </div>
+
+      {/* Cambio obligatorio de contraseña (clave de fábrica o trivial) */}
+      {pendingChange && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="pwd-change-title">
+          <form
+            onSubmit={handleChangePassword}
+            className="w-full max-w-sm rounded-2xl border border-cyan-500/40 bg-slate-950/95 p-6 shadow-[0_0_30px_rgba(6,182,212,0.25)] space-y-4"
+          >
+            <div className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-cyan-300" />
+              <h2 id="pwd-change-title" className="text-base font-bold text-white">Cambie su contraseña</h2>
+            </div>
+            <p className="text-xs text-slate-300">
+              Hola {pendingChange.user.name}. Ingresó con una contraseña de fábrica o muy común. Por seguridad debe
+              definir una nueva (mínimo 6 caracteres, distinta del usuario) antes de continuar.
+            </p>
+            <div className="space-y-1">
+              <label htmlFor="new-password" className="block text-[11px] font-semibold uppercase tracking-wide text-cyan-300">Nueva contraseña</label>
+              <input
+                id="new-password"
+                type="password"
+                autoComplete="new-password"
+                autoFocus
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-cyan-400"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="confirm-password" className="block text-[11px] font-semibold uppercase tracking-wide text-cyan-300">Confirmar contraseña</label>
+              <input
+                id="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-cyan-400"
+              />
+            </div>
+            {changeError && (
+              <div className="rounded-lg border border-red-500/40 bg-red-950/50 px-3 py-2 text-xs text-red-300" role="alert">{changeError}</div>
+            )}
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleCancelPasswordChange}
+                disabled={isChangingPassword}
+                className="flex-1 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 cursor-pointer disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={isChangingPassword}
+                className="flex-1 rounded-lg bg-cyan-500 px-3 py-2 text-sm font-bold text-slate-950 hover:bg-cyan-400 cursor-pointer disabled:opacity-50"
+              >
+                {isChangingPassword ? 'Guardando…' : 'Guardar y entrar'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

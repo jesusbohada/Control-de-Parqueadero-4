@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { withAccessToken } from '../utils/authSession';
 import {
   Database,
   RefreshCw,
@@ -385,7 +386,7 @@ export const PostgresAdminTab: React.FC = () => {
   // Specific Table Backup Download
   const handleDownloadTableBackup = () => {
     if (!targetBackupTable) return;
-    window.location.href = `/api/postgres/dump-table?table=${targetBackupTable}&format=${backupFormat}`;
+    window.location.href = withAccessToken(`/api/postgres/dump-table?table=${encodeURIComponent(targetBackupTable)}&format=${encodeURIComponent(backupFormat)}`);
     playSound('success');
   };
 
@@ -518,7 +519,7 @@ export const PostgresAdminTab: React.FC = () => {
   };
 
   const handleDownloadFullSqlDump = () => {
-    window.location.href = '/api/postgres/dump';
+    window.location.href = withAccessToken('/api/postgres/dump');
     playSound('success');
   };
 

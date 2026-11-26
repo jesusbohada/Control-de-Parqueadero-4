@@ -378,20 +378,31 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
     setCoinCounts({ 1000: 0, 500: 0, 200: 0, 100: 0, 50: 0 });
   };
 
-  const handleUnlockSupervisor = (e: React.FormEvent) => {
+  const handleUnlockSupervisor = async (e: React.FormEvent) => {
     e.preventDefault();
     const pin = supervisorPinInput.trim();
     if (!pin) {
       setSupervisorPinError('Ingrese el PIN del supervisor');
       return;
     }
-    if (pin === '1234' || pin === 'admin' || pin === 'supervisor' || pin === '1974' || (currentUser?.password && pin === currentUser.password)) {
-      setSupervisorUnlocked(true);
-      setShowSupervisorPinModal(false);
-      setSupervisorPinInput('');
-      setSupervisorPinError('');
-    } else {
-      setSupervisorPinError('PIN de Supervisor incorrecto');
+    // La validación ocurre en el servidor (claves con hash); rol supervisor o maestro.
+    try {
+      const res = await fetch('/api/auth/verify-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin, requiredRole: 'supervisor' })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.authorized) {
+        setSupervisorUnlocked(true);
+        setShowSupervisorPinModal(false);
+        setSupervisorPinInput('');
+        setSupervisorPinError('');
+      } else {
+        setSupervisorPinError(data.error || 'PIN de Supervisor incorrecto');
+      }
+    } catch {
+      setSupervisorPinError('No hay conexión con el servidor para validar el PIN');
     }
   };
 

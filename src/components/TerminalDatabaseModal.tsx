@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { withAccessToken } from '../utils/authSession';
 import { 
   Database, 
   HardDrive, 
@@ -2583,7 +2584,7 @@ export const TerminalDatabaseModal: React.FC<TerminalDatabaseModalProps> = ({
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0">
                                   <a
-                                    href={`/api/database/backups/download/${encodeURIComponent(bk.fileName)}`}
+                                    href={withAccessToken(`/api/database/backups/download/${encodeURIComponent(bk.fileName)}`)}
                                     download={bk.fileName}
                                     className="p-1 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
                                     title="Descargar archivo JSON"
