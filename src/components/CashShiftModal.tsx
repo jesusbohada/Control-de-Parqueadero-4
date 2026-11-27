@@ -1363,7 +1363,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                           <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
                         </div>
                         <div className="text-[13px] text-slate-600 dark:text-slate-400">
-                          Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                          Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} ({new Date(shift.startTime).toLocaleDateString('es-CO')})
                         </div>
                       </div>
 
@@ -2716,7 +2716,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
                       </div>
                       <div className="text-[13px] text-slate-600 dark:text-slate-400">
-                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} ({new Date(shift.startTime).toLocaleDateString('es-CO')})
                       </div>
                     </div>
 
