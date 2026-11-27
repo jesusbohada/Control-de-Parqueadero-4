@@ -2015,16 +2015,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
         {/* ========================================================= */}
         {/* CARD 2: LIQUIDACIÓN, MEDIOS DE PAGO Y FACTURACIÓN         */}
         {/* ========================================================= */}
-        <div className="lg:col-span-7 bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm">
+        <div className="lg:col-span-7 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden flex flex-col text-[var(--text-primary)]">
           {/* Card Header */}
-          <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
+          <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center font-bold">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
                 <ArrowUpRight className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Cobro y Salida POS</h3>
-                <p className="text-[11px] text-slate-700 dark:text-slate-200">Cálculo de tiempo transcurrido y facturación</p>
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Cobro y Salida POS</h3>
+                <p className="text-[13px] text-slate-600 dark:text-slate-400">Cálculo de tiempo transcurrido y facturación</p>
               </div>
             </div>
 
@@ -2033,7 +2033,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleCancelExitProcess}
-                  className="pk-pos-key text-xs text-rose-700 dark:text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 border-b-2 border-b-rose-700 font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-rose-300 bg-rose-50 px-4 text-sm font-semibold text-rose-800 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 flex items-center gap-1.5 transition-colors cursor-pointer"
                   title="Cancelar proceso de salida actual y limpiar selección"
                 >
                   <X className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
@@ -2045,12 +2045,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <button
                   type="button"
                   onClick={onOpenTicketScanner}
-                  className="pk-pos-key text-xs font-black text-slate-950 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-b-2 border-amber-700 shadow-sm transition-all cursor-pointer"
+                  className="min-h-[44px] rounded-xl bg-amber-500 px-4 text-sm font-semibold text-slate-950 hover:bg-amber-400 flex items-center gap-1.5 transition cursor-pointer"
                   title="Escanear Código QR de Ticket con Cámara (F4)"
                 >
                   <QrCode className="w-3.5 h-3.5 text-slate-950" />
                   <span>Escanear QR</span>
-                  <span className="text-[10px] font-mono bg-slate-950/20 px-1 py-0.2 rounded text-slate-950 font-black">F4</span>
+                  <span className="text-xs font-mono bg-slate-950/15 px-1.5 rounded-md text-slate-950 font-bold">F4</span>
                 </button>
               )}
             </div>
@@ -2060,24 +2060,24 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             {/* Search Input for Exit - Laser Gun Scanner Dock */}
             <div className="relative">
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
                   <Barcode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Lector de Barras o Búsqueda por Placa:</span>
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all ${
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition ${
                     isGunScanning
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 animate-pulse shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200 motion-safe:animate-pulse dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                   }`} title="Lector de código de barras físico listo en cualquier momento (pistoleo directo)">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 motion-safe:animate-ping" />
                     <span>{isGunScanning ? 'DETECTANDO HAZ...' : 'ESCÁNER ACTIVO'}</span>
                   </span>
                 </div>
               </div>
 
               {barcodeScanFeedback && (
-                <div className="mb-2 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-xs font-bold animate-in fade-in slide-in-from-top-1">
+                <div className="mb-2 px-3.5 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-sm font-semibold animate-in fade-in slide-in-from-top-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{barcodeScanFeedback}</span>
                 </div>
@@ -2100,7 +2100,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     }
                   }}
                   placeholder="Pistolear código de barras o digitar placa..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 rounded-xl pl-10 pr-36 py-3 text-sm font-black font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none uppercase transition-all shadow-inner h-12"
+                  className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white pl-10 pr-36 text-base font-bold font-mono uppercase text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
@@ -2111,7 +2111,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setSearchQuery('');
                         searchInputRef.current?.focus();
                       }}
-                      className="p-1 rounded-md text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       title="Limpiar texto escrito"
                       aria-label="Limpiar campo de búsqueda"
                     >
@@ -2119,13 +2119,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     </button>
                   )}
                   {isReadingBarcodeInstant ? (
-                    <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 animate-pulse pointer-events-none">
-                      <Barcode className="w-3.5 h-3.5 animate-spin" />
+                    <span className="text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1 motion-safe:animate-pulse pointer-events-none">
+                      <Barcode className="w-3.5 h-3.5 motion-safe:animate-spin" />
                       <span>LEYENDO...</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1 pointer-events-none">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />
                       <span>AUTO-FOCO (F3)</span>
                     </span>
                   )}
@@ -2134,22 +2134,22 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
               {/* Autocomplete dropdown if typing search query and no ticket selected */}
               {searchResults.length > 0 && (!selectedTicket || selectedTicket.plate !== searchQuery) && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl shadow-2xl max-h-52 overflow-y-auto divide-y divide-slate-800">
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-[0_18px_36px_-18px_rgba(15,23,42,.45)] max-h-52 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800">
                   {searchResults.map((t) => (
                     <button
                       key={t.id}
                       type="button"
                       onClick={() => selectVehicleForExit(t)}
-                      className="w-full p-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-xs transition-colors cursor-pointer"
+                      className="w-full min-h-[44px] px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-sm transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="pk-mini-plate">{t.plate}</span>
-                        <span className="text-[10px] text-slate-600 dark:text-slate-300 font-medium uppercase">({getVehicleName(t.vehicleType)})</span>
-                        <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono text-[10px] font-semibold border border-slate-300 dark:border-slate-700">
+                        <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">({getVehicleName(t.vehicleType)})</span>
+                        <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-md font-mono text-xs font-semibold border border-slate-200 dark:border-slate-700">
                           {t.spotCode}
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                      <span className="text-[13px] tabular-nums text-slate-600 dark:text-slate-300">
                         Entrada: {new Date(t.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </button>
@@ -2162,9 +2162,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             {selectedTicket && liveCalculation ? (
               <form onSubmit={handleExitSubmit} noValidate className="space-y-4 pt-1">
                 {/* Vehicle Banner Summary with Mini Plate */}
-                <div className="p-3.5 bg-slate-900 text-white rounded-xl border border-slate-800 flex items-center justify-between flex-wrap gap-2 shadow-md">
+                <div className="px-4 py-3.5 bg-slate-50 text-slate-900 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:text-white dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-white/10 rounded-xl text-amber-400 border border-white/10">
+                    <div className="p-2.5 bg-white dark:bg-white/10 rounded-xl text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-white/10">
                       {getVehicleIcon(selectedTicket.vehicleType, 'w-6 h-6')}
                     </div>
                     <div>
@@ -2172,17 +2172,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         <span className="pk-mini-plate text-base px-2 py-0.5">
                           {selectedTicket.plate}
                         </span>
-                        <span className="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-black font-mono">
+                        <span className="text-xs bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md font-bold font-mono">
                           #{selectedTicket.ticketNumber}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-300 flex items-center gap-2 mt-1">
-                        <span>Puesto: <strong className="text-white font-mono">{selectedTicket.spotCode}</strong></span>
+                      <div className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 mt-1">
+                        <span>Puesto: <strong className="text-slate-900 dark:text-white font-mono">{selectedTicket.spotCode}</strong></span>
                         <span>•</span>
-                        <span>Ingreso: <strong className="text-white font-mono">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
+                        <span>Ingreso: <strong className="text-slate-900 dark:text-white tabular-nums">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
                       </div>
                       {selectedTicket.notes && (
-                        <div className="text-[11px] text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded px-2 py-0.5 mt-1 font-medium">
+                        <div className="text-[13px] text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 rounded-lg px-2 py-0.5 mt-1 font-medium">
                           <strong>Observaciones:</strong> {selectedTicket.notes}
                         </div>
                       )}
@@ -2191,8 +2191,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-[10px] uppercase font-bold text-slate-700 dark:text-slate-200">Tiempo Transcurrido</div>
-                      <div className="text-sm font-black text-amber-700 dark:text-amber-400 font-mono">
+                      <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Tiempo Transcurrido</div>
+                      <div className="text-base font-bold text-amber-700 dark:text-amber-400 tabular-nums">
                         {liveCalculation.formattedDuration}
                       </div>
                     </div>
@@ -2200,7 +2200,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelExitProcess}
-                      className="p-2 rounded-lg bg-white/10 hover:bg-rose-600/80 text-white transition-colors cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-200/70 hover:bg-rose-100 text-slate-700 hover:text-rose-700 dark:bg-white/10 dark:hover:bg-rose-600/80 dark:text-white dark:hover:text-white transition-colors cursor-pointer"
                       title="Cancelar y resetear"
                     >
                       <X className="w-4 h-4" />
@@ -2210,17 +2210,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Banner de Abonado Activo en Liquidación de Salida */}
                 {exitSubscriber && exitSubscriber.status === 'active' && (
-                  <div className="p-3 bg-emerald-500/15 border-2 border-emerald-500/50 rounded-xl text-xs text-emerald-950 dark:text-emerald-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                  <div className="px-3.5 py-3 bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 rounded-xl text-sm text-emerald-900 dark:text-emerald-100 flex items-start justify-between gap-3 animate-in fade-in">
                     <div className="flex items-start gap-2.5">
                       <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-[10px] tracking-wider border border-emerald-500/30">
+                        <span className="font-bold px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-500/30">
                           🚗 VEHÍCULO ABONADO ACTIVO
                         </span>
-                        <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-white">
                           Titular: {exitSubscriber.fullName} · Vigencia: {new Date(exitSubscriber.endDate).toLocaleDateString('es-CO')}
                         </p>
-                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
+                        <p className="text-[13px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
                           Este vehículo cuenta con mensualidad vigente. Puede exonerar el cobro ordinario.
                         </p>
                       </div>
@@ -2232,7 +2232,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setDiscountInput(liveCalculation.totalAmount.toString());
                           playSound('success', soundEnabled);
                         }}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs shrink-0 cursor-pointer shadow-sm transition-all"
+                        className="min-h-[44px] px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shrink-0 cursor-pointer transition"
                       >
                         Exonerar Cobro
                       </button>
@@ -2243,13 +2243,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* ======================================================= */}
                 {/* SALIDA SIN TICKET / TARJETA DE PROPIEDAD                */}
                 {/* ======================================================= */}
-                <div className="p-3 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 rounded-xl space-y-2.5 text-xs">
+                <div className="px-3.5 py-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl space-y-2.5 text-sm">
                   <label className={`flex items-center justify-between select-none ${currentUser?.permissions?.canProcessLostTicket === false ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
-                    <span className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+                    <span className="font-semibold text-amber-950 dark:text-amber-200 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                       <span>Salida sin ticket físico</span>
                       {currentUser?.permissions?.canProcessLostTicket === false && (
-                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono font-bold flex items-center gap-1">
+                        <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1">
                           <Lock className="w-3 h-3" /> (Restringido)
                         </span>
                       )}
@@ -2262,20 +2262,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         if (currentUser?.permissions?.canProcessLostTicket === false) return;
                         setIsNoTicketPresented(e.target.checked);
                       }}
-                      className="w-4 h-4 text-amber-600 rounded border-amber-300 focus:ring-amber-500 cursor-pointer disabled:cursor-not-allowed"
+                      className="w-5 h-5 text-amber-600 rounded-md border-amber-300 focus:ring-amber-500 cursor-pointer disabled:cursor-not-allowed"
                     />
                   </label>
 
                   {isNoTicketPresented && (
                     <div className="pt-2 border-t border-amber-200/80 dark:border-amber-500/20 space-y-3 animate-in fade-in">
-                      <div className="p-2.5 bg-amber-100/80 dark:bg-amber-950/40 rounded-lg border border-amber-300 dark:border-amber-500/30 text-[11px] text-amber-950 dark:text-amber-200 leading-relaxed">
+                      <div className="px-3 py-2.5 bg-amber-100/70 dark:bg-amber-500/10 rounded-xl border border-amber-200 dark:border-amber-500/30 text-[13px] text-amber-950 dark:text-amber-200 leading-relaxed">
                         <strong className="block font-bold text-amber-900 dark:text-amber-300 mb-0.5">⚠️ Validación de titularidad:</strong>
                         Se requiere validar tarjeta de propiedad e identificación del conductor antes de autorizar la salida.
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-amber-950 dark:text-amber-300 mb-1">
                             N° Tarjeta de Propiedad *
                           </label>
                           <input
@@ -2283,13 +2283,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 100293847"
                             value={propertyCardNumber}
                             onChange={(e) => setPropertyCardNumber(e.target.value.toUpperCase())}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-amber-950 dark:text-amber-300 mb-1">
                             Nombre del Titular / Conductor *
                           </label>
                           <input
@@ -2297,13 +2297,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: Carlos Ramírez"
                             value={ownerFullName}
                             onChange={(e) => setOwnerFullName(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-medium text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-amber-950 dark:text-amber-300 mb-1">
                             Cédula / Documento Conductor *
                           </label>
                           <input
@@ -2311,21 +2311,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 10293848"
                             value={ownerDocNumber}
                             onChange={(e) => setOwnerDocNumber(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                             required
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between bg-white dark:bg-slate-900/80 p-2 rounded-lg border border-amber-200 dark:border-slate-800">
-                        <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                      <div className="flex items-center justify-between bg-white dark:bg-slate-900/80 px-3 py-2.5 rounded-xl border border-amber-200 dark:border-slate-800">
+                        <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
                           Cobrar recargo por pérdida ({formatCurrency(lostTicketFeeAmount, rates.currencySymbol)})
                         </span>
                         <input
                           type="checkbox"
                           checked={applyLostTicketFee}
                           onChange={(e) => setApplyLostTicketFee(e.target.checked)}
-                          className="w-4 h-4 text-amber-600 rounded border-slate-300 cursor-pointer"
+                          className="w-5 h-5 text-amber-600 rounded-md border-slate-300 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -2333,18 +2333,18 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 </div>
 
                 {/* Rates & Discount summary */}
-                <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 text-xs">
+                <div className="px-4 py-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2 text-sm">
                   <div className="flex justify-between text-slate-600 dark:text-slate-300">
                     <span>Subtotal por tiempo ({liveCalculation.billableMinutes} min facturables):</span>
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                    <span className="tabular-nums font-semibold text-slate-800 dark:text-slate-200">
                       {formatCurrency(liveCalculation.totalAmount, rates.currencySymbol)}
                     </span>
                   </div>
 
                   {isNoTicketPresented && applyLostTicketFee && (
-                    <div className="flex justify-between text-amber-800 font-semibold">
+                    <div className="flex justify-between text-amber-800 dark:text-amber-300 font-semibold">
                       <span>Recargo Ticket Extraviado / Sin Ticket:</span>
-                      <span className="font-mono font-bold">
+                      <span className="tabular-nums font-semibold">
                         +{formatCurrency(lostTicketFeeAmount, rates.currencySymbol)}
                       </span>
                     </div>
@@ -2352,9 +2352,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Convenio Comercial / Alianza (Pausado por defecto si no está habilitado) */}
                   {Boolean(businessInfo?.enableCommercialAgreements) && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1">
+                      <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                         <Handshake className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         <span>Convenio Comercial / Alianza:</span>
                       </span>
@@ -2367,7 +2367,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             setDiscountInput('0');
                             playSound('beep', soundEnabled);
                           }}
-                          className="text-[10px] text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                          className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 min-h-[32px] px-1 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
                           <span>Quitar Convenio</span>
@@ -2375,7 +2375,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => {
@@ -2383,10 +2383,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setAgreementSealInput('');
                           setDiscountInput('0');
                         }}
-                        className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition-all text-left flex items-center justify-between cursor-pointer ${
+                        className={`min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 text-left flex items-center justify-between cursor-pointer ${
                           !selectedAgreementId
-                            ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-600'
-                            : 'bg-white dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <span>Sin Convenio</span>
@@ -2423,20 +2423,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               setDiscountInput(discResult.discountAmount.toString());
                               playSound('success', soundEnabled);
                             }}
-                            className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition-all text-left flex items-center justify-between cursor-pointer ${
+                            className={`min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 text-left flex items-center justify-between cursor-pointer ${
                               !isApplicable
-                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
                                 : isSelected
-                                ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs ring-1 ring-indigo-500'
-                                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                                ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                                : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                             }`}
                             title={!isApplicable ? `No aplica para ${getVehicleName(selectedTicket.vehicleType)}` : ag.notes || ag.name}
                           >
                             <span className="truncate mr-1">{ag.name.split('/')[0].trim()}</span>
-                            <span className={`text-[9px] font-mono px-1 rounded shrink-0 ${
+                            <span className={`text-xs tabular-nums px-1.5 rounded-md shrink-0 ${
                               isSelected 
-                                ? 'bg-indigo-800 text-indigo-100' 
-                                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                                ? 'bg-blue-200/70 text-blue-900 dark:bg-blue-500/30 dark:text-blue-100' 
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                             }`}>
                               {badgeText}
                             </span>
@@ -2450,13 +2450,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       const currentAg = commercialAgreements?.find(a => a.id === selectedAgreementId);
                       if (!currentAg || !currentAg.requiresSealOrVoucher) return null;
                       return (
-                        <div className="mt-2 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1 animate-in fade-in">
+                        <div className="mt-2 px-3.5 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-xl space-y-1.5 animate-in fade-in">
                           <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                            <label className="text-[13px] font-semibold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                               <Stamp className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                               <span>{currentAg.sealPromptLabel || 'N° Sello / Factura Aliada'} *</span>
                             </label>
-                            <span className="text-[9px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/60 px-1.5 py-0.5 rounded">
+                            <span className="text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/60 px-2 py-0.5 rounded-lg">
                               Requerido
                             </span>
                           </div>
@@ -2468,7 +2468,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               if (exitError) setExitError(null);
                             }}
                             placeholder={`Ej: ${currentAg.code}-004921 o Factura de compra`}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500/30"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                             autoFocus
                           />
                         </div>
@@ -2478,21 +2478,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   )}
 
                   {/* Discount / Exoneration */}
-                  <div className="flex items-center justify-between pt-1.5 border-t border-slate-200">
+                  <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">Descuento:</span>
+                      <span className="text-[13px] text-slate-600 dark:text-slate-300 font-medium">Descuento:</span>
                       {currentUser?.permissions.canWaiveFee && (
                         <button
                           type="button"
                           onClick={() => setDiscountInput((liveCalculation.totalAmount + (isNoTicketPresented && applyLostTicketFee ? lostTicketFeeAmount : 0)).toString())}
-                          className="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold transition-colors cursor-pointer"
+                          className="min-h-[44px] px-3 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20 transition-colors cursor-pointer"
                         >
                           Cortesía $0
                         </button>
                       )}
                     </div>
                     {currentUser?.permissions?.canApplyDiscounts === false ? (
-                      <div className="flex items-center gap-1 text-[11px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 select-none" title="Descuentos manuales restringidos para su perfil">
+                      <div className="flex items-center gap-1.5 text-[13px] tabular-nums text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 select-none" title="Descuentos manuales restringidos para su perfil">
                         <Lock className="w-3 h-3 text-slate-400" />
                         <span>$0 (Bloqueado)</span>
                       </div>
@@ -2504,30 +2504,30 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         value={discountInput}
                         onChange={(e) => setDiscountInput(e.target.value)}
                         placeholder="0"
-                        className="w-24 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold outline-none focus:border-amber-500"
+                        className="w-28 min-h-[44px] text-right rounded-xl border border-slate-300 bg-white px-3 text-base font-semibold tabular-nums text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     )}
                   </div>
 
                   {/* PANTALLA DIGITAL VFD / CONSOLA DE COBRO EN VIVO */}
-                  <div className="pk-vfd-display p-4 my-2">
-                    <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2 mb-2">
+                  <div className="rounded-2xl bg-slate-900 text-white p-4 my-2 border border-slate-800 shadow-[0_10px_24px_-16px_rgba(15,23,42,.6)] dark:bg-slate-950">
+                    <div className="flex items-center justify-between flex-wrap gap-2 text-[13px] font-medium text-slate-300 border-b border-slate-700/70 pb-2 mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
-                        <span className="text-slate-200 font-bold">TOTAL LIQUIDADO POS</span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                        <span className="text-slate-100 font-semibold">TOTAL LIQUIDADO POS</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span>TIEMPO: <strong className="pk-vfd-text-amber font-mono">{liveCalculation.formattedDuration}</strong></span>
+                        <span>TIEMPO: <strong className="text-amber-300 font-semibold tabular-nums">{liveCalculation.formattedDuration}</strong></span>
                         <span>•</span>
-                        <span>PLACA: <strong className="text-white font-mono">{selectedTicket.plate}</strong></span>
+                        <span>PLACA: <strong className="text-white font-mono font-semibold">{selectedTicket.plate}</strong></span>
                       </div>
                     </div>
 
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-[13px] font-medium text-slate-300">
                         TOTAL NETO A COBRAR:
                       </span>
-                      <span className="text-3xl sm:text-5xl font-black pk-vfd-text-emerald pk-currency-huge">
+                      <span className="font-display text-4xl sm:text-5xl font-bold tabular-nums text-emerald-300 pk-currency-huge">
                         {formatCurrency(finalTotalAmount, rates.currencySymbol)}
                       </span>
                     </div>
@@ -2539,7 +2539,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* ======================================================= */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                    <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                       <Wallet className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
                       <span>Seleccione Medio de Pago:</span>
                     </label>
@@ -2555,13 +2555,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('cash');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                         exitPaymentMethod === 'cash'
-                          ? 'bg-emerald-600 text-white border-emerald-700 border-b-emerald-800 shadow-md ring-2 ring-emerald-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <Banknote className={`w-5 h-5 ${exitPaymentMethod === 'cash' ? 'text-white' : 'text-emerald-500'}`} />
+                      <Banknote className={`w-5 h-5 ${exitPaymentMethod === 'cash' ? 'text-blue-700 dark:text-blue-200' : 'text-emerald-500'}`} />
                       <span>Efectivo</span>
                     </button>
 
@@ -2575,16 +2575,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('card');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'card'
-                          ? 'bg-sky-600 text-white border-sky-700 border-b-sky-800 shadow-md ring-2 ring-sky-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Pago con Tarjeta Débito/Crédito'}
                     >
-                      <CreditCard className={`w-5 h-5 ${exitPaymentMethod === 'card' ? 'text-white' : 'text-sky-500'}`} />
+                      <CreditCard className={`w-5 h-5 ${exitPaymentMethod === 'card' ? 'text-blue-700 dark:text-blue-200' : 'text-sky-500'}`} />
                       <span>Tarjeta</span>
                     </button>
 
@@ -2598,16 +2598,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('wallet');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'wallet'
-                          ? 'bg-purple-600 text-white border-purple-700 border-b-purple-800 shadow-md ring-2 ring-purple-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Billeteras Digitales (Nequi, Daviplata, etc.)'}
                     >
-                      <Smartphone className={`w-5 h-5 ${exitPaymentMethod === 'wallet' ? 'text-white' : 'text-purple-500'}`} />
+                      <Smartphone className={`w-5 h-5 ${exitPaymentMethod === 'wallet' ? 'text-blue-700 dark:text-blue-200' : 'text-purple-500'}`} />
                       <span>Billeteras</span>
                     </button>
 
@@ -2621,16 +2621,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('qr');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'qr'
-                          ? 'bg-amber-600 text-white border-amber-700 border-b-amber-800 shadow-md ring-2 ring-amber-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'QR Bancario / Redeban'}
                     >
-                      <QrCode className={`w-5 h-5 ${exitPaymentMethod === 'qr' ? 'text-white' : 'text-amber-500'}`} />
+                      <QrCode className={`w-5 h-5 ${exitPaymentMethod === 'qr' ? 'text-blue-700 dark:text-blue-200' : 'text-amber-500'}`} />
                       <span>QR Bancario</span>
                     </button>
 
@@ -2644,16 +2644,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('bre_b');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'bre_b'
-                          ? 'bg-teal-600 text-white border-teal-700 border-b-teal-800 shadow-md ring-2 ring-teal-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Llave Interbancaria Bre-B'}
                     >
-                      <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-amber-300' : 'text-teal-500'}`} />
+                      <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-blue-700 dark:text-blue-200' : 'text-teal-500'}`} />
                       <span>Llave Bre-B</span>
                     </button>
 
@@ -2667,16 +2667,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('transfer');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'transfer'
-                          ? 'bg-cyan-700 text-white border-cyan-800 border-b-cyan-900 shadow-md ring-2 ring-cyan-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Transferencia Bancaria'}
                     >
-                      <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-white' : 'text-cyan-500'}`} />
+                      <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-blue-700 dark:text-blue-200' : 'text-cyan-500'}`} />
                       <span>Transferencia</span>
                     </button>
 
@@ -2690,16 +2690,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('mixed');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'mixed'
-                          ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-amber-700 shadow-md ring-2 ring-amber-400/40 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Dividir pago entre varios métodos'}
                     >
-                      <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-slate-950' : 'text-amber-500'}`} />
+                      <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-blue-700 dark:text-blue-200' : 'text-amber-500'}`} />
                       <span>Pago Mixto</span>
                     </button>
                   </div>
