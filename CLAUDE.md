@@ -24,6 +24,7 @@ Sistema POS de parqueadero multi-sede. Responder siempre en español.
 - Tickets/turnos: `server/routes/tickets.ts`, `server/routes/shifts.ts`, `src/components/OperationsView.tsx`, `CashShiftModal.tsx`.
 
 ## Reglas de trabajo
+- Bitácora del proyecto: `docs/BITACORA.md`. Leerla al empezar una sesión; actualizarla (historial, despliegue, riesgos, próximos pasos, decisiones) al cerrar cada cambio y en el mismo commit/PR. Sin claves ni contenido de `.env`.
 - Archivos gigantes: usar `grep -n` + lectura por rangos (`offset/limit`); nunca leer `server.ts` o `App.tsx` completos.
 - No tocar `data/`, `backups/`, `global-config.json`, `.env` (datos reales de operación).
 - Cambios pequeños e incrementales; un commit por cambio lógico, mensajes estilo `feat(scope): ...` / `fix(scope): ...`.
