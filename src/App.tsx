@@ -5040,6 +5040,7 @@ export default function App() {
               onOpenAnprCamera={() => setActiveView('anpr_camera')}
               vehicleCategories={vehicleCategories}
               commercialAgreements={commercialAgreements}
+              glass={patioGlass}
             />
           </>
         )}

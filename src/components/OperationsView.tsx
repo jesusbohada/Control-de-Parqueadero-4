@@ -112,6 +112,8 @@ interface OperationsViewProps {
   onOpenAnprCamera?: () => void;
   vehicleCategories?: VehicleCategoryConfig[];
   commercialAgreements?: CommercialAgreement[];
+  /** Efecto cristal (opcional, por usuario). */
+  glass?: boolean;
 }
 
 export const OperationsView: React.FC<OperationsViewProps> = ({
@@ -131,6 +133,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   onOpenAnprCamera,
   vehicleCategories = [],
   commercialAgreements = [],
+  glass = false,
 }) => {
   // --- Entry Form State ---
   const [entryPlate, setEntryPlate] = useState('');
@@ -1321,7 +1324,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   const currentBankAccount = activeBankAccounts.find(b => b.id === selectedBankAccountId) || activeBankAccounts[0] || DEFAULT_BANK_ACCOUNTS[0];
 
   return (
-    <div className="space-y-6">
+    <div className={`wz-patio-root space-y-6 ${glass ? 'wz-glass rounded-[28px] p-3 md:p-4' : ''}`}>
       {/* ========================================================= */}
       {/* PRO MAX: RADAR TÁCTICO DE OCUPACIÓN Y TELEMETRÍA EN TIEMPO REAL */}
       {/* ========================================================= */}
