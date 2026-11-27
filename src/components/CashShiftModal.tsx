@@ -2746,20 +2746,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       {/* THERMAL PRINT MODAL FOR ARQUEO / CIERRE                   */}
       {/* ========================================================= */}
       {printedVoucherType && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800">
-            <div className="print:hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="font-bold text-sm truncate">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
+          <div className="max-w-sm w-full wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 overflow-hidden flex flex-col">
+            <div className="print:hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-5 pt-5 pb-4 flex items-center justify-between gap-2 border-b border-slate-200/70 dark:border-slate-800">
+              <h3 className="font-display text-lg font-bold truncate">
                 {printedVoucherType === 'arqueo' ? 'Comprobante de Arqueo de Turno' : 'Comprobante de Cierre Definitivo'}
               </h3>
               <div className="flex items-center gap-2 shrink-0">
                 {/* Selector de Papel Térmico 80mm vs 58mm */}
-                <div className="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-mono">
+                <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 text-sm dark:border-slate-700 dark:bg-slate-900">
                   <button
                     type="button"
                     onClick={() => setVoucherPaperWidth('80mm')}
-                    className={`px-2 py-0.5 rounded font-bold transition-all cursor-pointer ${
-                      voucherPaperWidth === '80mm' ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    className={`min-h-[44px] min-w-[56px] px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                      voucherPaperWidth === '80mm' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                     }`}
                     title="Rollo Estándar de 80mm"
                   >
@@ -2768,8 +2768,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setVoucherPaperWidth('58mm')}
-                    className={`px-2 py-0.5 rounded font-bold transition-all cursor-pointer ${
-                      voucherPaperWidth === '58mm' ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    className={`min-h-[44px] min-w-[56px] px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                      voucherPaperWidth === '58mm' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                     }`}
                     title="Rollo Compacto de 58mm"
                   >
@@ -2778,7 +2778,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 </div>
                 <button
                   onClick={() => setPrintedVoucherType(null)}
-                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer p-1"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -3134,21 +3134,21 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="print:hidden p-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
-              <div className="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 truncate max-w-[180px]">
+            <div className="print:hidden px-5 py-3 bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 truncate max-w-[180px]">
                 {voucherPrintStatus}
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPrintedVoucherType(null)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   Cerrar
                 </button>
                 <button
                   onClick={handleDownloadVoucherPdf}
                   disabled={isDownloadingPdf}
-                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                  className="min-h-[44px] px-4 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 text-sm font-bold text-white flex items-center gap-1.5 cursor-pointer shadow-[0_14px_28px_-14px_rgba(5,150,105,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-emerald-500 dark:to-emerald-600"
                   title="Descargar PDF Oficial"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -3157,7 +3157,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <button
                   onClick={handlePrintVoucher}
                   disabled={isVoucherPrinting}
-                  className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                  className="min-h-[44px] px-4 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 text-sm font-bold text-white flex items-center gap-1.5 cursor-pointer shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-blue-500 dark:to-blue-600"
                 >
                   <Printer className="w-3.5 h-3.5 text-emerald-400 dark:text-slate-950" />
                   <span>{isVoucherPrinting ? 'Imprimiendo...' : `Imprimir (${voucherPaperWidth})`}</span>
@@ -3173,34 +3173,34 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
       {/* ========================================================= */}
       {viewingAttachment && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-slate-950/50 backdrop-blur-sm animate-in fade-in duration-150"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setViewingAttachment(null);
             }
           }}
         >
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800 max-h-[92vh] animate-in zoom-in-95 duration-150">
+          <div className="max-w-4xl w-full max-h-[92vh] wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 overflow-hidden flex flex-col animate-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-5 py-3.5 flex items-center justify-between gap-3">
+            <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-5 pt-5 pb-4 flex items-center justify-between gap-3 border-b border-slate-200/70 dark:border-slate-800">
               <div className="flex items-center gap-2.5 overflow-hidden">
                 {isAttachmentPdf ? (
-                  <div className="p-2 rounded-lg bg-rose-500/20 text-rose-800 dark:text-rose-300 shrink-0">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300 shrink-0">
                     <FileText className="w-5 h-5" />
                   </div>
                 ) : (
-                  <div className="p-2 rounded-lg bg-amber-500/20 text-amber-800 dark:text-amber-300 shrink-0">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300 shrink-0">
                     <ImageIcon className="w-5 h-5" />
                   </div>
                 )}
                 <div className="truncate">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-white">Comprobante Digital de Gasto</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] uppercase font-black bg-amber-400 text-slate-950">
+                    <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">Comprobante Digital de Gasto</h3>
+                    <span className="px-2 py-0.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-200">
                       {isAttachmentPdf ? 'Documento PDF' : 'Imagen / Recibo'}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-sm sm:max-w-md">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-300 truncate max-w-sm sm:max-w-md">
                     {viewingAttachment.name || 'Comprobante digital'}
                   </p>
                 </div>
@@ -3209,22 +3209,22 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               {/* Header Actions & Controls */}
               <div className="flex items-center gap-1.5 shrink-0">
                 {!isAttachmentPdf && (
-                  <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1 mr-2 border border-slate-300 dark:border-slate-700">
+                  <div className="hidden sm:inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 mr-2 dark:border-slate-700 dark:bg-slate-900">
                     <button
                       type="button"
                       onClick={() => setViewerZoom(z => Math.max(0.5, z - 0.25))}
-                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors"
+                      className="inline-flex h-11 w-11 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer transition-colors"
                       title="Alejar (-25%)"
                     >
                       <ZoomOut className="w-4 h-4" />
                     </button>
-                    <span className="text-[10px] font-mono px-1 text-slate-800 dark:text-slate-200 font-bold min-w-[42px] text-center">
+                    <span className="text-xs tabular-nums px-1 text-slate-800 dark:text-slate-200 font-semibold min-w-[48px] text-center">
                       {Math.round(viewerZoom * 100)}%
                     </span>
                     <button
                       type="button"
                       onClick={() => setViewerZoom(z => Math.min(3, z + 0.25))}
-                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors"
+                      className="inline-flex h-11 w-11 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer transition-colors"
                       title="Acercar (+25%)"
                     >
                       <ZoomIn className="w-4 h-4" />
@@ -3232,7 +3232,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setViewerRotation(r => (r + 90) % 360)}
-                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded cursor-pointer transition-colors ml-1"
+                      className="inline-flex h-11 w-11 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg cursor-pointer transition-colors ml-1"
                       title="Girar 90°"
                     >
                       <RotateCw className="w-4 h-4" />
@@ -3241,7 +3241,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       <button
                         type="button"
                         onClick={() => { setViewerZoom(1); setViewerRotation(0); }}
-                        className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-700 dark:text-amber-400 rounded cursor-pointer transition-colors"
+                        className="inline-flex h-11 w-11 items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-400 rounded-lg cursor-pointer transition-colors"
                         title="Restablecer vista"
                       >
                         <RotateCcw className="w-4 h-4" />
@@ -3254,7 +3254,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   href={safeAttachmentBlobUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer transition-colors"
                   title="Abrir en pestaña nueva"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -3263,7 +3263,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setViewingAttachment(null)}
-                  className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer transition-colors"
                   title="Cerrar visor"
                 >
                   <X className="w-5 h-5" />
@@ -3272,57 +3272,57 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Movement Metadata Bar */}
-            <div className="px-5 py-2.5 bg-amber-50/80 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/50 text-xs flex flex-wrap items-center justify-between gap-2 text-slate-700 dark:text-slate-300">
+            <div className="px-5 py-3 bg-amber-50 dark:bg-amber-500/10 border-b border-amber-200 dark:border-amber-500/30 text-sm flex flex-wrap items-center justify-between gap-2 text-slate-700 dark:text-slate-300">
               <div className="flex flex-wrap items-center gap-3">
                 {viewingAttachment.conceptName && (
-                  <span className="font-bold text-amber-950 dark:text-amber-200 bg-amber-200/80 dark:bg-amber-900/50 px-2 py-0.5 rounded text-[11px] border border-amber-300/60 dark:border-amber-800">
+                  <span className="font-semibold text-amber-900 dark:text-amber-200 bg-amber-100 dark:bg-amber-500/15 px-2.5 py-0.5 rounded-lg text-[13px] border border-amber-200 dark:border-amber-500/30">
                     {viewingAttachment.conceptName}
                   </span>
                 )}
                 {viewingAttachment.voucherNumber && (
-                  <span className="font-mono text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 px-2 py-0.5 rounded text-[11px] font-semibold">
+                  <span className="font-mono text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-2.5 py-0.5 rounded-lg text-[13px] font-semibold">
                     Doc: {viewingAttachment.voucherNumber}
                   </span>
                 )}
                 {viewingAttachment.operator && (
-                  <span className="text-[11px] text-slate-600 dark:text-slate-300">
+                  <span className="text-[13px] text-slate-600 dark:text-slate-300">
                     Operador: <strong className="text-slate-900 dark:text-slate-100">{viewingAttachment.operator}</strong>
                   </span>
                 )}
                 {viewingAttachment.date && (
-                  <span className="text-[11px] text-slate-600 dark:text-slate-300 font-mono">
+                  <span className="text-[13px] text-slate-600 dark:text-slate-300 tabular-nums">
                     {new Date(viewingAttachment.date).toLocaleString('es-CO')}
                   </span>
                 )}
               </div>
               {viewingAttachment.amount !== undefined && (
-                <div className="font-mono font-black text-rose-700 dark:text-rose-400 text-base">
+                <div className="font-display font-bold tabular-nums text-rose-700 dark:text-rose-400 text-xl">
                   -{formatCurrency(viewingAttachment.amount, currencySymbol)}
                 </div>
               )}
             </div>
 
             {/* Content Preview Stage */}
-            <div className="p-4 overflow-auto flex-1 bg-slate-100 dark:bg-slate-950 flex items-center justify-center min-h-[360px] max-h-[65vh]">
+            <div className="p-4 overflow-auto flex-1 bg-slate-50 dark:bg-slate-950 flex items-center justify-center min-h-[360px] max-h-[65vh]">
               {isAttachmentPdf ? (
                 <div className="w-full h-full flex flex-col items-center justify-center min-h-[480px]">
                   <object
                     data={safeAttachmentBlobUrl}
                     type="application/pdf"
-                    className="w-full h-[58vh] rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-inner"
+                    className="w-full h-[58vh] rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900"
                   >
                     <embed
                       src={safeAttachmentBlobUrl}
                       type="application/pdf"
-                      className="w-full h-full rounded-xl"
+                      className="w-full h-full rounded-2xl"
                     />
                     {/* Fallback if browser PDF plugin is disabled or restricted */}
-                    <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 max-w-md shadow-sm">
-                      <div className="w-16 h-16 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 flex items-center justify-center mx-auto mb-3">
+                    <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md">
+                      <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 flex items-center justify-center mx-auto mb-3">
                         <FileText className="w-8 h-8" />
                       </div>
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Comprobante PDF Cargado</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mb-4">
+                      <h4 className="font-display font-bold text-slate-900 dark:text-slate-100 text-lg mb-1">Comprobante PDF Cargado</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                         El navegador no permite previsualización incrustada directa en este marco. Puede visualizar o descargar el archivo completo haciendo clic abajo:
                       </p>
                       <div className="flex items-center justify-center gap-2">
@@ -3330,7 +3330,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                           href={safeAttachmentBlobUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                          className="min-h-[44px] px-4 bg-gradient-to-b from-blue-600 to-blue-700 text-white rounded-xl text-sm font-bold flex items-center gap-1.5 dark:from-blue-500 dark:to-blue-600"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                           <span>Abrir en Pestaña Nueva</span>
@@ -3350,7 +3350,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     <img
                       src={safeAttachmentBlobUrl || viewingAttachment.url}
                       alt={viewingAttachment.name || 'Comprobante digital'}
-                      className="max-h-[58vh] max-w-full object-contain rounded-xl shadow-md border border-slate-200 dark:border-slate-700 bg-white"
+                      className="max-h-[58vh] max-w-full object-contain rounded-2xl border border-slate-200 dark:border-slate-700 bg-white"
                       referrerPolicy="no-referrer"
                     />
                   </div>
@@ -3359,8 +3359,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="px-5 py-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="text-xs text-slate-600 dark:text-slate-300 truncate max-w-sm">
+            <div className="px-5 py-3.5 bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="text-sm text-slate-600 dark:text-slate-300 truncate max-w-sm">
                 <span className="font-bold text-slate-800 dark:text-slate-200">Detalle: </span>
                 {viewingAttachment.description || 'Sin descripción adicional'}
               </div>
@@ -3368,7 +3368,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <a
                   href={safeAttachmentBlobUrl}
                   download={viewingAttachment.name || `comprobante-${Date.now()}`}
-                  className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-1.5 transition-colors"
                 >
                   <Download className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                   <span>Descargar Archivo</span>
@@ -3377,7 +3377,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   href={safeAttachmentBlobUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="min-h-[44px] px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <ExternalLink className="w-4 h-4 text-slate-950" />
                   <span>Pantalla Completa</span>
@@ -3385,7 +3385,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setViewingAttachment(null)}
-                  className="px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                  className="min-h-[44px] px-4 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl text-sm font-bold transition-colors cursor-pointer"
                 >
                   Cerrar
                 </button>
@@ -3397,12 +3397,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
       {/* Modal de Validación de PIN de Supervisor para Desbloqueo de Arqueo Ciego */}
       {showSupervisorPinModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+        <div className="fixed inset-0 z-[9999] bg-slate-950/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-sm w-full p-6 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/70 dark:border-slate-800 mb-4">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-indigo-500" />
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                <ShieldCheck className="w-5 h-5 text-blue-700 dark:text-blue-400" />
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
                   Autorización de Supervisor
                 </h3>
               </div>
@@ -3413,19 +3413,19 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   setSupervisorPinInput('');
                   setSupervisorPinError('');
                 }}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleUnlockSupervisor} className="space-y-4">
-              <p className="text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 Ingrese el PIN o contraseña de Supervisor para revelar el saldo teórico esperado y auditar la caja antes del sellado definitivo.
               </p>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                   PIN / Contraseña de Supervisor
                 </label>
                 <input
@@ -3437,10 +3437,10 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     if (supervisorPinError) setSupervisorPinError('');
                   }}
                   placeholder="••••"
-                  className="w-full text-center tracking-widest text-xl font-mono font-bold bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100"
+                  className="w-full min-h-[56px] text-center tracking-widest text-xl font-mono font-bold tabular-nums bg-white border border-slate-300 rounded-xl px-4 text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
                 {supervisorPinError && (
-                  <p className="text-xs text-rose-500 font-bold mt-1.5 flex items-center gap-1">
+                  <p className="text-sm text-rose-700 dark:text-rose-300 font-semibold mt-1.5 flex items-center gap-1">
                     <AlertCircle className="w-3.5 h-3.5" />
                     <span>{supervisorPinError}</span>
                   </p>
@@ -3455,13 +3455,13 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     setSupervisorPinInput('');
                     setSupervisorPinError('');
                   }}
-                  className="px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-md transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="min-h-[44px] px-4 text-sm font-bold bg-gradient-to-b from-blue-600 to-blue-700 text-white rounded-xl shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition cursor-pointer flex items-center gap-1.5 dark:from-blue-500 dark:to-blue-600"
                 >
                   <Lock className="w-3.5 h-3.5" />
                   <span>Validar & Desbloquear</span>
