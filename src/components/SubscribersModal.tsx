@@ -703,25 +703,25 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-5xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/50 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] w-full max-w-5xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100">
         
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
               <Users className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
                   Mensualidades y Abonados
                 </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-300 font-semibold">
                   Suscripciones Activas
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Control de vehículos con pago mensual recurrente y acceso autorizado sin cobro por hora
               </p>
             </div>
@@ -731,7 +731,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
             <button
               type="button"
               onClick={openNewForm}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              className="flex min-h-[44px] items-center gap-1.5 px-4 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(5,150,105,.9)] hover:-translate-y-0.5 transition cursor-pointer dark:from-emerald-500 dark:to-emerald-600"
             >
               <Plus className="w-4 h-4" />
               <span>Nuevo Abonado</span>
@@ -739,7 +739,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -748,75 +748,75 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
 
         {/* Toast Notification */}
         {saveToast && (
-          <div className="bg-emerald-500 text-white px-4 py-2 text-xs font-bold flex items-center justify-between animate-in slide-in-from-top">
+          <div className="bg-emerald-50 text-emerald-900 border-b border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 px-5 py-3 text-sm font-semibold flex items-center justify-between animate-in slide-in-from-top">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4" />
               <span>{saveToast}</span>
             </div>
-            <button type="button" onClick={() => setSaveToast(null)} className="cursor-pointer">
+            <button type="button" onClick={() => setSaveToast(null)} className="flex min-h-[44px] min-w-[44px] items-center justify-center cursor-pointer">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
         {/* KPI Summary Cards */}
-        <div className="p-4 bg-slate-100/70 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Abonados</span>
-            <div className="text-xl font-black text-slate-900 dark:text-white mt-1">{stats.total}</div>
+        <div className="px-5 py-4 border-b border-slate-200/70 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-5 gap-3 shrink-0">
+          <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+            <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">Total Abonados</span>
+            <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">{stats.total}</div>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs">
-            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Al Día (Activos)</span>
-            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{stats.active}</div>
+          <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+            <span className="text-[13px] font-medium text-emerald-700 dark:text-emerald-400 block">Al Día (Activos)</span>
+            <div className="font-display text-2xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400 mt-1">{stats.active}</div>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs">
-            <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wider block">Por Vencer (≤3 d)</span>
-            <div className="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">{stats.expiringSoon}</div>
+          <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+            <span className="text-[13px] font-medium text-amber-700 dark:text-amber-400 block">Por Vencer (≤3 d)</span>
+            <div className="font-display text-2xl font-bold tabular-nums text-amber-700 dark:text-amber-400 mt-1">{stats.expiringSoon}</div>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs">
-            <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wider block">Vencidos</span>
-            <div className="text-xl font-black text-rose-600 dark:text-rose-400 mt-1">{stats.expired}</div>
+          <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+            <span className="text-[13px] font-medium text-rose-700 dark:text-rose-400 block">Vencidos</span>
+            <div className="font-display text-2xl font-bold tabular-nums text-rose-700 dark:text-rose-400 mt-1">{stats.expired}</div>
           </div>
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs col-span-2 sm:col-span-1">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Recaudo Mensual</span>
-            <div className="text-base font-black text-indigo-600 dark:text-indigo-400 mt-1 truncate">
+          <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 col-span-2 sm:col-span-1">
+            <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">Recaudo Mensual</span>
+            <div className="font-display text-xl font-bold tabular-nums text-indigo-700 dark:text-indigo-400 mt-1 truncate">
               {formatCurrency(stats.projectedRevenue)}
             </div>
           </div>
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="px-5 py-4 border-b border-slate-200/70 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2 flex-1 min-w-[240px]">
             <div className="relative w-full max-w-sm">
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar por placa, cédula o nombre..."
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-medium"
+                className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 placeholder-slate-400"
               />
             </div>
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+                className="min-h-[44px] px-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white cursor-pointer"
               >
                 Limpiar
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs font-bold">
+          <div className="flex flex-wrap items-center gap-1.5 text-sm font-semibold">
             <button
               type="button"
               onClick={() => setStatusFilter('all')}
-              className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-xl border transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                 statusFilter === 'all'
-                  ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-transparent shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-transparent'
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-800'
               }`}
             >
               Todos ({stats.total})
@@ -824,10 +824,10 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
             <button
               type="button"
               onClick={() => setStatusFilter('active')}
-              className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-xl border transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                 statusFilter === 'active'
-                  ? 'bg-emerald-600 text-white border-transparent shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 border-slate-200 dark:border-slate-700'
+                  ? 'bg-emerald-700 text-white border-transparent'
+                  : 'bg-white text-emerald-800 border-slate-300 hover:bg-emerald-50 dark:bg-slate-900 dark:text-emerald-400 dark:border-slate-600 dark:hover:bg-slate-800'
               }`}
             >
               Al Día ({stats.active})
@@ -835,10 +835,10 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
             <button
               type="button"
               onClick={() => setStatusFilter('expiring_soon')}
-              className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-xl border transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                 statusFilter === 'expiring_soon'
-                  ? 'bg-amber-500 text-slate-950 border-transparent shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-amber-700 dark:text-amber-400 border-slate-200 dark:border-slate-700'
+                  ? 'bg-amber-500 text-slate-950 border-transparent'
+                  : 'bg-white text-amber-800 border-slate-300 hover:bg-amber-50 dark:bg-slate-900 dark:text-amber-400 dark:border-slate-600 dark:hover:bg-slate-800'
               }`}
             >
               Por Vencer ({stats.expiringSoon})
@@ -846,10 +846,10 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
             <button
               type="button"
               onClick={() => setStatusFilter('expired')}
-              className={`px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-xl border transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                 statusFilter === 'expired'
-                  ? 'bg-rose-600 text-white border-transparent shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-400 border-slate-200 dark:border-slate-700'
+                  ? 'bg-rose-700 text-white border-transparent'
+                  : 'bg-white text-rose-800 border-slate-300 hover:bg-rose-50 dark:bg-slate-900 dark:text-rose-400 dark:border-slate-600 dark:hover:bg-slate-800'
               }`}
             >
               Vencidos ({stats.expired})
@@ -858,114 +858,114 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         </div>
 
         {/* Table Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
-            <div className="py-12 text-center text-slate-500 text-xs">
+            <div className="py-12 text-center text-slate-600 dark:text-slate-400 text-sm">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-500" />
               Cargando abonados...
             </div>
           ) : filteredSubscribers.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 space-y-3">
+            <div className="py-12 text-center text-slate-500 dark:text-slate-400 space-y-3">
               <Users className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700" />
               <p className="text-sm font-semibold">No se encontraron abonados registrados.</p>
               <button
                 type="button"
                 onClick={openNewForm}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer"
+                className="min-h-[44px] px-5 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(5,150,105,.9)] hover:-translate-y-0.5 transition cursor-pointer dark:from-emerald-500 dark:to-emerald-600"
               >
                 Registrar primer abonado
               </button>
             </div>
           ) : (
-            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-xs">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 font-extrabold uppercase text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 text-[13px] font-medium text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    <th className="py-3 px-3">Placa / Vehículo</th>
-                    <th className="py-3 px-3">Titular & Contacto</th>
-                    <th className="py-3 px-3">Plaza</th>
-                    <th className="py-3 px-3">Vigencia</th>
-                    <th className="py-3 px-3">Tarifa Mes</th>
-                    <th className="py-3 px-3">Estado</th>
-                    <th className="py-3 px-3 text-right">Acciones</th>
+                    <th className="px-4 py-3">Placa / Vehículo</th>
+                    <th className="px-4 py-3">Titular & Contacto</th>
+                    <th className="px-4 py-3">Plaza</th>
+                    <th className="px-4 py-3">Vigencia</th>
+                    <th className="px-4 py-3">Tarifa Mes</th>
+                    <th className="px-4 py-3">Estado</th>
+                    <th className="px-4 py-3 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
                   {filteredSubscribers.map((sub) => {
                     const isExpiring = sub.status === 'expiring_soon';
                     const isExpired = sub.status === 'expired';
 
                     return (
-                      <tr key={sub.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="py-3 px-3">
+                      <tr key={sub.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono font-black text-sm px-2.5 py-1 bg-amber-400 text-slate-950 rounded-md border border-slate-800 shadow-xs tracking-wider">
+                            <span className="font-mono font-bold text-sm px-2.5 py-1 bg-amber-400 text-slate-950 rounded-lg border border-slate-800 tracking-wider">
                               {sub.plate}
                             </span>
-                            <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-semibold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
                               {getCategoryName(sub.vehicleType)}
                             </span>
                           </div>
                         </td>
-                        <td className="py-3 px-3">
+                        <td className="px-4 py-3">
                           <div className="font-bold text-slate-900 dark:text-white">{sub.fullName}</div>
-                          <div className="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5 flex-wrap">
+                          <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 mt-0.5 flex-wrap">
                             {sub.documentId && <span>CC: {sub.documentId}</span>}
                             {sub.phone && <span className="flex items-center gap-0.5"><Phone className="w-3 h-3 inline" /> {sub.phone}</span>}
-                            <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                            <span className="text-xs text-emerald-800 dark:text-emerald-300 font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-500/30">
                               {getPaymentMethodDisplay(sub.paymentMethod)}
                             </span>
                             {sub.voucherNumber && (
-                              <span className="text-[10px] font-mono font-bold text-sky-700 dark:text-sky-300 bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-500/20 flex items-center gap-1" title="Documento bancario / Voucher de la transacción">
+                              <span className="text-xs font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-500/10 px-1.5 py-0.5 rounded-lg border border-sky-200 dark:border-sky-500/30 flex items-center gap-1" title="Documento bancario / Voucher de la transacción">
                                 <Receipt className="w-3 h-3 inline text-sky-500" /> #{sub.voucherNumber}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-3 px-3">
+                        <td className="px-4 py-3">
                           {sub.assignedSpotCode ? (
-                            <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                            <span className="font-mono font-bold text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-500/30">
                               {sub.assignedSpotCode}
                             </span>
                           ) : (
-                            <span className="text-slate-400 text-[11px] italic">Flotante</span>
+                            <span className="text-slate-500 dark:text-slate-400 text-xs italic">Flotante</span>
                           )}
                         </td>
-                        <td className="py-3 px-3">
-                          <div className="font-mono text-slate-800 dark:text-slate-200">
+                        <td className="px-4 py-3">
+                          <div className="tabular-nums text-slate-800 dark:text-slate-200">
                             Hasta: <strong>{sub.endDate}</strong>
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">
+                          <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                             Inició: {sub.startDate}
                           </div>
                         </td>
-                        <td className="py-3 px-3 font-bold font-mono text-slate-900 dark:text-white">
+                        <td className="px-4 py-3 font-bold tabular-nums text-slate-900 dark:text-white">
                           {formatCurrency(sub.monthlyRate)}
                         </td>
-                        <td className="py-3 px-3">
+                        <td className="px-4 py-3">
                           {isExpired ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
                               <XCircle className="w-3 h-3" />
                               Vencido
                             </span>
                           ) : isExpiring ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200 border border-amber-200 dark:border-amber-500/30 motion-safe:animate-pulse">
                               <AlertTriangle className="w-3 h-3" />
                               Por vencer
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                               <CheckCircle2 className="w-3 h-3" />
                               Al día
                             </span>
                           )}
                         </td>
-                        <td className="py-3 px-3 text-right">
+                        <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
                               onClick={() => handleRenew30Days(sub)}
-                              className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 transition-colors cursor-pointer"
+                              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border transition-colors cursor-pointer bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/30"
                               title="Renovar suscripción (+30 días)"
                             >
                               <RefreshCw className="w-3.5 h-3.5" />
@@ -973,7 +973,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handlePrintReceipt(sub)}
-                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border transition-colors cursor-pointer bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-600"
                               title="Reimprimir comprobante de mensualidad"
                             >
                               <Printer className="w-3.5 h-3.5" />
@@ -981,7 +981,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                             <button
                               type="button"
                               onClick={() => openEditForm(sub)}
-                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border transition-colors cursor-pointer bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-600"
                               title="Editar abonado"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
@@ -989,7 +989,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleDeleteSubscriber(sub.id, sub.plate)}
-                              className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900 transition-colors cursor-pointer"
+                              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border transition-colors cursor-pointer bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-500/30"
                               title="Eliminar abonado"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1006,14 +1006,14 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-xs shrink-0">
-          <span className="text-slate-500">
+        <div className="px-5 py-4 border-t border-slate-200/70 dark:border-slate-800 flex justify-between items-center text-sm shrink-0">
+          <span className="text-slate-600 dark:text-slate-400">
             Total en vista: <strong className="text-slate-900 dark:text-white">{filteredSubscribers.length}</strong> abonados
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl font-bold transition-all cursor-pointer shadow-xs"
+            className="min-h-[44px] px-5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
             Cerrar
           </button>
@@ -1023,26 +1023,26 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
 
       {/* Form Modal for Create / Edit */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-3 bg-black/80 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-            <div className="p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <h4 className="font-extrabold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-3 bg-slate-950/50 backdrop-blur-sm animate-in fade-in">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] w-full max-w-lg max-h-[94vh] overflow-y-auto">
+            <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 <Users className="w-4 h-4 text-emerald-500" />
                 <span>{editingSubscriber ? 'Editar Abonado' : 'Registrar Nuevo Abonado'}</span>
               </h4>
               <button
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="text-slate-400 hover:text-white cursor-pointer"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveSubscriber} className="p-4 space-y-3.5 text-xs">
+            <form onSubmit={handleSaveSubscriber} className="p-5 space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Placa del Vehículo *
                   </label>
                   <input
@@ -1051,18 +1051,18 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                     value={plate}
                     onChange={(e) => setPlate(e.target.value.toUpperCase())}
                     placeholder="ABC123"
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-mono font-black text-sm uppercase tracking-wider text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-bold uppercase tracking-wider"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Tipo de Vehículo
                   </label>
                   <select
                     value={vehicleType}
                     onChange={(e) => handleVehicleTypeChange(e.target.value)}
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-bold cursor-pointer"
                   >
                     {vehicleType && !availableCategories.some(c => c.id === vehicleType) && (
                       <option value={vehicleType}>{vehicleType} (Personalizado)</option>
@@ -1077,7 +1077,7 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                   Nombre Completo del Titular *
                 </label>
                 <input
@@ -1086,13 +1086,13 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="ej. Juan Pérez Gómez"
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Cédula / Documento
                   </label>
                   <input
@@ -1100,11 +1100,11 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                     value={documentId}
                     onChange={(e) => setDocumentId(e.target.value)}
                     placeholder="ej. 10203040"
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Teléfono Celular
                   </label>
                   <input
@@ -1112,14 +1112,14 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="ej. 3101234567"
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Fecha Inicio (Desde)
                   </label>
                   <input
@@ -1127,11 +1127,11 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Fecha Vencimiento (Hasta)
                   </label>
                   <input
@@ -1139,14 +1139,14 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                     required
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Tarifa Mensual ($)
                   </label>
                   <input
@@ -1155,18 +1155,18 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                     step="1000"
                     value={monthlyRate}
                     onChange={(e) => setMonthlyRate(Number(e.target.value))}
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-bold"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                     Medio de Pago
                   </label>
                   <select
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-bold cursor-pointer"
                   >
                     {paymentMethod && !availablePaymentMethods.some(p => p.id === paymentMethod) && (
                       <option value={paymentMethod}>{getPaymentMethodDisplay(paymentMethod)}</option>
@@ -1186,13 +1186,13 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
 
               {/* Campo para Documento Bancario / Voucher / Referencia cuando se escoge un medio electrónico o bancario */}
               {isBankingPaymentMethod && (
-                <div className="p-3 bg-sky-500/10 dark:bg-sky-950/30 border border-sky-500/30 rounded-xl space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="rounded-xl border border-sky-200 bg-sky-50 px-3.5 py-3 dark:border-sky-500/30 dark:bg-sky-500/10 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-sky-900 dark:text-sky-300 text-xs sm:text-sm flex items-center gap-1.5">
+                    <label className="font-semibold text-sky-900 dark:text-sky-200 text-sm flex items-center gap-1.5">
                       <voucherFieldMeta.icon className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
                       <span>{voucherFieldMeta.title} *</span>
                     </label>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30 uppercase tracking-wide">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200 border border-sky-200 dark:border-sky-500/30">
                       {voucherFieldMeta.badge}
                     </span>
                   </div>
@@ -1202,24 +1202,24 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
                       value={voucherNumber}
                       onChange={(e) => setVoucherNumber(e.target.value)}
                       placeholder={voucherFieldMeta.placeholder}
-                      className="w-full p-2 pl-8 bg-white dark:bg-slate-900 border border-sky-300 dark:border-sky-700/60 rounded-lg text-slate-900 dark:text-white font-mono font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-xs"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-bold"
                     />
                     <Hash className="w-3.5 h-3.5 text-sky-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
-                  <p className="text-[11px] text-sky-800/80 dark:text-sky-300/80 flex items-center gap-1">
+                  <p className="text-xs text-sky-900 dark:text-sky-200 flex items-center gap-1">
                     <span className="font-semibold">Soporte Auditoría:</span> {voucherFieldMeta.helper}
                   </p>
                 </div>
               )}
 
               <div className="space-y-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300 block">
+                <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">
                   Plaza Fija Asignada (Opcional)
                 </label>
                 <select
                   value={assignedSpotCode}
                   onChange={(e) => setAssignedSpotCode(e.target.value)}
-                  className="w-full p-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+                  className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 cursor-pointer"
                 >
                   <option value="">-- Sin plaza fija (Plaza flotante en patio) --</option>
                   {spots.map(s => (
@@ -1231,50 +1231,50 @@ export const SubscribersModal: React.FC<SubscribersModalProps> = ({
               </div>
 
               {/* Registrar ingreso en turno activo */}
-              <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer">
+              <label className="flex min-h-[52px] items-center gap-3 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={registerPaymentInShift}
                   onChange={(e) => setRegisterPaymentInShift(e.target.checked)}
-                  className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                  className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
                 />
-                <div className="text-[11px] leading-tight">
-                  <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                <div className="text-[13px] leading-snug">
+                  <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                     <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     Registrar cobro en el turno de caja actual
                   </span>
-                  <span className="text-slate-400">
+                  <span className="text-slate-600 dark:text-slate-400">
                     Suma {formatCurrency(monthlyRate)} al arqueo y reporte del turno activo ({currentUser?.name || 'Cajero'})
                   </span>
                 </div>
               </label>
 
               {/* Print Receipt Toggle */}
-              <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 cursor-pointer">
+              <label className="flex min-h-[52px] items-center gap-3 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={printReceiptOnSave}
                   onChange={(e) => setPrintReceiptOnSave(e.target.checked)}
-                  className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                  className="w-5 h-5 accent-emerald-600 rounded cursor-pointer"
                 />
-                <div className="text-[11px] leading-tight">
-                  <span className="font-bold text-slate-900 dark:text-white block">Imprimir comprobante térmico</span>
-                  <span className="text-slate-400">Genera recibo físico con corte y apertura de gaveta</span>
+                <div className="text-[13px] leading-snug">
+                  <span className="font-semibold text-slate-900 dark:text-white block">Imprimir comprobante térmico</span>
+                  <span className="text-slate-600 dark:text-slate-400">Genera recibo físico con corte y apertura de gaveta</span>
                 </div>
               </label>
 
-              <div className="pt-2 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-4 flex justify-end gap-2 border-t border-slate-200/70 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
+                  className="min-h-[52px] px-6 rounded-2xl bg-gradient-to-b from-emerald-600 to-emerald-700 text-base font-bold text-white shadow-[0_14px_28px_-14px_rgba(5,150,105,.9)] hover:-translate-y-0.5 transition cursor-pointer disabled:opacity-50 dark:from-emerald-500 dark:to-emerald-600"
                 >
                   {isSaving ? 'Guardando...' : editingSubscriber ? 'Actualizar Abonado' : 'Guardar Abonado'}
                 </button>
