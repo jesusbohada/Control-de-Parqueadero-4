@@ -1138,21 +1138,21 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   // Control de Seguridad: Solo usuarios con permiso canManageUsers o rol 'master' pueden acceder
   if (!currentUser?.permissions?.canManageUsers && currentUser?.role !== 'master') {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-        <div className="bg-white dark:bg-slate-900 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full text-center space-y-4 shadow-2xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm animate-in fade-in">
+        <div className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 p-6 max-w-md w-full text-center space-y-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)]">
           <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mx-auto">
             <Lock className="w-7 h-7" />
           </div>
           <div>
-            <h3 className="font-extrabold text-base text-slate-900 dark:text-white">Acceso Restringido</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">Acceso Restringido</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
               Tu usuario (<strong>{currentUser?.name || 'Operador'}</strong>) con rol <strong>{currentUser?.role || 'cajero'}</strong> no cuenta con permisos administrativos para gestionar usuarios o modificar matrices de seguridad.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold text-xs cursor-pointer transition-colors"
+            className="w-full min-h-[44px] rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold text-sm cursor-pointer transition-colors"
           >
             Regresar a Operaciones
           </button>
@@ -1162,22 +1162,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
   }
 
   return (
-    <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto"}>
-      <div className={embedded ? "relative w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col" : "relative w-full max-w-5xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-6 flex flex-col max-h-[92vh]"}>
+    <div className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/50 backdrop-blur-sm overflow-y-auto"}>
+      <div className={embedded ? "wz-surface relative w-full rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 overflow-hidden flex flex-col" : "wz-surface relative w-full max-w-5xl rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 overflow-hidden my-6 flex flex-col max-h-[92vh]"}>
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/95 shrink-0">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
               <Crown className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                 Gestión de Usuarios y Permisos
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/40">
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/30">
                   Panel Maestro
                 </span>
               </h2>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-300">
                 Administración de cuentas, perfiles de cajero y permisos de acceso al sistema.
               </p>
             </div>
@@ -1186,24 +1186,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Cerrar modal"
-            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Top Tabs */}
-        <div className="flex items-center justify-between px-6 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 shrink-0">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-slate-50 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
             {/* TAB 1: USUARIOS */}
             <button
               type="button"
               aria-selected={activeTab === 'users' || activeTab === 'create_user' || activeTab === 'edit_user'}
               onClick={() => setActiveTab('users')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                 activeTab === 'users' || activeTab === 'create_user' || activeTab === 'edit_user'
-                  ? 'active-tab-indicator bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'active-tab-indicator bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold'
+                  : 'inactive-tab-indicator text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -1218,10 +1218,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 refreshTemplates();
                 setActiveTab('profiles');
               }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                 activeTab === 'profiles'
-                  ? 'active-tab-indicator bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'active-tab-indicator bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold'
+                  : 'inactive-tab-indicator text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               <Bookmark className="w-3.5 h-3.5" />
@@ -1236,18 +1236,18 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 refreshTemplates();
                 setActiveTab('permissions');
               }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                 activeTab === 'permissions'
-                  ? 'active-tab-indicator bg-amber-500 text-slate-950 font-bold shadow-xs'
-                  : 'inactive-tab-indicator text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                  ? 'active-tab-indicator bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold'
+                  : 'inactive-tab-indicator text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+              <ShieldCheck className="w-3.5 h-3.5" />
               <span>3. Permisos por Perfil ({allProfilesList.length})</span>
             </button>
 
             {(activeTab === 'create_user' || activeTab === 'edit_user') && (
-              <span className="text-xs font-mono text-slate-500 dark:text-slate-400 hidden sm:inline">
+              <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400 hidden sm:inline px-2">
                 / {activeTab === 'create_user' 
                     ? (clonedSourceUser ? `Clonar desde ${clonedSourceUser.name}` : 'Crear Nuevo Usuario') 
                     : `Configurar a ${selectedUser?.name}`}
@@ -1271,7 +1271,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   setFormUiVisibility({ ...DEFAULT_CASHIER_UI_VISIBILITY });
                   setActiveTab('create_user');
                 }}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
+                className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 dark:from-blue-500 dark:to-blue-600 flex items-center gap-1.5 transition cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Crear Nuevo Usuario</span>
@@ -1283,7 +1283,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsRestoreDefaultsModalOpen(true)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                   title="Restablecer perfiles originales de fábrica"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
@@ -1292,7 +1292,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 <button
                   type="button"
                   onClick={handleOpenCreateTemplate}
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 dark:from-blue-500 dark:to-blue-600 flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Crear Nuevo Perfil</span>
@@ -1303,16 +1303,16 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
         </div>
 
         {/* Modal Content Body */}
-        <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50 dark:bg-slate-900/60">
+        <div className="p-5 sm:p-6 overflow-y-auto flex-1 bg-slate-50/60 dark:bg-slate-950/40">
           {errorMessage && (
-            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-xs flex items-center gap-2">
+            <div className="mb-4 rounded-xl border px-3.5 py-3 text-sm bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-200 flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
+            <div className="mb-4 rounded-xl border px-3.5 py-3 text-sm bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>{successMessage}</span>
             </div>
@@ -1321,10 +1321,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
           {/* TAB 1: USERS LIST */}
           {activeTab === 'users' && (
             <div className="space-y-4">
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="rounded-xl border px-3.5 py-3 text-sm bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <Sparkles className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
-                  <div className="text-xs text-slate-700 dark:text-slate-300">
+                  <div className="text-sm text-slate-700 dark:text-slate-300">
                     <strong className="text-amber-800 dark:text-amber-300 font-bold">Asignación Directa por Perfil:</strong> Al crear o editar un usuario, simplemente asígnale un <strong className="text-slate-900 dark:text-white font-bold">Perfil / Rol</strong> (ej. Cajero Solo Caja, Supervisor). El usuario heredará automáticamente todos los accesos a módulos configurados en la pestaña <strong className="text-amber-800 dark:text-amber-300 font-bold">3. Permisos por Perfil</strong>.
                   </div>
                 </div>
@@ -1336,8 +1336,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center text-slate-600 dark:text-slate-300 mb-3 border border-slate-200 dark:border-slate-700">
                       <Users className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                     </div>
-                    <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">No hay usuarios registrados</h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mt-1">
+                    <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-base">No hay usuarios registrados</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 max-w-sm mt-1">
                       Crea un nuevo usuario para otorgar acceso a la terminal POS o delegar tareas de supervisión y caja.
                     </p>
                   </div>
@@ -1353,7 +1353,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   return (
                     <div
                       key={user.id}
-                      className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl p-4 flex flex-col justify-between transition-all shadow-xs"
+                      className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex flex-col justify-between transition-all"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2">
@@ -1369,23 +1369,23 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{user.name}</h3>
+                                <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">{user.name}</h3>
                                 {isSelf && (
-                                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
+                                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium">
                                     Tú
                                   </span>
                                 )}
                               </div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                              <div className="text-[13px] text-slate-600 dark:text-slate-400">
                                 Usuario: <strong className="text-slate-800 dark:text-slate-200">{user.username}</strong>
                               </div>
                             </div>
                           </div>
 
-                          <span className={`inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-full border ${
+                          <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
                             user.isActive 
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80' 
-                              : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/80'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30' 
+                              : 'bg-rose-50 dark:bg-rose-500/10 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-500/30'
                           }`}>
                             {user.isActive ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />}
                             {user.isActive ? 'Activo' : 'Inactivo'}
@@ -1393,8 +1393,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         </div>
 
                         {/* Granular Badges & Summary */}
-                        <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
-                          <div className="flex items-center justify-between text-xs">
+                        <div className="mt-3.5 pt-3 border-t border-slate-200/70 dark:border-slate-800 space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                             <div className="flex flex-wrap items-center gap-1.5">
                               {((user.assignedProfiles && user.assignedProfiles.length > 0) ? user.assignedProfiles : [user.role]).map(profId => {
                                 const prof = allProfilesList.find(p => p.id === profId);
@@ -1404,7 +1404,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 return (
                                   <span 
                                     key={profId} 
-                                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                                       isMaster ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/30' :
                                       isSuper ? 'bg-blue-500/10 text-blue-800 dark:text-blue-300 border-blue-500/30' :
                                       isCashier ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/30' :
@@ -1423,11 +1423,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 );
                               })}
                             </div>
-                            <div className="flex items-center gap-2 font-mono text-[11px]">
-                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-2 text-xs tabular-nums">
+                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-800">
                                 🛠️ {isMaster ? 'Todas' : `${activeActions}/62`} Acciones
                               </span>
-                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-800">
                                 👁️ {isMaster ? 'Todo' : `${visibleUI}/37`} Visibles
                               </span>
                             </div>
@@ -1436,22 +1436,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           {/* Security flags highlights */}
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {blindCount && (
-                              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-lg">
                                 🔒 Arqueo Ciego Activo
                               </span>
                             )}
                             {hideRev && (
-                              <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30 px-2 py-0.5 rounded-lg">
                                 🚫 Recaudo Oculto
                               </span>
                             )}
                             {user.permissions.canWaiveFee && (
-                              <span className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-lg">
                                 🎟️ Exonerar Cortesía
                               </span>
                             )}
                             {user.permissions.canWithdrawCash && (
-                              <span className="text-[10px] font-bold bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-purple-50 text-purple-800 border border-purple-200 dark:bg-purple-500/10 dark:text-purple-200 dark:border-purple-500/30 px-2 py-0.5 rounded-lg">
                                 💸 Retiros Caja
                               </span>
                             )}
@@ -1459,13 +1459,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                      <div className="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                           <span>Clave:</span>
                           <strong className="text-slate-800 dark:text-slate-200 font-mono font-medium">
                             ••••••••
                           </strong>
-                          <span className="text-[10px] text-slate-400" title="Las claves se almacenan cifradas (hash) y no pueden mostrarse">(protegida)</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400" title="Las claves se almacenan cifradas (hash) y no pueden mostrarse">(protegida)</span>
                         </div>
 
                         <div className="flex items-center gap-1.5">
@@ -1473,7 +1473,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleCloneUser(user)}
-                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="min-h-[44px] px-3.5 rounded-xl text-sm font-semibold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:text-amber-200 dark:border-amber-500/30 flex items-center gap-1 transition-colors cursor-pointer"
                             title="Clonar usuario con el mismo perfil"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -1486,7 +1486,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               openEditForm(user);
                               setActiveTab('edit_user');
                             }}
-                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1 transition-colors cursor-pointer"
                           >
                             <Edit className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
                             Editar
@@ -1496,7 +1496,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             <button
                               type="button"
                               onClick={() => setUserToDelete(user)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                              className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 dark:text-slate-400 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
                               title="Eliminar usuario"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -1515,9 +1515,9 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
           {/* TAB 2: PROFILES / TEMPLATES MANAGEMENT */}
           {activeTab === 'profiles' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Bookmark className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                     Catálogo de Perfiles de Usuario del Sistema
                   </h3>
@@ -1529,7 +1529,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsRestoreDefaultsModalOpen(true)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                     title="Restablecer perfiles predeterminados de fábrica"
                   >
                     <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
@@ -1538,7 +1538,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   <button
                     type="button"
                     onClick={handleOpenCreateTemplate}
-                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 dark:from-blue-500 dark:to-blue-600 flex items-center gap-1.5 transition cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Crear Nuevo Perfil</span>
@@ -1553,12 +1553,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   return (
                     <div
                       key={prof.id}
-                      className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl p-4 flex flex-col justify-between transition-all shadow-xs"
+                      className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex flex-col justify-between transition-all"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-start gap-2.5">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                            <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
                               prof.id === 'master'
                                 ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
                                 : prof.id === 'supervisor'
@@ -1571,29 +1571,29 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             </div>
                             <div>
                               <div className="flex items-center gap-2">
-                                <h4 className="text-sm font-bold text-slate-900 dark:text-white">{prof.name}</h4>
-                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-medium ${prof.badgeBg}`}>
+                                <h4 className="font-display text-base font-bold text-slate-900 dark:text-white">{prof.name}</h4>
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${prof.badgeBg}`}>
                                   {prof.badgeText}
                                 </span>
                               </div>
-                              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                              <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                                 {prof.description}
                               </p>
                             </div>
                           </div>
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0">
+                          <span className="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0">
                             👤 {prof.usersCount} usuarios
                           </span>
                         </div>
 
-                        <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
-                          <div className="flex items-center justify-between text-xs">
+                        <div className="mt-3.5 pt-3 border-t border-slate-200/70 dark:border-slate-800 space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                             <div>{getRoleBadge(prof.role)}</div>
-                            <div className="flex items-center gap-2 font-mono text-[11px]">
-                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center gap-2 text-xs tabular-nums">
+                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-800">
                                 🛠️ {prof.actionsCount}/62 Acciones
                               </span>
-                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                              <span className="text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-200 dark:border-slate-800">
                                 👁️ {prof.visCount}/37 Visibles
                               </span>
                             </div>
@@ -1601,22 +1601,22 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
                           <div className="flex flex-wrap gap-1.5 pt-1">
                             {prof.permissions.blindCashCount && (
-                              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-lg">
                                 🔒 Arqueo Ciego
                               </span>
                             )}
                             {prof.uiVisibility.showTopRevenueMetrics === false && (
-                              <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30 px-2 py-0.5 rounded-lg">
                                 🚫 Recaudo Oculto
                               </span>
                             )}
                             {prof.permissions.canWaiveFee && (
-                              <span className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-lg">
                                 🎟️ Exonerar Cortesía
                               </span>
                             )}
                             {prof.id === 'master' && (
-                              <span className="text-[10px] font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded">
+                              <span className="text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-lg">
                                 👑 Control Total Ilimitado
                               </span>
                             )}
@@ -1624,16 +1624,16 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                      <div className="mt-4 pt-3 border-t border-slate-200/70 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           {/* Botón Clonar Perfil */}
                           <button
                             type="button"
                             onClick={() => handleCloneProfile(prof)}
-                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+                            className="min-h-[44px] px-3.5 rounded-xl text-sm font-semibold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:text-amber-200 dark:border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
                             title="Crear un nuevo perfil duplicando este"
                           >
-                            <Copy className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+                            <Copy className="w-3.5 h-3.5" />
                             <span>Clonar</span>
                           </button>
 
@@ -1642,7 +1642,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleOpenEditTemplate(prof.rawTemplate!)}
-                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                              className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                               title="Editar nombre, descripción y rol del perfil"
                             >
                               <Edit className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
@@ -1655,7 +1655,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             <button
                               type="button"
                               onClick={() => setTemplateToDelete(prof.rawTemplate!)}
-                              className="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 transition-colors cursor-pointer"
+                              className="min-h-[44px] px-3.5 rounded-xl text-sm font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
                               title="Eliminar este perfil del catálogo"
                             >
                               <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
@@ -1663,7 +1663,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             </button>
                           ) : (
                             <span 
-                              className="text-[11px] text-slate-400 dark:text-slate-500 font-mono flex items-center gap-1 px-1.5 py-0.5"
+                              className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 px-1.5 py-0.5"
                               title="Perfil oficial protegido por el sistema"
                             >
                               <Lock className="w-3 h-3 text-slate-400" />
@@ -1679,7 +1679,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             setSelectedMatrixProfileId(prof.id);
                             setActiveTab('permissions');
                           }}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-800 dark:text-amber-300 hover:text-slate-950 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
+                          className="min-h-[44px] px-4 rounded-xl text-sm font-bold bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 flex items-center gap-1.5 transition-colors cursor-pointer ml-auto"
                           title="Ajustar accesos a módulos, acciones y vistas"
                         >
                           <ShieldCheck className="w-3.5 h-3.5" />
