@@ -112,6 +112,8 @@ interface OperationsViewProps {
   onOpenAnprCamera?: () => void;
   vehicleCategories?: VehicleCategoryConfig[];
   commercialAgreements?: CommercialAgreement[];
+  /** Efecto cristal (opcional, por usuario). */
+  glass?: boolean;
 }
 
 export const OperationsView: React.FC<OperationsViewProps> = ({
@@ -131,6 +133,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   onOpenAnprCamera,
   vehicleCategories = [],
   commercialAgreements = [],
+  glass = false,
 }) => {
   // --- Entry Form State ---
   const [entryPlate, setEntryPlate] = useState('');
@@ -1321,52 +1324,52 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
   const currentBankAccount = activeBankAccounts.find(b => b.id === selectedBankAccountId) || activeBankAccounts[0] || DEFAULT_BANK_ACCOUNTS[0];
 
   return (
-    <div className="space-y-6">
+    <div className={`wz-patio-root space-y-6 ${glass ? 'wz-glass rounded-[28px] p-3 md:p-4' : ''}`}>
       {/* ========================================================= */}
       {/* PRO MAX: RADAR TÁCTICO DE OCUPACIÓN Y TELEMETRÍA EN TIEMPO REAL */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 bg-[var(--bg-surface-2)] p-3 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-md">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-3 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
         {/* Libres */}
-        <div className="flex items-center gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl relative overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0 shadow-inner">
+        <div className="flex items-center gap-3 px-4 py-3.5 bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 rounded-2xl relative overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.9)] animate-pulse" />
-              <span className="text-[10px] uppercase font-black tracking-wider text-emerald-800 dark:text-emerald-300 block">Cupos Libres</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 motion-safe:animate-pulse" />
+              <span className="text-[13px] font-medium text-emerald-800 dark:text-emerald-300 block">Cupos Libres</span>
             </div>
-            <span className="text-2xl font-black font-mono text-emerald-700 dark:text-emerald-400 tracking-tight">
+            <span className="font-display text-3xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
               {spots.filter(s => s.status === 'available').length}
             </span>
           </div>
         </div>
 
         {/* Ocupados */}
-        <div className="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl relative overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold shrink-0 shadow-inner">
+        <div className="flex items-center gap-3 px-4 py-3.5 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-2xl relative overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center font-bold shrink-0">
             <Car className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
-              <span className="text-[10px] uppercase font-black tracking-wider text-amber-800 dark:text-amber-300 block">En Patio (Activos)</span>
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="text-[13px] font-medium text-amber-800 dark:text-amber-300 block">En Patio (Activos)</span>
             </div>
-            <span className="text-2xl font-black font-mono text-amber-700 dark:text-amber-400 tracking-tight">
+            <span className="font-display text-3xl font-bold tabular-nums text-amber-700 dark:text-amber-400">
               {activeTickets.length}
             </span>
           </div>
         </div>
 
         {/* Capacidad Ocupación */}
-        <div className="flex items-center gap-3 p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl relative overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-400 flex items-center justify-center font-bold shrink-0 shadow-inner">
+        <div className="flex items-center gap-3 px-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl relative overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-500/15 text-sky-700 dark:text-sky-400 flex items-center justify-center font-bold shrink-0">
             <Sparkles className="w-5 h-5" />
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase font-black tracking-wider text-slate-700 dark:text-slate-300">Capacidad Total</span>
-              <span className="text-xs font-black font-mono text-sky-700 dark:text-sky-400">
+              <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Capacidad Total</span>
+              <span className="text-sm font-bold tabular-nums text-sky-700 dark:text-sky-400">
                 {spots.length > 0 ? Math.round((activeTickets.length / spots.length) * 100) : 0}%
               </span>
             </div>
@@ -1380,13 +1383,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
         </div>
 
         {/* Atajos Rápidos POS Hardware */}
-        <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl">
-          <div className="text-[11px] leading-tight space-y-1 w-full">
-            <span className="font-black text-slate-800 dark:text-slate-200 block text-[10px] uppercase tracking-wider">Teclas Rápidas Terminal:</span>
-            <div className="flex items-center gap-2 font-mono text-[10px] flex-wrap">
-              <span className="bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-1.5 py-0.5 rounded font-bold text-amber-600 dark:text-amber-400">F2 Entrada</span>
-              <span className="bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-1.5 py-0.5 rounded font-bold text-emerald-600 dark:text-emerald-400">F3 Salida</span>
-              <span className="bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-1.5 py-0.5 rounded font-bold text-sky-600 dark:text-sky-400">F8 Reimprimir</span>
+        <div className="flex items-center justify-between px-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl">
+          <div className="text-[13px] leading-tight space-y-1.5 w-full">
+            <span className="font-medium text-slate-600 dark:text-slate-400 block text-[13px]">Teclas Rápidas Terminal:</span>
+            <div className="flex items-center gap-2 text-xs flex-wrap">
+              <span className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg font-semibold text-amber-600 dark:text-amber-400">F2 Entrada</span>
+              <span className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg font-semibold text-emerald-600 dark:text-emerald-400">F3 Salida</span>
+              <span className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded-lg font-semibold text-sky-600 dark:text-sky-400">F8 Reimprimir</span>
             </div>
           </div>
         </div>
@@ -1394,7 +1397,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
       {/* Banner de Reimpresión Rápida de Última Salida */}
       {lastPaidExitTicket && (
-        <div className="p-3 bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl flex items-center justify-between gap-3 text-xs shadow-xs animate-in fade-in">
+        <div className="rounded-xl border px-3.5 py-3 bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 flex items-center justify-between gap-3 text-sm animate-in fade-in">
           <div className="flex items-center gap-2.5 text-emerald-800 dark:text-emerald-300 font-medium">
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <span>Última salida cobrada: <strong className="font-mono text-emerald-950 dark:text-white underline">{lastPaidExitTicket.plate}</strong> (#{lastPaidExitTicket.ticketNumber}) · Total: <strong>{formatCurrency(lastPaidExitTicket.totalAmount, rates.currencySymbol)}</strong> ({lastPaidExitTicket.paymentMethod})</span>
@@ -1404,7 +1407,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               <button
                 type="button"
                 onClick={() => onPrintTicket(lastPaidExitTicket, 'exit')}
-                className="pk-pos-key px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer border-b-2 border-slate-950 shadow-xs"
+                className="min-h-[44px] px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-sm flex items-center gap-1.5 transition cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600"
                 title="Reimprimir último recibo de salida por atasco de papel (F8)"
               >
                 <Printer className="w-3.5 h-3.5 text-amber-400" />
@@ -1414,7 +1417,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             <button
               type="button"
               onClick={() => setLastPaidExitTicket(null)}
-              className="p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+              className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center p-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 rounded-xl hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
               title="Cerrar aviso de última salida"
               aria-label="Cerrar aviso"
             >
@@ -1432,26 +1435,26 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
         {/* ========================================================= */}
         {/* CARD 1: INGRESO RÁPIDO DE VEHÍCULO                        */}
         {/* ========================================================= */}
-        <div className="lg:col-span-5 bg-[var(--bg-surface-2)] rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)]">
+        <div className="lg:col-span-5 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden flex flex-col text-[var(--text-primary)]">
           {/* Card Header */}
-          <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 flex items-center justify-center font-bold shadow-inner">
+          <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center font-bold">
                 <ArrowDownRight className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-black text-slate-900 dark:text-slate-100 text-sm uppercase tracking-wide">Terminal de Entrada</h3>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">Expedición y timbrado de ticket</p>
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Terminal de Entrada</h3>
+                <p className="text-[13px] text-slate-600 dark:text-slate-400">Expedición y timbrado de ticket</p>
               </div>
             </div>
-            <span className="text-[11px] font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full">
+            <span className="text-[13px] font-semibold tabular-nums bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full">
               ● {spots.filter(s => s.status === 'available').length} Libres
             </span>
           </div>
 
-          <div className="p-4 sm:p-5">
+          <div className="p-5">
             {entrySuccessMessage && (
-              <div className="mb-4 p-3 bg-emerald-500/15 border-2 border-emerald-500/30 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between gap-2 animate-in fade-in">
+              <div className="mb-4 px-3.5 py-3 bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 rounded-xl text-sm text-emerald-800 dark:text-emerald-300 flex items-center justify-between gap-2 animate-in fade-in">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                   <span className="font-bold">{entrySuccessMessage}</span>
@@ -1460,7 +1463,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onPrintTicket(lastGeneratedTicket, 'entry')}
-                    className="pk-pos-key px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer shadow-sm shrink-0 border-b-2 border-emerald-800"
+                    className="min-h-[44px] px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm flex items-center gap-1.5 transition cursor-pointer shrink-0"
                     title="Ver en pantalla o reimprimir ticket de ingreso"
                   >
                     <Printer className="w-3.5 h-3.5" />
@@ -1474,17 +1477,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               {/* Vehicle Type Selection - Tactical Cockpit Instrument */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                     <span>Tipo de Vehículo:</span>
-                    <span className="text-amber-600 dark:text-amber-400 font-black">
+                    <span className="text-blue-700 dark:text-blue-300 font-bold">
                       {configuredCategories.find(c => c.id === entryVehicleType)?.name || entryVehicleType}
                     </span>
                   </label>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono font-bold">
+                  <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold tabular-nums">
                     {spots.filter(s => s.type === entryVehicleType && s.status === 'available').length} celdas libres
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {configuredCategories.map((cat) => {
                     const isSelected = entryVehicleType === cat.id;
                     const availableForThis = spots.filter(s => s.type === cat.id && s.status === 'available').length;
@@ -1500,10 +1503,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setEntryVehicleType(cat.id);
                           playSound('beep', soundEnabled);
                         }}
-                        className={`pk-pos-key h-14 sm:h-16 rounded-xl border flex items-center justify-center transition-all cursor-pointer p-2 ${
+                        className={`min-h-[56px] sm:min-h-[60px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 flex items-center justify-center cursor-pointer p-2 ${
                           isSelected
-                            ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-4 border-b-amber-700 shadow-lg shadow-amber-500/25 scale-[1.02] ring-2 ring-amber-400/50 z-10'
-                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 hover:text-slate-900 dark:hover:text-slate-200 shadow-2xs'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         {getVehicleIcon(
@@ -1521,18 +1524,18 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               {/* License Plate Input */}
               <div>
                 {/* Toggle: ¿Es placa extranjera? */}
-                <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl mb-3 transition-colors hover:border-slate-300 dark:hover:border-slate-700">
+                <div className="flex items-center justify-between px-3.5 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl mb-3 transition-colors hover:border-slate-300 dark:hover:border-slate-600">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
                       isForeignPlate ? 'bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-500/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
                     }`}>
                       <Globe className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 block">
                         ¿Es placa extranjera?
                       </span>
-                      <span className="text-[10px] text-slate-600 dark:text-slate-400 block">
+                      <span className="text-xs text-slate-600 dark:text-slate-400 block">
                         {isForeignPlate
                           ? 'Selecciona el país de origen de la matrícula'
                           : 'Formato estándar nacional (6 caracteres)'}
@@ -1554,13 +1557,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       if (entryError) setEntryError(null);
                       if (entryWarning) setEntryWarning(null);
                     }}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
-                      isForeignPlate ? 'bg-sky-500' : 'bg-slate-700'
+                    className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
+                      isForeignPlate ? 'bg-sky-500' : 'bg-slate-300 dark:bg-slate-600'
                     }`}
                     title={isForeignPlate ? 'Desactivar placa extranjera' : 'Activar placa extranjera'}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
                         isForeignPlate ? 'translate-x-5' : 'translate-x-0'
                       }`}
                     />
@@ -1569,15 +1572,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Selector de País (SÓLO APARECE SI EL TOGGLE '¿Es placa extranjera?' ESTÁ ACTIVO) */}
                 {isForeignPlate && (
-                  <div className="mb-3 p-3 bg-sky-950/30 border border-sky-500/30 rounded-xl space-y-2.5 animate-fadeIn">
+                  <div className="mb-3 px-3.5 py-3 bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 rounded-xl space-y-2.5 animate-fadeIn">
                     <div className="flex items-center justify-between">
-                      <label htmlFor="foreign-country-select" className="text-xs font-bold text-sky-200 flex items-center gap-1.5">
+                      <label htmlFor="foreign-country-select" className="text-[13px] font-medium text-sky-900 dark:text-sky-200 flex items-center gap-1.5">
                         <Globe className="w-3.5 h-3.5 text-sky-700 dark:text-sky-400" />
                         <span>País de Procedencia</span>
-                        <span className="text-[10px] text-amber-700 dark:text-amber-400 font-normal">(Obligatorio)</span>
+                        <span className="text-xs text-amber-700 dark:text-amber-400 font-normal">(Obligatorio)</span>
                       </label>
                       {foreignCountry && activeCountryRule && (
-                        <span className="text-[10px] font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-900/60 px-2 py-0.5 rounded border border-sky-700/50">
+                        <span className="text-xs font-semibold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-900/60 px-2 py-0.5 rounded-lg border border-sky-200 dark:border-sky-700/50">
                           {activeCountryRule.flag} {activeCountryRule.name}
                         </span>
                       )}
@@ -1591,10 +1594,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         if (entryError) setEntryError(null);
                         if (entryWarning) setEntryWarning(null);
                       }}
-                      className={`w-full rounded-xl px-3 py-2 text-xs font-semibold outline-none transition-all cursor-pointer ${
+                      className={`w-full min-h-[48px] rounded-xl px-3.5 text-base font-semibold outline-none transition cursor-pointer ${
                         !foreignCountry
-                          ? 'bg-rose-50 dark:bg-rose-950/30 border-2 border-rose-500 text-rose-800 dark:text-rose-200 ring-2 ring-rose-500/20 shadow-sm focus:border-rose-400 focus:ring-rose-500'
-                          : 'bg-white dark:bg-slate-900 border-2 border-sky-500/70 text-sky-900 dark:text-sky-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 shadow-sm'
+                          ? 'bg-rose-50 dark:bg-rose-950/30 border border-rose-500 text-rose-800 dark:text-rose-200 focus:ring-4 focus:ring-rose-500/25 focus:border-rose-600'
+                          : 'bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600'
                       }`}
                     >
                       {FOREIGN_COUNTRY_OPTIONS.map((opt) => (
@@ -1606,11 +1609,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                     {/* Validación visual obligatoria si no se ha elegido un país de la lista */}
                     {!foreignCountry && (
-                      <div className="p-2.5 bg-rose-500/15 border border-rose-500/30 rounded-xl text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2 animate-in fade-in duration-200">
+                      <div className="px-3.5 py-3 bg-rose-50 border border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30 rounded-xl text-sm text-rose-800 dark:text-rose-300 flex items-start gap-2 animate-in fade-in duration-200">
                         <AlertTriangle className="w-4 h-4 shrink-0 text-rose-700 dark:text-rose-400 mt-0.5" />
                         <div>
-                          <strong className="text-rose-200 block font-bold">⚠️ Selección de país requerida</strong>
-                          <span className="text-[11px] text-rose-800 dark:text-rose-300/90 leading-tight block mt-0.5">
+                          <strong className="text-rose-900 dark:text-rose-200 block font-bold">⚠️ Selección de país requerida</strong>
+                          <span className="text-[13px] text-rose-800 dark:text-rose-300/90 leading-tight block mt-0.5">
                             Debe elegir el país de procedencia de la lista para validar el formato oficial de la placa y habilitar el registro.
                           </span>
                         </div>
@@ -1619,21 +1622,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                     {/* Formato guía oficial según el país seleccionado */}
                     {foreignCountry && activeCountryRule && (
-                      <div className="p-2.5 bg-white dark:bg-slate-900/90 border border-sky-500/40 rounded-xl text-xs space-y-1.5 shadow-inner">
-                        <div className="flex items-center justify-between text-[11px] text-sky-200">
+                      <div className="px-3.5 py-3 bg-white dark:bg-slate-900/90 border border-sky-200 dark:border-sky-500/40 rounded-xl text-sm space-y-1.5">
+                        <div className="flex items-center justify-between text-[13px] text-sky-900 dark:text-sky-200">
                           <span className="font-bold flex items-center gap-1.5">
                             <span className="text-base">{activeCountryRule.flag}</span>
                             <span>Estructura oficial para {activeCountryRule.name}:</span>
                           </span>
-                          <span className="font-mono font-bold text-sky-800 dark:text-sky-300 bg-sky-950/90 px-2 py-0.5 rounded border border-sky-700/60 text-[10px]">
+                          <span className="font-mono font-semibold text-sky-800 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/90 px-2 py-0.5 rounded-lg border border-sky-200 dark:border-sky-700/60 text-xs">
                             Ejemplo: {activeCountryRule.example}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
                           {activeCountryRule.description}
                         </p>
-                        <div className="flex items-center gap-2 pt-0.5 text-[10px] text-slate-700 dark:text-slate-200 font-mono">
-                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 pt-0.5 text-xs text-slate-700 dark:text-slate-200">
+                          <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                             Longitud requerida: {activeCountryRule.minLength === activeCountryRule.maxLength ? `${activeCountryRule.minLength} caracteres` : `${activeCountryRule.minLength} a ${activeCountryRule.maxLength} caracteres`}
                           </span>
                         </div>
@@ -1648,14 +1651,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           onChange={(e) => setCustomForeignCountry(e.target.value)}
                           placeholder="Especifique el país de procedencia (Obligatorio)..."
                           maxLength={30}
-                          className={`w-full bg-white dark:bg-slate-900 border-2 rounded-xl px-3 py-2 text-xs outline-none transition-all ${
+                          className={`w-full min-h-[48px] bg-white dark:bg-slate-800 border rounded-xl px-3.5 text-base outline-none transition focus:ring-4 focus:ring-blue-500/25 ${
                             !customForeignCountry.trim()
-                              ? 'border-rose-500 text-rose-800 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/20 ring-2 ring-rose-500/20 placeholder:text-rose-400 dark:placeholder:text-rose-700/60'
-                              : 'border-sky-500/50 text-slate-900 dark:text-sky-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-sky-400'
+                              ? 'border-rose-500 text-rose-800 dark:text-rose-200 bg-rose-50 dark:bg-rose-950/20 placeholder:text-rose-400 dark:placeholder:text-rose-700/60'
+                              : 'border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-blue-600'
                           }`}
                         />
                         {!customForeignCountry.trim() && (
-                          <p className="text-[11px] text-rose-700 dark:text-rose-400 font-semibold flex items-center gap-1">
+                          <p className="text-[13px] text-rose-700 dark:text-rose-400 font-semibold flex items-center gap-1">
                             <AlertCircle className="w-3.5 h-3.5" />
                             <span>Por favor ingrese el nombre del país extranjero.</span>
                           </p>
@@ -1668,7 +1671,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* Encabezado del campo de placa */}
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                    <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                       {isForeignPlate
                         ? `Placa ${activeCountryRule && foreignCountry ? activeCountryRule.name : 'Extranjera'}`
                         : 'Placa del Vehículo'}
@@ -1677,7 +1680,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       <button
                         type="button"
                         onClick={onOpenAnprCamera}
-                        className="flex items-center gap-1 text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800/80 px-2 py-0.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                        className="flex items-center gap-1 min-h-[44px] text-[13px] font-semibold text-sky-700 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900 border border-sky-200 dark:border-sky-800/80 px-3 rounded-xl transition cursor-pointer"
                         title="Reconocer matrícula con cámara ANPR / LPR con IA"
                       >
                         <Camera className="w-3.5 h-3.5 text-sky-500" />
@@ -1686,7 +1689,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     )}
                   </div>
 
-                  <span className={`text-[10px] font-mono font-bold transition-colors ${
+                  <span className={`text-xs font-semibold transition-colors ${
                     isCountrySelectionMissing
                       ? 'text-amber-700 dark:text-amber-400'
                       : isPlateInvalid
@@ -1735,10 +1738,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Cinta superior oficial de la matrícula */}
                   <div className="flex items-center justify-between px-3 pt-0.5 pb-1 select-none">
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-black font-sans">
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-black font-sans">
                       {isForeignPlate ? (activeCountryRule ? `${activeCountryRule.flag} ${activeCountryRule.name}` : 'EXTRANJERO') : '🇨🇴 COLOMBIA'}
                     </span>
-                    <span className="text-[9px] font-mono font-black text-black/80 bg-black/10 px-2 py-0.5 rounded border border-black/20">
+                    <span className="text-xs font-mono font-bold text-black/80 bg-black/10 px-2 py-0.5 rounded border border-black/20">
                       {plateCategoryBadgeLabel}
                     </span>
                   </div>
@@ -1775,9 +1778,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   </div>
 
                   {/* Borde inferior: Ciudad o RUNT Oficial */}
-                  <div className="flex items-center justify-between px-3 pt-0.5 text-[9px] font-black text-black/80 font-mono select-none">
+                  <div className="flex items-center justify-between px-3 pt-0.5 text-xs font-bold text-black/80 font-mono select-none">
                     <span className="tracking-widest">MIN TRANSPORTE</span>
-                    <span className="tracking-[0.2em] uppercase font-sans font-black">
+                    <span className="tracking-[0.2em] uppercase font-sans font-bold">
                       {businessInfo?.branchName || 'RUNT OFICIAL'}
                     </span>
                     <span className="tracking-widest">{isForeignPlate ? 'INT' : 'RUNT'}</span>
@@ -1786,13 +1789,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Mensaje visual si la longitud o formato es inválido */}
                 {isPlateInvalid && !isCountrySelectionMissing && activeCountryRule && (
-                  <div className="mt-2 p-2.5 bg-rose-500/15 border border-rose-500/30 rounded-xl text-xs text-rose-800 dark:text-rose-300 flex items-start gap-2">
+                  <div className="mt-2 px-3.5 py-3 bg-rose-50 border border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30 rounded-xl text-sm text-rose-800 dark:text-rose-300 flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 text-rose-700 dark:text-rose-400 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold text-rose-200 block">
+                      <span className="font-bold text-rose-900 dark:text-rose-200 block">
                         Formato de placa no válido para {activeCountryRule.name} {activeCountryRule.flag}
                       </span>
-                      <p className="mt-0.5 text-[11px] text-rose-800 dark:text-rose-300/90 leading-relaxed">
+                      <p className="mt-0.5 text-[13px] text-rose-800 dark:text-rose-300/90 leading-relaxed">
                         La placa ingresada (<strong>{cleanPlate}</strong>) no cumple con la estructura requerida.
                         <br />
                         <strong>Estructura:</strong> {activeCountryRule.description}.
@@ -1805,10 +1808,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Mensaje visual si el formato es válido y sin duplicados */}
                 {isPlateFormatValid && !duplicateActiveTicket && activeCountryRule && (
-                  <div className={`mt-2 p-2 rounded-xl text-xs flex items-center gap-2 ${
+                  <div className={`mt-2 px-3.5 py-3 rounded-xl text-sm flex items-center gap-2 ${
                     isForeignPlate 
-                      ? 'bg-sky-500/10 border border-sky-500/30 text-sky-800 dark:text-sky-300' 
-                      : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+                      ? 'bg-sky-50 border border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/30 text-sky-800 dark:text-sky-300' 
+                      : 'bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
                   }`}>
                     <Check className={`w-4 h-4 shrink-0 ${isForeignPlate ? 'text-sky-700 dark:text-sky-400' : 'text-emerald-700 dark:text-emerald-400'}`} />
                     <span>
@@ -1821,16 +1824,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Alertas de Abonado / Mensualidad en tiempo real */}
                 {subscriberData?.isSubscriber && subscriberData.subscriber && subscriberData.subscriber.status === 'active' && (
-                  <div className="mt-2 p-3 bg-emerald-500/15 border-2 border-emerald-500/50 rounded-xl text-xs text-emerald-950 dark:text-emerald-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                  <div className="mt-2 px-3.5 py-3 bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 rounded-xl text-sm text-emerald-950 dark:text-emerald-100 flex items-start justify-between gap-3 animate-in fade-in">
                     <div className="flex items-start gap-2.5">
                       <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-[10px] tracking-wider border border-emerald-500/30">
+                          <span className="font-bold px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-500/30">
                             🚗 VEHÍCULO ABONADO ACTIVO
                           </span>
                           {subscriberData.subscriber.assignedSpotCode && (
-                            <span className="text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">
+                            <span className="text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700">
                               Plaza Reservada: {subscriberData.subscriber.assignedSpotCode}
                             </span>
                           )}
@@ -1838,7 +1841,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         <p className="mt-1 font-bold text-slate-900 dark:text-white">
                           {subscriberData.subscriber.fullName} {subscriberData.subscriber.phone ? `· Tel: ${subscriberData.subscriber.phone}` : ''}
                         </p>
-                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
+                        <p className="text-[13px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
                           Suscripción vigente hasta: <strong>{new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}</strong> · Tarifa: <strong>{formatCurrency(subscriberData.subscriber.monthlyRate, rates.currencySymbol)}</strong>
                         </p>
                       </div>
@@ -1847,19 +1850,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 )}
 
                 {subscriberData?.isSubscriber && subscriberData.subscriber && subscriberData.subscriber.status === 'expiring_soon' && (
-                  <div className="mt-2 p-3 bg-amber-500/15 border-2 border-amber-500/50 rounded-xl text-xs text-amber-950 dark:text-amber-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                  <div className="mt-2 px-3.5 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-xl text-sm text-amber-950 dark:text-amber-100 flex items-start justify-between gap-3 animate-in fade-in">
                     <div className="flex items-start gap-2.5">
                       <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/25 text-amber-800 dark:text-amber-300 text-[10px] tracking-wider border border-amber-500/30">
+                          <span className="font-bold px-2 py-0.5 rounded-lg bg-amber-100 dark:bg-amber-500/25 text-amber-800 dark:text-amber-300 text-xs border border-amber-200 dark:border-amber-500/30">
                             ⚠️ MENSUALIDAD PRÓXIMA A VENCER
                           </span>
                         </div>
                         <p className="mt-1 font-bold text-slate-900 dark:text-white">
                           {subscriberData.subscriber.fullName} {subscriberData.subscriber.phone ? `· Tel: ${subscriberData.subscriber.phone}` : ''}
                         </p>
-                        <p className="text-[11px] text-amber-800 dark:text-amber-300/90 mt-0.5">
+                        <p className="text-[13px] text-amber-800 dark:text-amber-300/90 mt-0.5">
                           Vence el: <strong>{new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}</strong>. ¡Recuerde ofrecer la renovación mensual!
                         </p>
                       </div>
@@ -1868,19 +1871,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 )}
 
                 {subscriberData?.isSubscriber && subscriberData.subscriber && subscriberData.subscriber.status === 'expired' && (
-                  <div className="mt-2 p-3 bg-rose-500/15 border-2 border-rose-500/50 rounded-xl text-xs text-rose-950 dark:text-rose-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                  <div className="mt-2 px-3.5 py-3 bg-rose-50 border border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30 rounded-xl text-sm text-rose-950 dark:text-rose-100 flex items-start justify-between gap-3 animate-in fade-in">
                     <div className="flex items-start gap-2.5">
                       <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-rose-500/25 text-rose-800 dark:text-rose-300 text-[10px] tracking-wider border border-rose-500/30">
+                          <span className="font-bold px-2 py-0.5 rounded-lg bg-rose-100 dark:bg-rose-500/25 text-rose-800 dark:text-rose-300 text-xs border border-rose-200 dark:border-rose-500/30">
                             ⛔ ABONADO MENSUAL VENCIDO
                           </span>
                         </div>
                         <p className="mt-1 font-bold text-slate-900 dark:text-white">
                           {subscriberData.subscriber.fullName} · Venció el: <strong>{new Date(subscriberData.subscriber.endDate).toLocaleDateString('es-CO')}</strong>
                         </p>
-                        <p className="text-[11px] text-rose-800 dark:text-rose-300/90 mt-0.5">
+                        <p className="text-[13px] text-rose-800 dark:text-rose-300/90 mt-0.5">
                           La suscripción ha expirado. Renovar en el módulo de Abonados o cobrar tarifa ordinaria.
                         </p>
                       </div>
@@ -1890,13 +1893,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Alerta de Advertencia en tiempo real si la placa ya existe en tickets activos */}
                 {duplicateActiveTicket && (
-                  <div className="mt-2 p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
+                  <div className="mt-2 px-3.5 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-xl text-sm text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
                     <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700 dark:text-amber-400 mt-0.5" />
                     <div>
                       <span className="font-bold text-amber-900 dark:text-amber-300 block">
                         Vehículo ya registrado en patio
                       </span>
-                      <p className="mt-0.5 text-[11px] text-amber-900 dark:text-amber-200/90 leading-relaxed">
+                      <p className="mt-0.5 text-[13px] text-amber-900 dark:text-amber-200/90 leading-relaxed">
                         El vehículo con placa <strong className="font-mono text-amber-950 dark:text-white underline">{formatPlate(entryPlate)}</strong> ya se encuentra actualmente en el parqueadero en el puesto <strong className="font-mono text-amber-950 dark:text-white">{duplicateActiveTicket.spotCode}</strong> con ticket activo <strong className="font-mono text-amber-950 dark:text-white">#{duplicateActiveTicket.ticketNumber}</strong> (Ingresó a las {new Date(duplicateActiveTicket.entryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}).
                       </p>
                     </div>
@@ -1907,13 +1910,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               {/* Spot assignment */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                     Puesto Asignado
                   </label>
                   <select
                     value={entrySpotCode}
                     onChange={(e) => setEntrySpotCode(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500"
+                    className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base font-semibold text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     {availableSpotsForType.length === 0 ? (
                       <option value="">¡Sin puestos libres!</option>
@@ -1928,12 +1931,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                     Tarifa Vigente
                   </label>
-                  <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <div className="min-h-[48px] bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl px-3.5 text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center justify-between">
                     <span className="text-slate-700 dark:text-slate-200 font-normal">Hora:</span>
-                    <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                    <span className="font-mono tabular-nums text-emerald-700 dark:text-emerald-400 font-bold">
                       {formatCurrency(getVehicleRate(entryVehicleType, rates, vehicleCategories).hourRate, rates.currencySymbol)}
                     </span>
                   </div>
@@ -1942,7 +1945,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
               {/* Optional Notes */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+                <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                   Observaciones (Opcional)
                 </label>
                 <input
@@ -1950,13 +1953,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   value={entryNotes}
                   onChange={(e) => setEntryNotes(e.target.value)}
                   placeholder="Ej: Casco negro en manillar, rayón en puerta..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
               </div>
 
               {/* Advertencia */}
               {entryWarning && (
-                <div className="p-3 bg-amber-500/20 border border-amber-500/40 rounded-xl text-xs text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
+                <div className="px-3.5 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-xl text-sm text-amber-950 dark:text-amber-200 flex items-start gap-2.5">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700 dark:text-amber-400 mt-0.5" />
                   <div>
                     <span className="font-bold text-amber-800 dark:text-amber-300 block">Atención:</span>
@@ -1966,7 +1969,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               )}
 
               {entryError && !entryWarning && (
-                <div className="p-3 bg-rose-500/15 border border-rose-500/30 rounded-xl text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2">
+                <div className="px-3.5 py-3 bg-rose-50 border border-rose-200 dark:bg-rose-500/10 dark:border-rose-500/30 rounded-xl text-sm text-rose-800 dark:text-rose-300 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-700 dark:text-rose-400" />
                   <span>{entryError}</span>
                 </div>
@@ -1975,7 +1978,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
               {/* Submit button */}
               <div className="pt-2">
                 {currentUser && !currentUser.permissions.canRegisterEntry ? (
-                  <div className="p-3 bg-amber-500/15 border border-amber-500/30 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                  <div className="px-3.5 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-xl text-sm text-amber-800 dark:text-amber-300 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-amber-700 dark:text-amber-400" />
                     <span>Tu usuario no tiene permiso para registrar entradas.</span>
                   </div>
@@ -1984,14 +1987,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     type="submit"
                     id="btn-register-entry"
                     disabled={isSubmittingEntry}
-                    className={`w-full py-3.5 px-4 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer ${
+                    className={`w-full min-h-[56px] px-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition cursor-pointer hover:-translate-y-0.5 disabled:opacity-50 ${
                       isSubmittingEntry
-                        ? 'bg-slate-700 text-slate-300 cursor-wait opacity-60'
+                        ? 'bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300 cursor-wait opacity-60'
                         : isForeignPlate
-                        ? 'bg-sky-500 hover:bg-sky-400 text-slate-950 hover:shadow-lg hover:shadow-sky-500/20'
+                        ? 'bg-gradient-to-b from-sky-500 to-sky-600 text-white shadow-[0_14px_28px_-14px_rgba(2,132,199,.9)]'
                         : duplicateActiveTicket
-                        ? 'bg-amber-600 hover:bg-amber-500 text-white'
-                        : 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-600/30'
+                        ? 'bg-gradient-to-b from-amber-600 to-amber-700 text-white shadow-[0_14px_28px_-14px_rgba(180,83,9,.9)]'
+                        : 'bg-gradient-to-b from-blue-600 to-blue-700 text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] dark:from-blue-500 dark:to-blue-600'
                     }`}
                     title={
                       duplicateActiveTicket
@@ -2003,7 +2006,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         : 'Ingresar vehículo y generar ticket'
                     }
                   >
-                    <Printer className={`w-4 h-4 ${isForeignPlate ? 'text-slate-950' : 'text-white'}`} />
+                    <Printer className={`w-4 h-4 ${isForeignPlate ? 'text-white' : 'text-white'}`} />
                     <span>{isSubmittingEntry ? 'Registrando ingreso...' : 'Ingresar y Generar Ticket (Enter)'}</span>
                   </button>
                 )}
@@ -2015,16 +2018,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
         {/* ========================================================= */}
         {/* CARD 2: LIQUIDACIÓN, MEDIOS DE PAGO Y FACTURACIÓN         */}
         {/* ========================================================= */}
-        <div className="lg:col-span-7 bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] shadow-xl overflow-hidden flex flex-col text-[var(--text-primary)] backdrop-blur-sm">
+        <div className="lg:col-span-7 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden flex flex-col text-[var(--text-primary)]">
           {/* Card Header */}
-          <div className="p-4 sm:p-5 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface-3)]">
+          <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-700 dark:text-sky-400 border border-sky-500/20 flex items-center justify-center font-bold">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
                 <ArrowUpRight className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Cobro y Salida POS</h3>
-                <p className="text-[11px] text-slate-700 dark:text-slate-200">Cálculo de tiempo transcurrido y facturación</p>
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Cobro y Salida POS</h3>
+                <p className="text-[13px] text-slate-600 dark:text-slate-400">Cálculo de tiempo transcurrido y facturación</p>
               </div>
             </div>
 
@@ -2033,7 +2036,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <button
                   type="button"
                   onClick={handleCancelExitProcess}
-                  className="pk-pos-key text-xs text-rose-700 dark:text-rose-300 bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 border-b-2 border-b-rose-700 font-bold flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-rose-300 bg-rose-50 px-4 text-sm font-semibold text-rose-800 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 dark:hover:bg-rose-500/20 flex items-center gap-1.5 transition-colors cursor-pointer"
                   title="Cancelar proceso de salida actual y limpiar selección"
                 >
                   <X className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
@@ -2045,12 +2048,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <button
                   type="button"
                   onClick={onOpenTicketScanner}
-                  className="pk-pos-key text-xs font-black text-slate-950 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 border-b-2 border-amber-700 shadow-sm transition-all cursor-pointer"
+                  className="min-h-[44px] rounded-xl bg-amber-500 px-4 text-sm font-semibold text-slate-950 hover:bg-amber-400 flex items-center gap-1.5 transition cursor-pointer"
                   title="Escanear Código QR de Ticket con Cámara (F4)"
                 >
                   <QrCode className="w-3.5 h-3.5 text-slate-950" />
                   <span>Escanear QR</span>
-                  <span className="text-[10px] font-mono bg-slate-950/20 px-1 py-0.2 rounded text-slate-950 font-black">F4</span>
+                  <span className="text-xs font-mono bg-slate-950/15 px-1.5 rounded-md text-slate-950 font-bold">F4</span>
                 </button>
               )}
             </div>
@@ -2060,24 +2063,24 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             {/* Search Input for Exit - Laser Gun Scanner Dock */}
             <div className="relative">
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
                   <Barcode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Lector de Barras o Búsqueda por Placa:</span>
                 </label>
                 <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all ${
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition ${
                     isGunScanning
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 animate-pulse shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200 motion-safe:animate-pulse dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                   }`} title="Lector de código de barras físico listo en cualquier momento (pistoleo directo)">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 motion-safe:animate-ping" />
                     <span>{isGunScanning ? 'DETECTANDO HAZ...' : 'ESCÁNER ACTIVO'}</span>
                   </span>
                 </div>
               </div>
 
               {barcodeScanFeedback && (
-                <div className="mb-2 p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-xs font-bold animate-in fade-in slide-in-from-top-1">
+                <div className="mb-2 px-3.5 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-sm font-semibold animate-in fade-in slide-in-from-top-1">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{barcodeScanFeedback}</span>
                 </div>
@@ -2100,7 +2103,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     }
                   }}
                   placeholder="Pistolear código de barras o digitar placa..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 rounded-xl pl-10 pr-36 py-3 text-sm font-black font-mono text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none uppercase transition-all shadow-inner h-12"
+                  className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white pl-10 pr-36 text-base font-bold font-mono uppercase text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
@@ -2111,7 +2114,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setSearchQuery('');
                         searchInputRef.current?.focus();
                       }}
-                      className="p-1 rounded-md text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       title="Limpiar texto escrito"
                       aria-label="Limpiar campo de búsqueda"
                     >
@@ -2119,13 +2122,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     </button>
                   )}
                   {isReadingBarcodeInstant ? (
-                    <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 animate-pulse pointer-events-none">
-                      <Barcode className="w-3.5 h-3.5 animate-spin" />
+                    <span className="text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1 motion-safe:animate-pulse pointer-events-none">
+                      <Barcode className="w-3.5 h-3.5 motion-safe:animate-spin" />
                       <span>LEYENDO...</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 rounded-lg flex items-center gap-1 pointer-events-none">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />
                       <span>AUTO-FOCO (F3)</span>
                     </span>
                   )}
@@ -2134,22 +2137,22 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
               {/* Autocomplete dropdown if typing search query and no ticket selected */}
               {searchResults.length > 0 && (!selectedTicket || selectedTicket.plate !== searchQuery) && (
-                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl shadow-2xl max-h-52 overflow-y-auto divide-y divide-slate-800">
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-[0_18px_36px_-18px_rgba(15,23,42,.45)] max-h-52 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-800">
                   {searchResults.map((t) => (
                     <button
                       key={t.id}
                       type="button"
                       onClick={() => selectVehicleForExit(t)}
-                      className="w-full p-2.5 text-left hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-xs transition-colors cursor-pointer"
+                      className="w-full min-h-[44px] px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-between text-sm transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2">
                         <span className="pk-mini-plate">{t.plate}</span>
-                        <span className="text-[10px] text-slate-600 dark:text-slate-300 font-medium uppercase">({getVehicleName(t.vehicleType)})</span>
-                        <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded font-mono text-[10px] font-semibold border border-slate-300 dark:border-slate-700">
+                        <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">({getVehicleName(t.vehicleType)})</span>
+                        <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-md font-mono text-xs font-semibold border border-slate-200 dark:border-slate-700">
                           {t.spotCode}
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono text-slate-600 dark:text-slate-300">
+                      <span className="text-[13px] tabular-nums text-slate-600 dark:text-slate-300">
                         Entrada: {new Date(t.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </button>
@@ -2162,9 +2165,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
             {selectedTicket && liveCalculation ? (
               <form onSubmit={handleExitSubmit} noValidate className="space-y-4 pt-1">
                 {/* Vehicle Banner Summary with Mini Plate */}
-                <div className="p-3.5 bg-slate-900 text-white rounded-xl border border-slate-800 flex items-center justify-between flex-wrap gap-2 shadow-md">
+                <div className="px-4 py-3.5 bg-slate-50 text-slate-900 rounded-2xl border border-slate-200 dark:bg-slate-900 dark:text-white dark:border-slate-800 flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-white/10 rounded-xl text-amber-400 border border-white/10">
+                    <div className="p-2.5 bg-white dark:bg-white/10 rounded-xl text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-white/10">
                       {getVehicleIcon(selectedTicket.vehicleType, 'w-6 h-6')}
                     </div>
                     <div>
@@ -2172,17 +2175,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         <span className="pk-mini-plate text-base px-2 py-0.5">
                           {selectedTicket.plate}
                         </span>
-                        <span className="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-black font-mono">
+                        <span className="text-xs bg-amber-400 text-slate-950 px-2 py-0.5 rounded-md font-bold font-mono">
                           #{selectedTicket.ticketNumber}
                         </span>
                       </div>
-                      <div className="text-xs text-slate-300 flex items-center gap-2 mt-1">
-                        <span>Puesto: <strong className="text-white font-mono">{selectedTicket.spotCode}</strong></span>
+                      <div className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 mt-1">
+                        <span>Puesto: <strong className="text-slate-900 dark:text-white font-mono">{selectedTicket.spotCode}</strong></span>
                         <span>•</span>
-                        <span>Ingreso: <strong className="text-white font-mono">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
+                        <span>Ingreso: <strong className="text-slate-900 dark:text-white tabular-nums">{new Date(selectedTicket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</strong></span>
                       </div>
                       {selectedTicket.notes && (
-                        <div className="text-[11px] text-amber-300 bg-amber-500/15 border border-amber-500/30 rounded px-2 py-0.5 mt-1 font-medium">
+                        <div className="text-[13px] text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 rounded-lg px-2 py-0.5 mt-1 font-medium">
                           <strong>Observaciones:</strong> {selectedTicket.notes}
                         </div>
                       )}
@@ -2191,8 +2194,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-[10px] uppercase font-bold text-slate-700 dark:text-slate-200">Tiempo Transcurrido</div>
-                      <div className="text-sm font-black text-amber-700 dark:text-amber-400 font-mono">
+                      <div className="text-xs font-medium text-slate-600 dark:text-slate-400">Tiempo Transcurrido</div>
+                      <div className="text-base font-bold text-amber-700 dark:text-amber-400 tabular-nums">
                         {liveCalculation.formattedDuration}
                       </div>
                     </div>
@@ -2200,7 +2203,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     <button
                       type="button"
                       onClick={handleCancelExitProcess}
-                      className="p-2 rounded-lg bg-white/10 hover:bg-rose-600/80 text-white transition-colors cursor-pointer"
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-slate-200/70 hover:bg-rose-100 text-slate-700 hover:text-rose-700 dark:bg-white/10 dark:hover:bg-rose-600/80 dark:text-white dark:hover:text-white transition-colors cursor-pointer"
                       title="Cancelar y resetear"
                     >
                       <X className="w-4 h-4" />
@@ -2210,17 +2213,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                 {/* Banner de Abonado Activo en Liquidación de Salida */}
                 {exitSubscriber && exitSubscriber.status === 'active' && (
-                  <div className="p-3 bg-emerald-500/15 border-2 border-emerald-500/50 rounded-xl text-xs text-emerald-950 dark:text-emerald-100 flex items-start justify-between gap-3 shadow-sm animate-in fade-in">
+                  <div className="px-3.5 py-3 bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 rounded-xl text-sm text-emerald-900 dark:text-emerald-100 flex items-start justify-between gap-3 animate-in fade-in">
                     <div className="flex items-start gap-2.5">
                       <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-[10px] tracking-wider border border-emerald-500/30">
+                        <span className="font-bold px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs border border-emerald-200 dark:border-emerald-500/30">
                           🚗 VEHÍCULO ABONADO ACTIVO
                         </span>
-                        <p className="mt-1 font-bold text-slate-900 dark:text-white">
+                        <p className="mt-1 font-semibold text-slate-900 dark:text-white">
                           Titular: {exitSubscriber.fullName} · Vigencia: {new Date(exitSubscriber.endDate).toLocaleDateString('es-CO')}
                         </p>
-                        <p className="text-[11px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
+                        <p className="text-[13px] text-emerald-800 dark:text-emerald-300/90 mt-0.5">
                           Este vehículo cuenta con mensualidad vigente. Puede exonerar el cobro ordinario.
                         </p>
                       </div>
@@ -2232,7 +2235,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setDiscountInput(liveCalculation.totalAmount.toString());
                           playSound('success', soundEnabled);
                         }}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs shrink-0 cursor-pointer shadow-sm transition-all"
+                        className="min-h-[44px] px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shrink-0 cursor-pointer transition"
                       >
                         Exonerar Cobro
                       </button>
@@ -2243,13 +2246,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* ======================================================= */}
                 {/* SALIDA SIN TICKET / TARJETA DE PROPIEDAD                */}
                 {/* ======================================================= */}
-                <div className="p-3 bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 rounded-xl space-y-2.5 text-xs">
+                <div className="px-3.5 py-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl space-y-2.5 text-sm">
                   <label className={`flex items-center justify-between select-none ${currentUser?.permissions?.canProcessLostTicket === false ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
-                    <span className="font-bold text-amber-950 dark:text-amber-200 flex items-center gap-2">
+                    <span className="font-semibold text-amber-950 dark:text-amber-200 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-amber-700 dark:text-amber-400" />
                       <span>Salida sin ticket físico</span>
                       {currentUser?.permissions?.canProcessLostTicket === false && (
-                        <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono font-bold flex items-center gap-1">
+                        <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1">
                           <Lock className="w-3 h-3" /> (Restringido)
                         </span>
                       )}
@@ -2262,20 +2265,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         if (currentUser?.permissions?.canProcessLostTicket === false) return;
                         setIsNoTicketPresented(e.target.checked);
                       }}
-                      className="w-4 h-4 text-amber-600 rounded border-amber-300 focus:ring-amber-500 cursor-pointer disabled:cursor-not-allowed"
+                      className="w-5 h-5 text-amber-600 rounded-md border-amber-300 focus:ring-amber-500 cursor-pointer disabled:cursor-not-allowed"
                     />
                   </label>
 
                   {isNoTicketPresented && (
                     <div className="pt-2 border-t border-amber-200/80 dark:border-amber-500/20 space-y-3 animate-in fade-in">
-                      <div className="p-2.5 bg-amber-100/80 dark:bg-amber-950/40 rounded-lg border border-amber-300 dark:border-amber-500/30 text-[11px] text-amber-950 dark:text-amber-200 leading-relaxed">
+                      <div className="px-3 py-2.5 bg-amber-100/70 dark:bg-amber-500/10 rounded-xl border border-amber-200 dark:border-amber-500/30 text-[13px] text-amber-950 dark:text-amber-200 leading-relaxed">
                         <strong className="block font-bold text-amber-900 dark:text-amber-300 mb-0.5">⚠️ Validación de titularidad:</strong>
                         Se requiere validar tarjeta de propiedad e identificación del conductor antes de autorizar la salida.
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-amber-950 dark:text-amber-300 mb-1">
                             N° Tarjeta de Propiedad *
                           </label>
                           <input
@@ -2283,13 +2286,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 100293847"
                             value={propertyCardNumber}
                             onChange={(e) => setPropertyCardNumber(e.target.value.toUpperCase())}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-amber-950 dark:text-amber-300 mb-1">
                             Nombre del Titular / Conductor *
                           </label>
                           <input
@@ -2297,13 +2300,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: Carlos Ramírez"
                             value={ownerFullName}
                             onChange={(e) => setOwnerFullName(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-medium text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                             required
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-amber-950 dark:text-amber-300 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-amber-950 dark:text-amber-300 mb-1">
                             Cédula / Documento Conductor *
                           </label>
                           <input
@@ -2311,21 +2314,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 10293848"
                             value={ownerDocNumber}
                             onChange={(e) => setOwnerDocNumber(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-slate-700 focus:border-amber-500 dark:focus:border-amber-400 rounded-lg px-2.5 py-1.5 font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                             required
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-between bg-white dark:bg-slate-900/80 p-2 rounded-lg border border-amber-200 dark:border-slate-800">
-                        <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                      <div className="flex items-center justify-between bg-white dark:bg-slate-900/80 px-3 py-2.5 rounded-xl border border-amber-200 dark:border-slate-800">
+                        <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">
                           Cobrar recargo por pérdida ({formatCurrency(lostTicketFeeAmount, rates.currencySymbol)})
                         </span>
                         <input
                           type="checkbox"
                           checked={applyLostTicketFee}
                           onChange={(e) => setApplyLostTicketFee(e.target.checked)}
-                          className="w-4 h-4 text-amber-600 rounded border-slate-300 cursor-pointer"
+                          className="w-5 h-5 text-amber-600 rounded-md border-slate-300 cursor-pointer"
                         />
                       </div>
                     </div>
@@ -2333,18 +2336,18 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 </div>
 
                 {/* Rates & Discount summary */}
-                <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 text-xs">
+                <div className="px-4 py-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-2 text-sm">
                   <div className="flex justify-between text-slate-600 dark:text-slate-300">
                     <span>Subtotal por tiempo ({liveCalculation.billableMinutes} min facturables):</span>
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                    <span className="tabular-nums font-semibold text-slate-800 dark:text-slate-200">
                       {formatCurrency(liveCalculation.totalAmount, rates.currencySymbol)}
                     </span>
                   </div>
 
                   {isNoTicketPresented && applyLostTicketFee && (
-                    <div className="flex justify-between text-amber-800 font-semibold">
+                    <div className="flex justify-between text-amber-800 dark:text-amber-300 font-semibold">
                       <span>Recargo Ticket Extraviado / Sin Ticket:</span>
-                      <span className="font-mono font-bold">
+                      <span className="tabular-nums font-semibold">
                         +{formatCurrency(lostTicketFeeAmount, rates.currencySymbol)}
                       </span>
                     </div>
@@ -2352,9 +2355,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Convenio Comercial / Alianza (Pausado por defecto si no está habilitado) */}
                   {Boolean(businessInfo?.enableCommercialAgreements) && (
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <div className="pt-2.5 border-t border-slate-200 dark:border-slate-800 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1">
+                      <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                         <Handshake className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         <span>Convenio Comercial / Alianza:</span>
                       </span>
@@ -2367,7 +2370,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             setDiscountInput('0');
                             playSound('beep', soundEnabled);
                           }}
-                          className="text-[10px] text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 cursor-pointer"
+                          className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-0.5 min-h-[32px] px-1 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
                           <span>Quitar Convenio</span>
@@ -2375,7 +2378,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => {
@@ -2383,10 +2386,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           setAgreementSealInput('');
                           setDiscountInput('0');
                         }}
-                        className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition-all text-left flex items-center justify-between cursor-pointer ${
+                        className={`min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 text-left flex items-center justify-between cursor-pointer ${
                           !selectedAgreementId
-                            ? 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 border-slate-300 dark:border-slate-600'
-                            : 'bg-white dark:bg-slate-900 text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <span>Sin Convenio</span>
@@ -2423,20 +2426,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               setDiscountInput(discResult.discountAmount.toString());
                               playSound('success', soundEnabled);
                             }}
-                            className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition-all text-left flex items-center justify-between cursor-pointer ${
+                            className={`min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 text-left flex items-center justify-between cursor-pointer ${
                               !isApplicable
-                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                                ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
                                 : isSelected
-                                ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs ring-1 ring-indigo-500'
-                                : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                                ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                                : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                             }`}
                             title={!isApplicable ? `No aplica para ${getVehicleName(selectedTicket.vehicleType)}` : ag.notes || ag.name}
                           >
                             <span className="truncate mr-1">{ag.name.split('/')[0].trim()}</span>
-                            <span className={`text-[9px] font-mono px-1 rounded shrink-0 ${
+                            <span className={`text-xs tabular-nums px-1.5 rounded-md shrink-0 ${
                               isSelected 
-                                ? 'bg-indigo-800 text-indigo-100' 
-                                : 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300'
+                                ? 'bg-blue-200/70 text-blue-900 dark:bg-blue-500/30 dark:text-blue-100' 
+                                : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                             }`}>
                               {badgeText}
                             </span>
@@ -2450,13 +2453,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       const currentAg = commercialAgreements?.find(a => a.id === selectedAgreementId);
                       if (!currentAg || !currentAg.requiresSealOrVoucher) return null;
                       return (
-                        <div className="mt-2 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1 animate-in fade-in">
+                        <div className="mt-2 px-3.5 py-3 bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 rounded-xl space-y-1.5 animate-in fade-in">
                           <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                            <label className="text-[13px] font-semibold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
                               <Stamp className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                               <span>{currentAg.sealPromptLabel || 'N° Sello / Factura Aliada'} *</span>
                             </label>
-                            <span className="text-[9px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/60 px-1.5 py-0.5 rounded">
+                            <span className="text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-200/80 dark:bg-amber-900/60 px-2 py-0.5 rounded-lg">
                               Requerido
                             </span>
                           </div>
@@ -2468,7 +2471,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               if (exitError) setExitError(null);
                             }}
                             placeholder={`Ej: ${currentAg.code}-004921 o Factura de compra`}
-                            className="w-full bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-amber-500/30"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                             autoFocus
                           />
                         </div>
@@ -2478,21 +2481,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   )}
 
                   {/* Discount / Exoneration */}
-                  <div className="flex items-center justify-between pt-1.5 border-t border-slate-200">
+                  <div className="flex items-center justify-between pt-2.5 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-600 dark:text-slate-300 font-medium">Descuento:</span>
+                      <span className="text-[13px] text-slate-600 dark:text-slate-300 font-medium">Descuento:</span>
                       {currentUser?.permissions.canWaiveFee && (
                         <button
                           type="button"
                           onClick={() => setDiscountInput((liveCalculation.totalAmount + (isNoTicketPresented && applyLostTicketFee ? lostTicketFeeAmount : 0)).toString())}
-                          className="text-[10px] bg-amber-100 hover:bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold transition-colors cursor-pointer"
+                          className="min-h-[44px] px-3 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-semibold dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20 transition-colors cursor-pointer"
                         >
                           Cortesía $0
                         </button>
                       )}
                     </div>
                     {currentUser?.permissions?.canApplyDiscounts === false ? (
-                      <div className="flex items-center gap-1 text-[11px] font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700 select-none" title="Descuentos manuales restringidos para su perfil">
+                      <div className="flex items-center gap-1.5 text-[13px] tabular-nums text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 select-none" title="Descuentos manuales restringidos para su perfil">
                         <Lock className="w-3 h-3 text-slate-400" />
                         <span>$0 (Bloqueado)</span>
                       </div>
@@ -2504,30 +2507,30 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         value={discountInput}
                         onChange={(e) => setDiscountInput(e.target.value)}
                         placeholder="0"
-                        className="w-24 text-right bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono font-bold outline-none focus:border-amber-500"
+                        className="w-28 min-h-[44px] text-right rounded-xl border border-slate-300 bg-white px-3 text-base font-semibold tabular-nums text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     )}
                   </div>
 
                   {/* PANTALLA DIGITAL VFD / CONSOLA DE COBRO EN VIVO */}
-                  <div className="pk-vfd-display p-4 my-2">
-                    <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-slate-400 border-b border-slate-800/80 pb-2 mb-2">
+                  <div className="rounded-2xl bg-slate-900 text-white p-4 my-2 border border-slate-800 shadow-[0_10px_24px_-16px_rgba(15,23,42,.6)] dark:bg-slate-950">
+                    <div className="flex items-center justify-between flex-wrap gap-2 text-[13px] font-medium text-slate-300 border-b border-slate-700/70 pb-2 mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
-                        <span className="text-slate-200 font-bold">TOTAL LIQUIDADO POS</span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 motion-safe:animate-pulse" />
+                        <span className="text-slate-100 font-semibold">TOTAL LIQUIDADO POS</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span>TIEMPO: <strong className="pk-vfd-text-amber font-mono">{liveCalculation.formattedDuration}</strong></span>
+                        <span>TIEMPO: <strong className="text-amber-300 font-semibold tabular-nums">{liveCalculation.formattedDuration}</strong></span>
                         <span>•</span>
-                        <span>PLACA: <strong className="text-white font-mono">{selectedTicket.plate}</strong></span>
+                        <span>PLACA: <strong className="text-white font-mono font-semibold">{selectedTicket.plate}</strong></span>
                       </div>
                     </div>
 
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-xs font-mono font-bold text-slate-400 uppercase tracking-widest">
+                      <span className="text-[13px] font-medium text-slate-300">
                         TOTAL NETO A COBRAR:
                       </span>
-                      <span className="text-3xl sm:text-5xl font-black pk-vfd-text-emerald pk-currency-huge">
+                      <span className="font-display text-4xl sm:text-5xl font-bold tabular-nums text-emerald-300 pk-currency-huge">
                         {formatCurrency(finalTotalAmount, rates.currencySymbol)}
                       </span>
                     </div>
@@ -2539,7 +2542,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* ======================================================= */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                    <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                       <Wallet className="w-3.5 h-3.5 text-slate-700 dark:text-slate-200" />
                       <span>Seleccione Medio de Pago:</span>
                     </label>
@@ -2555,13 +2558,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('cash');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all cursor-pointer ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                         exitPaymentMethod === 'cash'
-                          ? 'bg-emerald-600 text-white border-emerald-700 border-b-emerald-800 shadow-md ring-2 ring-emerald-500/30'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                       }`}
                     >
-                      <Banknote className={`w-5 h-5 ${exitPaymentMethod === 'cash' ? 'text-white' : 'text-emerald-500'}`} />
+                      <Banknote className={`w-5 h-5 ${exitPaymentMethod === 'cash' ? 'text-blue-700 dark:text-blue-200' : 'text-emerald-500'}`} />
                       <span>Efectivo</span>
                     </button>
 
@@ -2575,16 +2578,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('card');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'card'
-                          ? 'bg-sky-600 text-white border-sky-700 border-b-sky-800 shadow-md ring-2 ring-sky-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Pago con Tarjeta Débito/Crédito'}
                     >
-                      <CreditCard className={`w-5 h-5 ${exitPaymentMethod === 'card' ? 'text-white' : 'text-sky-500'}`} />
+                      <CreditCard className={`w-5 h-5 ${exitPaymentMethod === 'card' ? 'text-blue-700 dark:text-blue-200' : 'text-sky-500'}`} />
                       <span>Tarjeta</span>
                     </button>
 
@@ -2598,16 +2601,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('wallet');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'wallet'
-                          ? 'bg-purple-600 text-white border-purple-700 border-b-purple-800 shadow-md ring-2 ring-purple-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Billeteras Digitales (Nequi, Daviplata, etc.)'}
                     >
-                      <Smartphone className={`w-5 h-5 ${exitPaymentMethod === 'wallet' ? 'text-white' : 'text-purple-500'}`} />
+                      <Smartphone className={`w-5 h-5 ${exitPaymentMethod === 'wallet' ? 'text-blue-700 dark:text-blue-200' : 'text-purple-500'}`} />
                       <span>Billeteras</span>
                     </button>
 
@@ -2621,16 +2624,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('qr');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'qr'
-                          ? 'bg-amber-600 text-white border-amber-700 border-b-amber-800 shadow-md ring-2 ring-amber-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'QR Bancario / Redeban'}
                     >
-                      <QrCode className={`w-5 h-5 ${exitPaymentMethod === 'qr' ? 'text-white' : 'text-amber-500'}`} />
+                      <QrCode className={`w-5 h-5 ${exitPaymentMethod === 'qr' ? 'text-blue-700 dark:text-blue-200' : 'text-amber-500'}`} />
                       <span>QR Bancario</span>
                     </button>
 
@@ -2644,16 +2647,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('bre_b');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'bre_b'
-                          ? 'bg-teal-600 text-white border-teal-700 border-b-teal-800 shadow-md ring-2 ring-teal-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Llave Interbancaria Bre-B'}
                     >
-                      <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-amber-300' : 'text-teal-500'}`} />
+                      <Zap className={`w-5 h-5 ${exitPaymentMethod === 'bre_b' ? 'text-blue-700 dark:text-blue-200' : 'text-teal-500'}`} />
                       <span>Llave Bre-B</span>
                     </button>
 
@@ -2667,16 +2670,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('transfer');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'transfer'
-                          ? 'bg-cyan-700 text-white border-cyan-800 border-b-cyan-900 shadow-md ring-2 ring-cyan-500/30 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Transferencia Bancaria'}
                     >
-                      <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-white' : 'text-cyan-500'}`} />
+                      <Building2 className={`w-5 h-5 ${exitPaymentMethod === 'transfer' ? 'text-blue-700 dark:text-blue-200' : 'text-cyan-500'}`} />
                       <span>Transferencia</span>
                     </button>
 
@@ -2690,34 +2693,34 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         setExitPaymentMethod('mixed');
                         playSound('beep', soundEnabled);
                       }}
-                      className={`pk-pos-key py-2.5 px-2 rounded-xl text-xs font-black flex flex-col items-center justify-center gap-1.5 border transition-all ${
+                      className={`min-h-[64px] rounded-2xl px-2 text-sm font-semibold flex flex-col items-center justify-center gap-1.5 transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         currentUser?.permissions?.canChangePaymentMethod === false
-                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border-slate-200 dark:border-slate-800'
+                          ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-900/50 text-slate-400 border border-slate-200 dark:border-slate-800'
                           : exitPaymentMethod === 'mixed'
-                          ? 'bg-amber-500 text-slate-950 font-black border-amber-600 border-b-amber-700 shadow-md ring-2 ring-amber-400/40 cursor-pointer'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 cursor-pointer'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100 cursor-pointer'
+                          : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 cursor-pointer'
                       }`}
                       title={currentUser?.permissions?.canChangePaymentMethod === false ? 'Método restringido por permisos de perfil' : 'Dividir pago entre varios métodos'}
                     >
-                      <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-slate-950' : 'text-amber-500'}`} />
+                      <Layers className={`w-5 h-5 ${exitPaymentMethod === 'mixed' ? 'text-blue-700 dark:text-blue-200' : 'text-amber-500'}`} />
                       <span>Pago Mixto</span>
                     </button>
                   </div>
 
                   {/* Sub-panel 1: Efectivo */}
                   {exitPaymentMethod === 'cash' && finalTotalAmount > 0 && (
-                    <div className="p-3.5 bg-emerald-50/70 dark:bg-emerald-950/30 border-2 border-emerald-300 dark:border-emerald-800/80 rounded-xl space-y-3 animate-in fade-in">
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl space-y-3.5 animate-in fade-in">
                       <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
                         <div>
-                          <label htmlFor="cashReceivedInput" className="text-xs font-black text-emerald-950 dark:text-emerald-300 block uppercase tracking-wide">
+                          <label htmlFor="cashReceivedInput" className="text-[13px] font-semibold text-emerald-900 dark:text-emerald-300 block">
                             Efectivo Entregado por el Cliente:
                           </label>
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <span className="text-xs text-slate-600 dark:text-slate-400">
                             Digite el valor o seleccione una denominación rápida
                           </span>
                         </div>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 font-mono font-black text-sm pointer-events-none">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-mono font-bold text-base pointer-events-none">
                             {rates.currencySymbol || '$'}
                           </span>
                           <input
@@ -2739,12 +2742,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 }
                               }
                             }}
-                            className={`w-44 pl-7 pr-3 py-2 text-right bg-white dark:bg-slate-900 border-2 text-slate-900 dark:text-slate-100 rounded-xl text-lg font-black font-mono outline-none transition-all shadow-inner ${
+                            className={`w-48 min-h-[48px] pl-7 pr-3.5 text-right bg-white dark:bg-slate-800 border text-slate-900 dark:text-slate-100 rounded-xl text-lg font-bold font-mono tabular-nums focus:outline-none focus:ring-4 transition-all ${
                               isCashUnder
-                                ? 'border-rose-500 ring-2 ring-rose-500/20'
+                                ? 'border-rose-500 ring-rose-500/20'
                                 : isCashExact || isCashOver
-                                ? 'border-emerald-500 ring-2 ring-emerald-500/20'
-                                : 'border-slate-300 dark:border-slate-700 focus:border-emerald-600'
+                                ? 'border-emerald-600 ring-emerald-500/20'
+                                : 'border-slate-300 dark:border-slate-600 focus:border-emerald-600 focus:ring-emerald-500/25'
                             }`}
                           />
                         </div>
@@ -2752,14 +2755,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                       {/* Billetes y Denominaciones Rápidas POS */}
                       <div className="flex items-center justify-between gap-1.5 flex-wrap pt-0.5">
-                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                           Billetes / Monto Rápido:
                         </span>
                         <div className="flex gap-1.5 flex-wrap justify-end">
                           <button
                             type="button"
                             onClick={() => setCashReceivedInput(finalTotalAmount.toString())}
-                            className={`pk-bill-chip pk-bill-exact cursor-pointer transition-all ${
+                            className={`pk-bill-chip pk-bill-exact min-h-[44px] cursor-pointer transition-all ${
                               isCashExact ? 'ring-2 ring-black dark:ring-white scale-105 shadow-md' : ''
                             }`}
                           >
@@ -2789,7 +2792,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                   key={val}
                                   type="button"
                                   onClick={() => setCashReceivedInput(val.toString())}
-                                  className={`pk-bill-chip ${billClass} cursor-pointer transition-all ${
+                                  className={`pk-bill-chip ${billClass} min-h-[44px] cursor-pointer transition-all ${
                                     cashReceivedVal === val ? 'ring-2 ring-black dark:ring-white scale-105 shadow-md' : ''
                                   }`}
                                 >
@@ -2803,7 +2806,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             <button
                               type="button"
                               onClick={() => setCashReceivedInput('')}
-                              className="text-xs bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg font-mono cursor-pointer font-bold"
+                              className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                               title="Limpiar valor digitado"
                             >
                               ✕ Limpiar
@@ -2814,24 +2817,24 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                       {/* Estado visual en tiempo real del monto */}
                       {isCashUnder && (
-                        <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-lg text-xs space-y-1.5 animate-in fade-in">
-                          <div className="flex items-center justify-between text-rose-800 dark:text-rose-300 font-bold">
+                        <div className="rounded-xl border px-3.5 py-3 text-sm space-y-2 bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-200 animate-in fade-in">
+                          <div className="flex items-center justify-between gap-2 text-rose-900 dark:text-rose-200 font-semibold">
                             <span className="flex items-center gap-1.5">
                               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                               <span>Monto Menor al Total: Faltan {formatCurrency(cashShortage, rates.currencySymbol)}</span>
                             </span>
-                            <span className="font-mono text-rose-900 dark:text-rose-200 font-black">
+                            <span className="font-mono tabular-nums text-rose-900 dark:text-rose-200 font-bold">
                               -{formatCurrency(cashShortage, rates.currencySymbol)}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between pt-1 border-t border-rose-200 dark:border-rose-900/60 text-[11px]">
+                          <div className="flex items-center justify-between gap-2 flex-wrap pt-2 border-t border-rose-200 dark:border-rose-500/30 text-xs">
                             <span className="text-rose-700 dark:text-rose-400">
                               No es posible proceder hasta completar el pago.
                             </span>
                             <button
                               type="button"
                               onClick={handleSwitchToSplitWithCurrentCash}
-                              className="font-bold text-indigo-700 dark:text-indigo-300 hover:underline cursor-pointer flex items-center gap-1"
+                              className="min-h-[44px] font-semibold text-indigo-700 dark:text-indigo-300 hover:underline cursor-pointer flex items-center gap-1"
                             >
                               <span>¿Dividir resto en Pago Mixto?</span>
                               <span>→</span>
@@ -2841,40 +2844,40 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       )}
 
                       {isCashExact && (
-                        <div className="p-2.5 bg-emerald-100/70 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs flex items-center justify-between text-emerald-900 dark:text-emerald-200 font-bold animate-in fade-in">
+                        <div className="rounded-xl border px-3.5 py-3 text-sm flex items-center justify-between gap-2 bg-emerald-50 border-emerald-200 text-emerald-900 font-semibold dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 animate-in fade-in">
                           <span className="flex items-center gap-1.5">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <span>Monto Correcto: Pago exacto al 100%.</span>
                           </span>
-                          <span className="bg-emerald-600 text-white text-[10px] uppercase px-2 py-0.5 rounded font-black tracking-wider">
+                          <span className="bg-emerald-600 text-white text-xs px-2.5 py-0.5 rounded-lg font-bold">
                             Listo para proceder
                           </span>
                         </div>
                       )}
 
                       {isCashOver && (
-                        <div className="p-2.5 bg-emerald-100/70 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs flex items-center justify-between text-emerald-900 dark:text-emerald-200 font-bold animate-in fade-in">
+                        <div className="rounded-xl border px-3.5 py-3 text-sm flex items-center justify-between gap-2 bg-emerald-50 border-emerald-200 text-emerald-900 font-semibold dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 animate-in fade-in">
                           <span className="flex items-center gap-1.5">
                             <Coins className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             <span>Monto Mayor: Pago recibido con éxito.</span>
                           </span>
-                          <span className="bg-emerald-600 text-white text-[10px] uppercase px-2 py-0.5 rounded font-black tracking-wider">
+                          <span className="bg-emerald-600 text-white text-xs px-2.5 py-0.5 rounded-lg font-bold">
                             Genera vueltos
                           </span>
                         </div>
                       )}
 
                       {/* Caja Destacada de Cambio / Vueltas */}
-                      <div className={`flex justify-between items-center p-3 rounded-lg border text-xs transition-colors ${
+                      <div className={`flex justify-between items-center gap-3 p-4 rounded-2xl border text-xs transition-colors ${
                         isCashOver
-                          ? 'bg-emerald-100/80 dark:bg-emerald-900/40 border-emerald-400 dark:border-emerald-700'
-                          : 'bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-800'
+                          ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40'
+                          : 'bg-white dark:bg-slate-900 border-emerald-200 dark:border-emerald-500/30'
                       }`}>
                         <div>
-                          <span className="font-extrabold text-slate-800 dark:text-slate-100 block">
+                          <span className="text-sm font-semibold text-slate-800 dark:text-slate-100 block">
                             Cambio / Vueltas a Entregar:
                           </span>
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                          <span className="text-xs text-slate-600 dark:text-slate-400">
                             {isCashOver
                               ? 'Entregue este excedente al cliente antes de registrar la salida'
                               : isCashExact
@@ -2885,13 +2888,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           </span>
                         </div>
                         <div className="text-right">
-                          <span className={`text-xl font-black font-mono ${
+                          <span className={`font-display text-3xl font-bold tabular-nums ${
                             isCashOver
-                              ? 'text-emerald-700 dark:text-emerald-300 text-2xl'
+                              ? 'text-emerald-700 dark:text-emerald-300 text-4xl'
                               : isCashExact
                               ? 'text-emerald-600 dark:text-emerald-400'
                               : isCashUnder
-                              ? 'text-rose-600 dark:text-rose-400 text-base'
+                              ? 'text-rose-600 dark:text-rose-400'
                               : 'text-slate-400 dark:text-slate-600'
                           }`}>
                             {formatCurrency(changeGiven, rates.currencySymbol)}
@@ -2903,16 +2906,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Sub-panel 2: Tarjeta / Datáfono */}
                   {exitPaymentMethod === 'card' && (
-                    <div className="p-3.5 bg-sky-50/80 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800/80 rounded-xl space-y-3 animate-in fade-in">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-4 bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/30 rounded-2xl space-y-3.5 animate-in fade-in">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             Datáfono / Terminal
                           </label>
                           <select
                             value={selectedTerminalId}
                             onChange={(e) => setSelectedTerminalId(e.target.value)}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-semibold"
                           >
                             {activeTerminals.map((t) => (
                               <option key={t.id} value={t.id}>{t.name} {t.serialNumber ? `(${t.serialNumber})` : ''}</option>
@@ -2921,15 +2924,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         </div>
 
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             Tipo de Tarjeta
                           </label>
-                          <div className="flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden text-xs">
+                          <div className="flex min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-600 overflow-hidden text-sm">
                             <button
                               type="button"
                               onClick={() => setCardType('debit')}
-                              className={`flex-1 py-1.5 text-center font-bold cursor-pointer ${
-                                cardType === 'debit' ? 'bg-sky-800 text-white' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              className={`flex-1 min-h-[48px] text-center font-semibold cursor-pointer ${
+                                cardType === 'debit' ? 'bg-sky-700 text-white dark:bg-sky-600' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                               }`}
                             >
                               Débito
@@ -2937,8 +2940,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             <button
                               type="button"
                               onClick={() => setCardType('credit')}
-                              className={`flex-1 py-1.5 text-center font-bold cursor-pointer ${
-                                cardType === 'credit' ? 'bg-sky-800 text-white' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              className={`flex-1 min-h-[48px] text-center font-semibold cursor-pointer ${
+                                cardType === 'credit' ? 'bg-sky-700 text-white dark:bg-sky-600' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                               }`}
                             >
                               Crédito
@@ -2948,7 +2951,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                           N° Aprobación / Voucher / Recibo del Datáfono
                         </label>
                         <input
@@ -2956,7 +2959,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           placeholder="Ej: 004928"
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                          className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                         />
                       </div>
                     </div>
@@ -2964,9 +2967,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Sub-panel 3: Billeteras (Shows list of available wallets upon click) */}
                   {exitPaymentMethod === 'wallet' && (
-                    <div className="p-3.5 bg-purple-50/80 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/80 rounded-xl space-y-3 animate-in fade-in">
+                    <div className="p-4 bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/30 rounded-2xl space-y-3.5 animate-in fade-in">
                       <div>
-                        <label className="block text-[11px] font-bold text-purple-900 dark:text-purple-300 uppercase mb-1.5">
+                        <label className="block text-[13px] font-medium text-purple-900 dark:text-purple-300 mb-1.5">
                           Seleccione la Billetera Digital del Cliente:
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -2977,16 +2980,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 key={w.id}
                                 type="button"
                                 onClick={() => setSelectedWalletId(w.id)}
-                                className={`p-2 rounded-lg border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                                className={`min-h-[52px] rounded-2xl px-3 py-2 border text-left flex items-center gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                   isSelected
-                                    ? 'bg-purple-900 text-white border-purple-950 shadow-xs'
-                                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-purple-100/50 dark:hover:bg-purple-950/50'
+                                    ? 'border-2 border-purple-700 bg-gradient-to-b from-purple-50 to-purple-100 text-purple-900 shadow-[0_8px_16px_-10px_rgba(126,34,206,.6)] dark:border-purple-400 dark:from-purple-500/20 dark:to-purple-500/10 dark:text-purple-100'
+                                    : 'wz-tile bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:-translate-y-px'
                                 }`}
                               >
                                 <Smartphone className={`w-4 h-4 ${isSelected ? 'text-amber-800 dark:text-amber-300' : 'text-purple-600 dark:text-purple-400'}`} />
                                 <div className="truncate">
                                   <div className="font-bold text-xs">{w.name}</div>
-                                  <div className="text-[10px] opacity-80 font-mono truncate">{w.phoneNumber}</div>
+                                  <div className="text-xs opacity-80 font-mono truncate">{w.phoneNumber}</div>
                                 </div>
                               </button>
                             );
@@ -2996,19 +2999,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                       {/* Display account details & QR Button */}
                       {currentWallet && (
-                        <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-purple-200 dark:border-purple-800 flex items-center justify-between text-xs">
+                        <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-purple-200 dark:border-purple-500/30 flex items-center justify-between gap-3 text-sm">
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-purple-800 dark:text-purple-300">
+                            <span className="text-xs font-medium text-purple-800 dark:text-purple-300">
                               Número Registrado ({currentWallet.name}):
                             </span>
-                            <div className="text-sm font-black font-mono text-slate-900 dark:text-slate-100">{currentWallet.phoneNumber}</div>
-                            <div className="text-[11px] text-slate-600 dark:text-slate-300">Titular: {currentWallet.holderName}</div>
+                            <div className="text-base font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100">{currentWallet.phoneNumber}</div>
+                            <div className="text-[13px] text-slate-600 dark:text-slate-300">Titular: {currentWallet.holderName}</div>
                           </div>
 
                           <button
                             type="button"
                             onClick={() => handleOpenQrModal('wallet', currentWallet.name, currentWallet.phoneNumber, currentWallet.holderName, currentWallet.name)}
-                            className="px-3 py-1.5 bg-purple-900 hover:bg-purple-800 text-white rounded-lg font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            className="min-h-[44px] px-4 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
                           >
                             <QrCode className="w-3.5 h-3.5 text-amber-800 dark:text-amber-300" />
                             <span>Ver QR</span>
@@ -3017,7 +3020,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       )}
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                           N° Comprobante / Referencia de Transferencia
                         </label>
                         <input
@@ -3025,7 +3028,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           placeholder="Ej: M103948 o Ref. Transacción"
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                          className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                         />
                       </div>
                     </div>
@@ -3033,9 +3036,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Sub-panel 4: Códigos QR (Shows list of available QRs) */}
                   {exitPaymentMethod === 'qr' && (
-                    <div className="p-3.5 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/80 rounded-xl space-y-3 animate-in fade-in">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-2xl space-y-3.5 animate-in fade-in">
                       <div>
-                        <label className="block text-[11px] font-bold text-amber-900 dark:text-amber-300 uppercase mb-1.5">
+                        <label className="block text-[13px] font-medium text-amber-900 dark:text-amber-300 mb-1.5">
                           Seleccione el Código QR a Cobrar:
                         </label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -3046,16 +3049,16 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 key={q.id}
                                 type="button"
                                 onClick={() => setSelectedQrId(q.id)}
-                                className={`p-2 rounded-lg border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                                className={`min-h-[52px] rounded-2xl px-3 py-2 border text-left flex items-center gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                   isSelected
-                                    ? 'bg-amber-600 text-white border-amber-700 shadow-xs'
-                                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-amber-100/50 dark:hover:bg-amber-950/50'
+                                    ? 'border-2 border-amber-700 bg-gradient-to-b from-amber-50 to-amber-100 text-amber-900 shadow-[0_8px_16px_-10px_rgba(180,83,9,.6)] dark:border-amber-400 dark:from-amber-500/20 dark:to-amber-500/10 dark:text-amber-100'
+                                    : 'wz-tile bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:-translate-y-px'
                                 }`}
                               >
                                 <QrCode className={`w-4 h-4 ${isSelected ? 'text-slate-900 dark:text-white' : 'text-amber-600 dark:text-amber-400'}`} />
                                 <div className="truncate">
                                   <div className="font-bold text-xs">{q.name}</div>
-                                  <div className="text-[10px] opacity-80 truncate">{q.accountNumber}</div>
+                                  <div className="text-xs opacity-80 truncate">{q.accountNumber}</div>
                                 </div>
                               </button>
                             );
@@ -3064,19 +3067,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       </div>
 
                       {currentQr && (
-                        <div className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-amber-200 dark:border-amber-800 flex items-center justify-between text-xs">
+                        <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-amber-200 dark:border-amber-500/30 flex items-center justify-between gap-3 text-sm">
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-amber-800 dark:text-amber-300">
+                            <span className="text-xs font-medium text-amber-800 dark:text-amber-300">
                               Cuenta Asociada ({currentQr.name}):
                             </span>
-                            <div className="text-sm font-black font-mono text-slate-900 dark:text-slate-100">{currentQr.accountNumber}</div>
-                            <div className="text-[11px] text-slate-600 dark:text-slate-300">Titular: {currentQr.holderName}</div>
+                            <div className="text-base font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100">{currentQr.accountNumber}</div>
+                            <div className="text-[13px] text-slate-600 dark:text-slate-300">Titular: {currentQr.holderName}</div>
                           </div>
 
                           <button
                             type="button"
                             onClick={() => handleOpenQrModal('qr', currentQr.name, currentQr.accountNumber, currentQr.holderName, currentQr.name)}
-                            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            className="min-h-[44px] px-4 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
                           >
                             <QrCode className="w-3.5 h-3.5 text-white" />
                             <span>Ver Código QR</span>
@@ -3085,7 +3088,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       )}
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                           N° Comprobante / Referencia
                         </label>
                         <input
@@ -3093,7 +3096,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           placeholder="Ej: Aprobación QR #829103"
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                          className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                         />
                       </div>
                     </div>
@@ -3101,9 +3104,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Sub-panel 5: Llaves Bre-B (Shows list of available Bre-B keys) */}
                   {exitPaymentMethod === 'bre_b' && (
-                    <div className="p-3.5 bg-teal-50/60 border border-teal-200 rounded-xl space-y-3 animate-in fade-in">
+                    <div className="p-4 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30 rounded-2xl space-y-3.5 animate-in fade-in">
                       <div>
-                        <label className="block text-[11px] font-bold text-teal-950 uppercase mb-1.5">
+                        <label className="block text-[13px] font-medium text-teal-900 dark:text-teal-300 mb-1.5">
                           Seleccione la Llave Bre-B Disponible:
                         </label>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -3114,21 +3117,21 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 key={b.id}
                                 type="button"
                                 onClick={() => setSelectedBreBId(b.id)}
-                                className={`p-2.5 rounded-lg border text-left flex items-center justify-between cursor-pointer transition-all ${
+                                className={`min-h-[52px] rounded-2xl px-3 py-2 border text-left flex items-center justify-between gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                   isSelected
-                                    ? 'bg-teal-800 text-white border-teal-900 shadow-xs'
-                                    : 'bg-white text-slate-800 dark:text-slate-200 border-slate-200 hover:bg-teal-100/50'
+                                    ? 'border-2 border-teal-700 bg-gradient-to-b from-teal-50 to-teal-100 text-teal-900 shadow-[0_8px_16px_-10px_rgba(15,118,110,.6)] dark:border-teal-400 dark:from-teal-500/20 dark:to-teal-500/10 dark:text-teal-100'
+                                    : 'wz-tile bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:-translate-y-px'
                                 }`}
                               >
                                 <div className="flex items-center gap-2">
                                   <Zap className={`w-4 h-4 ${isSelected ? 'text-amber-800 dark:text-amber-300' : 'text-teal-600'}`} />
                                   <div>
                                     <div className="font-bold text-xs">{b.keyType}: {b.keyValue}</div>
-                                    <div className="text-[10px] opacity-80">{b.registeredEntity}</div>
+                                    <div className="text-xs opacity-80">{b.registeredEntity}</div>
                                   </div>
                                 </div>
-                                <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${
-                                  isSelected ? 'bg-white/20' : 'bg-slate-100 text-slate-600 dark:text-slate-300'
+                                <span className={`text-xs font-mono px-1.5 py-0.5 rounded-md ${
+                                  isSelected ? 'bg-teal-200/60 text-teal-900 dark:bg-white/20 dark:text-teal-100' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
                                 }`}>
                                   Bre-B
                                 </span>
@@ -3139,19 +3142,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       </div>
 
                       {currentBreB && (
-                        <div className="p-3 bg-white rounded-lg border border-teal-200 flex items-center justify-between text-xs">
+                        <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-teal-200 dark:border-teal-500/30 flex items-center justify-between gap-3 text-sm">
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-teal-800">
+                            <span className="text-xs font-medium text-teal-800 dark:text-teal-300">
                               Llave Activa ({currentBreB.registeredEntity}):
                             </span>
-                            <div className="text-sm font-black font-mono text-slate-900 dark:text-slate-100">{currentBreB.keyValue}</div>
-                            <div className="text-[11px] text-slate-600 dark:text-slate-300">Tipo: {currentBreB.keyType}</div>
+                            <div className="text-base font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100">{currentBreB.keyValue}</div>
+                            <div className="text-[13px] text-slate-600 dark:text-slate-300">Tipo: {currentBreB.keyType}</div>
                           </div>
 
                           <button
                             type="button"
                             onClick={() => handleOpenQrModal('bre_b', `Bre-B ${currentBreB.registeredEntity}`, currentBreB.keyValue, currentBreB.registeredEntity, 'Red Bre-B')}
-                            className="px-3 py-1.5 bg-teal-800 hover:bg-teal-700 text-white rounded-lg font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                            className="min-h-[44px] px-4 bg-teal-700 hover:bg-teal-600 text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
                           >
                             <Zap className="w-3.5 h-3.5 text-amber-800 dark:text-amber-300" />
                             <span>Ver QR Bre-B</span>
@@ -3160,7 +3163,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       )}
 
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                           N° Comprobante / Voucher Bre-B
                         </label>
                         <input
@@ -3168,7 +3171,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           placeholder="Ej: BRB-84920"
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none"
+                          className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                         />
                       </div>
                     </div>
@@ -3176,15 +3179,15 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Sub-panel 6: Transferencia Bancaria Directa & PSE */}
                   {exitPaymentMethod === 'transfer' && (
-                    <div className="p-3.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl border border-indigo-500/30 shadow-lg space-y-3.5 animate-in fade-in">
+                    <div className="p-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl border border-indigo-200 dark:border-indigo-500/30 space-y-4 animate-in fade-in">
                       {/* Bank selection header */}
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <label className="text-[11px] font-bold text-indigo-200 uppercase tracking-wider flex items-center gap-1.5">
+                          <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                             <Building2 className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
                             <span>1. Seleccione la Entidad Bancaria:</span>
                           </label>
-                          <span className="text-[10px] text-slate-700 dark:text-slate-200 font-medium">
+                          <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
                             {activeBankAccounts.length} cuenta{activeBankAccounts.length > 1 ? 's' : ''} disponible{activeBankAccounts.length > 1 ? 's' : ''}
                           </span>
                         </div>
@@ -3196,23 +3199,23 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 key={b.id}
                                 type="button"
                                 onClick={() => setSelectedBankAccountId(b.id)}
-                                className={`p-2.5 rounded-xl border text-left flex items-center justify-between cursor-pointer transition-all ${
+                                className={`min-h-[52px] rounded-2xl px-3 py-2 border text-left flex items-center justify-between gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                   isSelected
-                                    ? 'bg-indigo-600 text-white border-indigo-400 shadow-md ring-2 ring-indigo-400/40'
-                                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800'
+                                    ? 'border-2 border-indigo-700 bg-gradient-to-b from-indigo-50 to-indigo-100 text-indigo-900 shadow-[0_8px_16px_-10px_rgba(67,56,202,.6)] dark:border-indigo-400 dark:from-indigo-500/20 dark:to-indigo-500/10 dark:text-indigo-100'
+                                    : 'wz-tile bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:-translate-y-px'
                                 }`}
                               >
                                 <div className="flex items-center gap-2">
-                                  <Building2 className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-indigo-700 dark:text-indigo-400'}`} />
+                                  <Building2 className={`w-4 h-4 ${isSelected ? 'text-indigo-700 dark:text-indigo-200' : 'text-indigo-700 dark:text-indigo-400'}`} />
                                   <div>
                                     <div className="font-bold text-xs">{b.bankName}</div>
-                                    <div className="text-[10px] opacity-80 font-mono">
+                                    <div className="text-xs opacity-80 font-mono">
                                       {b.accountType === 'savings' ? 'Ahorros' : 'Cte'}: {b.accountNumber}
                                     </div>
                                   </div>
                                 </div>
-                                <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                                  isSelected ? 'bg-white/25 text-white' : 'bg-slate-700 text-slate-600 dark:text-slate-300'
+                                <span className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded-md ${
+                                  isSelected ? 'bg-indigo-200/60 text-indigo-900 dark:bg-white/20 dark:text-indigo-100' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
                                 }`}>
                                   {b.accountType === 'savings' ? 'AHO' : 'CTE'}
                                 </span>
@@ -3225,7 +3228,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       {/* Channel Switch: PSE vs Direct Bank Transfer */}
                       {currentBankAccount && (
                         <div>
-                          <label className="block text-[11px] font-bold text-indigo-200 uppercase tracking-wider mb-1.5">
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5">
                             2. Método de Transferencia:
                           </label>
                           <div className="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
@@ -3235,9 +3238,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 setTransferChannel('pse');
                                 setIsPseTransferSelected(true);
                               }}
-                              className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                              className={`min-h-[48px] px-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all ${
                                 transferChannel === 'pse'
-                                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm ring-1 ring-blue-400/50'
+                                  ? 'bg-gradient-to-b from-blue-600 to-blue-700 text-white shadow-sm'
                                   : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-900'
                               }`}
                             >
@@ -3250,9 +3253,9 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 setTransferChannel('direct');
                                 setIsPseTransferSelected(false);
                               }}
-                              className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all ${
+                              className={`min-h-[48px] px-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer transition-all ${
                                 transferChannel === 'direct'
-                                  ? 'bg-indigo-700 text-white shadow-sm ring-1 ring-indigo-400/50'
+                                  ? 'bg-gradient-to-b from-indigo-600 to-indigo-700 text-white shadow-sm'
                                   : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-900'
                               }`}
                             >
@@ -3265,19 +3268,19 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                       {/* Display Mode 1: PSE Channel (QR + Visible Link) */}
                       {currentBankAccount && transferChannel === 'pse' && (
-                        <div className="bg-gradient-to-b from-blue-950/70 to-slate-900 border border-blue-500/40 rounded-2xl p-3.5 space-y-3 shadow-inner">
+                        <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl p-4 space-y-3.5">
                           {/* Top row */}
-                          <div className="flex items-center justify-between border-b border-blue-900/60 pb-2.5">
+                          <div className="flex items-center justify-between gap-2 border-b border-blue-200 dark:border-blue-500/30 pb-3">
                             <div className="flex items-center gap-2.5">
                               <div className="w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center shadow-md">
                                 <img src="/pse_logo.png" alt="PSE" className="w-full h-full object-contain" />
                               </div>
                               <div>
-                                <h5 className="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <h5 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                                   <span>Canal Oficial de Pago PSE</span>
-                                  <span className="text-[9px] bg-blue-500 text-white font-mono font-bold px-1.5 py-0.5 rounded-full">EN LÍNEA</span>
+                                  <span className="text-xs bg-blue-600 text-white font-mono font-bold px-2 py-0.5 rounded-full">EN LÍNEA</span>
                                 </h5>
-                                <p className="text-[10px] text-blue-200">
+                                <p className="text-xs text-blue-800 dark:text-blue-200">
                                   {currentBankAccount.bankName} • Débito seguro desde cualquier banco
                                 </p>
                               </div>
@@ -3294,7 +3297,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 currentBankAccount.pseQrUrl || paymentGatewayConfig?.generalPseQrUrl,
                                 'pse'
                               )}
-                              className="px-2.5 py-1 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 border border-blue-400/40 transition-colors cursor-pointer"
+                              className="min-h-[44px] px-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                               title="Proyectar QR en pantalla grande para el cliente"
                             >
                               <Maximize2 className="w-3 h-3" />
@@ -3303,7 +3306,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           </div>
 
                           {/* Body: Responsive QR and Payment Link */}
-                          <div className="flex flex-col sm:flex-row items-center gap-3.5 bg-slate-50 dark:bg-slate-950/80 border border-blue-900/40 p-3 rounded-xl">
+                          <div className="flex flex-col sm:flex-row items-center gap-4 bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-500/30 p-3.5 rounded-xl">
                             {/* QR Column */}
                             <div className="shrink-0 flex flex-col items-center gap-1.5">
                               <div className="p-2 bg-white rounded-xl shadow-md border-2 border-blue-400">
@@ -3315,7 +3318,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                   alt="QR PSE Colombia"
                                 />
                               </div>
-                              <span className="text-[9px] font-medium text-blue-800 dark:text-blue-300 text-center">
+                              <span className="text-xs font-medium text-blue-800 dark:text-blue-300 text-center">
                                 Escanee con cámara o app
                               </span>
                             </div>
@@ -3323,11 +3326,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             {/* Link & Instructions Column */}
                             <div className="flex-1 w-full space-y-2.5 text-left">
                               <div>
-                                <label className="block text-[10px] uppercase font-bold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-1">
+                                <label className="block text-[13px] font-medium text-blue-800 dark:text-blue-300 mb-1.5 flex items-center gap-1">
                                   <Globe className="w-3 h-3 text-blue-700 dark:text-blue-400" />
                                   <span>Enlace de Pago PSE Oficial:</span>
                                 </label>
-                                <div className="bg-white dark:bg-slate-900 border border-blue-800 rounded-lg p-2 font-mono text-[11px] text-blue-100 break-all select-all flex items-center justify-between gap-2">
+                                <div className="bg-slate-50 dark:bg-slate-800 border border-blue-200 dark:border-blue-500/40 rounded-xl p-2.5 font-mono text-xs text-blue-900 dark:text-blue-100 break-all select-all flex items-center justify-between gap-2">
                                   <span className="truncate">
                                     {currentBankAccount.pseUrl || paymentGatewayConfig?.generalPseUrl || 'https://registro.pse.com.co'}
                                   </span>
@@ -3341,10 +3344,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                     currentBankAccount.pseUrl || paymentGatewayConfig?.generalPseUrl || 'https://registro.pse.com.co',
                                     'pse'
                                   )}
-                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                                     copiedPseLink
                                       ? 'bg-emerald-600 text-white'
-                                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
+                                      : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
                                   }`}
                                 >
                                   {copiedPseLink ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -3355,14 +3358,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                   href={currentBankAccount.pseUrl || paymentGatewayConfig?.generalPseUrl || 'https://registro.pse.com.co'}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="px-3 py-1.5 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-slate-700 border border-blue-300 dark:border-blue-400/40 text-blue-800 dark:text-blue-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                  className="min-h-[44px] px-4 bg-blue-50 dark:bg-slate-800 hover:bg-blue-100 dark:hover:bg-slate-700 border border-blue-300 dark:border-blue-400/40 text-blue-800 dark:text-blue-200 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                                 >
                                   <ExternalLink className="w-3.5 h-3.5 text-blue-700 dark:text-blue-400" />
                                   <span>Abrir Portal PSE</span>
                                 </a>
                               </div>
 
-                              <div className="text-[10px] text-slate-200 bg-white dark:bg-slate-900/60 p-2 rounded-lg border border-slate-200 dark:border-slate-800 space-y-0.5">
+                              <div className="text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-1">
                                 <p className="text-slate-600 dark:text-slate-300 font-semibold">Instrucciones para el cliente:</p>
                                 <p>1. Escanea el QR o abre el enlace en su móvil.</p>
                                 <p>2. Selecciona su banco, autoriza el débito y obtiene el comprobante.</p>
@@ -3375,12 +3378,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                       {/* Display Mode 2: Direct Bank Transfer (Account Info + QR) */}
                       {currentBankAccount && transferChannel === 'direct' && (
-                        <div className="bg-slate-50 dark:bg-slate-950 border border-indigo-900/70 rounded-2xl p-3.5 space-y-3 shadow-inner">
+                        <div className="bg-indigo-50/60 dark:bg-slate-950 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl p-4 space-y-3.5">
                           {/* Top row */}
-                          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+                          <div className="flex items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
                             <div className="flex items-center gap-2">
                               <Building2 className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
-                              <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                              <h5 className="text-sm font-bold text-slate-900 dark:text-white">
                                 {currentBankAccount.bankName} ({currentBankAccount.accountType === 'savings' ? 'Cuenta de Ahorros' : 'Cuenta Corriente'})
                               </h5>
                             </div>
@@ -3396,7 +3399,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 currentBankAccount.pseQrUrl || paymentGatewayConfig?.generalPseQrUrl,
                                 'standard'
                               )}
-                              className="px-2.5 py-1 bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 text-indigo-800 dark:text-indigo-300 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-indigo-200 dark:border-indigo-800 transition-colors cursor-pointer"
+                              className="min-h-[44px] px-3.5 bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 text-indigo-800 dark:text-indigo-300 rounded-xl text-sm font-semibold flex items-center gap-1.5 border border-indigo-200 dark:border-indigo-500/30 transition-colors cursor-pointer"
                               title="Proyectar QR en pantalla grande"
                             >
                               <Maximize2 className="w-3 h-3" />
@@ -3405,7 +3408,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           </div>
 
                           {/* Body: Responsive QR and Account Info */}
-                          <div className="flex flex-col sm:flex-row items-center gap-3.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3 rounded-xl">
+                          <div className="flex flex-col sm:flex-row items-center gap-4 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 rounded-xl">
                             {/* QR Column */}
                             <div className="shrink-0 flex flex-col items-center gap-1.5">
                               <div className="p-2 bg-white rounded-xl shadow-md border-2 border-indigo-400">
@@ -3416,7 +3419,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                   alt="QR Bancario"
                                 />
                               </div>
-                              <span className="text-[9px] font-medium text-slate-700 dark:text-slate-200 text-center">
+                              <span className="text-xs font-medium text-slate-700 dark:text-slate-200 text-center">
                                 QR para transferencia
                               </span>
                             </div>
@@ -3424,17 +3427,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             {/* Account details column */}
                             <div className="flex-1 w-full space-y-2 text-left">
                               <div>
-                                <span className="text-[10px] uppercase font-bold text-indigo-800 dark:text-indigo-300 block mb-0.5">
+                                <span className="text-[13px] font-medium text-indigo-800 dark:text-indigo-300 block mb-1">
                                   Número de Cuenta ({currentBankAccount.accountType === 'savings' ? 'Ahorros' : 'Corriente'}):
                                 </span>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-black font-mono text-slate-900 dark:text-white tracking-wider">
+                                  <span className="text-base font-bold font-mono tabular-nums text-slate-900 dark:text-white">
                                     {currentBankAccount.accountNumber}
                                   </span>
                                   <button
                                     type="button"
                                     onClick={() => handleCopyText(currentBankAccount.accountNumber, 'account')}
-                                    className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
+                                    className={`min-h-[44px] px-3 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                                       copiedBankAcc ? 'bg-emerald-600 text-white' : 'bg-indigo-50 dark:bg-slate-800 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-indigo-800'
                                     }`}
                                   >
@@ -3444,12 +3447,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                 </div>
                               </div>
 
-                              <div className="text-xs text-slate-600 dark:text-slate-300 space-y-0.5 border-t border-slate-200 dark:border-slate-800 pt-2">
+                              <div className="text-sm text-slate-600 dark:text-slate-300 space-y-1 border-t border-slate-200 dark:border-slate-800 pt-2.5">
                                 <div>
                                   Titular: <span className="font-semibold text-slate-900 dark:text-white">{currentBankAccount.holderName}</span>
                                 </div>
                                 {currentBankAccount.holderId && (
-                                  <div className="text-[11px] text-slate-700 dark:text-slate-200 font-mono">
+                                  <div className="text-[13px] text-slate-700 dark:text-slate-200 font-mono">
                                     NIT / C.C.: {currentBankAccount.holderId}
                                   </div>
                                 )}
@@ -3461,13 +3464,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                       {/* Approval / Transaction Reference Input */}
                       <div>
-                        <label className="block text-[11px] font-bold text-indigo-200 uppercase tracking-wider mb-1 flex items-center justify-between">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1.5 flex items-center justify-between">
                           <span>
                             {transferChannel === 'pse'
                               ? '3. N° Transacción / CUS de Aprobación PSE:'
                               : '3. N° Comprobante / Aprobación de Transferencia:'}
                           </span>
-                          <span className="text-[10px] text-slate-700 dark:text-slate-200 font-normal lowercase">
+                          <span className="text-xs text-slate-600 dark:text-slate-300 font-normal">
                             (código entregado por el cliente)
                           </span>
                         </label>
@@ -3480,7 +3483,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           }
                           value={paymentReference}
                           onChange={(e) => setPaymentReference(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-950 border border-indigo-400/50 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400"
+                          className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                       </div>
                     </div>
@@ -3488,10 +3491,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                   {/* Sub-panel 7: Pago Mixto (Adapted to new groupings) */}
                   {exitPaymentMethod === 'mixed' && (
-                    <div className="p-3.5 bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-800 rounded-xl space-y-3 animate-in fade-in">
-                      <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3.5 animate-in fade-in">
+                      <div className="flex items-center justify-between gap-2 flex-wrap text-sm text-slate-700 dark:text-slate-300">
                         <span>
-                          Distribuya el total de <strong className="font-mono text-slate-900 dark:text-slate-100">{formatCurrency(finalTotalAmount, rates.currencySymbol)}</strong>:
+                          Distribuya el total de <strong className="font-mono tabular-nums text-slate-900 dark:text-slate-100">{formatCurrency(finalTotalAmount, rates.currencySymbol)}</strong>:
                         </span>
                         <div className="flex gap-1">
                           <button
@@ -3501,7 +3504,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               setSplitCashAmount(half.toString());
                               setSplitSecondAmount((finalTotalAmount - half).toString());
                             }}
-                            className="text-[10px] bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-bold transition-colors cursor-pointer border border-indigo-200 dark:border-indigo-800"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           >
                             50% / 50%
                           </button>
@@ -3511,7 +3514,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               setSplitCashAmount(finalTotalAmount.toString());
                               setSplitSecondAmount('0');
                             }}
-                            className="text-[10px] bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded font-bold transition-colors cursor-pointer"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           >
                             100% Efectivo
                           </button>
@@ -3519,13 +3522,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       </div>
 
                       {/* Part 1: Cash */}
-                      <div className="p-2.5 bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs gap-2">
-                        <span className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                      <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between text-sm gap-3">
+                        <span className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                           <Banknote className="w-4 h-4 text-emerald-600" />
                           <span>Parte 1: Efectivo</span>
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-400 font-mono text-xs">{rates.currencySymbol || '$'}</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-mono text-sm">{rates.currencySymbol || '$'}</span>
                           <input
                             type="number"
                             min="0"
@@ -3533,20 +3536,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="0"
                             value={splitCashAmount}
                             onChange={(e) => setSplitCashAmount(e.target.value)}
-                            className="w-32 text-right bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-bold font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500"
+                            className="w-36 text-right min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-semibold font-mono tabular-nums"
                           />
                         </div>
                       </div>
 
                       {/* Part 2: Electronic Channel Selector */}
-                      <div className="p-2.5 bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                      <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 text-sm">
                         <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                          <span className="font-bold text-slate-700 dark:text-slate-200">Parte 2: Medio Digital</span>
+                          <span className="font-semibold text-slate-700 dark:text-slate-200">Parte 2: Medio Digital</span>
                           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                             <select
                               value={splitSecondCategory}
                               onChange={(e) => setSplitSecondCategory(e.target.value as any)}
-                              className="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-bold text-slate-800 dark:text-slate-200 outline-none"
+                              className="min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 font-semibold"
                             >
                               <option value="wallet">Billetera Digital</option>
                               <option value="qr">Código QR</option>
@@ -3560,7 +3563,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               <select
                                 value={splitSecondSubId || activeWallets[0]?.id}
                                 onChange={(e) => setSplitSecondSubId(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none"
+                                className="min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 font-semibold"
                               >
                                 {activeWallets.map(w => (
                                   <option key={w.id} value={w.id}>{w.name}</option>
@@ -3572,7 +3575,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               <select
                                 value={splitSecondSubId || activeQrs[0]?.id}
                                 onChange={(e) => setSplitSecondSubId(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none"
+                                className="min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 font-semibold"
                               >
                                 {activeQrs.map(q => (
                                   <option key={q.id} value={q.id}>{q.name}</option>
@@ -3584,7 +3587,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               <select
                                 value={splitSecondSubId || activeBreBKeys[0]?.id}
                                 onChange={(e) => setSplitSecondSubId(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none"
+                                className="min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 font-semibold"
                               >
                                 {activeBreBKeys.map(b => (
                                   <option key={b.id} value={b.id}>{b.registeredEntity} ({b.keyType})</option>
@@ -3596,7 +3599,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               <select
                                 value={splitSecondSubId || activeTerminals[0]?.id}
                                 onChange={(e) => setSplitSecondSubId(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none"
+                                className="min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 font-semibold"
                               >
                                 {activeTerminals.map(t => (
                                   <option key={t.id} value={t.id}>{t.name} {t.serialNumber ? `(${t.serialNumber})` : ''}</option>
@@ -3608,7 +3611,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               <select
                                 value={splitSecondSubId || activeBankAccounts[0]?.id}
                                 onChange={(e) => setSplitSecondSubId(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-semibold text-slate-800 dark:text-slate-200 outline-none"
+                                className="min-h-[48px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 font-semibold"
                               >
                                 {activeBankAccounts.map(b => (
                                   <option key={b.id} value={b.id}>{b.bankName} ({b.accountNumber})</option>
@@ -3620,14 +3623,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                         {/* Extra toggle for card type inside split payment */}
                         {splitSecondCategory === 'card' && (
-                          <div className="flex items-center justify-between gap-2 p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg">
-                            <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">Tipo de Tarjeta (Mixto):</span>
-                            <div className="flex rounded border border-slate-300 dark:border-slate-700 overflow-hidden text-[10px]">
+                          <div className="flex items-center justify-between gap-2 p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+                            <span className="text-[13px] font-medium text-slate-600 dark:text-slate-300">Tipo de Tarjeta (Mixto):</span>
+                            <div className="flex rounded-xl border border-slate-300 dark:border-slate-600 overflow-hidden text-sm">
                               <button
                                 type="button"
                                 onClick={() => setSplitCardType('debit')}
-                                className={`px-3 py-1 font-bold cursor-pointer ${
-                                  splitCardType === 'debit' ? 'bg-sky-800 text-white' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100'
+                                className={`min-h-[44px] px-4 font-semibold cursor-pointer ${
+                                  splitCardType === 'debit' ? 'bg-sky-700 text-white dark:bg-sky-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
                                 }`}
                               >
                                 Débito
@@ -3635,8 +3638,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setSplitCardType('credit')}
-                                className={`px-3 py-1 font-bold cursor-pointer ${
-                                  splitCardType === 'credit' ? 'bg-sky-800 text-white' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100'
+                                className={`min-h-[44px] px-4 font-semibold cursor-pointer ${
+                                  splitCardType === 'credit' ? 'bg-sky-700 text-white dark:bg-sky-600' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
                                 }`}
                               >
                                 Crédito
@@ -3653,12 +3656,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               const remainder = Math.max(0, finalTotalAmount - cashVal);
                               setSplitSecondAmount(remainder.toString());
                             }}
-                            className="text-[11px] bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/50 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 px-2.5 py-1 rounded font-bold transition-colors cursor-pointer border border-indigo-200 dark:border-indigo-800"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           >
                             Calcular Restante
                           </button>
                           <div className="flex items-center gap-2">
-                            <span className="text-slate-400 font-mono text-xs">{rates.currencySymbol || '$'}</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-mono text-sm">{rates.currencySymbol || '$'}</span>
                             <input
                               type="number"
                               min="0"
@@ -3666,7 +3669,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                               placeholder="0"
                               value={splitSecondAmount}
                               onChange={(e) => setSplitSecondAmount(e.target.value)}
-                              className="w-32 text-right bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-bold font-mono text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500"
+                              className="w-36 text-right min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-semibold font-mono tabular-nums"
                             />
                           </div>
                         </div>
@@ -3676,7 +3679,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           placeholder="N° Comprobante / Voucher parte 2..."
                           value={splitSecondReference}
                           onChange={(e) => setSplitSecondReference(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                          className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                         />
                       </div>
 
@@ -3689,12 +3692,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                         if (Math.abs(currentDiff) < 0.01) {
                           return (
-                            <div className="p-2.5 bg-emerald-100/80 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-700 rounded-lg text-xs flex items-center justify-between text-emerald-900 dark:text-emerald-200 font-bold animate-in fade-in">
+                            <div className="rounded-xl border px-3.5 py-3 text-sm flex items-center justify-between gap-2 bg-emerald-50 border-emerald-200 text-emerald-900 font-semibold dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 animate-in fade-in">
                               <span className="flex items-center gap-1.5">
                                 <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                 <span>Distribución completa: 100% cubierto ({formatCurrency(currentTotalSplit, rates.currencySymbol)}).</span>
                               </span>
-                              <span className="bg-emerald-600 text-white text-[10px] uppercase px-2 py-0.5 rounded font-black tracking-wider">
+                              <span className="bg-emerald-600 text-white text-xs px-2.5 py-0.5 rounded-lg font-bold">
                                 Listo para proceder
                               </span>
                             </div>
@@ -3703,24 +3706,24 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
                         if (currentDiff > 0.01) {
                           return (
-                            <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-lg text-xs space-y-1.5 animate-in fade-in">
-                              <div className="flex items-center justify-between text-amber-900 dark:text-amber-200 font-bold">
+                            <div className="rounded-xl border px-3.5 py-3 text-sm space-y-2 bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-200 animate-in fade-in">
+                              <div className="flex items-center justify-between gap-2 text-amber-900 dark:text-amber-200 font-semibold">
                                 <span className="flex items-center gap-1.5">
                                   <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
                                   <span>Falta por distribuir: {formatCurrency(currentDiff, rates.currencySymbol)}</span>
                                 </span>
-                                <span className="font-mono text-amber-950 dark:text-amber-100 font-black">
+                                <span className="font-mono tabular-nums text-amber-950 dark:text-amber-100 font-bold">
                                   -{formatCurrency(currentDiff, rates.currencySymbol)}
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between pt-1 border-t border-amber-200 dark:border-amber-800 text-[11px]">
+                              <div className="flex items-center justify-between gap-2 flex-wrap pt-2 border-t border-amber-200 dark:border-amber-500/30 text-xs">
                                 <span className="text-amber-800 dark:text-amber-300">
                                   Asignado {formatCurrency(currentTotalSplit, rates.currencySymbol)} de {formatCurrency(finalTotalAmount, rates.currencySymbol)}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => setSplitSecondAmount((secondVal + currentDiff).toString())}
-                                  className="font-bold text-indigo-700 dark:text-indigo-300 hover:underline cursor-pointer"
+                                  className="min-h-[44px] font-semibold text-indigo-700 dark:text-indigo-300 hover:underline cursor-pointer"
                                 >
                                   + Asignar restante al medio digital
                                 </button>
@@ -3730,17 +3733,17 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         }
 
                         return (
-                          <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-lg text-xs space-y-1.5 animate-in fade-in">
-                            <div className="flex items-center justify-between text-rose-900 dark:text-rose-200 font-bold">
+                          <div className="rounded-xl border px-3.5 py-3 text-sm space-y-2 bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-200 animate-in fade-in">
+                            <div className="flex items-center justify-between gap-2 text-rose-900 dark:text-rose-200 font-semibold">
                               <span className="flex items-center gap-1.5">
                                 <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
                                 <span>Exceso de distribución: Supera el total por {formatCurrency(Math.abs(currentDiff), rates.currencySymbol)}</span>
                               </span>
-                              <span className="font-mono text-rose-950 dark:text-rose-100 font-black">
+                              <span className="font-mono tabular-nums text-rose-950 dark:text-rose-100 font-bold">
                                 +{formatCurrency(Math.abs(currentDiff), rates.currencySymbol)}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between pt-1 border-t border-rose-200 dark:border-rose-800 text-[11px]">
+                            <div className="flex items-center justify-between gap-2 flex-wrap pt-2 border-t border-rose-200 dark:border-rose-500/30 text-xs">
                               <span className="text-rose-800 dark:text-rose-300">
                                 Total asignado: {formatCurrency(currentTotalSplit, rates.currencySymbol)} (Máximo: {formatCurrency(finalTotalAmount, rates.currencySymbol)})
                               </span>
@@ -3751,7 +3754,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                                   setSplitCashAmount(cashPart.toString());
                                   setSplitSecondAmount(Math.max(0, finalTotalAmount - cashPart).toString());
                                 }}
-                                className="font-bold text-rose-700 dark:text-rose-300 hover:underline cursor-pointer"
+                                className="min-h-[44px] font-semibold text-rose-700 dark:text-rose-300 hover:underline cursor-pointer"
                               >
                                 Ajustar al total exacto
                               </button>
@@ -3767,24 +3770,24 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 {/* FACTURACIÓN ELECTRÓNICA DIAN (Optional Toggle)          */}
                 {/* ======================================================= */}
                 {businessInfo.electronicInvoicingEnabled !== false && currentUser?.permissions?.canIssueElectronicInvoice !== false && (
-                <div className="pt-2 border-t border-slate-200">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                <div className="pt-3 border-t border-slate-200/70 dark:border-slate-800">
+                  <label className="flex items-center gap-3 min-h-[44px] cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={isElectronicInvoiceRequested}
                       onChange={(e) => setIsElectronicInvoiceRequested(e.target.checked)}
-                      className="w-4 h-4 text-slate-900 dark:text-slate-100 rounded border-slate-300 focus:ring-slate-900 cursor-pointer"
+                      className="w-5 h-5 text-blue-700 rounded border-slate-300 dark:border-slate-600 focus:ring-4 focus:ring-blue-500/25 cursor-pointer"
                     />
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                       <FileCheck className="w-4 h-4 text-indigo-600" />
                       <span>Emitir Factura Electrónica (DIAN)</span>
                     </span>
                   </label>
 
                   {isElectronicInvoiceRequested && (
-                    <div className="mt-3 p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-2.5 text-xs animate-in fade-in">
-                      <div className="flex items-center justify-between pb-1 border-b border-indigo-200/60">
-                        <span className="text-[10px] font-bold text-indigo-900 uppercase tracking-wider">Datos del Adquirente</span>
+                    <div className="mt-3 p-4 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl space-y-3 text-sm animate-in fade-in">
+                      <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-indigo-200/70 dark:border-indigo-500/30">
+                        <span className="text-[13px] font-medium text-indigo-900 dark:text-indigo-200">Datos del Adquirente</span>
                         <button
                           type="button"
                           onClick={() => {
@@ -3793,7 +3796,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             setCustomerName('Consumidor Final');
                             setCustomerEmail('consumidorfinal@dian.gov.co');
                           }}
-                          className="px-2 py-0.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-800 rounded font-semibold text-[10px] transition-colors flex items-center gap-1 border border-indigo-300 shadow-sm active:scale-95"
+                          className="min-h-[44px] px-3.5 bg-white hover:bg-indigo-50 text-indigo-800 rounded-xl font-semibold text-sm transition-colors flex items-center gap-1 border border-indigo-300 active:scale-95 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-indigo-200 dark:border-indigo-500/40"
                           title="Llenar automáticamente con datos estándar DIAN para Consumidor Final"
                         >
                           ⚡ Consumidor Final (222222222222)
@@ -3801,13 +3804,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div>
-                          <label className="block text-[10px] font-bold text-indigo-950 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-indigo-900 dark:text-indigo-200 mb-1.5">
                             Tipo Doc.
                           </label>
                           <select
                             value={customerDocType}
                             onChange={(e) => setCustomerDocType(e.target.value as any)}
-                            className="w-full bg-white border border-indigo-300 rounded-lg px-2.5 py-1.5 font-bold outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-indigo-300 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-indigo-500/40 dark:bg-slate-800 dark:text-slate-100 font-semibold"
                           >
                             <option value="CC">Cédula de Ciudadanía (CC)</option>
                             <option value="NIT">NIT / Empresa</option>
@@ -3817,7 +3820,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="block text-[10px] font-bold text-indigo-950 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-indigo-900 dark:text-indigo-200 mb-1.5">
                             Número de Cédula / NIT
                           </label>
                           <input
@@ -3825,14 +3828,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: 102938475"
                             value={customerDocNumber}
                             onChange={(e) => setCustomerDocNumber(e.target.value)}
-                            className="w-full bg-white border border-indigo-300 rounded-lg px-2.5 py-1.5 font-mono font-bold outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-indigo-300 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-indigo-500/40 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[10px] font-bold text-indigo-950 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-indigo-900 dark:text-indigo-200 mb-1.5">
                             Nombre / Razón Social
                           </label>
                           <input
@@ -3840,12 +3843,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="Ej: Juan Pérez o Empresa SAS"
                             value={customerName}
                             onChange={(e) => setCustomerName(e.target.value)}
-                            className="w-full bg-white border border-indigo-300 rounded-lg px-2.5 py-1.5 font-medium outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-indigo-300 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-indigo-500/40 dark:bg-slate-800 dark:text-slate-100 font-medium"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-bold text-indigo-950 uppercase mb-1">
+                          <label className="block text-[13px] font-medium text-indigo-900 dark:text-indigo-200 mb-1.5">
                             Correo Electrónico (Para envío DIAN)
                           </label>
                           <input
@@ -3853,12 +3856,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                             placeholder="cliente@email.com"
                             value={customerEmail}
                             onChange={(e) => setCustomerEmail(e.target.value)}
-                            className="w-full bg-white border border-indigo-300 rounded-lg px-2.5 py-1.5 font-medium outline-none"
+                            className="w-full min-h-[48px] rounded-xl border border-indigo-300 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-indigo-500/40 dark:bg-slate-800 dark:text-slate-100 font-medium"
                           />
                         </div>
                       </div>
 
-                      <div className="text-[10px] text-indigo-800 font-medium">
+                      <div className="text-xs text-indigo-800 dark:text-indigo-300 font-medium">
                         * Se generará el Código Único de Factura Electrónica (CUFE) y el consecutivo DIAN de acuerdo a la resolución vigente.
                       </div>
                     </div>
@@ -3867,7 +3870,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 )}
 
                 {exitError && (
-                  <div className="p-3 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 rounded-xl text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
+                  <div className="rounded-xl border px-3.5 py-3 text-sm bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-200 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
                     <span>{exitError}</span>
                   </div>
@@ -3876,7 +3879,7 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   {/* Submit Action - Heavy Duty POS Cashier Dispatch Key */}
                   <div className="pt-2">
                     {currentUser && !currentUser.permissions.canRegisterExit ? (
-                      <div className="w-full p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                      <div className="w-full rounded-xl border px-3.5 py-3 text-sm bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-200 flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
                         <span>Tu usuario no tiene permiso para liquidar salidas.</span>
                       </div>
@@ -3885,10 +3888,10 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         type="submit"
                         id="btn-complete-exit"
                         disabled={isPaymentBlocked || isSubmittingExit}
-                        className={`pk-pos-key w-full py-4 px-5 rounded-xl font-black text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                        className={`w-full min-h-[56px] px-5 rounded-2xl font-bold text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
                           isPaymentBlocked || isSubmittingExit
                             ? 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed border border-slate-300 dark:border-slate-700 shadow-none'
-                            : 'bg-emerald-600 hover:bg-emerald-500 text-white border-b-4 border-emerald-800 shadow-xl shadow-emerald-950/20 active:border-b active:translate-y-1'
+                            : 'bg-gradient-to-b from-emerald-600 to-emerald-700 text-white shadow-[0_14px_28px_-14px_rgba(5,150,105,.9)] hover:-translate-y-0.5 dark:from-emerald-500 dark:to-emerald-600'
                         }`}
                       >
                         {isSubmittingExit ? (
@@ -3943,8 +3946,8 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800/80 flex items-center justify-center text-slate-700 dark:text-slate-200 mb-3 border border-slate-300 dark:border-slate-700">
                   <Clock className="w-6 h-6 text-slate-600 dark:text-slate-300" />
                 </div>
-                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Esperando vehículo para liquidar</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mt-1">
+                <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-lg">Esperando vehículo para liquidar</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 max-w-sm mt-1">
                   Ingrese la placa o seleccione un vehículo de la tabla inferior o el mapa de plazas para calcular el tiempo y facturar.
                 </p>
               </div>
@@ -3956,13 +3959,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
       {/* ========================================================= */}
       {/* BOTTOM: VEHÍCULOS ACTUALMENTE EN EL PARQUEADERO           */}
       {/* ========================================================= */}
-      <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+      <div className="wz-surface overflow-hidden rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)]">
         {/* Table Header Controls */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-950/70">
+        <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+            <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
               <span>Vehículos en Parqueadero</span>
-              <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs px-2 py-0.5 rounded-full font-semibold">
+              <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1 rounded-full font-semibold tabular-nums">
                 {activeTickets.length} activos
               </span>
             </h3>
@@ -3970,14 +3973,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
           {/* Filters & Search */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-slate-100/90 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs">
+            <div className="flex items-center gap-2 flex-wrap text-sm">
               <button
                 type="button"
                 onClick={() => setTableFilterType('all')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                className={`min-h-[44px] px-3.5 rounded-xl text-sm font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                   tableFilterType === 'all'
-                    ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                    : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                 }`}
               >
                 Todos ({activeTickets.length})
@@ -3990,20 +3993,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     key={cat.id}
                     type="button"
                     onClick={() => setTableFilterType(cat.id)}
-                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                    className={`min-h-[44px] px-3.5 rounded-xl flex items-center gap-1.5 text-sm font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                       isSelected
-                        ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                        : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                     }`}
                     title={`${cat.name}: ${count} en parqueadero`}
                   >
                     {getVehicleIcon(cat.icon || cat.id, 'w-3.5 h-3.5')}
                     <span>{cat.name}</span>
                     {count > 0 && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full tabular-nums font-bold ${
                         isSelected
-                          ? 'bg-slate-950/20 text-slate-950'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                          ? 'bg-blue-700/15 text-blue-900 dark:bg-blue-400/20 dark:text-blue-100'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                       }`}>
                         {count}
                       </span>
@@ -4019,54 +4022,54 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 value={tableSearch}
                 onChange={(e) => setTableSearch(e.target.value)}
                 placeholder="Filtrar por placa..."
-                className="text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 focus:border-amber-500 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44 font-mono font-bold"
+                className="min-h-[48px] rounded-xl border border-slate-300 bg-white pl-10 pr-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 w-48 sm:w-56 font-mono font-bold"
               />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             </div>
           </div>
         </div>
 
         {/* Table Content */}
         <div className="overflow-x-auto max-h-[520px] scrollbar-thin">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="pk-table-sticky-header bg-slate-100/95 dark:bg-slate-950/95 backdrop-blur-md text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b-2 border-slate-200 dark:border-slate-800 shadow-2xs">
+          <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+            <thead className="pk-table-sticky-header bg-slate-50 dark:bg-slate-800/60 text-[13px] font-medium text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="py-3 px-4">Ticket</th>
-                <th className="py-3 px-4">Placa / Matrícula</th>
-                <th className="py-3 px-4">Puesto</th>
-                <th className="py-3 px-4">Hora Entrada</th>
-                <th className="py-3 px-4">Tiempo Transcurrido</th>
-                <th className="py-3 px-4">Tarifa Estimada</th>
-                <th className="py-3 px-4 text-right">Acción de Cobro</th>
+                <th className="py-3 px-4 font-medium">Ticket</th>
+                <th className="py-3 px-4 font-medium">Placa / Matrícula</th>
+                <th className="py-3 px-4 font-medium">Puesto</th>
+                <th className="py-3 px-4 font-medium">Hora Entrada</th>
+                <th className="py-3 px-4 font-medium">Tiempo Transcurrido</th>
+                <th className="py-3 px-4 font-medium">Tarifa Estimada</th>
+                <th className="py-3 px-4 text-right font-medium">Acción de Cobro</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {filteredActiveTickets.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 px-4 text-center">
                     {activeTickets.length === 0 ? (
                       <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 max-w-sm mx-auto space-y-2.5">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-500/30">
                           <Car className="w-6 h-6" />
                         </div>
-                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Patio de Estacionamiento 100% Libre</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">
+                        <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-base">Patio de Estacionamiento 100% Libre</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                           No hay vehículos estacionados en este momento. Registre un nuevo ingreso con el formulario superior o mediante la cámara ANPR.
                         </p>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 max-w-sm mx-auto space-y-2.5">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-500/30">
                           <Search className="w-6 h-6" />
                         </div>
-                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Sin vehículos coincidentes</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">
+                        <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-base">Sin vehículos coincidentes</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                           No se encontró ningún vehículo activo con el filtro "{tableSearch}". Verifique la placa o limpie la búsqueda.
                         </p>
                         <button
                           type="button"
                           onClick={() => { setTableSearch(''); setTableFilterType('all'); }}
-                          className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline pt-1 cursor-pointer"
+                          className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                         >
                           Limpiar búsqueda y mostrar todos ({activeTickets.length})
                         </button>
@@ -4084,11 +4087,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   return (
                     <tr
                       key={ticket.id}
-                      className={`hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors ${
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${
                         isSelected ? 'bg-amber-500/10 dark:bg-amber-500/15 font-medium' : ''
                       }`}
                     >
-                      <td className="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-300">
+                      <td className="py-3 px-4 font-mono font-bold tabular-nums text-slate-700 dark:text-slate-300">
                         #{ticket.ticketNumber}
                       </td>
                       <td className="py-3 px-4">
@@ -4098,11 +4101,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           </span>
                           <div>
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-slate-600 dark:text-slate-400 capitalize font-bold">
+                              <span className="text-xs text-slate-600 dark:text-slate-400 capitalize font-semibold">
                                 {getVehicleName(ticket.vehicleType)}
                               </span>
                               {ticket.isForeignPlate && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded font-sans uppercase">
+                                <span className="inline-flex items-center gap-0.5 text-xs font-semibold bg-sky-50 text-sky-800 dark:bg-sky-500/10 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 px-1.5 py-0.5 rounded-lg font-sans">
                                   🌐 {ticket.originCountry || 'Ext'}
                                 </span>
                               )}
@@ -4111,38 +4114,38 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded font-mono font-black text-xs">
+                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2.5 py-1 rounded-lg font-mono font-bold text-sm">
                           {ticket.spotCode}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
+                      <td className="py-3 px-4 tabular-nums text-slate-700 dark:text-slate-300">
                         {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 font-mono text-slate-800 dark:text-slate-200 font-bold">
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${
-                            elapsedMinutes > 180 
-                              ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.8)] animate-ping' 
-                              : elapsedMinutes > 60 
-                              ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.7)]' 
-                              : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse'
+                        <div className="flex items-center gap-2 tabular-nums text-slate-800 dark:text-slate-200 font-semibold">
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                            elapsedMinutes > 180
+                              ? 'bg-rose-500 motion-safe:animate-pulse'
+                              : elapsedMinutes > 60
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500'
                           }`} />
                           <span>{calc.formattedDuration}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-mono font-black text-emerald-700 dark:text-emerald-400 text-sm">
+                      <td className="py-3 px-4 font-display font-bold tabular-nums text-emerald-700 dark:text-emerald-400 text-base">
                         {calc.isWithinGracePeriod ? (
-                          <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">Gracia ($0)</span>
+                          <span className="inline-flex rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm font-medium text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">Gracia ($0)</span>
                         ) : (
                           formatCurrency(calc.totalAmount, rates.currencySymbol)
                         )}
                       </td>
-                      <td className="py-3 px-4 text-right space-x-1.5">
+                      <td className="py-3 px-4 text-right space-x-2 whitespace-nowrap">
                         {currentUser?.permissions.canReprintTickets !== false && (
                           <button
                             type="button"
                             onClick={() => onPrintTicket(ticket, 'entry')}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             title="Reimprimir Ticket de Ingreso"
                           >
                             <Printer className="w-4 h-4" />
@@ -4152,12 +4155,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           <button
                             type="button"
                             onClick={() => selectVehicleForExit(ticket)}
-                            className="pk-pos-key px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black rounded-xl border-b-2 border-emerald-800 transition-all shadow-xs cursor-pointer text-xs"
+                            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(5,150,105,.9)] transition hover:-translate-y-0.5 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 cursor-pointer dark:from-emerald-500 dark:to-emerald-600"
                           >
                             Liquidar Salida
                           </button>
                         ) : (
-                          <span className="text-[11px] text-slate-600 dark:text-slate-300 italic px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">
+                          <span className="text-[13px] text-slate-600 dark:text-slate-300 px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
                             Solo consulta
                           </span>
                         )}

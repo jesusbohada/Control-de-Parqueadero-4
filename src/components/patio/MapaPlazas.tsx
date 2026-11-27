@@ -69,6 +69,13 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
     || ({ car: 'Automóviles', motorcycle: 'Motocicletas', suv: 'Camionetas y SUV', bicycle: 'Bicicletas' } as Record<string, string>)[z]
     || String(z).toUpperCase();
 
+  // Mismos rótulos de zona que el mapa clásico
+  const zoneTitle = (z: VehicleType) => {
+    if (vehicleCategories.some(c => c.id === z)) return `Zona: ${zoneName(z)}`;
+    const letter = ({ car: 'A', motorcycle: 'M', suv: 'S', bicycle: 'B' } as Record<string, string>)[z];
+    return letter ? `Zona ${letter}: ${zoneName(z)}` : `Zona: ${zoneName(z)}`;
+  };
+
   const ticketBySpot = useMemo(() => {
     const m = new Map<string, ParkingTicket>();
     activeTickets.forEach(t => m.set(t.spotCode, t));
@@ -87,11 +94,14 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
       <section aria-labelledby="mapa-titulo" className={`${panel} flex flex-col gap-5 p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 id="mapa-titulo" className="font-display text-2xl font-bold">Mapa de plazas</h2>
+            <h2 id="mapa-titulo" className="flex flex-wrap items-center gap-2 font-display text-2xl font-bold">
+              Mapa de plazas en tiempo real
+              <span className="rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">{total} plazas totales</span>
+            </h2>
             <p className={`mt-1 text-sm ${muted}`}>Toque una plaza libre para registrar la entrada o una ocupada para cobrar.</p>
           </div>
           {onOpenSpotsManagement && canManage && (
-            <button type="button" onClick={onOpenSpotsManagement}
+            <button type="button" onClick={onOpenSpotsManagement} title="Administrar, crear, editar o eliminar plazas de parqueo"
               className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-gradient-to-b from-slate-800 to-slate-950 px-4 text-sm font-semibold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.8)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/40 dark:from-white dark:to-slate-200 dark:text-slate-900">
               <Grid className="h-4 w-4" /> Gestión de plazas
             </button>
@@ -145,12 +155,12 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
         const zoneOccupied = spots.filter(s => s.type === z && s.status === 'occupied').length;
         const zoneTotal = spots.filter(s => s.type === z).length;
         return (
-          <section key={z} aria-label={`Zona ${zoneName(z)}`} className={`${panel} flex flex-col gap-4 p-5`}>
+          <section key={z} aria-label={zoneTitle(z)} className={`${panel} flex flex-col gap-4 p-5`}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white shadow-[0_8px_16px_-8px_rgba(15,23,42,.7)] dark:from-slate-700 dark:to-slate-800">{renderVehicleIcon(z, 'h-5 w-5', vehicleCategories)}</span>
                 <div>
-                  <h3 className="font-display text-lg font-bold">{zoneName(z)}</h3>
+                  <h3 className="font-display text-lg font-bold">{zoneTitle(z)}</h3>
                   <p className={`text-sm ${muted}`}>Tarifa {money(getVehicleRate(z, rates, vehicleCategories).hourRate)} / hora</p>
                 </div>
               </div>
@@ -165,7 +175,7 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
                 if (spot.status === 'available') {
                   return (
                     <motion.li key={spot.id} {...anim}>
-                      <button type="button" onClick={() => onSelectSpotForEntry(spot.code, spot.type)} aria-label={`Plaza ${spot.code} libre. Registrar entrada`}
+                      <button type="button" onClick={() => onSelectSpotForEntry(spot.code, spot.type)} aria-label={`Plaza ${spot.code} libre. Registrar entrada`} title="Hacer clic para ingresar vehículo en esta plaza"
                         className="group flex min-h-[120px] w-full flex-col justify-between rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50/70 p-3.5 text-left transition hover:-translate-y-0.5 hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 dark:border-emerald-600 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20">
                         <span className="flex items-center justify-between"><span className="font-display text-base font-bold">{spot.code}</span><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /></span>
                         <span className="flex flex-col items-center gap-1 text-emerald-800 dark:text-emerald-300"><Plus className="h-6 w-6 transition group-hover:scale-110" /><span className="text-sm font-semibold">Libre</span></span>
@@ -179,9 +189,9 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
                   const calc = calculateParkingFee(ticket.entryTime, new Date().toISOString(), ticket.vehicleType, rates, vehicleCategories);
                   return (
                     <motion.li key={spot.id} {...anim}>
-                      <button type="button" onClick={() => onSelectSpotForExit(ticket.plate)} aria-label={`Plaza ${spot.code} ocupada por ${ticket.plate}, ${calc.formattedDuration}, ${money(calc.totalAmount)}. Cobrar`}
+                      <button type="button" onClick={() => onSelectSpotForExit(ticket.plate)} aria-label={`Plaza ${spot.code} ocupada por ${ticket.plate}, ${calc.formattedDuration}, ${money(calc.totalAmount)}. Cobrar`} title="Hacer clic para liquidar salida"
                         className="flex min-h-[120px] w-full flex-col justify-between wz-tile rounded-2xl border border-amber-300 bg-white p-3.5 text-left shadow-[0_10px_22px_-16px_rgba(180,120,0,.7)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_28px_-16px_rgba(180,120,0,.8)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-500/40 dark:border-amber-500/40 dark:bg-slate-800">
-                        <span className="flex items-center justify-between gap-2"><span className="font-display text-base font-bold">{spot.code}</span><span className={`text-xs font-semibold ${muted}`}>{calc.formattedDuration}</span></span>
+                        <span className="flex items-center justify-between gap-2"><span className="font-display text-base font-bold">{spot.code}</span><span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${muted}`}><span aria-hidden className="h-2 w-2 rounded-full bg-emerald-500 motion-safe:animate-pulse" />{calc.formattedDuration}</span></span>
                         <span className="self-center rounded-md bg-[#f5c400] px-2.5 py-0.5 font-plate text-xl font-bold tracking-[0.08em] text-slate-900 shadow-[inset_0_-2px_0_rgba(0,0,0,.12)]">{ticket.plate}</span>
                         <span className="flex items-center justify-between border-t border-slate-200 pt-1.5 text-sm dark:border-slate-700">
                           <span className="font-bold">{money(calc.totalAmount)}</span>
@@ -197,10 +207,11 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
                 return (
                   <motion.li key={spot.id} {...anim}>
                     <div className={`flex min-h-[120px] flex-col justify-between rounded-2xl border p-3.5 ${isOrphan ? 'border-amber-400 bg-amber-50 dark:border-amber-500/40 dark:bg-amber-500/10' : 'border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800/70'}`}>
-                      <span className="flex items-center justify-between"><span className="font-display text-base font-bold">{spot.code}</span>{isOrphan ? <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-300" /> : <Wrench className={`h-4 w-4 ${muted}`} />}</span>
+                      <span className="flex items-center justify-between"><span className="font-display text-base font-bold">{spot.code}</span>{isOrphan ? <span className="inline-flex items-center gap-1.5"><span aria-hidden className="h-2.5 w-2.5 rounded-full bg-amber-500 motion-safe:animate-pulse" /><AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-300" /></span> : <Wrench className={`h-4 w-4 ${muted}`} />}</span>
                       <span className="text-center text-sm font-semibold">{isOrphan ? 'Ocupada sin ticket' : spot.status === 'reserved' ? 'Reservada' : 'Mantenimiento'}</span>
                       {allowed ? (
                         <button type="button" onClick={() => onToggleSpotStatus(spot.id, 'available')}
+                          title={isOrphan ? 'Liberar plaza y cambiar estado a disponible' : 'Habilitar plaza y cambiar estado a disponible'}
                           className="min-h-[36px] rounded-lg border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-700">
                           {isOrphan ? 'Liberar plaza' : 'Habilitar plaza'}
                         </button>
