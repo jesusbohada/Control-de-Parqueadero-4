@@ -1,0 +1,50 @@
+# Roadmap — WolfZone POS
+
+Qué viene, en qué orden y cuándo está terminado cada punto. Lo ya hecho vive en la [bitácora](BITACORA.md).
+**Regla:** al terminar un punto, se borra de aquí y se anota en el historial de la bitácora; al decidir algo nuevo, se agrega aquí con prioridad y criterio de terminado.
+
+_Última actualización: 2026-11-27_
+
+Prioridad: **P0** urgente · **P1** importante · **P2** cuando haya espacio.
+
+---
+
+## Fase 0 — Llevar la seguridad a producción · P0
+
+Los puertos 3000/3001 están expuestos a internet y el Central y las sedes siguen con el código anterior (sin sesiones ni claves en hash).
+
+| # | Tarea | Depende de | Terminado cuando |
+|---|---|---|---|
+| 0.1 | Desplegar en el **Servidor Central** ([guía](DESPLIEGUE_SEGURIDAD_2026-11.md)) | — | El Central arranca con el código de `main`, exige sesión y los usuarios cambiaron sus claves de fábrica |
+| 0.2 | Desplegar en **cada sede** | 0.1 | Cada sede tiene `SYNC_SHARED_KEY` y `CENTRAL_SERVER_URL`, y recibe los usuarios del Central |
+| 0.3 | Reinstalar los **agentes FarmaDesk** | 0.2 | Cada agente conecta con su clave de agente y el control remoto funciona |
+| 0.4 | Configurar `CENTRAL_SERVER_URL` en el equipo de desarrollo | 0.1 | La sede de desarrollo sincroniza usuarios con el Central |
+
+## Fase 1 — Validar las vistas nuevas en operación real · P1
+
+| # | Tarea | Depende de | Terminado cuando |
+|---|---|---|---|
+| 1.1 | Probar **Patio POS nuevo** y **Mapa nuevo** con un cajero real | 0.2 | Un turno completo (entradas, cobros, cierre) sin volver a la vista clásica |
+| 1.2 | Medir el **efecto Cristal** en las PCs de caja | 1.1 | Sin lentitud perceptible; si la hay, se documenta en qué equipos apagarlo |
+
+## Fase 2 — Interfaz nueva, siguientes pantallas · P1
+
+Cada pantalla nueva sale de `src/App.tsx` a su propio componente (así `App.tsx` se va achicando sin una reescritura grande) y va detrás del mismo selector Clásica/Nueva por usuario.
+
+| # | Tarea | Depende de | Terminado cuando |
+|---|---|---|---|
+| 2.1 | **Turno y caja** nuevo (apertura, arqueo, cierre) | 1.1 | Totales idénticos a la vista clásica en pruebas; pruebas automáticas de los cálculos de caja; claro/oscuro |
+| 2.2 | **Abonados** nuevo | 2.1 | Alta, renovación y vencimientos funcionando en la vista nueva; claro/oscuro |
+
+## Fase 3 — Deuda técnica · P2
+
+| # | Tarea | Depende de | Terminado cuando |
+|---|---|---|---|
+| 3.1 | Terminar de dividir `src/App.tsx` (~5.9k líneas) | 2.2 | Ningún archivo de `src/` supera ~1.5k líneas |
+| 3.2 | Quitar las 101 variables locales sin uso | — | `tsc --noUnusedLocals` sin avisos |
+| 3.3 | Borrar `public/assets/farmadesk.exe` duplicado y la ruta fija de desarrollo en `server/routes/farmadesk.ts` | — | La ruta sale de configuración; el build no incluye el duplicado |
+| 3.4 | Actualizar los manuales de instalación con los cambios de noviembre | 0.2 | Los manuales describen sesiones, sync y `.env` actuales |
+
+## Ideas sin priorizar
+
+_(Agregar aquí lo que surja; se prioriza al planear la siguiente fase.)_

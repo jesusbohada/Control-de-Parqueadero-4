@@ -21,6 +21,7 @@ POS de parqueadero multi-sede: entradas/salidas, cobro y tarifas, turnos y cierr
 | Documento | Para qué |
 |---|---|
 | [`CLAUDE.md`](../CLAUDE.md) | Stack, comandos, reglas de seguridad y de trabajo |
+| [`docs/ROADMAP.md`](ROADMAP.md) | Lo que viene: fases, prioridades y criterio de terminado |
 | [`docs/DESPLIEGUE_SEGURIDAD_2026-11.md`](DESPLIEGUE_SEGURIDAD_2026-11.md) | Pasos para llevar la actualización de seguridad al Central y a las sedes |
 | [`MANUAL_INSTALACION_SERVIDOR_Y_SUCURSALES.md`](../MANUAL_INSTALACION_SERVIDOR_Y_SUCURSALES.md) | Instalación (oct-2026; no incluye los cambios de noviembre) |
 | [`MANUAL_SERVIDOR_LINUX_KUBUNTU.md`](../MANUAL_SERVIDOR_LINUX_KUBUNTU.md) | Servidor en Linux (oct-2026) |
@@ -72,10 +73,7 @@ Orden obligatorio al desplegar: primero el Central, después cada sede (ver guí
 
 ## 7. Próximos pasos
 
-1. Desplegar al Central y a las sedes (guía de despliegue) y reinstalar agentes FarmaDesk.
-2. Vista nueva de **Turno y caja**.
-3. Vista nueva de **Abonados**.
-4. Dividir `src/App.tsx`.
+Ver [`docs/ROADMAP.md`](ROADMAP.md) (fases, prioridades, dependencias y criterio de terminado).
 
 ## 8. Decisiones
 
