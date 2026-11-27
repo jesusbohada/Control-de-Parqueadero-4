@@ -108,7 +108,7 @@ import { OperationsView } from './components/OperationsView';
 import { PatioPos } from './components/patio/PatioPos';
 import { MapaPlazas } from './components/patio/MapaPlazas';
 import { PatioUiSwitch } from './components/patio/PatioUiSwitch';
-import { usePatioUiVersion } from './components/patio/usePatioUiVersion';
+import { usePatioUiVersion, usePatioGlass } from './components/patio/usePatioUiVersion';
 import { ParkingMap } from './components/ParkingMap';
 import { RealTimeReports } from './components/RealTimeReports';
 import { CashShiftModal } from './components/CashShiftModal';
@@ -3606,6 +3606,7 @@ export default function App() {
   const [selectedPlateForExit, setSelectedPlateForExit] = useState<string | null>(null);
   // Vista del Patio POS (clásica por defecto; la nueva es opcional por usuario)
   const [patioUi, setPatioUi] = usePatioUiVersion(currentUser?.id);
+  const [patioGlass, setPatioGlass] = usePatioGlass(currentUser?.id);
   // Plaza tocada en el mapa: la vista nueva del patio la deja preseleccionada para la entrada
   const [entrySpotPreset, setEntrySpotPreset] = useState<{ spotCode: string; vehicleType: VehicleType } | null>(null);
 
@@ -5024,9 +5025,10 @@ export default function App() {
             {/* OPERACIONES PATIO */}
         {activeView === 'operations' && (
           <>
-            <PatioUiSwitch value={patioUi} onChange={setPatioUi} />
+            <PatioUiSwitch value={patioUi} onChange={setPatioUi} glass={patioGlass} onGlassChange={setPatioGlass} />
             {patioUi === 'nueva' ? (
               <PatioPos
+                glass={patioGlass}
                 spots={effectiveSpots}
                 activeTickets={effectiveActiveTickets}
                 rates={rates}
@@ -5071,9 +5073,10 @@ export default function App() {
 
         {activeView === 'map' && (
           <>
-            <PatioUiSwitch value={patioUi} onChange={setPatioUi} />
+            <PatioUiSwitch value={patioUi} onChange={setPatioUi} glass={patioGlass} onGlassChange={setPatioGlass} />
             {patioUi === 'nueva' ? (
               <MapaPlazas
+                glass={patioGlass}
                 spots={effectiveSpots}
                 activeTickets={effectiveActiveTickets}
                 rates={rates}

@@ -1109,3 +1109,45 @@ html.light #wolfzone-login-view input::placeholder,
   color: #64748B !important;
   -webkit-text-fill-color: #64748B !important;
 }
+
+/* ===== Vistas nuevas del patio: efecto cristal (opcional por usuario) =====
+   Fuera de @layer para ganar a las utilidades de Tailwind sin !important. */
+.wz-glass.wz-patio-root {
+  background-color: #eef2fb;
+  background-image:
+    radial-gradient(620px 420px at 88% 2%, rgba(99, 102, 241, .55) 0%, transparent 65%),
+    radial-gradient(560px 380px at 6% 18%, rgba(56, 189, 248, .5) 0%, transparent 65%),
+    radial-gradient(640px 460px at 40% 108%, rgba(16, 185, 129, .45) 0%, transparent 65%),
+    radial-gradient(420px 300px at 70% 60%, rgba(244, 114, 182, .22) 0%, transparent 70%);
+}
+.dark .wz-glass.wz-patio-root {
+  background-color: #070b16;
+  background-image:
+    radial-gradient(620px 420px at 88% 2%, rgba(99, 102, 241, .45) 0%, transparent 65%),
+    radial-gradient(560px 380px at 6% 18%, rgba(14, 165, 233, .34) 0%, transparent 65%),
+    radial-gradient(640px 460px at 40% 108%, rgba(16, 185, 129, .3) 0%, transparent 65%);
+}
+.wz-glass .wz-surface {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .62), rgba(255, 255, 255, .4));
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, .75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 2px rgba(15, 23, 42, .05), 0 24px 48px -28px rgba(30, 41, 99, .45);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+}
+.dark .wz-glass .wz-surface {
+  background-image: linear-gradient(180deg, rgba(30, 41, 59, .5), rgba(15, 23, 42, .38));
+  border-color: rgba(255, 255, 255, .09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 24px 48px -28px rgba(0, 0, 0, .85);
+}
+/* Elementos pequeños: translúcidos sin desenfoque propio (rendimiento en equipos modestos) */
+.wz-glass .wz-tile { background-color: rgba(255, 255, 255, .62); border-color: rgba(255, 255, 255, .8); }
+.dark .wz-glass .wz-tile { background-color: rgba(30, 41, 59, .55); border-color: rgba(255, 255, 255, .08); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .wz-glass .wz-surface { background-image: linear-gradient(180deg, rgba(255, 255, 255, .94), rgba(255, 255, 255, .88)); }
+  .dark .wz-glass .wz-surface { background-image: linear-gradient(180deg, rgba(30, 41, 59, .95), rgba(15, 23, 42, .92)); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .wz-glass .wz-surface { -webkit-backdrop-filter: none; backdrop-filter: none; background-image: none; background-color: #fff; }
+  .dark .wz-glass .wz-surface { background-color: #0f172a; }
+}

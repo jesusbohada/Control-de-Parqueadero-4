@@ -25,3 +25,20 @@ export function usePatioUiVersion(userId?: string) {
   }, [userId]);
   return [version, setVersion] as const;
 }
+
+const glassKeyFor = (userId?: string) => `wz_patio_glass:${userId || 'anon'}`;
+
+function readGlass(userId?: string): boolean {
+  try { return localStorage.getItem(glassKeyFor(userId)) === '1'; } catch { return false; }
+}
+
+/** Efecto cristal de las vistas nuevas, por usuario en este equipo. Apagado por defecto. */
+export function usePatioGlass(userId?: string) {
+  const [glass, setGlassState] = useState<boolean>(() => readGlass(userId));
+  useEffect(() => { setGlassState(readGlass(userId)); }, [userId]);
+  const setGlass = useCallback((v: boolean) => {
+    setGlassState(v);
+    try { localStorage.setItem(glassKeyFor(userId), v ? '1' : '0'); } catch { /* almacenamiento no disponible */ }
+  }, [userId]);
+  return [glass, setGlass] as const;
+}

@@ -53,22 +53,24 @@ export interface PatioPosProps {
   /** Plaza tocada en el mapa de plazas: se preselecciona para la entrada. */
   preselectedEntrySpot?: { spotCode: string; vehicleType: VehicleType } | null;
   onClearPreselectedEntrySpot?: () => void;
+  /** Efecto cristal (opcional, por usuario). */
+  glass?: boolean;
 }
 
 type Toast = { id: number; tone: 'ok' | 'warn'; title: string; body?: string };
 
-const card = 'rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)]';
-const statCard = 'rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900';
+const card = 'wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)]';
+const statCard = 'wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900';
 const muted = 'text-slate-600 dark:text-slate-400';
 const kbd = 'rounded-md border border-slate-300 bg-white px-2 py-0.5 text-xs font-semibold text-slate-900 shadow-[0_2px_0_#cbd5e1] dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-[0_2px_0_#334155]';
 const chipBase = 'min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30';
 const chipOn = 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100';
-const chipOff = 'border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200';
+const chipOff = 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200';
 
 export const PatioPos: React.FC<PatioPosProps> = ({
   spots, activeTickets, rates, businessInfo, soundEnabled, onRegisterEntry, onRegisterExit, onPrintTicket,
   selectedPlateForExit, onClearSelectedPlate, currentUser, paymentGatewayConfig, onOpenTicketScanner,
-  vehicleCategories = [], onOpenClassic, preselectedEntrySpot, onClearPreselectedEntrySpot,
+  vehicleCategories = [], onOpenClassic, preselectedEntrySpot, onClearPreselectedEntrySpot, glass = false,
 }) => {
   const reduceMotion = useReducedMotion();
   const canEnter = !currentUser || currentUser.permissions.canRegisterEntry !== false;
@@ -324,7 +326,7 @@ export const PatioPos: React.FC<PatioPosProps> = ({
   const plateShown = (selected?.plate || '').toUpperCase();
 
   return (
-    <div className="relative flex min-h-full flex-col gap-4 bg-[radial-gradient(900px_500px_at_78%_-10%,#dbe6ff_0%,transparent_60%),radial-gradient(700px_420px_at_0%_110%,#e3f5ee_0%,transparent_60%)] p-4 font-sans text-slate-900 dark:bg-[radial-gradient(900px_500px_at_78%_-10%,rgba(37,99,235,.18)_0%,transparent_60%),radial-gradient(700px_420px_at_0%_110%,rgba(16,185,129,.12)_0%,transparent_60%)] dark:text-slate-100 md:p-6">
+    <div className={`wz-patio-root relative flex min-h-full flex-col gap-4 ${glass ? 'wz-glass' : ''} bg-[radial-gradient(900px_500px_at_78%_-10%,#dbe6ff_0%,transparent_60%),radial-gradient(700px_420px_at_0%_110%,#e3f5ee_0%,transparent_60%)] p-4 font-sans text-slate-900 dark:bg-[radial-gradient(900px_500px_at_78%_-10%,rgba(37,99,235,.18)_0%,transparent_60%),radial-gradient(700px_420px_at_0%_110%,rgba(16,185,129,.12)_0%,transparent_60%)] dark:text-slate-100 md:p-6`}>
 
       {/* Avisos */}
       <div aria-live="polite" className="pointer-events-none fixed right-6 top-20 z-50 flex w-[min(380px,calc(100vw-3rem))] flex-col gap-2">
