@@ -23,19 +23,21 @@ export interface MapaPlazasProps {
   onSelectSpotForExit: (plate: string) => void;
   onToggleSpotStatus: (spotId: string, newStatus: 'available' | 'reserved' | 'maintenance') => void;
   onOpenSpotsManagement?: () => void;
+  /** Efecto cristal (opcional, por usuario). */
+  glass?: boolean;
 }
 
-const panel = 'rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_18px_40px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 dark:shadow-[0_18px_40px_-28px_rgba(0,0,0,.8)]';
+const panel = 'wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_18px_40px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900 dark:shadow-[0_18px_40px_-28px_rgba(0,0,0,.8)]';
 const muted = 'text-slate-600 dark:text-slate-400';
 const pill = 'inline-flex min-h-[40px] items-center gap-1.5 rounded-xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30';
 const pillOn = 'bg-slate-900 text-white dark:bg-white dark:text-slate-900';
-const pillOff = 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700';
+const pillOff = 'wz-tile border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700';
 
 type StatusFilter = 'all' | 'available' | 'occupied';
 
 export const MapaPlazas: React.FC<MapaPlazasProps> = ({
   spots, activeTickets, rates, vehicleCategories = [], currentUser,
-  onSelectSpotForEntry, onSelectSpotForExit, onToggleSpotStatus, onOpenSpotsManagement,
+  onSelectSpotForEntry, onSelectSpotForExit, onToggleSpotStatus, onOpenSpotsManagement, glass = false,
 }) => {
   const reduceMotion = useReducedMotion();
   const [zone, setZone] = useState<VehicleType | 'all'>('all');
@@ -80,7 +82,7 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
   );
 
   return (
-    <div className="flex flex-col gap-5 bg-[radial-gradient(900px_500px_at_78%_-10%,#dbe6ff_0%,transparent_60%)] p-4 text-slate-900 dark:bg-[radial-gradient(900px_500px_at_78%_-10%,rgba(37,99,235,.16)_0%,transparent_60%)] dark:text-slate-100 md:p-6">
+    <div className={`wz-patio-root flex flex-col gap-5 ${glass ? 'wz-glass' : ''} bg-[radial-gradient(900px_500px_at_78%_-10%,#dbe6ff_0%,transparent_60%)] p-4 text-slate-900 dark:bg-[radial-gradient(900px_500px_at_78%_-10%,rgba(37,99,235,.16)_0%,transparent_60%)] dark:text-slate-100 md:p-6`}>
 
       <section aria-labelledby="mapa-titulo" className={`${panel} flex flex-col gap-5 p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -178,7 +180,7 @@ export const MapaPlazas: React.FC<MapaPlazasProps> = ({
                   return (
                     <motion.li key={spot.id} {...anim}>
                       <button type="button" onClick={() => onSelectSpotForExit(ticket.plate)} aria-label={`Plaza ${spot.code} ocupada por ${ticket.plate}, ${calc.formattedDuration}, ${money(calc.totalAmount)}. Cobrar`}
-                        className="flex min-h-[120px] w-full flex-col justify-between rounded-2xl border border-amber-300 bg-white p-3.5 text-left shadow-[0_10px_22px_-16px_rgba(180,120,0,.7)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_28px_-16px_rgba(180,120,0,.8)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-500/40 dark:border-amber-500/40 dark:bg-slate-800">
+                        className="flex min-h-[120px] w-full flex-col justify-between wz-tile rounded-2xl border border-amber-300 bg-white p-3.5 text-left shadow-[0_10px_22px_-16px_rgba(180,120,0,.7)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_28px_-16px_rgba(180,120,0,.8)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-500/40 dark:border-amber-500/40 dark:bg-slate-800">
                         <span className="flex items-center justify-between gap-2"><span className="font-display text-base font-bold">{spot.code}</span><span className={`text-xs font-semibold ${muted}`}>{calc.formattedDuration}</span></span>
                         <span className="self-center rounded-md bg-[#f5c400] px-2.5 py-0.5 font-plate text-xl font-bold tracking-[0.08em] text-slate-900 shadow-[inset_0_-2px_0_rgba(0,0,0,.12)]">{ticket.plate}</span>
                         <span className="flex items-center justify-between border-t border-slate-200 pt-1.5 text-sm dark:border-slate-700">

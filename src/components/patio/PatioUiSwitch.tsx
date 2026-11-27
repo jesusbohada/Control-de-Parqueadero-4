@@ -1,9 +1,17 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Droplets } from 'lucide-react';
 import type { PatioUiVersion } from './usePatioUiVersion';
 
-/** Selector Clásica / Nueva del Patio POS. */
-export const PatioUiSwitch: React.FC<{ value: PatioUiVersion; onChange: (v: PatioUiVersion) => void }> = ({ value, onChange }) => (
+interface PatioUiSwitchProps {
+  value: PatioUiVersion;
+  onChange: (v: PatioUiVersion) => void;
+  /** Efecto cristal: solo se ofrece con la vista nueva. */
+  glass?: boolean;
+  onGlassChange?: (v: boolean) => void;
+}
+
+/** Selector Clásica / Nueva del Patio POS, con el efecto cristal opcional. */
+export const PatioUiSwitch: React.FC<PatioUiSwitchProps> = ({ value, onChange, glass = false, onGlassChange }) => (
   <div className="flex flex-wrap items-center justify-end gap-3 px-4 pt-3 md:px-6">
     <span className="text-sm text-slate-600 dark:text-slate-400">Vista del patio</span>
     <div role="radiogroup" aria-label="Vista del patio" className="inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-700 dark:bg-slate-900">
@@ -14,6 +22,15 @@ export const PatioUiSwitch: React.FC<{ value: PatioUiVersion; onChange: (v: Pati
         </button>
       ))}
     </div>
+    {value === 'nueva' && onGlassChange && (
+      <button type="button" role="switch" aria-checked={glass} onClick={() => onGlassChange(!glass)}
+        className={`inline-flex min-h-[44px] items-center gap-2 rounded-xl border px-3 text-sm font-semibold shadow-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${glass ? 'border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-100' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+        <Droplets className="h-4 w-4" aria-hidden />Cristal
+        <span aria-hidden className={`relative h-5 w-9 rounded-full transition ${glass ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'}`}>
+          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${glass ? 'left-[18px]' : 'left-0.5'}`} />
+        </span>
+      </button>
+    )}
   </div>
 );
 
