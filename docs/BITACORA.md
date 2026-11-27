@@ -47,6 +47,7 @@ POS de parqueadero multi-sede: entradas/salidas, cobro y tarifas, turnos y cierr
 | #16 | 2026-11-27 | **Rediseño de Turno y caja** (arqueo, cierre del día, gastos/recogidas/ingresos, histórico integrado, modales de impresión, comprobante y PIN) solo en estilos (checker OK); el comprobante térmico impreso no se tocó. Corregido: el horario de cada arqueo cerrado mostraba la fecha fija "19/10/2026" en vez de la real |
 | #17 | 2026-11-27 | Rediseño del **panel histórico de arqueos y cierres** (`CashShiftsHistoryModal`, también en Reportes) y sus modales (recálculo, notas, auditoría, marco de impresión), solo estilos; comprobante imprimible intacto |
 | #18 | 2026-11-27 | Rediseño de **Abonados** (`SubscribersModal`): métricas, filtros, tabla con estados activo/por vencer/vencido y formulario de alta/edición, solo estilos |
+| #19 | 2026-11-27 | Rediseño de **Reportes** (`RealTimeReports`, `ExecutiveSummaryReport`): resumen, contable PUC/DIAN, análisis, IA, histórico de tickets y cierres, solo estilos. Corregido: con cierres sin total se mostraban **$440.000 inventados** (dato de demostración), y una fecha fija "19/10/2026" en los arqueos |
 
 Patio: una sola pantalla (completa, con el diseño nuevo), con Cristal opcional. Mapa: selector Clásica/Nueva (clásica por defecto).
 
@@ -75,6 +76,7 @@ Orden obligatorio al desplegar: primero el Central, después cada sede (ver guí
 - `src/App.tsx` sigue en ~5.9k líneas; `OperationsView.tsx` ~4.2k.
 - **Dinero:** la tabla de vehículos del Patio calcula el valor actual sin las categorías de vehículo (`calculateParkingFee` sin `vehicleCategories`), a diferencia del mapa y del cobro; puede mostrar un valor distinto con tarifas por categoría. Ver roadmap 1.3.
 - Manuales de instalación desactualizados respecto a noviembre.
+- Reportes, pestaña Resumen: la sección "Showcase de cierres y arqueos (Día 1 Operativo Simulado)" sugiere contenido de demostración; revisar que solo muestre datos reales.
 
 ## 7. Próximos pasos
 

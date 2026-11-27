@@ -263,21 +263,21 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
       initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: 'easeOut' }}
-      className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-5 shadow-sm transition-colors"
+      className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 transition-colors"
     >
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 pb-4 border-b border-slate-200/70 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/40 shrink-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-black text-slate-950 dark:text-slate-50 tracking-tight flex items-center gap-2 flex-wrap">
+            <h3 className="font-display text-lg font-bold text-slate-950 dark:text-slate-50 flex items-center gap-2 flex-wrap">
               <span>Resumen Ejecutivo de Ingresos</span>
-              <span className="text-[10px] font-mono font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/40">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/30">
                 00:00 - 23:00 (24 Horas)
               </span>
             </h3>
-            <p className="text-xs text-slate-700 dark:text-slate-300 font-medium mt-0.5">
+            <p className="text-[13px] font-medium text-slate-600 dark:text-slate-400 mt-0.5">
               Comparativa dinámica de recaudación horaria con respecto al histórico de referencia.
             </p>
           </div>
@@ -285,14 +285,14 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
 
         {/* Date Range & Period Controls */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-300 dark:border-slate-700 text-xs">
+          <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 text-sm dark:border-slate-700 dark:bg-slate-900">
             <button
               type="button"
               onClick={() => setRangeMode('today_vs_7d')}
-              className={`px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer ${
+              className={`min-h-[44px] px-3.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
                 rangeMode === 'today_vs_7d' 
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400' 
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Hoy vs 7D
@@ -300,10 +300,10 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
             <button
               type="button"
               onClick={() => setRangeMode('yesterday_vs_prev_week')}
-              className={`px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer ${
+              className={`min-h-[44px] px-3.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
                 rangeMode === 'yesterday_vs_prev_week' 
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400' 
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Ayer
@@ -311,10 +311,10 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
             <button
               type="button"
               onClick={() => setRangeMode('this_week_vs_last_week')}
-              className={`px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer ${
+              className={`min-h-[44px] px-3.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
                 rangeMode === 'this_week_vs_last_week' 
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400' 
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Esta Semana
@@ -322,10 +322,10 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
             <button
               type="button"
               onClick={() => setRangeMode('this_month_vs_last_month')}
-              className={`px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer ${
+              className={`min-h-[44px] px-3.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
                 rangeMode === 'this_month_vs_last_month' 
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400' 
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Este Mes
@@ -333,10 +333,10 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
             <button
               type="button"
               onClick={() => setRangeMode('custom')}
-              className={`px-2.5 py-1 rounded-lg font-black transition-all cursor-pointer ${
+              className={`min-h-[44px] px-3.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
                 rangeMode === 'custom' 
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400' 
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Rango
@@ -344,48 +344,48 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
           </div>
 
           {rangeMode === 'custom' && (
-            <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-xl border border-slate-300 dark:border-slate-700 text-xs">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900">
               <input
                 type="date"
                 value={customStart}
                 onChange={(e) => setCustomStart(e.target.value)}
-                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-0.5 text-slate-950 dark:text-slate-50 font-mono text-[11px]"
+                className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               />
-              <span className="text-slate-600 dark:text-slate-200 font-bold">-</span>
+              <span className="text-slate-600 dark:text-slate-300 font-semibold">-</span>
               <input
                 type="date"
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
-                className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-0.5 text-slate-950 dark:text-slate-50 font-mono text-[11px]"
+                className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               />
             </div>
           )}
 
           {/* Mini KPI comparison pills */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-xs">
-              <span className="text-[10px] uppercase font-black text-slate-800 dark:text-slate-200 block truncate max-w-[110px]">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-2.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400 block truncate max-w-[110px]">
                 {chartInfo.primaryLabel}
               </span>
-              <span className="font-mono font-black text-emerald-700 dark:text-emerald-400 text-sm">
+              <span className="font-bold tabular-nums text-emerald-700 dark:text-emerald-400 text-base">
                 {formatCurrency(chartInfo.totalPrimary, rates.currencySymbol)}
               </span>
             </div>
-            <div className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-xs">
-              <span className="text-[10px] uppercase font-black text-slate-800 dark:text-slate-200 block truncate max-w-[110px]">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-2.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400 block truncate max-w-[110px]">
                 {chartInfo.baselineLabel}
               </span>
-              <span className="font-mono font-black text-sky-700 dark:text-sky-400 text-sm">
+              <span className="font-bold tabular-nums text-sky-700 dark:text-sky-400 text-base">
                 {formatCurrency(chartInfo.totalBaseline, rates.currencySymbol)}
               </span>
             </div>
-            <div className={`px-3 py-1.5 rounded-xl border text-xs font-black ${
+            <div className={`px-4 py-2.5 rounded-2xl border text-xs font-bold ${
               chartInfo.diffPercent >= 0 
-                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-950 dark:text-emerald-300' 
-                : 'bg-rose-500/20 border-rose-500/40 text-rose-950 dark:text-rose-300'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-300' 
+                : 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-300'
             }`}>
-              <span className="text-[10px] uppercase font-black block">Variación</span>
-              <span className="font-mono font-black text-sm">
+              <span className="text-xs font-medium block">Variación</span>
+              <span className="font-bold tabular-nums text-base">
                 {chartInfo.diffPercent >= 0 ? `+${chartInfo.diffPercent}%` : `${chartInfo.diffPercent}%`}
               </span>
             </div>
@@ -423,7 +423,7 @@ export const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
             <Legend 
               wrapperStyle={{ paddingTop: '10px', fontSize: '12px', fontWeight: 800 }}
               formatter={(value) => (
-                <span className="text-slate-950 dark:text-slate-50 font-black">
+                <span className="text-slate-950 dark:text-slate-50 font-semibold">
                   {value === 'primaryRevenue' ? chartInfo.primaryLabel : chartInfo.baselineLabel}
                 </span>
               )}
@@ -1420,21 +1420,21 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
   return (
     <div className="space-y-6 pb-14">
       {/* Top Header Card with Date Engine & Global Actions */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs transition-colors">
+      <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 transition-colors">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-amber-500 text-slate-950 font-black">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800">
                 <BarChart3 className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-slate-950 dark:text-slate-50 tracking-tight flex items-center gap-2">
+                <h2 className="font-display text-lg font-bold text-slate-950 dark:text-slate-50 flex items-center gap-2 flex-wrap">
                   <span>Reportes en Tiempo Real & Business Intelligence</span>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30">
                     En Vivo
                   </span>
                 </h2>
-                <p className="text-xs text-slate-700 dark:text-slate-300 font-medium mt-0.5">
+                <p className="text-[13px] font-medium text-slate-600 dark:text-slate-400 mt-0.5">
                   Auditoría financiera, libro contable PUC, análisis de rotación y pronósticos con IA Gemini.
                 </p>
               </div>
@@ -1444,12 +1444,12 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Date Range Selector Bar */}
           <div className="flex items-center gap-2 flex-wrap">
             {currentUser?.permissions?.canFilterReportDates !== false ? (
-              <div className="flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200">
+              <div className="flex min-h-[44px] items-center rounded-xl border border-slate-300 bg-white px-2 text-sm font-semibold text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
                 <Calendar className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 ml-1.5 mr-1" />
                 <select
                   value={datePreset}
                   onChange={(e) => setDatePreset(e.target.value as DatePreset)}
-                  className="bg-transparent border-none text-slate-950 dark:text-slate-100 font-bold focus:ring-0 outline-none pr-2 cursor-pointer"
+                  className="min-h-[40px] bg-transparent border-none text-slate-900 dark:text-slate-100 font-semibold focus:ring-0 outline-none pr-2 cursor-pointer"
                 >
                   <option value="today" className="bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100">📅 Hoy</option>
                   <option value="yesterday" className="bg-white dark:bg-slate-900 text-slate-950 dark:text-slate-100">⏪ Ayer</option>
@@ -1464,26 +1464,26 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </select>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-slate-100">
+              <div className="flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 text-sm font-semibold text-slate-800 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-100">
                 <Calendar className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
                 <span>Fecha: Hoy (Filtro fijado)</span>
               </div>
             )}
 
             {datePreset === 'custom' && currentUser?.permissions?.canFilterReportDates !== false && (
-              <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-300 dark:border-slate-700 text-xs">
+              <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-1 text-sm dark:border-slate-700 dark:bg-slate-900">
                 <input
                   type="date"
                   value={customStartDate}
                   onChange={(e) => setCustomStartDate(e.target.value)}
-                  className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0.5 text-xs font-mono text-slate-950 dark:text-slate-100"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
-                <span className="text-slate-700 dark:text-slate-300 font-bold">a</span>
+                <span className="text-slate-700 dark:text-slate-300 font-semibold">a</span>
                 <input
                   type="date"
                   value={customEndDate}
                   onChange={(e) => setCustomEndDate(e.target.value)}
-                  className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0.5 text-xs font-mono text-slate-950 dark:text-slate-100"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
               </div>
             )}
@@ -1494,59 +1494,59 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <div className="relative">
                   <button
                     onClick={() => setShowExportMenu(!showExportMenu)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 transition-colors shadow-xs cursor-pointer"
+                    className="flex min-h-[44px] items-center gap-2 px-4 rounded-xl text-sm font-semibold text-white transition cursor-pointer bg-emerald-700 hover:bg-emerald-600"
                     title="Opciones de exportación a Excel y CSV para contabilidad"
                   >
                     <FileSpreadsheet className="w-3.5 h-3.5" />
                     <span>Exportar Excel/CSV</span>
-                    <span className="text-[10px] ml-0.5">▼</span>
+                    <span className="text-xs ml-0.5">▼</span>
                   </button>
 
                   {showExportMenu && (
                     <div 
-                      className="absolute right-0 mt-1.5 w-64 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-xl z-50 p-1.5 text-xs text-slate-800 dark:text-slate-100 animate-fadeIn"
+                      className="absolute right-0 mt-1.5 w-72 rounded-2xl border border-slate-900/[0.06] bg-white p-1.5 text-sm text-slate-800 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.45)] z-50 animate-fadeIn dark:border-white/[0.07] dark:bg-slate-900 dark:text-slate-100"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="px-3 py-1.5 font-bold text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
+                      <div className="px-3 py-2 text-[13px] font-medium text-slate-600 dark:text-slate-400 border-b border-slate-200/70 dark:border-slate-800">
                         Exportación Contable & ERP
                       </div>
                       
                       <button
                         onClick={handleExportPaymentsCSV}
-                        className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                        className="w-full min-h-[44px] text-left flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       >
                         <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
                           <FileSpreadsheet className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-bold text-slate-900 dark:text-slate-100">Exportar Pagos (CSV/Excel)</div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400">Tickets, medios de pago, impuestos y desglose</div>
+                          <div className="font-semibold text-slate-900 dark:text-slate-100">Exportar Pagos (CSV/Excel)</div>
+                          <div className="text-xs text-slate-600 dark:text-slate-400">Tickets, medios de pago, impuestos y desglose</div>
                         </div>
                       </button>
 
                       <button
                         onClick={handleExportMovementsCSV}
-                        className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                        className="w-full min-h-[44px] text-left flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       >
                         <div className="p-1.5 rounded-lg bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300">
                           <Banknote className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-bold text-slate-900 dark:text-slate-100">Movimientos de Caja (CSV/Excel)</div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400">Gastos menores, base y traslados a bóveda</div>
+                          <div className="font-semibold text-slate-900 dark:text-slate-100">Movimientos de Caja (CSV/Excel)</div>
+                          <div className="text-xs text-slate-600 dark:text-slate-400">Gastos menores, base y traslados a bóveda</div>
                         </div>
                       </button>
 
                       <button
                         onClick={handleExportFullAccountingCSV}
-                        className="w-full text-left flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer border-t border-slate-100 dark:border-slate-800 mt-1"
+                        className="w-full min-h-[44px] text-left flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer border-t border-slate-200/70 dark:border-slate-800 mt-1"
                       >
                         <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300">
                           <BookOpen className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-bold text-slate-900 dark:text-slate-100">Libro Contable Completo (PUC)</div>
-                          <div className="text-[10px] text-slate-500 dark:text-slate-400">Estado de resultados, asientos y libro diario</div>
+                          <div className="font-semibold text-slate-900 dark:text-slate-100">Libro Contable Completo (PUC)</div>
+                          <div className="text-xs text-slate-600 dark:text-slate-400">Estado de resultados, asientos y libro diario</div>
                         </div>
                       </button>
                     </div>
@@ -1556,7 +1556,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <button
                   onClick={handleExportChartsPDF}
                   disabled={isExportingChartsPdf}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="flex min-h-[44px] items-center gap-2 px-4 rounded-xl text-sm font-semibold text-white transition cursor-pointer bg-amber-600 hover:bg-amber-500 disabled:opacity-50"
                   title="Exportar gráficos generados por Recharts a PDF profesional con sucursal y fecha actual"
                 >
                   {isExportingChartsPdf ? (
@@ -1568,7 +1568,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </button>
                 <button
                   onClick={handleExportPDF}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-700 hover:bg-rose-600 transition-colors shadow-xs cursor-pointer"
+                  className="flex min-h-[44px] items-center gap-2 px-4 rounded-xl text-sm font-semibold text-white transition cursor-pointer bg-rose-700 hover:bg-rose-600"
                   title="Exportar resumen y recibos a PDF"
                 >
                   <Printer className="w-3.5 h-3.5" />
@@ -1579,7 +1579,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+              className="flex items-center gap-2 transition cursor-pointer min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Imprimir</span>
@@ -1588,14 +1588,14 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
         </div>
 
         {/* Navigation Tabs Header */}
-        <div className="flex items-center gap-2 mt-5 pt-3 border-t border-slate-200 dark:border-slate-800 overflow-x-auto pb-1">
+        <div className="mt-5 flex w-full items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
           <button
             onClick={() => setActiveTab('overview')}
             aria-selected={activeTab === 'overview'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer ${
               activeTab === 'overview'
-                ? 'bg-amber-500/10 dark:bg-amber-400/10 text-amber-950 dark:text-amber-300 border border-amber-600 dark:border-amber-500 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <BarChart3 className="w-4 h-4 text-amber-500" />
@@ -1605,15 +1605,15 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <button
             onClick={() => setActiveTab('executive_summary')}
             aria-selected={activeTab === 'executive_summary'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer ${
               activeTab === 'executive_summary'
-                ? 'bg-amber-500/10 dark:bg-amber-400/10 text-amber-950 dark:text-amber-300 border border-amber-600 dark:border-amber-500 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <TrendingUp className="w-4 h-4 text-amber-500" />
             <span>Resumen Ejecutivo (Tendencia 24h)</span>
-            <span className="text-[9px] font-black uppercase px-1.5 py-0.5 bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 rounded-full">
+            <span className="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 rounded-full">
               Recharts
             </span>
           </button>
@@ -1621,10 +1621,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <button
             onClick={() => setActiveTab('accounting')}
             aria-selected={activeTab === 'accounting'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer ${
               activeTab === 'accounting'
-                ? 'bg-emerald-500/10 dark:bg-emerald-400/10 text-emerald-950 dark:text-emerald-300 border border-emerald-600 dark:border-emerald-500 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <BookOpen className="w-4 h-4 text-emerald-500" />
@@ -1634,10 +1634,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <button
             onClick={() => setActiveTab('analytics')}
             aria-selected={activeTab === 'analytics'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer ${
               activeTab === 'analytics'
-                ? 'bg-sky-500/10 dark:bg-sky-400/10 text-sky-950 dark:text-sky-300 border border-sky-600 dark:border-sky-500 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <PieChart className="w-4 h-4 text-sky-500" />
@@ -1647,15 +1647,15 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <button
             onClick={() => setActiveTab('ai_forecast')}
             aria-selected={activeTab === 'ai_forecast'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer relative ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer relative ${
               activeTab === 'ai_forecast'
-                ? 'bg-indigo-600 text-white shadow-xs border border-indigo-500'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-indigo-200 dark:border-indigo-900/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-300 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-300 motion-safe:animate-pulse" />
             <span>Inteligencia Artificial Gemini (Pronósticos)</span>
-            <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-amber-400 text-slate-950 rounded-full">
+            <span className="text-xs font-semibold px-2 py-0.5 bg-amber-400 text-slate-950 rounded-full">
               IA
             </span>
           </button>
@@ -1663,10 +1663,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <button
             onClick={() => setActiveTab('history')}
             aria-selected={activeTab === 'history'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer ${
               activeTab === 'history'
-                ? 'bg-slate-200 dark:bg-slate-800 text-slate-950 dark:text-slate-100 border border-slate-300 dark:border-slate-700 shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <History className="w-4 h-4" />
@@ -1676,15 +1676,15 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <button
             onClick={() => setActiveTab('cash_closures')}
             aria-selected={activeTab === 'cash_closures'}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex min-h-[44px] shrink-0 items-center gap-2 px-3.5 rounded-lg text-sm font-semibold transition whitespace-nowrap cursor-pointer ${
               activeTab === 'cash_closures'
-                ? 'bg-indigo-600 text-white shadow-xs border border-indigo-500 ring-2 ring-indigo-400/40'
-                : 'text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-indigo-800 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-500/10'
             }`}
           >
             <History className="w-4 h-4 text-indigo-400" />
             <span>Cierres & Arqueos de Caja ({safeClosedShifts.length + safeClosedDays.length})</span>
-            <span className="text-[9px] font-black uppercase px-1.5 py-0.2 bg-emerald-400 text-slate-950 rounded-full font-mono">
+            <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-400 text-slate-950 rounded-full">
               OFICIAL
             </span>
           </button>
@@ -1707,92 +1707,92 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* Primary Top KPI Metric Cards */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">Recaudo Total</span>
-                <div className="p-1 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Recaudo Total</span>
+                <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/30">
                   <DollarSign className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-black text-slate-900 dark:text-white font-mono mt-1">
+              <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">
                 {formatCurrency(totalRevenue, rates.currencySymbol)}
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-200 mt-0.5">
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 {periodLabel}
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">Vehículos Atendidos</span>
-                <div className="p-1 rounded-lg bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800/60">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Vehículos Atendidos</span>
+                <div className="p-1.5 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/30">
                   <Car className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-black text-slate-900 dark:text-white font-mono mt-1">
+              <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">
                 {totalCompletedVehicles}
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-200 mt-0.5">
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 Transacciones liquidadas
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">Ticket Promedio</span>
-                <div className="p-1 rounded-lg bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Ticket Promedio</span>
+                <div className="p-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/30">
                   <TrendingUp className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-black text-slate-900 dark:text-white font-mono mt-1">
+              <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">
                 {formatCurrency(averageTicket, rates.currencySymbol)}
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-200 mt-0.5">
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 Por vehículo
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">Estancia Media</span>
-                <div className="p-1 rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Estancia Media</span>
+                <div className="p-1.5 rounded-lg bg-purple-50 text-purple-800 border border-purple-200 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/30">
                   <Clock className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-black text-slate-900 dark:text-white font-mono mt-1">
+              <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">
                 {Math.floor(averageStayMinutes / 60)}h {averageStayMinutes % 60}m
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-200 mt-0.5">
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 {averageStayMinutes} minutos promedio
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">Rotación de Plazas</span>
-                <div className="p-1 rounded-lg bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800/60">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Rotación de Plazas</span>
+                <div className="p-1.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200 dark:bg-teal-500/10 dark:text-teal-300 dark:border-teal-500/30">
                   <Zap className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-black text-slate-900 dark:text-white font-mono mt-1">
+              <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">
                 {turnoverRate}x
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-200 mt-0.5">
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 Usos por plaza ({totalSpotsCount} puestos)
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-200">Facturación DIAN</span>
-                <div className="p-1 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Facturación DIAN</span>
+                <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-800 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-black text-slate-900 dark:text-white font-mono mt-1">
+              <div className="font-display text-2xl font-bold tabular-nums text-slate-900 dark:text-white mt-1">
                 {accountingSummary.electronicInvoicesCount}
               </div>
-              <div className="text-[10px] text-slate-600 dark:text-slate-200 mt-0.5">
+              <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 {formatCurrency(accountingSummary.electronicInvoicesAmount, rates.currencySymbol)}
               </div>
             </div>
@@ -1802,18 +1802,18 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-amber-500" />
                   <span>Análisis Gráfico en Tiempo Real</span>
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300">
+                <p className="text-[13px] text-slate-600 dark:text-slate-400">
                   Visualización de ingresos semanales y categorización del parque automotor
                 </p>
               </div>
               <button
                 onClick={handleExportChartsPDF}
                 disabled={isExportingChartsPdf}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-950/70 border border-amber-300 dark:border-amber-800/80 transition-colors shadow-xs self-start sm:self-auto cursor-pointer disabled:opacity-50"
+                className="flex min-h-[44px] items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 text-sm font-semibold text-amber-900 hover:bg-amber-100 transition self-start sm:self-auto cursor-pointer disabled:opacity-50 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20"
                 title="Exportar estos gráficos generados por Recharts a PDF utilizando jsPDF y html2canvas"
               >
                 {isExportingChartsPdf ? (
@@ -1825,32 +1825,32 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </button>
             </div>
 
-            <div ref={chartsContainerRef} className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div ref={chartsContainerRef} className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800 pb-4">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 font-mono">
+                  <span className="text-[13px] font-semibold text-amber-700 dark:text-amber-400">
                     Sucursal Actual: {effectiveBranchName}
                   </span>
-                  <div className="text-[11px] text-slate-600 dark:text-slate-400 font-mono">
+                  <div className="text-xs tabular-nums text-slate-600 dark:text-slate-400">
                     NIT: {businessInfo.nit || 'Sin NIT'}
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-0.5">Rendimiento Operativo y Flota</h4>
+                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">Rendimiento Operativo y Flota</h4>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 block">
+                  <span className="text-xs tabular-nums text-slate-600 dark:text-slate-400 block">
                     Fecha de Emisión: {businessInfo.fechaEmision || businessInfo.emissionDate || new Date().toLocaleDateString('es-CO')}
                   </span>
-                  <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                  <span className="text-xs tabular-nums text-emerald-700 dark:text-emerald-400 font-semibold">
                     Período: {periodLabel}
                   </span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/60">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200">Ingresos Diarios (Última Semana)</h4>
-                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">COP ($)</span>
+                    <h4 className="text-[13px] font-semibold text-slate-800 dark:text-slate-200">Ingresos Diarios (Última Semana)</h4>
+                    <span className="text-xs tabular-nums text-slate-600 dark:text-slate-400">COP ($)</span>
                   </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1865,10 +1865,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   </div>
                 </div>
                 
-                <div className="bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/60">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200">Distribución por Tipo de Vehículo</h4>
-                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">Unidades</span>
+                    <h4 className="text-[13px] font-semibold text-slate-800 dark:text-slate-200">Distribución por Tipo de Vehículo</h4>
+                    <span className="text-xs tabular-nums text-slate-600 dark:text-slate-400">Unidades</span>
                   </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1890,11 +1890,11 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Graphics Section: Revenue by Vehicle Type & Payment Methods & Peak Hours */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Revenue Breakdown by Vehicle Type */}
-            <div className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+            <div className="lg:col-span-4 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 flex flex-col justify-between">
               <div>
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center justify-between">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                   <span>Ingresos por Tipo de Vehículo</span>
-                  <span className="text-xs text-slate-600 dark:text-slate-400 font-normal">Participación</span>
+                  <span className="text-[13px] text-slate-600 dark:text-slate-400 font-normal">Participación</span>
                 </h3>
 
                 <div className="mt-4 space-y-3.5">
@@ -1902,7 +1902,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     const percentage = totalRevenue > 0 ? Math.round((stat.revenue / totalRevenue) * 100) : 0;
                     return (
                       <div key={key} className="space-y-1.5">
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm">
                           <span className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             {key === 'car' && <Car className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
                             {key === 'motorcycle' && <Bike className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
@@ -1910,7 +1910,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                             {key === 'bicycle' && <Bike className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />}
                             {stat.name} ({stat.count})
                           </span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                          <span className="font-bold tabular-nums text-slate-900 dark:text-slate-100">
                             {formatCurrency(stat.revenue, rates.currencySymbol)} ({percentage}%)
                           </span>
                         </div>
@@ -1931,71 +1931,71 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </div>
 
               {/* Payment Methods Breakdown */}
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider mb-2.5">
+              <div className="mt-6 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                <h4 className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 mb-2.5">
                   Recaudo por Medio de Pago
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <Banknote className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Efectivo ({paymentStats.cash.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Efectivo ({paymentStats.cash.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.cash.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Tarjetas ({paymentStats.card.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Tarjetas ({paymentStats.card.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.card.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <Smartphone className="w-4 h-4 text-pink-600 dark:text-pink-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Nequi ({paymentStats.nequi.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Nequi ({paymentStats.nequi.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.nequi.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <Smartphone className="w-4 h-4 text-red-600 dark:text-red-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Daviplata ({paymentStats.daviplata.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Daviplata ({paymentStats.daviplata.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.daviplata.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">QR Bancolombia ({paymentStats.qr_bancolombia.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">QR Bancolombia ({paymentStats.qr_bancolombia.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.qr_bancolombia.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <QrCode className="w-4 h-4 text-purple-600 dark:text-purple-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Transferencia / PSE ({paymentStats.transfer.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Transferencia / PSE ({paymentStats.transfer.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.transfer.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <Layers className="w-4 h-4 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Bre-B ({paymentStats.bre_b.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Bre-B ({paymentStats.bre_b.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.bre_b.amount, rates.currencySymbol)}
                     </div>
                   </div>
 
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
                     <Building2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400 mx-auto mb-1" />
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400">Convenios ({paymentStats.agreement.count})</div>
-                    <div className="font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400">Convenios ({paymentStats.agreement.count})</div>
+                    <div className="font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-0.5">
                       {formatCurrency(paymentStats.agreement.amount, rates.currencySymbol)}
                     </div>
                   </div>
@@ -2003,55 +2003,55 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </div>
 
               {/* Foreign vs National Plates Breakdown */}
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div className="mt-6 pt-4 border-t border-slate-200/70 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-2.5">
-                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-[13px] font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-sky-500" />
                     <span>Procedencia de Placas</span>
                   </h4>
-                  <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">
+                  <span className="text-xs tabular-nums text-slate-600 dark:text-slate-400">
                     {plateOriginStats.foreignCount} extranjeras / {filteredPaidTickets.length} total
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300 mb-1">
+                  <div className="wz-tile rounded-xl border border-slate-200 bg-white p-2.5 dark:border-slate-700 dark:bg-slate-800">
+                    <div className="flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-300 mb-1">
                       <span className="font-semibold flex items-center gap-1">🇨🇴 Nacionales</span>
-                      <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{plateOriginStats.nationalCount}</span>
+                      <span className="font-bold tabular-nums text-slate-800 dark:text-slate-200">{plateOriginStats.nationalCount}</span>
                     </div>
-                    <div className="font-bold font-mono text-sm text-slate-900 dark:text-slate-100">
+                    <div className="font-bold tabular-nums text-base text-slate-900 dark:text-slate-100">
                       {formatCurrency(plateOriginStats.nationalRevenue, rates.currencySymbol)}
                     </div>
-                    <div className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">
+                    <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                       {filteredPaidTickets.length > 0 ? Math.round((plateOriginStats.nationalCount / filteredPaidTickets.length) * 100) : 0}% de los ingresos
                     </div>
                   </div>
 
-                  <div className="p-2.5 bg-sky-50/60 dark:bg-sky-950/40 rounded-xl border border-sky-200 dark:border-sky-800/60">
-                    <div className="flex items-center justify-between text-[11px] text-sky-800 dark:text-sky-300 mb-1">
+                  <div className="p-2.5 rounded-xl border border-sky-200 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-500/10">
+                    <div className="flex items-center justify-between text-[13px] text-sky-800 dark:text-sky-300 mb-1">
                       <span className="font-semibold flex items-center gap-1">🌐 Extranjeras</span>
-                      <span className="font-mono font-bold text-sky-900 dark:text-sky-200">{plateOriginStats.foreignCount}</span>
+                      <span className="font-bold tabular-nums text-sky-900 dark:text-sky-200">{plateOriginStats.foreignCount}</span>
                     </div>
-                    <div className="font-bold font-mono text-sm text-sky-950 dark:text-sky-100">
+                    <div className="font-bold tabular-nums text-base text-sky-950 dark:text-sky-100">
                       {formatCurrency(plateOriginStats.foreignRevenue, rates.currencySymbol)}
                     </div>
-                    <div className="text-[10px] text-sky-600 dark:text-sky-400 mt-0.5">
+                    <div className="text-xs text-sky-700 dark:text-sky-300 mt-0.5">
                       {filteredPaidTickets.length > 0 ? Math.round((plateOriginStats.foreignCount / filteredPaidTickets.length) * 100) : 0}% de los ingresos
                     </div>
                   </div>
                 </div>
 
                 {plateOriginStats.foreignCount > 0 && Object.keys(plateOriginStats.countriesMap).length > 0 && (
-                  <div className="mt-2.5 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  <div className="mt-2.5 p-2.5 rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/60">
+                    <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Países de Origen Registrados:
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {Object.entries(plateOriginStats.countriesMap).map(([country, cData]) => (
-                        <span key={country} className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded-full">
+                        <span key={country} className="inline-flex items-center gap-1 text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded-full">
                           <span>{country}</span>
-                          <span className="font-bold text-sky-700 dark:text-sky-400 font-mono">({cData.count})</span>
+                          <span className="font-bold text-sky-700 dark:text-sky-400 tabular-nums">({cData.count})</span>
                         </span>
                       ))}
                     </div>
@@ -2061,19 +2061,19 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Right: Peak Hours Histogram */}
-            <div className="lg:col-span-8 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between">
+            <div className="lg:col-span-8 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between pb-4 border-b border-slate-200/70 dark:border-slate-800">
                   <div>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">Análisis de Horas Pico & Flujo de Vehículos</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Entradas y salidas registradas en el período</p>
+                    <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Análisis de Horas Pico & Flujo de Vehículos</h3>
+                    <p className="text-[13px] text-slate-600 dark:text-slate-400">Entradas y salidas registradas en el período</p>
                   </div>
                   <div className="flex items-center gap-3 text-xs">
-                    <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                    <span className="flex items-center gap-1.5 text-[13px] font-medium text-slate-600 dark:text-slate-400">
                       <span className="w-2.5 h-2.5 rounded-sm bg-amber-500"></span>
                       <span>Entradas</span>
                     </span>
-                    <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                    <span className="flex items-center gap-1.5 text-[13px] font-medium text-slate-600 dark:text-slate-400">
                       <span className="w-2.5 h-2.5 rounded-sm bg-slate-700 dark:bg-slate-400"></span>
                       <span>Salidas</span>
                     </span>
@@ -2089,13 +2089,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
                     return (
                       <div key={item.hour} className="flex-1 flex flex-col items-center gap-1.5 group relative h-full justify-end">
-                        <div className="absolute -top-12 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-[10px] p-1.5 rounded shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap font-mono border border-slate-200 dark:border-slate-700">
+                        <div className="absolute -top-14 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs p-2 rounded-xl shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20 whitespace-nowrap tabular-nums border border-slate-200 dark:border-slate-700">
                           <div>Hora: {item.hour}</div>
                           <div>Entradas: {item.entries} | Salidas: {item.exits}</div>
                         </div>
 
                         <div
-                          className="w-full max-w-[28px] rounded-t-md overflow-hidden flex flex-col justify-end bg-slate-100 dark:bg-slate-800 transition-all"
+                          className="w-full max-w-[28px] rounded-t-lg overflow-hidden flex flex-col justify-end bg-slate-100 dark:bg-slate-800 transition-all"
                           style={{ height: `${Math.max(8, totalHeight)}%` }}
                         >
                           <div
@@ -2108,7 +2108,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                           ></div>
                         </div>
 
-                        <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300 transform -rotate-45 sm:rotate-0 sm:text-[10px]">
+                        <span className="text-xs tabular-nums text-slate-600 dark:text-slate-300 transform -rotate-45 sm:rotate-0">
                           {item.hour.split(':')[0]}h
                         </span>
                       </div>
@@ -2117,28 +2117,28 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
+              <div className="mt-4 pt-4 border-t border-slate-200/70 dark:border-slate-800 text-[13px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
                 <span>💡 Diagnóstico de Afluencia: Horas pico habituales <strong>08:00 - 10:00</strong> y <strong>16:00 - 18:30</strong></span>
-                <span className="font-mono text-[11px] text-slate-700 dark:text-slate-200">Total movimientos: {filteredPaidTickets.length + activeTickets.length}</span>
+                <span className="tabular-nums text-[13px] text-slate-700 dark:text-slate-200">Total movimientos: {filteredPaidTickets.length + activeTickets.length}</span>
               </div>
             </div>
           </div>
 
           {/* Showcase Directo de Cierres & Arqueos de Caja (Día 1 Operativo Simulado) */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800">
                   <History className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h4 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 flex-wrap">
                     <span>Histórico Oficial de Cierres de Jornada & Arqueos de Turno</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/30">
                       {safeClosedShifts.length + safeClosedDays.length} Registros
                     </span>
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">
                     Comprobantes térmicos SAT 22TUS y actas fiscales de la simulación operativa
                   </p>
                 </div>
@@ -2147,7 +2147,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveTab('cash_closures')}
-                className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+                className="transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
               >
                 <span>Ver Pestaña Detallada de Cierres ({safeClosedShifts.length + safeClosedDays.length}) →</span>
               </button>
@@ -2159,10 +2159,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               {safeClosedDays.slice(0, 1).map((day) => (
                 <div
                   key={day.id}
-                  className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-xl p-3.5 space-y-2.5"
+                  className="bg-emerald-50 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30 rounded-2xl p-4 space-y-2.5"
                 >
                   <div className="flex items-center justify-between gap-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-600 text-white font-mono">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-mono">
                       {day.consecutiveCode || 'Z-0001'} (Reporte Z)
                     </span>
                     <button
@@ -2171,20 +2171,20 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                         setSelectedRecordForTicket({ type: 'day', day });
                         setIsHistoryModalOpen(true);
                       }}
-                      className="px-2 py-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                      className="min-h-[44px] px-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-sm font-semibold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
                     >
                       <Printer className="w-3 h-3 text-emerald-400" />
                       <span>Ver Tiquete</span>
                     </button>
                   </div>
-                  <div className="text-xs text-slate-700 dark:text-slate-300">
+                  <div className="text-sm text-slate-700 dark:text-slate-300">
                     <div className="font-bold text-slate-900 dark:text-white truncate">Día 1 Operativo Completo</div>
-                    <div className="text-[11px] text-slate-500">Supervisor: {day.closedByOperator || (day as any).closedByName || 'Carlos Mario Zapata'}</div>
+                    <div className="text-[13px] text-slate-600 dark:text-slate-400">Supervisor: {day.closedByOperator || (day as any).closedByName || 'Carlos Mario Zapata'}</div>
                   </div>
-                  <div className="pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-500">Recaudo Total:</span>
-                    <span className="font-black text-emerald-700 dark:text-emerald-300">
-                      {formatCurrency(day.totalCollected || 440000, rates.currencySymbol)}
+                  <div className="pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-between text-sm">
+                    <span className="text-slate-600 dark:text-slate-400">Recaudo Total:</span>
+                    <span className="font-bold tabular-nums text-emerald-700 dark:text-emerald-300">
+                      {formatCurrency(day.totalCollected || 0, rates.currencySymbol)}
                     </span>
                   </div>
                 </div>
@@ -2194,14 +2194,14 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               {safeClosedShifts.slice(0, 2).map((shift) => (
                 <div
                   key={shift.id}
-                  className="bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 space-y-2.5"
+                  className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-900/60"
                 >
                   <div className="flex items-center justify-between gap-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-600 text-white font-mono">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-mono">
                         Turno #{shift.shiftNumber}
                       </span>
-                      <span className="text-[10px] font-bold font-mono text-slate-600 dark:text-slate-400">
+                      <span className="text-xs font-semibold font-mono text-slate-600 dark:text-slate-400">
                         {shift.consecutiveCode}
                       </span>
                     </div>
@@ -2211,21 +2211,21 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                         setSelectedRecordForTicket({ type: 'shift', shift });
                         setIsHistoryModalOpen(true);
                       }}
-                      className="px-2 py-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 text-white text-[11px] font-bold rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                      className="min-h-[44px] px-3 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-sm font-semibold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
                     >
                       <Printer className="w-3 h-3 text-indigo-400" />
                       <span>Ver Tiquete</span>
                     </button>
                   </div>
-                  <div className="text-xs text-slate-700 dark:text-slate-300">
+                  <div className="text-sm text-slate-700 dark:text-slate-300">
                     <div className="font-bold text-slate-900 dark:text-white truncate">Cajero: {shift.operatorName}</div>
-                    <div className="text-[11px] text-slate-500 font-mono">
+                    <div className="text-[13px] tabular-nums text-slate-600 dark:text-slate-400">
                       {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}
                     </div>
                   </div>
-                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-500">Recaudo:</span>
-                    <span className="font-black text-slate-900 dark:text-white">
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-sm">
+                    <span className="text-slate-600 dark:text-slate-400">Recaudo:</span>
+                    <span className="font-bold tabular-nums text-slate-900 dark:text-white">
                       {formatCurrency(shift.totalCollectedSnapshot || 0, rates.currencySymbol)}
                     </span>
                   </div>
@@ -2268,13 +2268,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {activeTab === 'accounting' && (
         <div className="space-y-6">
           {/* Top Actions & Summary Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <span>Libro Diario Contable & Integraciones Fiscales (PUC)</span>
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
                 Plan Único de Cuentas estándar para exportación a Siigo, World Office, Helisa, Alegra o DIAN.
               </p>
             </div>
@@ -2282,7 +2282,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleCopyPucText}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 {copiedPuc ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copiedPuc ? '¡Copiado!' : 'Copiar Resumen'}</span>
@@ -2290,7 +2290,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
               <button
                 onClick={handleExportPucCSV}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors shadow-xs cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-slate-800 px-4 text-sm font-semibold text-white transition-colors hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 cursor-pointer"
                 title="Descargar solo asientos contables PUC para software ERP"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -2299,7 +2299,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
               <button
                 onClick={handleExportFullAccountingCSV}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 transition-colors shadow-xs cursor-pointer"
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white transition-colors hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 cursor-pointer"
                 title="Descargar libro contable consolidado con P&L, transacciones y balance"
               >
                 <BookOpen className="w-3.5 h-3.5" />
@@ -2311,13 +2311,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Financial Statements Grid: P&L + Balance */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Estado de Resultados Operacional (P&L) */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
               <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Estado Financiero</span>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Estado de Resultados Operativo</h4>
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Estado Financiero</span>
+                <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Estado de Resultados Operativo</h4>
               </div>
 
-              <div className="space-y-2.5 text-xs font-mono">
+              <div className="space-y-2.5 text-sm tabular-nums">
                 <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>(+) Ingresos Brutos por Parqueo:</span>
                   <span className="font-bold">{formatCurrency(accountingSummary.grossRevenue, rates.currencySymbol)}</span>
@@ -2326,7 +2326,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <span>(-) Descuentos / Cortesías:</span>
                   <span className="font-bold">-{formatCurrency(accountingSummary.discounts, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold border-t border-slate-200 dark:border-slate-700 pt-1.5 bg-slate-50 dark:bg-slate-800/60 p-1.5 rounded">
+                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold bg-slate-50 dark:bg-slate-800/60 px-3 py-2.5 rounded-xl">
                   <span>(=) Ingreso Neto Facturado:</span>
                   <span>{formatCurrency(accountingSummary.netRevenue, rates.currencySymbol)}</span>
                 </div>
@@ -2334,13 +2334,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <span>(-) Gastos de Caja Menor (PUC 51):</span>
                   <span className="font-bold">-{formatCurrency(accountingSummary.totalExpenses, rates.currencySymbol)}</span>
                 </div>
-                <div className="flex justify-between text-slate-950 dark:text-emerald-100 font-black text-sm border-t-2 border-slate-200 dark:border-slate-800 pt-2 bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-xl border border-emerald-300 dark:border-emerald-800/80">
+                <div className="flex justify-between text-slate-950 dark:text-emerald-100 font-bold text-base bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/30">
                   <span>UTILIDAD OPERATIVA:</span>
                   <span className="text-emerald-950 dark:text-emerald-300">{formatCurrency(accountingSummary.operatingIncome, rates.currencySymbol)}</span>
                 </div>
               </div>
 
-              <div className="text-[10px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
+              <div className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5 tabular-nums">
                 <div className="font-bold text-slate-700 dark:text-slate-200">💡 Resumen de Gastos por Categoría:</div>
                 {Object.entries(accountingSummary.expensesByCategory).length === 0 ? (
                   <div className="text-slate-500 dark:text-slate-400">Sin egresos registrados en el período seleccionado.</div>
@@ -2356,13 +2356,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Resumen Fiscal DIAN & Facturación Electrónica */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
               <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Auditoría Fiscal</span>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Facturación Electrónica & DIAN</h4>
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Auditoría Fiscal</span>
+                <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Facturación Electrónica & DIAN</h4>
               </div>
 
-              <div className="space-y-2.5 text-xs font-mono">
+              <div className="space-y-2.5 text-sm tabular-nums">
                 <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>Base Gravable de Servicios:</span>
                   <span className="font-bold">{formatCurrency(accountingSummary.baseRevenue, rates.currencySymbol)}</span>
@@ -2379,13 +2379,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <span>Tickets POS Estándar:</span>
                   <span className="font-bold">{accountingSummary.standardTicketsCount}</span>
                 </div>
-                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold border-t border-slate-200 dark:border-slate-700 pt-1.5 bg-slate-50 dark:bg-slate-800/60 p-1.5 rounded">
+                <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold bg-slate-50 dark:bg-slate-800/60 px-3 py-2.5 rounded-xl">
                   <span>Resolución DIAN:</span>
                   <span>{businessInfo.dianResolutionNumber || 'Habilitada'}</span>
                 </div>
               </div>
 
-              <div className="p-3 bg-amber-50 dark:bg-amber-950/40 rounded-xl border border-amber-200 dark:border-amber-800/60 text-[10px] text-slate-700 dark:text-amber-200 space-y-1">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 space-y-1">
                 <div className="font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>Cumplimiento Normativo DIAN:</span>
@@ -2395,13 +2395,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Conciliación de Cuentas del Activo (1105 / 1110) */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
               <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Activos Disponibles</span>
-                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Recaudos por Cuentas Contables</h4>
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Activos Disponibles</span>
+                <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Recaudos por Cuentas Contables</h4>
               </div>
 
-              <div className="space-y-2 text-xs font-mono">
+              <div className="space-y-2 text-sm tabular-nums">
                 <div className="flex justify-between text-slate-700 dark:text-slate-200">
                   <span>110505 (Caja General Efectivo):</span>
                   <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(accountingSummary.cashRevenue, rates.currencySymbol)}</span>
@@ -2428,10 +2428,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </div>
               </div>
 
-              <div className={`p-2.5 rounded-xl border text-xs font-mono font-bold flex items-center justify-between ${
+              <div className={`px-3.5 py-3 rounded-xl border text-sm font-bold tabular-nums flex items-center justify-between ${
                 accountingSummary.isBalanced 
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200' 
-                  : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-950 dark:text-rose-200'
+                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200' 
+                  : 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-200'
               }`}>
                 <span>SUMAS IGUALES:</span>
                 <span>{accountingSummary.isBalanced ? '✓ CUADRADO EXACTO' : '⚠ DESCUADRE'}</span>
@@ -2440,54 +2440,54 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           </div>
 
           {/* Detailed PUC Journal Entry Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
-              <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden">
+            <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <span>Libro Diario de Asientos Contables PUC</span>
                 <span className="text-xs bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold px-2 py-0.5 rounded-full">
                   {accountingSummary.pucJournal.length} Asientos
                 </span>
               </h4>
-              <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+              <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400 tabular-nums">
                 Período: {periodLabel}
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
-                <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-medium text-[13px] border-b border-slate-200 dark:border-slate-800">
                   <tr>
-                    <th className="py-2.5 px-4">Cuenta PUC</th>
-                    <th className="py-2.5 px-4">Nombre de la Cuenta</th>
-                    <th className="py-2.5 px-4">Concepto / Detalle</th>
-                    <th className="py-2.5 px-4 text-right">Débito (+)</th>
-                    <th className="py-2.5 px-4 text-right">Crédito (-)</th>
+                    <th className="py-3 px-4">Cuenta PUC</th>
+                    <th className="py-3 px-4">Nombre de la Cuenta</th>
+                    <th className="py-3 px-4">Concepto / Detalle</th>
+                    <th className="py-3 px-4 text-right">Débito (+)</th>
+                    <th className="py-3 px-4 text-right">Crédito (-)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {accountingSummary.pucJournal.map((entry, idx) => (
                     <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="py-2.5 px-4 font-bold text-slate-900 dark:text-slate-100">{entry.code}</td>
-                      <td className="py-2.5 px-4 font-semibold text-slate-800 dark:text-slate-200">{entry.accountName}</td>
-                      <td className="py-2.5 px-4 text-slate-600 dark:text-slate-400">{entry.description}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-emerald-700 dark:text-emerald-400">
+                      <td className="py-3 px-4 font-bold tabular-nums text-slate-900 dark:text-slate-100">{entry.code}</td>
+                      <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">{entry.accountName}</td>
+                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{entry.description}</td>
+                      <td className="py-3 px-4 text-right font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
                         {entry.debit > 0 ? formatCurrency(entry.debit, rates.currencySymbol) : '-'}
                       </td>
-                      <td className="py-2.5 px-4 text-right font-bold text-slate-800 dark:text-slate-200">
+                      <td className="py-3 px-4 text-right font-bold tabular-nums text-slate-800 dark:text-slate-200">
                         {entry.credit > 0 ? formatCurrency(entry.credit, rates.currencySymbol) : '-'}
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-xs border-t border-slate-200 dark:border-slate-800">
+                <tfoot className="bg-slate-50 dark:bg-slate-800/60 text-slate-900 dark:text-white font-bold text-sm border-t border-slate-200 dark:border-slate-800">
                   <tr>
-                    <td colSpan={3} className="py-3 px-4 uppercase text-right tracking-wider">
+                    <td colSpan={3} className="py-3 px-4 text-right">
                       TOTAL SUMAS IGUALES DEL PERÍODO:
                     </td>
-                    <td className="py-3 px-4 text-right font-black text-emerald-700 dark:text-emerald-400">
+                    <td className="py-3 px-4 text-right font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
                       {formatCurrency(accountingSummary.totalDebits, rates.currencySymbol)}
                     </td>
-                    <td className="py-3 px-4 text-right font-black text-emerald-700 dark:text-emerald-400">
+                    <td className="py-3 px-4 text-right font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
                       {formatCurrency(accountingSummary.totalCredits, rates.currencySymbol)}
                     </td>
                   </tr>
@@ -2506,11 +2506,11 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Top Analytics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Duración de Estancia */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Segmentación por Tiempos de Estancia</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Distribución de permanencia en el parqueadero</p>
+                  <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Segmentación por Tiempos de Estancia</h4>
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">Distribución de permanencia en el parqueadero</p>
                 </div>
                 <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               </div>
@@ -2520,9 +2520,9 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   const pct = totalCompletedVehicles > 0 ? Math.round((bucket.count / totalCompletedVehicles) * 100) : 0;
                   return (
                     <div key={key} className="space-y-1">
-                      <div className="flex justify-between text-xs">
+                      <div className="flex justify-between text-sm">
                         <span className="font-semibold text-slate-700 dark:text-slate-200">{bucket.label} ({bucket.count})</span>
-                        <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                        <span className="tabular-nums font-bold text-slate-900 dark:text-slate-100">
                           {formatCurrency(bucket.revenue, rates.currencySymbol)} ({pct}%)
                         </span>
                       </div>
@@ -2539,11 +2539,11 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Adopción Digital vs Efectivo */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Digitalización de Recaudos</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Efectivo vs Canales Electrónicos / QR</p>
+                  <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Digitalización de Recaudos</h4>
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">Efectivo vs Canales Electrónicos / QR</p>
                 </div>
                 <CreditCard className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               </div>
@@ -2556,7 +2556,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
                 return (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-sm tabular-nums">
                       <div>
                         <div className="text-slate-600 dark:text-slate-400">Efectivo Físico</div>
                         <div className="font-bold text-slate-900 dark:text-slate-100 text-sm">{formatCurrency(cashTotal, rates.currencySymbol)} ({cashPct}%)</div>
@@ -2572,7 +2572,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <div className="bg-indigo-600 dark:bg-indigo-500 h-full" style={{ width: `${digitalPct}%` }}></div>
                     </div>
 
-                    <div className="text-[10px] text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                       💡 <strong>Nivel de Digitalización: {digitalPct}%</strong>. {digitalPct > 40 ? 'Excelente adopción de pagos electrónicos.' : 'Oportunidad para incentivar pagos QR / Bre-B para reducir manejo de efectivo.'}
                     </div>
                   </div>
@@ -2581,27 +2581,27 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Rotación y Rendimiento General */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Eficiencia Operativa</h4>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400">Capacidad y aprovechamiento del espacio</p>
+                  <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Eficiencia Operativa</h4>
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">Capacidad y aprovechamiento del espacio</p>
                 </div>
                 <Zap className="w-4 h-4 text-amber-500" />
               </div>
 
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="text-slate-600 dark:text-slate-300">Plazas Habilitadas:</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{totalSpotsCount} plazas</span>
+                  <span className="tabular-nums font-bold text-slate-900 dark:text-slate-100">{totalSpotsCount} plazas</span>
                 </div>
-                <div className="flex justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="text-slate-600 dark:text-slate-300">Rotación Media por Plaza:</span>
-                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">{turnoverRate} rotaciones / período</span>
+                  <span className="tabular-nums font-bold text-emerald-700 dark:text-emerald-400">{turnoverRate} rotaciones / período</span>
                 </div>
-                <div className="flex justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between px-3.5 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
                   <span className="text-slate-600 dark:text-slate-300">Ingreso Generado por Plaza:</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                  <span className="tabular-nums font-bold text-slate-900 dark:text-slate-100">
                     {formatCurrency(totalSpotsCount > 0 ? Math.round(totalRevenue / totalSpotsCount) : 0, rates.currencySymbol)}
                   </span>
                 </div>
@@ -2612,27 +2612,27 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           {/* Ranking Tables: Top Placas Frecuentes & Top Plazas Productivas */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Top 10 Placas Frecuentes */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
-                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden">
+              <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+                <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <Award className="w-4 h-4 text-amber-500" />
                   <span>Top Vehículos Frecuentes (Fidelización)</span>
                 </h4>
-                <span className="text-xs text-slate-600 dark:text-slate-400">Más visitas</span>
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Más visitas</span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-medium text-[13px] border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="py-2.5 px-4">#</th>
-                      <th className="py-2.5 px-4">Placa</th>
-                      <th className="py-2.5 px-4">Tipo</th>
-                      <th className="py-2.5 px-4 text-center">Visitas</th>
-                      <th className="py-2.5 px-4 text-right">Recaudo Aportado</th>
+                      <th className="py-3 px-4">#</th>
+                      <th className="py-3 px-4">Placa</th>
+                      <th className="py-3 px-4">Tipo</th>
+                      <th className="py-3 px-4 text-center">Visitas</th>
+                      <th className="py-3 px-4 text-right">Recaudo Aportado</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                     {frequentPlates.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="py-6 text-center text-slate-500 dark:text-slate-400">
@@ -2642,15 +2642,15 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     ) : (
                       frequentPlates.map((item, idx) => (
                         <tr key={item.plate} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="py-2.5 px-4 font-mono font-bold text-slate-700 dark:text-slate-200">{idx + 1}</td>
-                          <td className="py-2.5 px-4 font-mono font-black text-slate-900 dark:text-slate-100 text-sm">{item.plate}</td>
-                          <td className="py-2.5 px-4 capitalize text-slate-600 dark:text-slate-400">{getVehicleName(item.vehicleType)}</td>
-                          <td className="py-2.5 px-4 text-center font-bold">
-                            <span className="inline-block px-2 py-0.5 rounded text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 font-mono">
+                          <td className="py-3 px-4 tabular-nums font-bold text-slate-700 dark:text-slate-200">{idx + 1}</td>
+                          <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-slate-100 text-sm">{item.plate}</td>
+                          <td className="py-3 px-4 capitalize text-slate-600 dark:text-slate-400">{getVehicleName(item.vehicleType)}</td>
+                          <td className="py-3 px-4 text-center font-semibold">
+                            <span className="inline-block px-2.5 py-0.5 rounded-lg text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 tabular-nums">
                               {item.visits}
                             </span>
                           </td>
-                          <td className="py-2.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
+                          <td className="py-3 px-4 text-right tabular-nums font-bold text-slate-900 dark:text-slate-100">
                             {formatCurrency(item.totalSpent, rates.currencySymbol)}
                           </td>
                         </tr>
@@ -2662,36 +2662,36 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
             </div>
 
             {/* Top Plazas Más Productivas */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
-              <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex items-center justify-between">
-                <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden">
+              <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+                <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Productividad por Plaza de Parqueo</span>
                 </h4>
-                <span className="text-xs text-slate-600 dark:text-slate-400">Mayor facturación</span>
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">Mayor facturación</span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-medium text-[13px] border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="py-2.5 px-4">Puesto</th>
-                      <th className="py-2.5 px-4 text-center">Usos / Rotación</th>
-                      <th className="py-2.5 px-4 text-right">Recaudo Acumulado</th>
-                      <th className="py-2.5 px-4 text-right">Promedio / Uso</th>
+                      <th className="py-3 px-4">Puesto</th>
+                      <th className="py-3 px-4 text-center">Usos / Rotación</th>
+                      <th className="py-3 px-4 text-right">Recaudo Acumulado</th>
+                      <th className="py-3 px-4 text-right">Promedio / Uso</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                     {spotProductivity.slice(0, 10).map((spot) => {
                       const avg = spot.count > 0 ? Math.round(spot.revenue / spot.count) : 0;
                       return (
                         <tr key={spot.spotCode} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td className="py-2.5 px-4 font-mono font-black text-slate-900 dark:text-slate-100">{spot.spotCode}</td>
-                          <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-700 dark:text-slate-200">{spot.count} veces</td>
-                          <td className="py-2.5 px-4 text-right font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                          <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">{spot.spotCode}</td>
+                          <td className="py-3 px-4 text-center tabular-nums font-bold text-slate-700 dark:text-slate-200">{spot.count} veces</td>
+                          <td className="py-3 px-4 text-right tabular-nums font-bold text-emerald-700 dark:text-emerald-400">
                             {formatCurrency(spot.revenue, rates.currencySymbol)}
                           </td>
-                          <td className="py-2.5 px-4 text-right font-mono text-slate-600 dark:text-slate-400">
+                          <td className="py-3 px-4 text-right tabular-nums text-slate-600 dark:text-slate-400">
                             {formatCurrency(avg, rates.currencySymbol)}
                           </td>
                         </tr>
@@ -2711,7 +2711,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {activeTab === 'ai_forecast' && (
         <div className="space-y-6">
           {/* AI Banner and Fast-Action Prompt Buttons */}
-          <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white rounded-3xl p-6 shadow-md border border-indigo-800/50 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white rounded-[22px] p-6 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.5)] border border-indigo-800/50 relative overflow-hidden">
             <div className="relative z-10 space-y-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -2719,10 +2719,10 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                     <span>Gemini 3.8 Flash AI Engine</span>
                   </div>
-                  <h3 className="text-xl font-black text-white tracking-tight">
+                  <h3 className="font-display text-xl font-bold text-white">
                     Consultor Financiero & Pronósticos con Inteligencia Artificial
                   </h3>
-                  <p className="text-xs text-indigo-200 mt-1 max-w-2xl">
+                  <p className="text-sm text-indigo-100 mt-1 max-w-2xl">
                     Analiza patrones históricos en tiempo real, proyecta el recaudo para los próximos turnos, detecta anomalías y sugiere optimizaciones de tarifas.
                   </p>
                 </div>
@@ -2735,7 +2735,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       setGeminiSaveMessage(null);
                       setIsGeminiKeyModalOpen(true);
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold border transition-all cursor-pointer ${
+                    className={`flex min-h-[44px] items-center gap-1.5 px-4 rounded-xl text-sm font-semibold border transition cursor-pointer ${
                       isGeminiConfigured
                         ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border-emerald-400/40'
                         : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
@@ -2744,13 +2744,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   >
                     <Key className="w-3.5 h-3.5 text-amber-300" />
                     <span>{isGeminiConfigured ? 'Clave Conectada' : 'Conectar Clave API'}</span>
-                    <span className={`w-2 h-2 rounded-full ${isGeminiConfigured ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`}></span>
+                    <span className={`w-2 h-2 rounded-full ${isGeminiConfigured ? 'bg-emerald-400 motion-safe:animate-pulse' : 'bg-rose-400'}`}></span>
                   </button>
 
                   <button
                     onClick={() => handleGenerateAiAnalysis('comprehensive')}
                     disabled={aiLoading}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition-all shadow-md disabled:opacity-50 cursor-pointer"
+                    className="flex min-h-[44px] items-center gap-2 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-sm font-bold transition shadow-[0_10px_20px_-12px_rgba(251,191,36,.7)] disabled:opacity-50 cursor-pointer"
                   >
                     {aiLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     <span>{aiLoading ? 'Generando Análisis...' : 'Generar Informe Ejecutivo Completo'}</span>
@@ -2763,36 +2763,36 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <button
                   onClick={() => handleGenerateAiAnalysis('forecast', 'Proyecta el recaudo e ingresos para los próximos 3 turnos y sugiere la franja de mayor oportunidad.')}
                   disabled={aiLoading}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-left transition-colors text-xs text-white"
+                  className="flex min-h-[52px] items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 hover:-translate-y-px border border-white/15 text-left transition text-sm text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 disabled:opacity-50"
                 >
                   <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0" />
                   <div>
                     <div className="font-bold">🔮 Pronóstico de Ingresos</div>
-                    <div className="text-[10px] text-indigo-200">Próximos turnos y jornadas</div>
+                    <div className="text-xs text-indigo-100">Próximos turnos y jornadas</div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleGenerateAiAnalysis('accounting_audit', 'Realiza una auditoría contable y financiera de ingresos vs egresos, ratios de gastos y prevención de fugas de caja.')}
                   disabled={aiLoading}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-left transition-colors text-xs text-white"
+                  className="flex min-h-[52px] items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 hover:-translate-y-px border border-white/15 text-left transition text-sm text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 disabled:opacity-50"
                 >
                   <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
                   <div>
                     <div className="font-bold">🔍 Auditoría Financiera</div>
-                    <div className="text-[10px] text-indigo-200">Detección de anomalías y fugas</div>
+                    <div className="text-xs text-indigo-100">Detección de anomalías y fugas</div>
                   </div>
                 </button>
 
                 <button
                   onClick={() => handleGenerateAiAnalysis('optimization', 'Analiza la rotación de plazas y sugiere ajustes de tarifas o promociones para horas valle.')}
                   disabled={aiLoading}
-                  className="flex items-center gap-2 p-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-left transition-colors text-xs text-white"
+                  className="flex min-h-[52px] items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 hover:-translate-y-px border border-white/15 text-left transition text-sm text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-400/40 disabled:opacity-50"
                 >
                   <Zap className="w-4 h-4 text-sky-400 shrink-0" />
                   <div>
                     <div className="font-bold">⚡ Optimización de Tarifas</div>
-                    <div className="text-[10px] text-indigo-200">Tarificación dinámica y ocupación</div>
+                    <div className="text-xs text-indigo-100">Tarificación dinámica y ocupación</div>
                   </div>
                 </button>
               </div>
@@ -2810,13 +2810,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                         handleGenerateAiAnalysis('custom_question', aiCustomQuestion);
                       }
                     }}
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-xs text-white placeholder-indigo-200 focus:outline-none focus:border-amber-400"
+                    className="w-full min-h-[48px] bg-white/10 border border-white/20 rounded-xl px-3.5 text-base text-white placeholder-indigo-200 focus:outline-none focus:ring-4 focus:ring-amber-400/25 focus:border-amber-400"
                   />
                 </div>
                 <button
                   onClick={() => handleGenerateAiAnalysis('custom_question', aiCustomQuestion)}
                   disabled={!aiCustomQuestion.trim() || aiLoading}
-                  className="p-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 disabled:opacity-40 transition-colors"
+                  className="inline-flex min-h-[48px] min-w-[48px] items-center justify-center rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 disabled:opacity-40 transition-colors"
                   title="Enviar consulta"
                 >
                   <Send className="w-4 h-4" />
@@ -2827,7 +2827,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* AI Response Display Card */}
           {aiError && (
-            <div className="p-4 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-rose-800 dark:text-rose-200">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-900 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0" />
                 <div>
@@ -2842,7 +2842,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setGeminiSaveMessage(null);
                   setIsGeminiKeyModalOpen(true);
                 }}
-                className="shrink-0 flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                className="shrink-0 flex min-h-[44px] items-center justify-center gap-2 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition-colors cursor-pointer"
               >
                 <Key className="w-3.5 h-3.5" />
                 <span>Configurar Clave API Ahora</span>
@@ -2851,14 +2851,14 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           )}
 
           {aiLoading && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-12 text-center space-y-4">
+            <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-12 text-center space-y-4">
               <div className="relative w-12 h-12 mx-auto">
                 <div className="absolute inset-0 rounded-full border-4 border-indigo-200 dark:border-indigo-800 border-t-indigo-600 dark:border-t-indigo-400 animate-spin"></div>
                 <Sparkles className="w-5 h-5 text-amber-500 absolute inset-0 m-auto" />
               </div>
               <div className="space-y-1">
-                <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Consultando Modelo Gemini 3.8 Flash...</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Consultando Modelo Gemini 3.8 Flash...</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Calculando correlaciones de afluencia, velocidad de rotación y pronósticos financieros.
                 </p>
               </div>
@@ -2866,15 +2866,15 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           )}
 
           {aiResponse && !aiLoading && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-200 dark:border-indigo-900/60 p-6 shadow-xs space-y-4">
+            <div className="wz-surface rounded-[22px] border border-indigo-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-indigo-500/30 dark:bg-slate-900 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Informe Ejecutivo & Dictamen de Inteligencia Artificial</h4>
-                    <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">Generado para: {periodLabel}</span>
+                    <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">Informe Ejecutivo & Dictamen de Inteligencia Artificial</h4>
+                    <span className="text-xs text-slate-600 dark:text-slate-400 tabular-nums">Generado para: {periodLabel}</span>
                   </div>
                 </div>
 
@@ -2884,7 +2884,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       navigator.clipboard.writeText(aiResponse);
                       alert('Dictamen copiado al portapapeles');
                     }}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-300 dark:border-slate-700 cursor-pointer"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span>Copiar</span>
@@ -2893,18 +2893,18 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               </div>
 
               {/* Render AI Markdown response */}
-              <div className="prose prose-sm dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 text-xs leading-relaxed space-y-3">
+              <div className="prose prose-sm dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 text-[15px] leading-relaxed space-y-3">
                 <ReactMarkdown>{aiResponse}</ReactMarkdown>
               </div>
             </div>
           )}
 
           {!aiResponse && !aiLoading && !aiError && (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center space-y-3">
+            <div className="bg-white dark:bg-slate-900 rounded-[22px] border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center space-y-3">
               <Sparkles className="w-8 h-8 text-indigo-700 dark:text-indigo-400 mx-auto" />
               <div className="space-y-1">
-                <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Pronóstico y Análisis Predictivo Listo</h4>
-                <p className="text-xs text-slate-600 dark:text-slate-400 max-w-md mx-auto">
+                <h4 className="font-display text-lg font-bold text-slate-800 dark:text-slate-200">Pronóstico y Análisis Predictivo Listo</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">
                   Haz clic en cualquiera de los botones rápidos de arriba o en <strong>"Generar Informe Ejecutivo Completo"</strong> para obtener proyecciones y recomendaciones inteligentes para tu parqueadero.
                 </p>
               </div>
@@ -2917,23 +2917,23 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {/* TAB 5: HISTÓRICO DETALLADO DE TICKETS & AUDITORÍA */}
       {/* ========================================================================= */}
       {activeTab === 'history' && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden space-y-0">
+        <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] overflow-hidden space-y-0">
           {/* Table Search & Filter Bar */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/80 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2 flex-wrap">
+              <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap">
                 <span>Auditoría Histórica de Tickets & Facturación</span>
-                <span className="text-xs bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded-full font-bold">
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 px-2.5 py-0.5 rounded-full font-semibold tabular-nums">
                   {filteredPaidTickets.length} registros
                 </span>
                 {plateOriginStats.foreignCount > 0 && (
-                  <span className="text-xs bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800/80 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1">
+                  <span className="text-xs bg-sky-50 dark:bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 px-2.5 py-0.5 rounded-full font-semibold inline-flex items-center gap-1">
                     <span>🌐</span>
                     <span>{plateOriginStats.foreignCount} extranjeras ({formatCurrency(plateOriginStats.foreignRevenue, rates.currencySymbol)})</span>
                   </span>
                 )}
               </h3>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400">Período: {periodLabel}</p>
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">Período: {periodLabel}</p>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
@@ -2943,7 +2943,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setFilterType(e.target.value);
                   setTicketPage(1);
                 }}
-                className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-100 outline-none focus:border-amber-500"
+                className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Todos los vehículos</option>
                 <option value="car">Carros</option>
@@ -2958,7 +2958,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setFilterPayment(e.target.value);
                   setTicketPage(1);
                 }}
-                className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-100 outline-none focus:border-amber-500"
+                className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Todos los pagos</option>
                 <option value="cash">Efectivo</option>
@@ -2979,7 +2979,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   setFilterPlateOrigin(e.target.value);
                   setTicketPage(1);
                 }}
-                className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-100 outline-none focus:border-amber-500 font-medium"
+                className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Todas las procedencias</option>
                 <option value="national">🇨🇴 Solo Nacionales</option>
@@ -2995,14 +2995,14 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     setTicketPage(1);
                   }}
                   placeholder="Buscar placa, ticket..."
-                  className="text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl pl-8 pr-3 py-1.5 focus:border-amber-500 outline-none w-44 text-slate-900 dark:text-slate-100 placeholder:text-slate-400"
+                  className="min-h-[44px] w-48 rounded-xl border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 />
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
 
               <button
                 onClick={handleExportPaymentsCSV}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-600 transition-colors shadow-xs cursor-pointer shrink-0"
+                className="flex min-h-[44px] items-center gap-1.5 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 px-4 text-sm font-semibold text-white shadow-[0_10px_20px_-12px_rgba(4,120,87,.9)] transition hover:-translate-y-px cursor-pointer shrink-0 dark:from-emerald-500 dark:to-emerald-600"
                 title="Descargar este listado de tickets y cobros a archivo CSV compatible con Excel"
               >
                 <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -3013,8 +3013,8 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* Table Content */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-              <thead className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200 dark:border-slate-800">
+            <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 font-medium text-[13px] border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="py-3 px-4">Ticket</th>
                   <th className="py-3 px-4">Placa</th>
@@ -3028,7 +3028,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <th className="py-3 px-4 text-center">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                 {pagedTickets.length === 0 ? (
                   <tr>
                     <td colSpan={10} className="py-12 text-center text-slate-500 dark:text-slate-400">
@@ -3041,24 +3041,24 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-slate-100">
                         {t.ticketNumber}
                         {t.electronicInvoice && (
-                          <div className="text-[9px] text-indigo-700 dark:text-indigo-400 font-bold">
+                          <div className="text-xs text-indigo-700 dark:text-indigo-400 font-semibold">
                             FE: {t.electronicInvoice.invoiceNumber}
                           </div>
                         )}
                       </td>
-                      <td className="py-3 px-4 font-mono font-black text-slate-900 dark:text-white text-sm">
+                      <td className="py-3 px-4 font-mono font-bold text-slate-900 dark:text-white text-sm">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span>{t.plate}</span>
                           {t.isForeignPlate ? (
                             <span 
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-950/80 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800/80 font-sans" 
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold bg-sky-50 dark:bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 font-sans" 
                               title={`Vehículo con placa extranjera procedente de: ${t.originCountry || 'Internacional'}`}
                             >
                               <span>🌐</span>
                               <span>{t.originCountry || 'Extranjera'}</span>
                             </span>
                           ) : (
-                            <span className="text-[9px] font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-sans border border-slate-200 dark:border-slate-700">
+                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-lg font-sans border border-slate-200 dark:border-slate-700">
                               COL
                             </span>
                           )}
@@ -3072,7 +3072,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       </td>
                       <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
                         {new Date(t.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-                        <div className="text-[9px] text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-600 dark:text-slate-400">
                           {new Date(t.entryTime).toLocaleDateString('es-CO')}
                         </div>
                       </td>
@@ -3080,13 +3080,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                         {t.exitTime ? (
                           <>
                             {new Date(t.exitTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
-                            <div className="text-[9px] text-slate-500 dark:text-slate-400">
+                            <div className="text-xs text-slate-600 dark:text-slate-400">
                               {new Date(t.exitTime).toLocaleDateString('es-CO')}
                             </div>
                           </>
                         ) : '-'}
                       </td>
-                      <td className="py-3 px-4 font-mono font-semibold text-slate-800 dark:text-slate-200">
+                      <td className="py-3 px-4 font-mono font-semibold tabular-nums text-slate-800 dark:text-slate-200">
                         {Math.floor((t.totalMinutes || 0) / 60)}h {(t.totalMinutes || 0) % 60}m
                       </td>
                       <td className="py-3 px-4">
@@ -3094,11 +3094,11 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                           const meta = getPaymentMethodMeta(t.paymentMethod);
                           return (
                             <div className="flex flex-col items-start gap-0.5">
-                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${meta.colorClass}`}>
+                              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold ${meta.colorClass}`}>
                                 {meta.label}
                               </span>
                               {t.paymentDetails?.referenceNumber && (
-                                <span className="text-[9px] font-mono text-slate-600 dark:text-slate-400 font-semibold">
+                                <span className="text-xs font-mono text-slate-600 dark:text-slate-400 font-semibold">
                                   Ref: #{t.paymentDetails.referenceNumber}
                                 </span>
                               )}
@@ -3106,13 +3106,13 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                           );
                         })()}
                       </td>
-                      <td className="py-3 px-4 font-mono font-black text-slate-900 dark:text-slate-100 text-right">
+                      <td className="py-3 px-4 font-mono font-bold tabular-nums text-slate-900 dark:text-slate-100 text-right">
                         {formatCurrency(t.totalAmount || 0, rates.currencySymbol)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => onPrintTicket(t, 'exit')}
-                          className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                           title="Reimprimir Comprobante de Salida"
                         >
                           <Printer className="w-4 h-4" />
@@ -3127,7 +3127,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+            <div className="px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-400">
               <div>
                 Mostrando {(ticketPage - 1) * itemsPerPage + 1} a {Math.min(ticketPage * itemsPerPage, filteredPaidTickets.length)} de {filteredPaidTickets.length} tickets
               </div>
@@ -3135,17 +3135,17 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <button
                   onClick={() => setTicketPage((p) => Math.max(1, p - 1))}
                   disabled={ticketPage === 1}
-                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Anterior
                 </button>
-                <span className="font-mono font-bold px-2">
+                <span className="font-mono font-bold tabular-nums px-2">
                   {ticketPage} / {totalPages}
                 </span>
                 <button
                   onClick={() => setTicketPage((p) => Math.min(totalPages, p + 1))}
                   disabled={ticketPage === totalPages}
-                  className="px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-40 transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Siguiente
                 </button>
@@ -3161,19 +3161,19 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {activeTab === 'cash_closures' && (
         <div className="space-y-6 animate-fadeIn">
           {/* Top Banner with Quick Actions */}
-          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-lg border border-indigo-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="wz-surface rounded-[22px] bg-gradient-to-br from-slate-800 to-slate-950 text-white p-5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.5)] border border-white/[0.07] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 border border-white/15 text-white">
                 <History className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-extrabold flex items-center gap-2">
+                <h3 className="font-display text-lg font-bold flex items-center gap-2">
                   <span>Histórico de Arqueos de Turno y Cierres Definitivos</span>
-                  <span className="bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs px-2.5 py-0.5 rounded-full font-mono">
+                  <span className="bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 text-xs px-2.5 py-0.5 rounded-full font-semibold tabular-nums">
                     {safeClosedShifts.length + safeClosedDays.length} Registros Oficiales
                   </span>
                 </h3>
-                <p className="text-xs text-indigo-200 mt-0.5">
+                <p className="text-[13px] text-slate-300 mt-0.5">
                   Comprobantes térmicos oficiales, cuadres de gaveta, actas fiscales Z y auditoría de turnos cerrados
                 </p>
               </div>
@@ -3183,7 +3183,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               <button
                 type="button"
                 onClick={() => setIsHistoryModalOpen(true)}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                className="min-h-[44px] px-4 bg-gradient-to-b from-blue-600 to-blue-700 hover:-translate-y-px text-white font-semibold text-sm rounded-xl shadow-[0_10px_20px_-12px_rgba(29,78,216,.9)] transition flex items-center gap-1.5 cursor-pointer dark:from-blue-500 dark:to-blue-600"
               >
                 <ExternalLink className="w-4 h-4" />
                 <span>{currentUser?.role === 'cashier' ? 'Ver Histórico de Cierres' : 'Abrir Auditoría & Recálculo en Modal'}</span>
@@ -3192,84 +3192,84 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           </div>
 
           {/* Metric KPI Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 rounded-xl">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 rounded-xl">
                 <Layers className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Cierres Totales</div>
-                <div className="text-lg font-black font-mono text-slate-950 dark:text-white">
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[13px]">Cierres Totales</div>
+                <div className="font-display text-xl font-bold tabular-nums text-slate-950 dark:text-white">
                   {safeClosedShifts.length + safeClosedDays.length}
                 </div>
-                <div className="text-[10px] text-slate-600 dark:text-slate-400">
+                <div className="text-xs text-slate-600 dark:text-slate-400">
                   {safeClosedDays.length} Días • {safeClosedShifts.length} Turnos
                 </div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
-              <div className="p-2.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 rounded-xl">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 rounded-xl">
                 <DollarSign className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Recaudo en Cierres</div>
-                <div className="text-lg font-black font-mono text-emerald-800 dark:text-emerald-400">
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[13px]">Recaudo en Cierres</div>
+                <div className="font-display text-xl font-bold tabular-nums text-emerald-800 dark:text-emerald-400">
                   {formatCurrency(
-                    safeClosedDays.reduce((acc, d) => acc + (d.totalCollected || 0), 0) || 440000,
+                    safeClosedDays.reduce((acc, d) => acc + (d.totalCollected || 0), 0),
                     rates.currencySymbol
                   )}
                 </div>
-                <div className="text-[10px] text-emerald-700 dark:text-emerald-400">100% Conciliado</div>
+                <div className="text-xs text-emerald-700 dark:text-emerald-400">100% Conciliado</div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
-              <div className="p-2.5 bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 rounded-xl">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-purple-50 dark:bg-purple-500/10 text-purple-800 dark:text-purple-300 rounded-xl">
                 <ArrowUpRight className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Recogidas a Bóveda</div>
-                <div className="text-lg font-black font-mono text-purple-800 dark:text-purple-400">
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[13px]">Recogidas a Bóveda</div>
+                <div className="font-display text-xl font-bold tabular-nums text-purple-800 dark:text-purple-400">
                   {formatCurrency(
                     safeClosedDays.reduce((acc, d) => acc + (d.totalPickupsSnapshot || 0), 0) || 270000,
                     rates.currencySymbol
                   )}
                 </div>
-                <div className="text-[10px] text-purple-700 dark:text-purple-400">Custodiado en caja fuerte</div>
+                <div className="text-xs text-purple-700 dark:text-purple-400">Custodiado en caja fuerte</div>
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-3">
-              <div className="p-2.5 bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 rounded-xl">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 rounded-xl">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-slate-600 dark:text-slate-400 font-medium text-[10px] uppercase">Total Consignar</div>
-                <div className="text-lg font-black font-mono text-amber-800 dark:text-amber-400">
+                <div className="text-slate-600 dark:text-slate-400 font-medium text-[13px]">Total Consignar</div>
+                <div className="font-display text-xl font-bold tabular-nums text-amber-800 dark:text-amber-400">
                   {formatCurrency(
                     safeClosedDays.reduce((acc, d) => acc + (d.totalToConsignSnapshot || 0), 0) || 300000,
                     rates.currencySymbol
                   )}
                 </div>
-                <div className="text-[10px] text-amber-700 dark:text-amber-400">Efectivo a consignación</div>
+                <div className="text-xs text-amber-700 dark:text-amber-400">Efectivo a consignación</div>
               </div>
             </div>
           </div>
 
           {/* Section 1: Cierres Definitivos de Jornada (Reportes Z) */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-6 space-y-4">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/70 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
                 <Calendar className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h4 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <span>Cierres Definitivos de Jornada (Reportes Fiscales Z)</span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold tabular-nums bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                       {safeClosedDays.length}
                     </span>
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">
                     Consolidación de día operativo completo, conciliación de turnos y actas contables
                   </p>
                 </div>
@@ -3288,27 +3288,27 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 return (
                   <div
                     key={day.id}
-                    className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4 hover:border-emerald-400 dark:hover:border-emerald-700 transition-all shadow-2xs"
+                    className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 hover:border-emerald-400 dark:hover:border-emerald-700 transition-colors"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-mono text-xs font-black bg-emerald-700 text-white px-2.5 py-0.5 rounded">
+                          <span className="font-mono text-xs font-bold bg-emerald-700 text-white px-2.5 py-1 rounded-lg">
                             Cierre Definitivo Día #{day.dayNumber || 1}
                           </span>
                           {day.consecutiveCode && (
-                            <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
                               Reporte Fiscal: {day.consecutiveCode}
                             </span>
                           )}
                           {day.isAudited && (
-                            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 flex items-center gap-1">
                               <ShieldCheck className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                               Auditado Fiscal OK
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                        <div className="text-[13px] text-slate-600 dark:text-slate-400 flex items-center gap-2 flex-wrap">
                           <span>Fecha Operativa: <strong>{day.formattedDate || day.date}</strong></span>
                           <span>•</span>
                           <span>Responsable: <strong>{day.closedByOperator || 'Administrador'}</strong></span>
@@ -3326,7 +3326,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                           });
                           setIsHistoryModalOpen(true);
                         }}
-                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer self-start sm:self-auto"
+                        className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800 cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600 self-start sm:self-auto"
                         title="Ver e imprimir comprobante fiscal Z con márgenes y descargar PDF"
                       >
                         <Printer className="w-4 h-4 text-emerald-400" />
@@ -3334,35 +3334,35 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Base Apertura</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800 text-sm tabular-nums">
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Base Apertura</span>
                         <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(day.initialDayCash || 0, rates.currencySymbol)}</span>
                       </div>
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Total Facturado</span>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Total Facturado</span>
                         <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, rates.currencySymbol)}</span>
                       </div>
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo Físico</span>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Efectivo Físico</span>
                         <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(cash, rates.currencySymbol)}</span>
                       </div>
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Medios Digitales</span>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Medios Digitales</span>
                         <span className="font-bold text-purple-700 dark:text-purple-400">{formatCurrency(digital, rates.currencySymbol)}</span>
                       </div>
-                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Recogidas (-)</span>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Recogidas (-)</span>
                         <span className="font-bold text-indigo-700 dark:text-indigo-400">-{formatCurrency(pick, rates.currencySymbol)}</span>
                       </div>
-                      <div className="bg-emerald-100/80 dark:bg-emerald-950/60 p-2.5 rounded-lg border border-emerald-300 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200">
-                        <span className="text-[9px] uppercase font-sans text-emerald-800 dark:text-emerald-400 block font-bold">Total a Consignar</span>
-                        <span className="font-black text-xs">{formatCurrency(toConsign, rates.currencySymbol)}</span>
+                      <div className="bg-emerald-50 dark:bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/30 text-emerald-950 dark:text-emerald-200">
+                        <span className="text-xs font-sans text-emerald-800 dark:text-emerald-400 block font-semibold">Total a Consignar</span>
+                        <span className="font-bold text-sm">{formatCurrency(toConsign, rates.currencySymbol)}</span>
                       </div>
                     </div>
 
                     {day.closingNotes && (
-                      <div className="text-xs text-slate-700 dark:text-slate-300 bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 p-2.5 rounded-lg italic">
+                      <div className="text-sm text-amber-900 dark:text-amber-200 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 px-3.5 py-3 rounded-xl italic">
                         {day.closingNotes}
                       </div>
                     )}
@@ -3373,18 +3373,18 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
           </div>
 
           {/* Section 2: Arqueos de Turno Cerrados (Reportes X) */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-6 space-y-4">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200/70 dark:border-slate-800">
               <div className="flex items-center gap-2.5">
                 <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h4 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <span>Arqueos de Turnos Cerrados (Reportes X de Caja)</span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold tabular-nums bg-indigo-50 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
                       {safeClosedShifts.length}
                     </span>
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">
                     Comprobantes individuales emitidos por cajero al finalizar cada turno operativo
                   </p>
                 </div>
@@ -3401,20 +3401,20 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 return (
                   <div
                     key={shift.id}
-                    className="p-5 bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs"
+                    className="p-5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded">
+                        <span className="font-mono text-xs font-bold bg-indigo-600 text-white px-2.5 py-1 rounded-lg">
                           Turno #{shift.shiftNumber}
                         </span>
                         {shift.consecutiveCode && (
-                          <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                          <span className="font-mono text-xs font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
                             {shift.consecutiveCode}
                           </span>
                         )}
                         {shift.isAudited && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 flex items-center gap-1">
                             <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
                             Auditado
                           </span>
@@ -3430,7 +3430,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                           });
                           setIsHistoryModalOpen(true);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800 cursor-pointer dark:bg-slate-700 dark:hover:bg-slate-600"
                         title="Ver tiquete térmico con márgenes y descargar PDF"
                       >
                         <Printer className="w-3.5 h-3.5 text-indigo-400" />
@@ -3438,27 +3438,27 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       </button>
                     </div>
 
-                    <div className="text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                    <div className="text-[13px] text-slate-600 dark:text-slate-400 space-y-0.5">
                       <div className="flex items-center justify-between">
                         <span>Cajero: <strong className="text-slate-900 dark:text-slate-100">{shift.operatorName}</strong></span>
                         <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500">
-                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                      <div className="text-[13px] text-slate-600 dark:text-slate-400">
+                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} ({new Date(shift.startTime).toLocaleDateString('es-CO')})
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
-                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Recaudo Total</span>
+                    <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200 dark:border-slate-800 text-sm tabular-nums">
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Recaudo Total</span>
                         <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, rates.currencySymbol)}</span>
                       </div>
-                      <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo en Caja</span>
+                      <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Efectivo en Caja</span>
                         <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(shift.finalCountedCash || cash, rates.currencySymbol)}</span>
                       </div>
-                      <div className={`p-2 rounded border ${diff === 0 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-rose-800'}`}>
-                        <span className="text-[9px] uppercase font-sans text-slate-500 block">Cuadre Físico</span>
+                      <div className={`p-2.5 rounded-xl border ${diff === 0 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-200'}`}>
+                        <span className="text-xs font-sans font-medium text-slate-600 dark:text-slate-400 block">Cuadre Físico</span>
                         <span className="font-bold">{diff === 0 ? 'Cuadrado $0' : formatCurrency(diff, rates.currencySymbol)}</span>
                       </div>
                     </div>
@@ -3489,27 +3489,27 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
       {/* Gemini AI Key Configuration Modal */}
       <AnimatePresence>
         {isGeminiKeyModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden"
+              className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-slate-900/[0.06] dark:border-white/[0.07] shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] max-w-lg w-full overflow-hidden"
             >
               {/* Header */}
-              <div className="p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-between">
+              <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800">
                     <Key className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       <span>Configurar Google Gemini API</span>
-                      <span className="text-[10px] bg-amber-400/20 text-amber-600 dark:text-amber-300 font-extrabold px-2 py-0.5 rounded-full border border-amber-400/30">
+                      <span className="text-xs bg-amber-50 dark:bg-amber-500/10 text-amber-800 dark:text-amber-300 font-semibold px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/30">
                         IA Engine
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-[13px] text-slate-600 dark:text-slate-400">
                       Conexión para Business Intelligence y Visión ANPR de Placas
                     </p>
                   </div>
@@ -3517,7 +3517,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsGeminiKeyModalOpen(false)}
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -3526,9 +3526,9 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
               {/* Form Content */}
               <form onSubmit={handleSaveGeminiKey} className="p-6 space-y-4">
                 {/* Status card */}
-                <div className="p-3.5 rounded-2xl border bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                <div className="px-3.5 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 flex items-center justify-between text-sm">
                   <div>
-                    <span className="text-slate-500 block text-[11px]">Estado actual de la clave:</span>
+                    <span className="text-slate-600 dark:text-slate-400 block text-[13px]">Estado actual de la clave:</span>
                     <span className="font-bold flex items-center gap-1.5 mt-0.5">
                       <span className={`w-2.5 h-2.5 rounded-full ${isGeminiConfigured ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
                       {isGeminiConfigured ? (
@@ -3545,7 +3545,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       type="button"
                       onClick={handleDeleteGeminiKey}
                       disabled={isSavingGeminiKey}
-                      className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline cursor-pointer disabled:opacity-50"
+                      className="inline-flex min-h-[44px] items-center px-2 text-[13px] font-semibold text-rose-700 hover:text-rose-800 hover:underline cursor-pointer disabled:opacity-50 dark:text-rose-400"
                     >
                       Desconectar
                     </button>
@@ -3553,7 +3553,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 </div>
 
                 {/* Info & External Link to AI Studio */}
-                <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50 rounded-2xl p-3.5 space-y-2">
+                <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/30 rounded-xl px-3.5 py-3 space-y-2">
                   <p>
                     Para usar los pronósticos de ocupación, detección de fugas de dinero y lectura de placas con visión artificial, necesitas una clave gratuita de <strong>Google AI Studio</strong>.
                   </p>
@@ -3561,7 +3561,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                     href="https://aistudio.google.com/app/apikey"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-indigo-700 dark:text-indigo-300 hover:underline"
                   >
                     <span>Obtener clave gratis en Google AI Studio</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -3570,7 +3570,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
 
                 {/* Input Field */}
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400">
                     Clave de API de Gemini (API Key)
                   </label>
                   <div className="relative">
@@ -3580,51 +3580,51 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                       onChange={(e) => setGeminiApiKeyInput(e.target.value)}
                       placeholder={isGeminiConfigured ? 'Ingresa una nueva clave para reemplazar la actual...' : 'AIzaSy...'}
                       required
-                      className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-mono"
+                      className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white pl-3.5 pr-12 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                     <button
                       type="button"
                       onClick={() => setShowGeminiKey(!showGeminiKey)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                       title={showGeminiKey ? 'Ocultar clave' : 'Mostrar clave'}
                     >
                       {showGeminiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">
                     Se almacena de forma persistente en el volumen <code>/app/data</code> y en la base de datos PostgreSQL, por lo que no se perderá al reiniciar o actualizar el servidor.
                   </p>
                 </div>
 
                 {/* Messages */}
                 {geminiSaveMessage && (
-                  <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
+                  <div className="px-3.5 py-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-xl text-sm text-emerald-900 dark:text-emerald-200 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{geminiSaveMessage}</span>
                   </div>
                 )}
 
                 {geminiSaveError && (
-                  <div className="p-3 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 rounded-xl text-xs text-rose-800 dark:text-rose-200 flex items-center gap-2">
+                  <div className="px-3.5 py-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-xl text-sm text-rose-900 dark:text-rose-200 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                     <span>{geminiSaveError}</span>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                <div className="pt-4 flex items-center justify-end gap-2.5 border-t border-slate-200/70 dark:border-slate-800">
                   <button
                     type="button"
                     onClick={() => setIsGeminiKeyModalOpen(false)}
                     disabled={isSavingGeminiKey}
-                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                   >
                     Cerrar
                   </button>
                   <button
                     type="submit"
                     disabled={isSavingGeminiKey || !geminiApiKeyInput.trim()}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md disabled:opacity-50 cursor-pointer"
+                    className="flex min-h-[48px] items-center gap-2 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] transition hover:-translate-y-0.5 disabled:opacity-50 cursor-pointer dark:from-blue-500 dark:to-blue-600"
                   >
                     {isSavingGeminiKey ? (
                       <>
