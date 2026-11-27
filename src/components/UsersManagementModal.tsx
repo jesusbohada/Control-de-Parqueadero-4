@@ -2740,8 +2740,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
             <form onSubmit={handleSaveSubmit} className="space-y-6">
               {/* Clone Source Banner */}
               {clonedSourceUser && (
-                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 flex items-center justify-between gap-3 dark:border-amber-500/30 dark:bg-amber-500/10">
+                  <div className="flex items-center gap-2.5 text-sm text-amber-900 dark:text-amber-200">
                     <Copy className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
                     <div>
                       <strong>Clonando configuración de:</strong> {clonedSourceUser.name} (@{clonedSourceUser.username}). 
@@ -2751,7 +2751,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setClonedSourceUser(null)}
-                    className="text-[11px] text-amber-700 dark:text-amber-400 hover:text-amber-200 underline font-mono"
+                    className="min-h-[44px] px-2 text-sm font-semibold text-amber-800 underline hover:text-amber-950 dark:text-amber-300 dark:hover:text-amber-100"
                   >
                     Desvincular
                   </button>
@@ -2759,9 +2759,9 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               )}
 
               {/* Template Quick Selector & Saver Toolbar */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                  <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                     <Bookmark className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                     Cargar desde Plantilla:
                   </span>
@@ -2773,7 +2773,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       const found = templates.find(t => t.id === id);
                       if (found) handleApplyTemplate(found);
                     }}
-                    className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="">-- Seleccionar Plantilla Predefinida --</option>
                     {templates.map(t => (
@@ -2788,7 +2788,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsSavingTemplateModalOpen(true)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-800 dark:text-amber-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 transition-colors"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Save className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                     Guardar esta Configuración como Plantilla...
@@ -2797,15 +2797,15 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               </div>
 
               {/* Section 1: Basic Access Details */}
-              <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-xs">
-                <h3 className="text-xs font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-2">
+              <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-5 space-y-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <Key className="w-3.5 h-3.5" />
                   1. Credenciales de Ingreso y Rol Base
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Nombre Completo
                     </label>
                     <input
@@ -2814,12 +2814,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       onChange={(e) => setFormName(e.target.value)}
                       placeholder="ej. Laura Sánchez"
                       required
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                      className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Usuario de Ingreso (Login)
                     </label>
                     <input
@@ -2828,12 +2828,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       onChange={(e) => setFormUsername(e.target.value)}
                       placeholder="ej. laura_caja"
                       required
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400 font-mono"
+                      className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Contraseña / Clave
                     </label>
                     <input
@@ -2843,39 +2843,39 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       onChange={(e) => setFormPassword(e.target.value)}
                       placeholder={selectedUser ? 'Dejar vacío para conservar la actual' : 'ej. pass123'}
                       required={!selectedUser}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400 font-mono"
+                      className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
                     />
                   </div>
                 </div>
 
                 {/* Multi-Profile Selector & Account Status */}
-                <div className="space-y-3.5 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                <div className="space-y-4 pt-4 border-t border-slate-200/70 dark:border-slate-800">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                      <label className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                         <Bookmark className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                         <span>Perfiles / Roles Asignados (Selección Múltiple):</span>
-                        <span className="text-[10px] font-mono bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                        <span className="text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-200 dark:border-amber-500/30 px-2 py-0.5 rounded-full">
                           Multi-Perfil RBAC Combinado
                         </span>
                       </label>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                      <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
                         Puedes asignar uno o varios perfiles simultáneamente. El usuario sumará los permisos y módulos de todos los perfiles marcados.
                       </p>
                     </div>
 
                     <div className="flex items-center gap-2 self-start sm:self-auto">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300 cursor-pointer">
+                      <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400 cursor-pointer">
                         Estado:
                       </label>
                       <button
                         type="button"
                         disabled={formAssignedProfileIds.includes('master')}
                         onClick={() => setFormIsActive(!formIsActive)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                        className={`min-h-[44px] px-4 rounded-xl text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                           formIsActive
-                            ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                            : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                            ? 'bg-emerald-50 border border-emerald-300 text-emerald-800 dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-200'
+                            : 'bg-rose-50 border border-rose-300 text-rose-800 dark:bg-rose-500/10 dark:border-rose-500/40 dark:text-rose-200'
                         }`}
                       >
                         {formIsActive ? <UserCheck className="w-3.5 h-3.5" /> : <UserX className="w-3.5 h-3.5" />}
@@ -2900,21 +2900,21 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           role="button"
                           tabIndex={0}
                           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleToggleProfile(prof.id); } }}
-                          className={`p-3 rounded-xl border text-left transition-all relative flex flex-col justify-between cursor-pointer select-none ${
+                          className={`min-h-[44px] p-3.5 rounded-2xl border text-left transition relative flex flex-col justify-between cursor-pointer select-none focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                             isSelected
                               ? isMaster
-                                ? 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-500 ring-2 ring-amber-500/40 shadow-xs'
+                                ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
                                 : isSupervisor
-                                ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 ring-2 ring-blue-500/40 shadow-xs'
+                                ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
                                 : isCashier
-                                ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-500/40 shadow-xs'
-                                : 'bg-purple-50 dark:bg-purple-950/40 border-purple-500 ring-2 ring-purple-500/40 shadow-xs'
-                              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 opacity-80 hover:opacity-100'
+                                ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
+                                : 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
+                              : 'wz-tile border border-slate-200 bg-white hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                              <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 ${
                                 isSelected
                                   ? isMaster ? 'bg-amber-500 text-slate-950' : isSupervisor ? 'bg-blue-600 text-white' : isCashier ? 'bg-emerald-600 text-white' : 'bg-purple-600 text-white'
                                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -2922,36 +2922,36 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 <Icon className="w-4 h-4" />
                               </div>
                               <div>
-                                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                                   <span>{prof.name}</span>
                                 </div>
-                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-medium border ${prof.badgeBg}`}>
+                                <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium border ${prof.badgeBg}`}>
                                   {prof.badgeText}
                                 </span>
                               </div>
                             </div>
 
                             {/* Checkbox indicator */}
-                            <div className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0 ${
+                            <div className={`w-6 h-6 rounded-md flex items-center justify-center border-2 transition shrink-0 ${
                               isSelected
                                 ? isMaster
-                                  ? 'bg-amber-500 border-amber-500 text-slate-950'
+                                  ? 'bg-blue-700 border-blue-700 text-white dark:bg-blue-500 dark:border-blue-500'
                                   : isSupervisor
-                                  ? 'bg-blue-600 border-blue-600 text-white'
+                                  ? 'bg-blue-700 border-blue-700 text-white dark:bg-blue-500 dark:border-blue-500'
                                   : isCashier
-                                  ? 'bg-emerald-600 border-emerald-600 text-white'
-                                  : 'bg-purple-600 border-purple-600 text-white'
-                                : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
+                                  ? 'bg-blue-700 border-blue-700 text-white dark:bg-blue-500 dark:border-blue-500'
+                                  : 'bg-blue-700 border-blue-700 text-white dark:bg-blue-500 dark:border-blue-500'
+                                : 'border-slate-400 bg-white dark:border-slate-500 dark:bg-slate-800'
                             }`}>
                               {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                             </div>
                           </div>
 
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-2 leading-relaxed">
+                          <p className="text-[13px] text-slate-600 dark:text-slate-400 line-clamp-2 mt-2 leading-relaxed">
                             {prof.description}
                           </p>
 
-                          <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-600 dark:text-slate-400">
+                          <div className="mt-2.5 pt-2 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between text-xs tabular-nums font-medium text-slate-600 dark:text-slate-400">
                             <span>{prof.actionsCount}/62 Acciones</span>
                             <span>{prof.visCount}/37 Módulos</span>
                           </div>
@@ -2961,13 +2961,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   </div>
 
                   {/* Summary of Combined Permissions */}
-                  <div className="p-3.5 rounded-xl bg-slate-50/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xs">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/50 flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold shrink-0 mt-0.5">
+                      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 mt-0.5">
                         <ShieldCheck className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap text-xs">
+                        <div className="flex items-center gap-2 flex-wrap text-sm">
                           <span className="text-slate-600 dark:text-slate-400 font-semibold">
                             Perfiles Asignados ({formAssignedProfileIds.length}):
                           </span>
@@ -2978,7 +2978,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               return (
                                 <span
                                   key={pId}
-                                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 shadow-2xs"
+                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100"
                                 >
                                   <span>{pName}</span>
                                   {formAssignedProfileIds.length > 1 && (
@@ -2988,7 +2988,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                         e.stopPropagation();
                                         handleToggleProfile(pId);
                                       }}
-                                      className="hover:text-red-500 p-0.5 rounded-full cursor-pointer"
+                                      className="p-1.5 -m-1 rounded-full hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 cursor-pointer"
                                       title="Quitar perfil"
                                     >
                                       <X className="w-3 h-3" />
@@ -2999,17 +2999,17 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             })}
                           </div>
                         </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2 flex-wrap">
+                        <div className="text-[13px] text-slate-600 dark:text-slate-400 flex items-center gap-2 flex-wrap">
                           <span>
-                            ⚡ Permisos sumados: <strong className="text-slate-800 dark:text-slate-200 font-mono">{countActiveActions(formPermissions)}/62</strong> acciones activas
+                            ⚡ Permisos sumados: <strong className="text-slate-900 dark:text-slate-100 tabular-nums">{countActiveActions(formPermissions)}/62</strong> acciones activas
                           </span>
                           <span>•</span>
                           <span>
-                            👁️ Módulos: <strong className="text-slate-800 dark:text-slate-200 font-mono">{countVisibleUI(formUiVisibility)}/37</strong> visibles
+                            👁️ Módulos: <strong className="text-slate-900 dark:text-slate-100 tabular-nums">{countVisibleUI(formUiVisibility)}/37</strong> visibles
                           </span>
                           <span>•</span>
                           <span>
-                            Rol efectivo: <strong className="text-amber-700 dark:text-amber-400">{formRole === 'master' ? 'Maestro' : formRole === 'supervisor' ? 'Supervisor' : formRole === 'cashier' ? 'Cajero' : 'Personalizado'}</strong>
+                            Rol efectivo: <strong className="text-blue-700 dark:text-blue-300">{formRole === 'master' ? 'Maestro' : formRole === 'supervisor' ? 'Supervisor' : formRole === 'cashier' ? 'Cajero' : 'Personalizado'}</strong>
                           </span>
                         </div>
                       </div>
@@ -3018,7 +3018,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowAdvancedCustomization(!showAdvancedCustomization)}
-                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1.5 shrink-0 transition-colors cursor-pointer shadow-xs self-start md:self-auto"
+                      className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0 self-start md:self-auto"
                     >
                       <Sliders className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                       <span>{showAdvancedCustomization ? 'Ocultar Matriz Granular' : 'Ajustar Permisos Específicos'}</span>
@@ -3029,16 +3029,16 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
               {/* Section 2: Deep Customization (Subtabs: Actions vs UI Visibility) - Collapsible */}
               {showAdvancedCustomization && (
-                <div className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-4 animate-in fade-in duration-150 shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-2">
+                <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-5 space-y-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 animate-in fade-in duration-150">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
+                  <div className="inline-flex flex-wrap rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
                     <button
                       type="button"
                       onClick={() => setFormSubTab('actions')}
-                      className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 border transition-all cursor-pointer ${
+                      className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition cursor-pointer ${
                         formSubTab === 'actions'
-                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-xs'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                       }`}
                     >
                       <Sliders className="w-3.5 h-3.5" />
@@ -3048,10 +3048,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setFormSubTab('visibility')}
-                      className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 border transition-all cursor-pointer ${
+                      className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold flex items-center gap-2 transition cursor-pointer ${
                         formSubTab === 'visibility'
-                          ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-xs'
-                          : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                          ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                          : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                       }`}
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -3060,7 +3060,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   </div>
 
                   {formRole === 'master' ? (
-                    <span className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30">
+                    <span className="text-sm font-semibold text-amber-900 dark:text-amber-200 flex items-center gap-1.5 bg-amber-50 dark:bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-200 dark:border-amber-500/30">
                       <Crown className="w-3.5 h-3.5" />
                       Total Ilimitado (Usuario Maestro)
                     </span>
@@ -3071,14 +3071,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleSetAllPermissions(true)}
-                            className="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[11px] transition-colors cursor-pointer"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
                             Habilitar Todo
                           </button>
                           <button
                             type="button"
                             onClick={() => handleSetAllPermissions(false)}
-                            className="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[11px] transition-colors cursor-pointer"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
                             Deshabilitar Todo
                           </button>
@@ -3088,14 +3088,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleSetAllVisibility(true)}
-                            className="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[11px] transition-colors cursor-pointer"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
                             Mostrar Todo
                           </button>
                           <button
                             type="button"
                             onClick={() => handleSetAllVisibility(false)}
-                            className="px-2 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded text-[11px] transition-colors cursor-pointer"
+                            className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                           >
                             Ocultar Sensibles
                           </button>
@@ -3108,14 +3108,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 {/* SUBTAB 1: WHAT CAN THEY DO? (ACTIONS) */}
                 {formSubTab === 'actions' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-slate-700 dark:text-slate-200">
+                    <p className="text-sm text-slate-700 dark:text-slate-300">
                       Define con precisión qué facultades operativas tiene este usuario en la operación diaria del parqueadero:
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Group 1: Vehículos y Operaciones */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <Car className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                           Operaciones de Vehículos y Tickets
                         </h4>
@@ -3195,8 +3195,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
                       {/* Group 2: Patio, Plazas y Caja */}
                       <div className="space-y-4">
-                        <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                          <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                             <MapPin className="w-3.5 h-3.5 text-blue-700 dark:text-blue-400" />
                             Control de Patio y Plazas
                           </h4>
@@ -3235,8 +3235,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         </div>
 
                         {/* Group: Abonados y Mensualidades */}
-                        <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                          <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                             <Users className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                             Abonados y Mensualidades
                           </h4>
@@ -3274,8 +3274,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           />
                         </div>
 
-                        <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                          <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                          <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                             <DollarSign className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                             Gestión de Caja, Gastos y Arqueo
                           </h4>
@@ -3355,8 +3355,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Group 3: Reportes, Auditoría y Sistema */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <BarChart3 className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400" />
                           Reportes y Auditoría
                         </h4>
@@ -3387,8 +3387,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Group 4: Configuración y Administración */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <Settings className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                           Administración, Red Multi-Sede y Actualizaciones
                         </h4>
@@ -3472,14 +3472,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 {/* SUBTAB 2: WHAT CAN BE SEEN OR NOT IN THEIR PROFILE? (UI VISIBILITY) */}
                 {formSubTab === 'visibility' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-slate-700 dark:text-slate-200">
+                    <p className="text-sm text-slate-700 dark:text-slate-300">
                       Controla qué elementos visuales, pestañas y métricas se muestran u ocultan en la pantalla de este usuario:
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Modulo 1: Pestañas Principales y Navegación */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <Eye className="w-3.5 h-3.5 text-sky-700 dark:text-sky-400" />
                           1. Pestañas Principales y Menús
                         </h4>
@@ -3542,8 +3542,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Modulo 2: Widgets del Header & Barra Superior */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <EyeOff className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                           2. Widgets y Accesos de Barra Superior
                         </h4>
@@ -3646,8 +3646,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Modulo 3: Pantalla de Operaciones y Cobro */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <Car className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                           3. Pantalla de Patio POS y Operaciones
                         </h4>
@@ -3702,8 +3702,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Modulo 4: Pantalla de Mapa y Gestión de Plazas */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <MapPin className="w-3.5 h-3.5 text-violet-600 dark:text-violet-400" />
                           4. Pantalla de Mapa y Plazas
                         </h4>
@@ -3721,7 +3721,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       <div className="col-span-1 md:col-span-2 bg-amber-500/5 p-4 rounded-xl border border-amber-500/20 space-y-3">
                         <div className="flex items-center gap-2">
                           <Lock className="w-4 h-4 text-amber-700 dark:text-amber-400" />
-                          <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider font-mono">
+                          <h4 className="font-display text-base font-bold text-amber-900 dark:text-amber-200">
                             5. Pantalla de Caja, Turnos y Políticas de Arqueo
                           </h4>
                         </div>
@@ -3770,8 +3770,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Modulo 6: Pantalla de Reportes y Auditoría */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <BarChart3 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                           6. Pantalla de Reportes y Auditoría
                         </h4>
@@ -3810,8 +3810,8 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       </div>
 
                       {/* Modulo 7: Configuración del Negocio, Red y Fiscal */}
-                      <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/80 space-y-2.5">
-                        <h4 className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 pb-1 border-b border-slate-200 dark:border-slate-800">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+                        <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 pb-2 border-b border-slate-200/70 dark:border-slate-800">
                           <Settings className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                           7. Configuración del Negocio, Red y Fiscal
                         </h4>
@@ -3863,13 +3863,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
               )}
 
               {/* Form Buttons */}
-              <div className="flex items-center justify-between gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <div>
                   {selectedUser && (
                     <button
                       type="button"
                       onClick={() => handleCloneUser(selectedUser)}
-                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Copy className="w-4 h-4" />
                       Duplicar como Nuevo Usuario
@@ -3881,14 +3881,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setActiveTab('users')}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-6 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                    className="min-h-[52px] rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-6 text-base font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     {activeTab === 'create_user' ? 'Crear Usuario' : 'Guardar Cambios de Permisos y Vista'}
@@ -3901,24 +3901,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
         {/* Modal for Saving Current Form as New Template */}
         {isSavingTemplateModalOpen && (
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <form 
               onSubmit={handleConfirmSaveTemplate}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4"
+              className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-slate-900/[0.06] dark:border-white/[0.07] p-6 w-full shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] max-w-md space-y-4"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
                   <Save className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Guardar como Plantilla de Perfil</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Podrás reutilizar esta configuración para futuros empleados.</p>
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">Guardar como Plantilla de Perfil</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Podrás reutilizar esta configuración para futuros empleados.</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Nombre de la Plantilla *
                   </label>
                   <input
@@ -3927,12 +3927,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     onChange={(e) => setNewTemplateName(e.target.value)}
                     placeholder="ej. Cajero Turno Nocturno"
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Descripción Breve (opcional)
                   </label>
                   <textarea
@@ -3940,7 +3940,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     value={newTemplateDesc}
                     onChange={(e) => setNewTemplateDesc(e.target.value)}
                     placeholder="ej. Con arqueo ciego estricto, sin acceso a anulación de tickets"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 py-2.5"
                   />
                 </div>
               </div>
@@ -3949,13 +3949,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsSavingTemplateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
+                  className="min-h-[52px] rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-6 text-base font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   Guardar Plantilla
                 </button>
@@ -3966,14 +3966,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
         {/* Delete User Confirmation Dialog */}
         {userToDelete && (
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/60 p-6 rounded-2xl max-w-sm w-full shadow-2xl text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+          <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 p-6 w-full shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] max-w-sm text-center space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-300 flex items-center justify-center mx-auto">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white">¿Eliminar este usuario?</h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">¿Eliminar este usuario?</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                   Se eliminará permanentemente la cuenta de <strong className="text-slate-900 dark:text-white">{userToDelete.name}</strong> (@{userToDelete.username}).
                 </p>
               </div>
@@ -3981,14 +3981,14 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setUserToDelete(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmDelete}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-600/20 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl bg-rose-600 hover:bg-rose-700 px-4 text-sm font-bold text-white inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/30"
                 >
                   Confirmar Eliminación
                 </button>
@@ -3999,20 +3999,20 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
         {/* Modal for Creating or Editing a User Profile */}
         {isTemplateModalOpen && (
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <form 
               onSubmit={handleSaveTemplateForm}
-              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-lg w-full shadow-2xl space-y-4"
+              className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-slate-900/[0.06] dark:border-white/[0.07] p-6 w-full shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] max-w-lg space-y-4"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
                   {editingTemplate ? <Edit className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
                     {editingTemplate ? 'Editar Perfil de Usuario' : 'Crear Nuevo Perfil de Usuario'}
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     {editingTemplate 
                       ? 'Modifica los datos generales y el rol base de este perfil.' 
                       : 'Define un nuevo perfil de acceso para asignar fácilmente a tus empleados.'}
@@ -4022,7 +4022,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
               <div className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Nombre del Perfil *
                   </label>
                   <input
@@ -4031,76 +4031,76 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     onChange={(e) => setTemplateFormName(e.target.value)}
                     placeholder="ej. Cajero Turno Nocturno, Supervisor de Patio, etc."
                     required
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Rol Base / Nivel de Acceso *
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={() => setTemplateFormRole('cashier')}
-                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                      className={`min-h-[52px] p-3 rounded-2xl border text-left flex items-center gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         templateFormRole === 'cashier'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 ring-1 ring-emerald-500/40'
-                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
+                          : 'wz-tile border border-slate-200 bg-white hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800'
                       }`}
                     >
                       <Briefcase className="w-4 h-4 text-emerald-600 shrink-0" />
                       <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white">Solo Caja</div>
-                        <div className="text-[10px] text-slate-500">Cobro y entradas</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">Solo Caja</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Cobro y entradas</div>
                       </div>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setTemplateFormRole('supervisor')}
-                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                      className={`min-h-[52px] p-3 rounded-2xl border text-left flex items-center gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         templateFormRole === 'supervisor'
-                          ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-500 ring-1 ring-blue-500/40'
-                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
+                          : 'wz-tile border border-slate-200 bg-white hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800'
                       }`}
                     >
                       <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
                       <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white">Supervisor</div>
-                        <div className="text-[10px] text-slate-500">Arqueos y reportes</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">Supervisor</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Arqueos y reportes</div>
                       </div>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setTemplateFormRole('custom')}
-                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                      className={`min-h-[52px] p-3 rounded-2xl border text-left flex items-center gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         templateFormRole === 'custom'
-                          ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-500 ring-1 ring-purple-500/40'
-                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
+                          : 'wz-tile border border-slate-200 bg-white hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800'
                       }`}
                     >
                       <Sliders className="w-4 h-4 text-purple-600 shrink-0" />
                       <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white">Personalizado</div>
-                        <div className="text-[10px] text-slate-500">Reglas a medida</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">Personalizado</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Reglas a medida</div>
                       </div>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setTemplateFormRole('master')}
-                      className={`p-2.5 rounded-xl border text-left flex items-center gap-2 cursor-pointer transition-all ${
+                      className={`min-h-[52px] p-3 rounded-2xl border text-left flex items-center gap-2 cursor-pointer transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                         templateFormRole === 'master'
-                          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 ring-1 ring-amber-500/40'
-                          : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800'
+                          ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10'
+                          : 'wz-tile border border-slate-200 bg-white hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800'
                       }`}
                     >
                       <Crown className="w-4 h-4 text-amber-600 shrink-0" />
                       <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-white">Maestro / Admin</div>
-                        <div className="text-[10px] text-slate-500">Control total</div>
+                        <div className="text-sm font-bold text-slate-900 dark:text-white">Maestro / Admin</div>
+                        <div className="text-xs text-slate-600 dark:text-slate-400">Control total</div>
                       </div>
                     </button>
                   </div>
@@ -4108,13 +4108,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
                 {!editingTemplate && (
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Copiar permisos iniciales de:
                     </label>
                     <select
                       value={templateFormBaseTemplateId}
                       onChange={(e) => setTemplateFormBaseTemplateId(e.target.value)}
-                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
+                      className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
                     >
                       <option value="">-- Usar permisos por defecto del rol seleccionado --</option>
                       <option value="cashier">💼 Cajero Solo Caja Base (Oficial Sistema)</option>
@@ -4130,7 +4130,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                     Descripción Breve (opcional)
                   </label>
                   <textarea
@@ -4138,12 +4138,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     value={templateFormDesc}
                     onChange={(e) => setTemplateFormDesc(e.target.value)}
                     placeholder="ej. Arqueo ciego obligatorio, sin acceso a anulación de tickets ni reportes"
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 py-2.5"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-200/70 dark:border-slate-800">
                 {editingTemplate ? (
                   <button
                     type="button"
@@ -4153,7 +4153,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                       setSelectedMatrixProfileId(editingTemplate.id);
                       setActiveTab('permissions');
                     }}
-                    className="text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="min-h-[44px] text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline flex items-center gap-1.5 cursor-pointer"
                   >
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>Configurar Permisos Detallados</span>
@@ -4164,13 +4164,13 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsTemplateModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10 transition-colors cursor-pointer flex items-center gap-1.5"
+                    className="min-h-[52px] rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-6 text-base font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
                     <span>{editingTemplate ? 'Guardar Cambios' : 'Crear Perfil'}</span>
@@ -4183,27 +4183,27 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
         {/* Modal for Confirming Profile Deletion */}
         {templateToDelete && (
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/60 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+          <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-500/30 p-6 w-full shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] max-w-md space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/80 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-300 flex items-center justify-center shrink-0">
                   <Trash2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">¿Eliminar este perfil?</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">¿Eliminar este perfil?</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     Estás a punto de retirar este perfil del catálogo de la aplicación.
                   </p>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 space-y-1.5 dark:border-slate-800 dark:bg-slate-800/50">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">{templateToDelete.name}</span>
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">{templateToDelete.name}</span>
                   {getRoleBadge(templateToDelete.role)}
                 </div>
                 {templateToDelete.description && (
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{templateToDelete.description}</p>
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">{templateToDelete.description}</p>
                 )}
               </div>
 
@@ -4211,33 +4211,33 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 const affectedUsers = users.filter(u => u.role === templateToDelete.role);
                 if (affectedUsers.length > 0) {
                   return (
-                    <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs flex items-start gap-2">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <div className="text-[11px] leading-relaxed">
+                      <div className="text-[13px] leading-relaxed">
                         <strong>Atención:</strong> Hay <strong>{affectedUsers.length} usuario(s)</strong> con este rol asignado ({affectedUsers.map(u => u.name).join(', ')}). Al eliminar el perfil, dichos usuarios <strong>mantendrán sus permisos actuales</strong> en la terminal, pero el perfil se retirará del catálogo para futuras asignaciones.
                       </div>
                     </div>
                   );
                 }
                 return (
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     ¿Confirmas que deseas eliminar el perfil <strong>"{templateToDelete.name}"</strong>?
                   </p>
                 );
               })()}
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200/70 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setTemplateToDelete(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmDeleteTemplate}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/20 transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="min-h-[44px] rounded-xl bg-rose-600 hover:bg-rose-700 px-4 text-sm font-bold text-white inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/30"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Sí, Eliminar Perfil</span>
@@ -4249,46 +4249,46 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
         {/* Modal for Restoring Factory Default Profiles */}
         {isRestoreDefaultsModalOpen && (
-          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+          <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-slate-900/[0.06] dark:border-white/[0.07] p-6 w-full shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] max-w-md space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                   <RotateCcw className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">¿Restaurar Perfiles de Fábrica?</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">¿Restaurar Perfiles de Fábrica?</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     Recupera las 5 plantillas oficiales originales del sistema.
                   </p>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 space-y-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300 space-y-2">
                 <p className="font-semibold text-slate-900 dark:text-white">Se restaurarán los siguientes perfiles:</p>
-                <ul className="list-disc list-inside space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
+                <ul className="list-disc list-inside space-y-1 text-[13px] text-slate-600 dark:text-slate-400">
                   <li>Cajero Estándar (Arqueo Ciego)</li>
                   <li>Cajero Avanzado / Confianza</li>
                   <li>Operador de Patio / Valet (Solo Entrada)</li>
                   <li>Auditor / Revisor Fiscal (Solo Lectura)</li>
                   <li>Supervisor Operativo Integral</li>
                 </ul>
-                <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">
+                <p className="text-[13px] text-emerald-800 dark:text-emerald-300 font-medium pt-1">
                   ✓ Los perfiles personalizados que hayas creado manualmente se conservarán intactos.
                 </p>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200/70 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsRestoreDefaultsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                  className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmRestoreDefaults}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/10 transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="min-h-[52px] rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-6 text-base font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 inline-flex items-center justify-center gap-1.5 transition cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Restaurar Perfiles</span>
@@ -4318,32 +4318,32 @@ const PermissionCheckbox: React.FC<PermissionCheckboxProps> = ({
   onChange,
 }) => {
   return (
-    <label className={`flex items-start gap-2.5 p-2.5 rounded-lg border transition-colors cursor-pointer ${
+    <label className={`flex items-start gap-3 min-h-[44px] px-3 py-2.5 rounded-xl border transition-colors cursor-pointer focus-within:ring-4 focus-within:ring-blue-500/25 ${
       checked 
-        ? 'bg-amber-500/10 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/40' 
-        : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/80'
-    } ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-100 dark:hover:bg-slate-800/70'}`}>
+        ? 'bg-emerald-50 border-emerald-300 dark:bg-emerald-500/10 dark:border-emerald-500/40' 
+        : 'bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-700'
+    } ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-50 dark:hover:bg-slate-800/70'}`}>
       <input
         type="checkbox"
         checked={checked}
         disabled={disabled}
         onChange={onChange}
-        className="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-amber-500 focus:ring-amber-400 focus:ring-offset-white dark:focus:ring-offset-slate-900 shrink-0 cursor-pointer"
+        className="mt-0.5 h-5 w-5 rounded border-slate-400 dark:border-slate-500 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-white dark:focus:ring-offset-slate-900 shrink-0 cursor-pointer"
       />
       <div className="flex-1 select-none">
-        <div className={`text-xs font-semibold ${checked ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-700 dark:text-slate-300'}`}>
+        <div className={`text-sm font-semibold ${checked ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
           {label}
         </div>
-        <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+        <div className="text-[13px] text-slate-600 dark:text-slate-400 leading-snug mt-0.5">
           {desc}
         </div>
       </div>
       {checked ? (
-        <span className="text-[10px] font-mono text-emerald-700 dark:text-emerald-300 shrink-0 self-center font-bold px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/60 rounded border border-emerald-200 dark:border-emerald-800">
+        <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-200 shrink-0 self-center px-2 py-1 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg border border-emerald-300 dark:border-emerald-500/40">
           PERMITIDO
         </span>
       ) : (
-        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 shrink-0 self-center font-medium px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800/80 rounded border border-slate-200 dark:border-slate-700">
+        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0 self-center px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600">
           BLOQUEADO
         </span>
       )}
@@ -4367,32 +4367,32 @@ const VisibilityCheckbox: React.FC<VisibilityCheckboxProps> = ({
   onChange,
 }) => {
   return (
-    <label className={`flex items-start gap-2.5 p-2.5 rounded-lg border transition-colors cursor-pointer ${
+    <label className={`flex items-start gap-3 min-h-[44px] px-3 py-2.5 rounded-xl border transition-colors cursor-pointer focus-within:ring-4 focus-within:ring-blue-500/25 ${
       checked 
-        ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-800/60' 
-        : 'bg-white dark:bg-slate-900/60 border-slate-200 dark:border-slate-800/80'
-    } ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-100 dark:hover:bg-slate-800/70'}`}>
+        ? 'bg-blue-50 border-blue-300 dark:bg-blue-500/10 dark:border-blue-500/40' 
+        : 'bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-700'
+    } ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-50 dark:hover:bg-slate-800/70'}`}>
       <input
         type="checkbox"
         checked={checked}
         disabled={disabled}
         onChange={onChange}
-        className="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-sky-500 focus:ring-sky-400 focus:ring-offset-white dark:focus:ring-offset-slate-900 shrink-0 cursor-pointer"
+        className="mt-0.5 h-5 w-5 rounded border-slate-400 dark:border-slate-500 text-blue-600 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-slate-900 shrink-0 cursor-pointer"
       />
       <div className="flex-1 select-none">
-        <div className={`text-xs font-semibold ${checked ? 'text-sky-900 dark:text-sky-200 font-bold' : 'text-slate-700 dark:text-slate-300'}`}>
+        <div className={`text-sm font-semibold ${checked ? 'text-blue-900 dark:text-blue-100' : 'text-slate-700 dark:text-slate-300'}`}>
           {label}
         </div>
-        <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
+        <div className="text-[13px] text-slate-600 dark:text-slate-400 leading-snug mt-0.5">
           {desc}
         </div>
       </div>
       {checked ? (
-        <span className="text-[10px] font-mono text-sky-700 dark:text-sky-300 shrink-0 self-center font-bold px-1.5 py-0.5 bg-sky-100 dark:bg-sky-950/60 rounded border border-sky-200 dark:border-sky-800 flex items-center gap-1">
+        <span className="text-xs font-semibold text-blue-800 dark:text-blue-200 shrink-0 self-center px-2 py-1 bg-blue-100 dark:bg-blue-500/20 rounded-lg border border-blue-300 dark:border-blue-500/40 flex items-center gap-1">
           <Eye className="w-3 h-3" /> VISIBLE
         </span>
       ) : (
-        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 shrink-0 self-center font-medium px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800/80 rounded border border-slate-200 dark:border-slate-700 flex items-center gap-1">
+        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0 self-center px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600 flex items-center gap-1">
           <EyeOff className="w-3 h-3" /> OCULTO
         </span>
       )}
