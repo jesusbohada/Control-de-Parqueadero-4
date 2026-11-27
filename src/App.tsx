@@ -105,7 +105,6 @@ import { WorkspaceCategory, ActiveWorkspaceView } from './types/routes';
 import { Sidebar } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
 import { OperationsView } from './components/OperationsView';
-import { PatioPos } from './components/patio/PatioPos';
 import { MapaPlazas } from './components/patio/MapaPlazas';
 import { PatioUiSwitch } from './components/patio/PatioUiSwitch';
 import { usePatioUiVersion, usePatioGlass } from './components/patio/usePatioUiVersion';
@@ -3608,7 +3607,6 @@ export default function App() {
   const [patioUi, setPatioUi] = usePatioUiVersion(currentUser?.id);
   const [patioGlass, setPatioGlass] = usePatioGlass(currentUser?.id);
   // Plaza tocada en el mapa: la vista nueva del patio la deja preseleccionada para la entrada
-  const [entrySpotPreset, setEntrySpotPreset] = useState<{ spotCode: string; vehicleType: VehicleType } | null>(null);
 
   // Floating print toast notification
   const [printToast, setPrintToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -4000,7 +3998,6 @@ export default function App() {
 
   // --- Handlers: Map Interaction ---
   const handleSelectSpotForEntry = (spotCode: string, vehicleType: VehicleType) => {
-    setEntrySpotPreset({ spotCode, vehicleType });
     setActiveCategory('operations');
     setActiveView('operations');
   };
@@ -5025,49 +5022,25 @@ export default function App() {
             {/* OPERACIONES PATIO */}
         {activeView === 'operations' && (
           <>
-            <PatioUiSwitch value={patioUi} onChange={setPatioUi} glass={patioGlass} onGlassChange={setPatioGlass} />
-            {patioUi === 'nueva' ? (
-              <PatioPos
-                glass={patioGlass}
-                spots={effectiveSpots}
-                activeTickets={effectiveActiveTickets}
-                rates={rates}
-                businessInfo={effectiveBusinessInfo}
-                soundEnabled={soundEnabled}
-                onRegisterEntry={handleRegisterEntry}
-                onRegisterExit={handleRegisterExit}
-                onPrintTicket={handleOpenPrintModal}
-                selectedPlateForExit={selectedPlateForExit}
-                onClearSelectedPlate={() => setSelectedPlateForExit(null)}
-                currentUser={currentUser}
-                paymentGatewayConfig={paymentGatewayConfig}
-                onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
-                vehicleCategories={vehicleCategories}
-                commercialAgreements={commercialAgreements}
-                onOpenClassic={(plate) => { setPatioUi('clasica'); if (plate) setSelectedPlateForExit(plate); }}
-                preselectedEntrySpot={entrySpotPreset}
-                onClearPreselectedEntrySpot={() => setEntrySpotPreset(null)}
-              />
-            ) : (
-              <OperationsView
-                spots={effectiveSpots}
-                activeTickets={effectiveActiveTickets}
-                rates={rates}
-                businessInfo={effectiveBusinessInfo}
-                soundEnabled={soundEnabled}
-                onRegisterEntry={handleRegisterEntry}
-                onRegisterExit={handleRegisterExit}
-                onPrintTicket={handleOpenPrintModal}
-                selectedPlateForExit={selectedPlateForExit}
-                onClearSelectedPlate={() => setSelectedPlateForExit(null)}
-                currentUser={currentUser}
-                paymentGatewayConfig={paymentGatewayConfig}
-                onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
-                onOpenAnprCamera={() => setActiveView('anpr_camera')}
-                vehicleCategories={vehicleCategories}
-                commercialAgreements={commercialAgreements}
-              />
-            )}
+            <PatioUiSwitch value={patioUi} onChange={setPatioUi} glass={patioGlass} onGlassChange={setPatioGlass} showVersion={false} />
+            <OperationsView
+              spots={effectiveSpots}
+              activeTickets={effectiveActiveTickets}
+              rates={rates}
+              businessInfo={effectiveBusinessInfo}
+              soundEnabled={soundEnabled}
+              onRegisterEntry={handleRegisterEntry}
+              onRegisterExit={handleRegisterExit}
+              onPrintTicket={handleOpenPrintModal}
+              selectedPlateForExit={selectedPlateForExit}
+              onClearSelectedPlate={() => setSelectedPlateForExit(null)}
+              currentUser={currentUser}
+              paymentGatewayConfig={paymentGatewayConfig}
+              onOpenTicketScanner={() => setIsTicketScannerModalOpen(true)}
+              onOpenAnprCamera={() => setActiveView('anpr_camera')}
+              vehicleCategories={vehicleCategories}
+              commercialAgreements={commercialAgreements}
+            />
           </>
         )}
 
