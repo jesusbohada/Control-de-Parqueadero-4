@@ -106,6 +106,7 @@ import { Sidebar } from './components/Sidebar';
 import { TopNavbar } from './components/TopNavbar';
 import { OperationsView } from './components/OperationsView';
 import { PatioPos } from './components/patio/PatioPos';
+import { MapaPlazas } from './components/patio/MapaPlazas';
 import { PatioUiSwitch } from './components/patio/PatioUiSwitch';
 import { usePatioUiVersion } from './components/patio/usePatioUiVersion';
 import { ParkingMap } from './components/ParkingMap';
@@ -3605,6 +3606,8 @@ export default function App() {
   const [selectedPlateForExit, setSelectedPlateForExit] = useState<string | null>(null);
   // Vista del Patio POS (clásica por defecto; la nueva es opcional por usuario)
   const [patioUi, setPatioUi] = usePatioUiVersion(currentUser?.id);
+  // Plaza tocada en el mapa: la vista nueva del patio la deja preseleccionada para la entrada
+  const [entrySpotPreset, setEntrySpotPreset] = useState<{ spotCode: string; vehicleType: VehicleType } | null>(null);
 
   // Floating print toast notification
   const [printToast, setPrintToast] = useState<{ message: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -3996,6 +3999,7 @@ export default function App() {
 
   // --- Handlers: Map Interaction ---
   const handleSelectSpotForEntry = (spotCode: string, vehicleType: VehicleType) => {
+    setEntrySpotPreset({ spotCode, vehicleType });
     setActiveCategory('operations');
     setActiveView('operations');
   };
@@ -5039,6 +5043,8 @@ export default function App() {
                 vehicleCategories={vehicleCategories}
                 commercialAgreements={commercialAgreements}
                 onOpenClassic={(plate) => { setPatioUi('clasica'); if (plate) setSelectedPlateForExit(plate); }}
+                preselectedEntrySpot={entrySpotPreset}
+                onClearPreselectedEntrySpot={() => setEntrySpotPreset(null)}
               />
             ) : (
               <OperationsView
@@ -5064,17 +5070,34 @@ export default function App() {
         )}
 
         {activeView === 'map' && (
-          <ParkingMap
-            spots={effectiveSpots}
-            activeTickets={effectiveActiveTickets}
-            rates={rates}
-            vehicleCategories={vehicleCategories}
-            currentUser={currentUser}
-            onSelectSpotForEntry={handleSelectSpotForEntry}
-            onSelectSpotForExit={handleSelectSpotForExit}
-            onToggleSpotStatus={handleToggleSpotStatus}
-            onOpenSpotsManagement={() => setActiveView('spots')}
-          />
+          <>
+            <PatioUiSwitch value={patioUi} onChange={setPatioUi} />
+            {patioUi === 'nueva' ? (
+              <MapaPlazas
+                spots={effectiveSpots}
+                activeTickets={effectiveActiveTickets}
+                rates={rates}
+                vehicleCategories={vehicleCategories}
+                currentUser={currentUser}
+                onSelectSpotForEntry={handleSelectSpotForEntry}
+                onSelectSpotForExit={handleSelectSpotForExit}
+                onToggleSpotStatus={handleToggleSpotStatus}
+                onOpenSpotsManagement={() => setActiveView('spots')}
+              />
+            ) : (
+              <ParkingMap
+                spots={effectiveSpots}
+                activeTickets={effectiveActiveTickets}
+                rates={rates}
+                vehicleCategories={vehicleCategories}
+                currentUser={currentUser}
+                onSelectSpotForEntry={handleSelectSpotForEntry}
+                onSelectSpotForExit={handleSelectSpotForExit}
+                onToggleSpotStatus={handleToggleSpotStatus}
+                onOpenSpotsManagement={() => setActiveView('spots')}
+              />
+            )}
+          </>
         )}
 
         {activeView === 'spots' && (
