@@ -26,6 +26,7 @@ Los puertos 3000/3001 están expuestos a internet y el Central y las sedes sigue
 |---|---|---|---|
 | 1.1 | Probar el **Patio rediseñado** y el **Mapa nuevo** con un cajero real | 0.2 | Un turno completo (entradas, todos los medios de pago, cierre) sin errores ni funciones faltantes |
 | 1.2 | Medir el **efecto Cristal** en las PCs de caja | 1.1 | Sin lentitud perceptible; si la hay, se documenta en qué equipos apagarlo |
+| 1.4 | Revisar el bloque **"Día 1 Operativo Simulado"** de Reportes | — | Solo muestra datos reales o se retira |
 | 1.3 | Revisar el **valor actual de la tabla del Patio** (se calcula sin categorías de vehículo) | — | Prueba automática que compara tabla, mapa y cobro con tarifas por categoría; mismos valores |
 
 ## Fase 2 — Interfaz nueva, siguientes pantallas · P1
@@ -34,7 +35,7 @@ Regla: se rediseña la pantalla existente cambiando solo estilos (`scripts/check
 
 | # | Tarea | Depende de | Terminado cuando |
 |---|---|---|---|
-| 2.2 | Rediseño del resto de pantallas (Reportes, Usuarios, Configuración, Plazas, etc.), una por PR | — | Solo estilos (checker OK); sin tocar áreas imprimibles; claro/oscuro |
+| 2.2 | Rediseño del resto de pantallas (Usuarios, Configuración, Plazas, etc.), una por PR | — | Solo estilos (checker OK); sin tocar áreas imprimibles; claro/oscuro |
 | 2.3 | Decidir si el **Mapa nuevo** pasa a ser el único (retirar el clásico) | 1.1 | Cajeros lo usan un turno sin echar nada de menos |
 
 ## Fase 3 — Deuda técnica · P2
