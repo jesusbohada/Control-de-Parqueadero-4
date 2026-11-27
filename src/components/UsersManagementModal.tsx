@@ -1705,19 +1705,19 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
             return (
               <div className="space-y-5 animate-in fade-in duration-200">
                 {/* Header Policy Banner */}
-                <div className="p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 px-4 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0 mt-0.5">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0 mt-0.5">
                       <ShieldCheck className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                         Políticas de Seguridad RBAC & Matriz de Accesos por Perfil
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30">
                           Control de Acceso
                         </span>
                       </h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
+                      <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
                         Selecciona un perfil (oficial o personalizado) para ajustar qué módulos principales (Caja, Turnos, Mapa, Reportes y Configuración) puede acceder y qué acciones tiene permitidas.
                       </p>
                     </div>
@@ -1727,7 +1727,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <button
                       type="button"
                       onClick={handleSaveRoleMatrixToStorage}
-                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center gap-1.5 shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
+                      className="min-h-[44px] rounded-xl px-4 text-sm font-bold bg-gradient-to-b from-blue-600 to-blue-700 text-white shadow-[0_10px_20px_-12px_rgba(29,78,216,.9)] hover:-translate-y-px flex items-center justify-center gap-1.5 transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 dark:from-blue-500 dark:to-blue-600"
                     >
                       <Save className="w-4 h-4" />
                       <span>Guardar Matriz de Seguridad</span>
@@ -1738,11 +1738,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 {/* Profile Selector Tabs */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 font-mono uppercase tracking-wider">
+                    <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                       <Bookmark className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                       Selecciona el Perfil a Configurar:
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+                    <span className="text-[13px] text-slate-600 dark:text-slate-400 tabular-nums">
                       Total: {allProfilesList.length} perfiles disponibles
                     </span>
                   </div>
@@ -1757,25 +1757,25 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                           key={prof.id}
                           type="button"
                           onClick={() => setSelectedMatrixProfileId(prof.id)}
-                          className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden cursor-pointer shadow-xs ${
+                          className={`min-h-[52px] p-3 rounded-2xl text-left transition relative overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                             isSelected
-                              ? 'bg-amber-500/10 dark:bg-amber-500/10 border-amber-500 ring-1 ring-amber-500/50'
-                              : 'bg-white dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                              ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                              : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-1 mb-1">
-                            <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white truncate">
-                              <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-amber-700 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                            <div className="flex items-center gap-1.5 font-semibold text-sm text-slate-900 dark:text-white truncate">
+                              <Icon className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'}`} />
                               <span className="truncate">{prof.name}</span>
                             </div>
-                            <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded border font-bold shrink-0 ${prof.badgeBg}`}>
+                            <span className={`text-xs px-1.5 py-0.5 rounded-lg border font-semibold shrink-0 tabular-nums ${prof.badgeBg}`}>
                               {prof.usersCount} u.
                             </span>
                           </div>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                          <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
                             {prof.description}
                           </p>
-                          <span className="mt-1 block text-[9px] font-mono font-bold text-slate-600 dark:text-slate-400">
+                          <span className="mt-1 block text-xs font-semibold text-slate-600 dark:text-slate-400">
                             {prof.badgeText}
                           </span>
                         </button>
@@ -1785,10 +1785,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <button
                       type="button"
                       onClick={handleOpenCreateTemplate}
-                      className="p-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-900/30 text-left transition-all flex flex-col items-center justify-center text-center cursor-pointer min-h-[85px] group"
+                      className="p-3 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-blue-600 dark:hover:border-blue-400 bg-slate-50/50 dark:bg-slate-900/30 text-left transition flex flex-col items-center justify-center text-center cursor-pointer min-h-[85px] group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30"
                     >
-                      <Plus className="w-5 h-5 text-slate-400 group-hover:text-amber-500 mb-1 transition-colors" />
-                      <span className="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-amber-500 transition-colors">
+                      <Plus className="w-5 h-5 text-slate-500 group-hover:text-blue-700 dark:group-hover:text-blue-300 mb-1 transition-colors" />
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
                         + Crear Nuevo Perfil
                       </span>
                     </button>
@@ -1796,12 +1796,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                 </div>
 
                 {/* Role Actions Control Toolbar */}
-                <div className="p-3 rounded-xl bg-white dark:bg-slate-950/90 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-xs">
-                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                    <span className="font-bold text-slate-900 dark:text-white uppercase tracking-wider font-mono bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800">
+                <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <span className="font-semibold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
                       Perfil Activo: {activeProfile.name}
                     </span>
-                    <span className="text-slate-500 dark:text-slate-400 text-[11px] hidden sm:inline">
+                    <span className="text-slate-600 dark:text-slate-400 text-[13px] hidden sm:inline">
                       Configurando accesos y visibilidad para este perfil
                     </span>
                   </div>
@@ -1814,7 +1814,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         const prof = allProfilesList.find(p => p.id === selectedMatrixProfileId);
                         if (prof) handleCloneProfile(prof);
                       }}
-                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Crear un nuevo perfil duplicando la configuración actual"
                     >
                       <Copy className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
@@ -1829,7 +1829,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             const tmpl = templates.find(t => t.id === selectedMatrixProfileId);
                             if (tmpl) handleOpenEditTemplate(tmpl);
                           }}
-                          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                           title="Editar nombre, descripción y rol base de este perfil"
                         >
                           <Edit className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
@@ -1841,7 +1841,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                             const tmpl = templates.find(t => t.id === selectedMatrixProfileId);
                             if (tmpl) setTemplateToDelete(tmpl);
                           }}
-                          className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="min-h-[44px] px-3.5 rounded-xl text-sm font-semibold bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
                           title="Eliminar este perfil"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
@@ -1853,7 +1853,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <button
                       type="button"
                       onClick={handleResetRoleDefaults}
-                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
+                      className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-3.5 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Restablecer este perfil a valores por defecto"
                     >
                       <RotateCcw className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
@@ -1863,7 +1863,7 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                     <button
                       type="button"
                       onClick={handleSyncRoleToActiveUsers}
-                      className="px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500 text-amber-800 dark:text-amber-300 hover:text-slate-950 border border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="min-h-[44px] px-4 rounded-xl text-sm font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 dark:bg-amber-500/10 dark:hover:bg-amber-500/20 dark:text-amber-200 dark:border-amber-500/30 flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Aplicar estos permisos a los usuarios con este perfil"
                     >
                       <Users className="w-3.5 h-3.5" />
@@ -1874,19 +1874,19 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
 
                 {/* Search / Filter for Permissions & Options */}
                 <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                   <input
                     type="text"
                     value={permissionSearchQuery}
                     onChange={(e) => setPermissionSearchQuery(e.target.value)}
                     placeholder="Buscar permiso, opción, botón o módulo (ej: descuento, cajón, abonados, arqueo ciego, impresora, tarifas)..."
-                    className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                    className="w-full min-h-[48px] pl-10 pr-12 rounded-xl border border-slate-300 bg-white text-base text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-400"
                   />
                   {permissionSearchQuery && (
                     <button
                       type="button"
                       onClick={() => setPermissionSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1"
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-100 cursor-pointer"
                       title="Limpiar búsqueda"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -1941,24 +1941,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'patio pos operaciones vehículos'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <Car className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 1: Patio POS & Operaciones Vehiculares (Ingreso / Salida / Cobros)
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Permite operar la pantalla principal de vehículos, registrar tiques, aplicar cobros y emitir comprobantes.
                                   </p>
                                 </div>
@@ -1969,10 +1969,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('caja', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -1984,11 +1984,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2004,12 +2004,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
@@ -2052,24 +2052,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'mapa de patio plazas espacios'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-700 dark:text-blue-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <MapPin className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 2: Mapa de Patio & Gestión de Plazas (Control de Espacios)
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Supervisión visual de plazas, bloqueos por mantenimiento, reasignaciones y liberación forzada.
                                   </p>
                                 </div>
@@ -2080,10 +2080,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('mapa', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -2095,11 +2095,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2115,12 +2115,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
@@ -2161,24 +2161,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'abonados mensualidades clientes recurrentes'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <Users className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 3: Abonados & Mensualidades (Contratos Recurrentes)
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Gestión de clientes fijos, suscripciones de estacionamiento, cobro de mensualidades y control vehicular.
                                   </p>
                                 </div>
@@ -2189,10 +2189,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('subscribers', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -2204,11 +2204,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2224,12 +2224,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
@@ -2288,24 +2288,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'turnos arqueo caja finanzas gastos egresos'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-700 dark:text-emerald-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <DollarSign className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 4: Turnos, Arqueo & Movimientos de Caja (Finanzas)
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Gestiona la apertura/cierre de caja, arqueos físicos, retiros de gastos, inyecciones de base y recogida de efectivo.
                                   </p>
                                 </div>
@@ -2316,10 +2316,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('turnos', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -2331,11 +2331,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2351,12 +2351,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
@@ -2403,24 +2403,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'reportes auditoria consola estadisticas logs'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-700 dark:text-purple-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <BarChart3 className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 5: Reportes, Consola & Auditoría
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Consultas analíticas en tiempo real, exportación a Excel/PDF, auditoría de eventos y registros históricos.
                                   </p>
                                 </div>
@@ -2431,10 +2431,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('reportes', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -2446,11 +2446,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2466,12 +2466,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
@@ -2521,24 +2521,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'configuración tarifas fiscal dian impresoras usuarios base de datos negocio'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <Settings className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 6: Configuración del Negocio, Tarifas & Fiscal
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Edición de tarifas, medios de pago, datos de empresa, facturación DIAN, impresoras térmicas y usuarios.
                                   </p>
                                 </div>
@@ -2549,10 +2549,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('config', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -2564,11 +2564,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2584,12 +2584,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
@@ -2641,24 +2641,24 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                         if (query && matchingVis.length === 0 && matchingPerms.length === 0 && !'red servidor central farmadesk vnc sincronizacion ota actualizaciones sucursales'.includes(query)) return null;
 
                         return (
-                          <div className={`p-5 rounded-2xl border transition-all ${
-                            moduleEnabled ? 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 shadow-xs' : 'bg-slate-50/60 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/60 opacity-80'
+                          <div className={`wz-surface rounded-[22px] border p-5 transition ${
+                            moduleEnabled ? 'border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:bg-slate-900' : 'border-slate-200 bg-slate-50 opacity-90 dark:border-slate-800 dark:bg-slate-900/60'
                           }`}>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-700 dark:text-indigo-400 font-bold shrink-0">
+                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
                                   <Server className="w-5 h-5" />
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                  <h4 className="font-display text-base font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                                     Módulo 7: Red, Servidor Central, Sincronización & Soporte Remoto
-                                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border font-semibold ${
-                                      moduleEnabled ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                                    <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${
+                                      moduleEnabled ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30' : 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-200 dark:border-rose-500/30'
                                     }`}>
                                       {moduleEnabled ? 'MÓDULO AUTORIZADO' : 'ACCESO DENEGADO'}
                                     </span>
                                   </h4>
-                                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                                  <p className="text-[13px] text-slate-600 dark:text-slate-300 mt-0.5">
                                     Hub matriz, telemetría nacional, sincronización de sedes, consola FarmaDesk Pro y actualizaciones OTA.
                                   </p>
                                 </div>
@@ -2669,10 +2669,10 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                   type="button"
                                   disabled={isMaster}
                                   onClick={() => handleSetModulePermissionsForRole('central', !moduleEnabled)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                                  className={`min-h-[44px] px-4 rounded-xl text-sm font-bold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                                     moduleEnabled
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
-                                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
+                                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 dark:text-emerald-200 dark:border-emerald-500/30'
+                                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-100 dark:border-slate-600'
                                   }`}
                                 >
                                   {moduleEnabled ? 'Desactivar Módulo' : 'Activar Módulo'}
@@ -2684,11 +2684,11 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                               <div className="mt-4 space-y-5">
                                 {matchingVis.length > 0 && (
                                   <div className="space-y-2">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-sky-700 dark:text-sky-400 flex items-center gap-1.5">
+                                    <h5 className="text-[13px] font-semibold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
                                       <Eye className="w-3.5 h-3.5" />
                                       👁️ Control de Vista de Interfaz (¿Qué ve el usuario?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingVis.map(item => (
                                         <VisibilityCheckbox
                                           key={item.key}
@@ -2704,12 +2704,12 @@ export const UsersManagementModal: React.FC<UsersManagementModalProps> = ({
                                 )}
 
                                 {matchingPerms.length > 0 && (
-                                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-wider font-mono text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                                  <div className="space-y-2 pt-4 border-t border-slate-200/70 dark:border-slate-800">
+                                    <h5 className="text-[13px] font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                                       <Sliders className="w-3.5 h-3.5" />
                                       ⚡ Acciones y Ejecución Operativa (¿Qué operaciones puede realizar?)
                                     </h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                       {matchingPerms.map(item => (
                                         <PermissionCheckbox
                                           key={item.key}
