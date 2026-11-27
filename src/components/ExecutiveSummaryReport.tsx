@@ -225,23 +225,23 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
   }, [hourlyData, metricType]);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 md:p-7 shadow-sm transition-all space-y-6">
+    <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 p-5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] md:p-7 space-y-6">
       {/* 1. Header with Title & Operational Metadata */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-5">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200/70 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 font-mono">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">
               Business Intelligence & AI
             </span>
-            <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+            <span className="text-[13px] text-slate-600 dark:text-slate-400 font-medium">
               Comparativa 24h vs Promedio 7 Días
             </span>
           </div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+          <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-amber-500" />
             <span>Resumen Ejecutivo de Tendencia por Hora</span>
           </h2>
-          <p className="text-xs text-slate-600 dark:text-slate-200 mt-0.5">
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
             Compara la recaudación horaria del día actual contra el comportamiento histórico de los últimos 7 días.
           </p>
         </div>
@@ -249,14 +249,14 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
         {/* View Controls: Metric Selector & Time Window */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Metric Selector (Ingresos vs Vehículos) */}
-          <div className="bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl flex items-center border border-slate-200 dark:border-slate-700 text-xs font-bold">
+          <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 text-sm font-semibold dark:border-slate-700 dark:bg-slate-900">
             <button
               type="button"
               onClick={() => setMetricType('revenue')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                 metricType === 'revenue'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400 font-black'
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white font-bold'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold'
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 font-semibold'
               }`}
             >
               <DollarSign className="w-3.5 h-3.5" />
@@ -265,10 +265,10 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
             <button
               type="button"
               onClick={() => setMetricType('vehicles')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                 metricType === 'vehicles'
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-1 ring-amber-400 font-black'
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white font-bold'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold'
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 font-semibold'
               }`}
             >
               <Car className="w-3.5 h-3.5" />
@@ -277,14 +277,14 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
           </div>
 
           {/* Time Window (24h vs Horario Operativo) */}
-          <div className="bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl flex items-center border border-slate-300 dark:border-slate-700 text-xs font-black">
+          <div className="inline-flex items-center rounded-xl border border-slate-200 bg-white p-1 text-sm font-semibold dark:border-slate-700 dark:bg-slate-900">
             <button
               type="button"
               onClick={() => setTimeSpan('24h')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                 timeSpan === '24h'
-                  ? 'bg-slate-900 text-white dark:bg-slate-700 shadow-xs'
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
               title="Ver todas las 24 horas del día (00:00 - 23:00)"
             >
@@ -293,10 +293,10 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
             <button
               type="button"
               onClick={() => setTimeSpan('operational')}
-              className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+              className={`min-h-[44px] px-4 rounded-lg transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                 timeSpan === 'operational'
-                  ? 'bg-slate-900 text-white dark:bg-slate-700 shadow-xs'
-                  : 'text-slate-800 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
               title="Ver horario comercial principal (06:00 - 22:00)"
             >
@@ -309,19 +309,19 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
       {/* 2. Top Executive KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* KPI 1: Recaudo Hoy vs Promedio 7D */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200">
-            <span className="font-black uppercase tracking-wider text-[10px]">Recaudo Total Hoy</span>
-            <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-400">
+        <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+          <div className="flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-400">
+            <span className="font-medium text-[13px]">Recaudo Total Hoy</span>
+            <div className="p-1.5 rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400">
               <DollarSign className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl font-black text-slate-950 dark:text-white font-mono mt-1">
+          <div className="font-display text-2xl font-bold tabular-nums text-slate-950 dark:text-white mt-1">
             {formatCurrency(kpis.todayTotalRev, rates.currencySymbol)}
           </div>
-          <div className="flex items-center justify-between text-[11px] mt-1.5 pt-1.5 border-t border-slate-300 dark:border-slate-700">
-            <span className="text-slate-800 dark:text-slate-200 font-bold">Prom. 7D: {formatCurrency(kpis.avg7TotalRev, rates.currencySymbol)}</span>
-            <span className={`inline-flex items-center gap-0.5 font-black ${
+          <div className="flex items-center justify-between text-[13px] mt-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800">
+            <span className="text-slate-600 dark:text-slate-400 font-medium tabular-nums">Prom. 7D: {formatCurrency(kpis.avg7TotalRev, rates.currencySymbol)}</span>
+            <span className={`inline-flex items-center gap-0.5 font-bold tabular-nums ${
               kpis.totalRevPct >= 0 
                 ? 'text-emerald-800 dark:text-emerald-400' 
                 : 'text-rose-800 dark:text-rose-400'
@@ -333,19 +333,19 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
         </div>
 
         {/* KPI 2: Vehículos Atendidos Hoy vs Promedio 7D */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200">
-            <span className="font-black uppercase tracking-wider text-[10px]">Vehículos Hoy</span>
-            <div className="p-1.5 rounded-lg bg-sky-500/20 text-sky-700 dark:text-sky-400">
+        <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+          <div className="flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-400">
+            <span className="font-medium text-[13px]">Vehículos Hoy</span>
+            <div className="p-1.5 rounded-xl bg-sky-50 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400">
               <Car className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl font-black text-slate-950 dark:text-white font-mono mt-1">
-            {kpis.todayTotalVeh} <span className="text-xs font-bold text-slate-700 dark:text-slate-300">vehículos</span>
+          <div className="font-display text-2xl font-bold tabular-nums text-slate-950 dark:text-white mt-1">
+            {kpis.todayTotalVeh} <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">vehículos</span>
           </div>
-          <div className="flex items-center justify-between text-[11px] mt-1.5 pt-1.5 border-t border-slate-300 dark:border-slate-700">
-            <span className="text-slate-800 dark:text-slate-200 font-bold">Prom. 7D: {kpis.avg7TotalVeh} veh.</span>
-            <span className={`inline-flex items-center gap-0.5 font-black ${
+          <div className="flex items-center justify-between text-[13px] mt-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800">
+            <span className="text-slate-600 dark:text-slate-400 font-medium tabular-nums">Prom. 7D: {kpis.avg7TotalVeh} veh.</span>
+            <span className={`inline-flex items-center gap-0.5 font-bold tabular-nums ${
               kpis.totalVehPct >= 0 
                 ? 'text-emerald-800 dark:text-emerald-400' 
                 : 'text-rose-800 dark:text-rose-400'
@@ -357,41 +357,41 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
         </div>
 
         {/* KPI 3: Hora Pico de Recaudo */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200">
-            <span className="font-black uppercase tracking-wider text-[10px]">Hora Pico Hoy</span>
-            <div className="p-1.5 rounded-lg bg-purple-500/20 text-purple-700 dark:text-purple-400">
+        <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+          <div className="flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-400">
+            <span className="font-medium text-[13px]">Hora Pico Hoy</span>
+            <div className="p-1.5 rounded-xl bg-purple-50 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400">
               <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl font-black text-slate-950 dark:text-white font-mono mt-1 flex items-baseline gap-2">
+          <div className="font-display text-2xl font-bold tabular-nums text-slate-950 dark:text-white mt-1 flex items-baseline gap-2">
             <span>{kpis.todayPeak.hour}</span>
-            <span className="text-xs font-bold text-emerald-800 dark:text-emerald-400">
+            <span className="text-xs font-bold tabular-nums text-emerald-800 dark:text-emerald-400">
               {formatCurrency(kpis.todayPeak.revenue, rates.currencySymbol)}
             </span>
           </div>
-          <div className="flex items-center justify-between text-[11px] mt-1.5 pt-1.5 border-t border-slate-300 dark:border-slate-700">
-            <span className="text-slate-800 dark:text-slate-200 font-bold">Pico 7D Habitual: {kpis.avg7Peak.hour}</span>
-            <span className="text-slate-900 dark:text-slate-100 font-black font-mono">
+          <div className="flex items-center justify-between text-[13px] mt-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800">
+            <span className="text-slate-600 dark:text-slate-400 font-medium">Pico 7D Habitual: {kpis.avg7Peak.hour}</span>
+            <span className="text-slate-900 dark:text-slate-100 font-bold tabular-nums">
               {formatCurrency(kpis.avg7Peak.revenue, rates.currencySymbol)}
             </span>
           </div>
         </div>
 
         {/* KPI 4: Ticket Promedio Hoy vs 7D */}
-        <div className="bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-xs">
-          <div className="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200">
-            <span className="font-black uppercase tracking-wider text-[10px]">Ticket Promedio</span>
-            <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+        <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+          <div className="flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-400">
+            <span className="font-medium text-[13px]">Ticket Promedio</span>
+            <div className="p-1.5 rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400">
               <TrendingUp className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-xl font-black text-slate-950 dark:text-white font-mono mt-1">
+          <div className="font-display text-2xl font-bold tabular-nums text-slate-950 dark:text-white mt-1">
             {formatCurrency(kpis.avgTicketToday, rates.currencySymbol)}
           </div>
-          <div className="flex items-center justify-between text-[11px] mt-1.5 pt-1.5 border-t border-slate-300 dark:border-slate-700">
-            <span className="text-slate-800 dark:text-slate-200 font-bold">Prom. 7D: {formatCurrency(kpis.avgTicket7Days, rates.currencySymbol)}</span>
-            <span className={`inline-flex items-center gap-0.5 font-black ${
+          <div className="flex items-center justify-between text-[13px] mt-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800">
+            <span className="text-slate-600 dark:text-slate-400 font-medium tabular-nums">Prom. 7D: {formatCurrency(kpis.avgTicket7Days, rates.currencySymbol)}</span>
+            <span className={`inline-flex items-center gap-0.5 font-bold tabular-nums ${
               kpis.avgTicketDiffPct >= 0 
                 ? 'text-emerald-800 dark:text-emerald-400' 
                 : 'text-rose-800 dark:text-rose-400'
@@ -404,11 +404,11 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
       </div>
 
       {/* 3. Recharts Hourly Trend Graph */}
-      <div className="bg-slate-50/70 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-5">
+      <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 md:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-            <h3 className="font-bold text-sm text-slate-800 dark:text-slate-200">
+            <div className="w-2.5 h-2.5 rounded-full bg-amber-500 motion-safe:animate-pulse" />
+            <h3 className="font-display text-base font-bold text-slate-900 dark:text-slate-100">
               Curva de {metricType === 'revenue' ? 'Ingresos Recaudados ($)' : 'Flujo de Vehículos Atendidos'} por Hora
             </h3>
           </div>
@@ -416,11 +416,11 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
           <div className="flex items-center gap-4 text-xs">
             <div className="flex items-center gap-1.5">
               <span className="w-3.5 h-1.5 rounded-full bg-amber-500 inline-block" />
-              <span className="font-bold text-slate-700 dark:text-slate-300">Hoy en Curso</span>
+              <span className="font-semibold text-slate-700 dark:text-slate-300">Hoy en Curso</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-3.5 h-1 border-t-2 border-dashed border-indigo-500 dark:border-indigo-400 inline-block" />
-              <span className="font-medium text-slate-600 dark:text-slate-300 dark:text-slate-200">Promedio Últimos 7 Días</span>
+              <span className="font-medium text-slate-600 dark:text-slate-400">Promedio Últimos 7 Días</span>
             </div>
           </div>
         </div>
@@ -566,13 +566,13 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
       {/* 4. Bottom Grid: Top Lucrative Hours & Strategic Diagnostic */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left: Top 3 Hours of the Day */}
-        <div className="lg:col-span-6 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-300 dark:border-slate-700 p-4">
+        <div className="lg:col-span-6 wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-black text-xs text-slate-950 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="font-display text-base font-bold text-slate-950 dark:text-white flex items-center gap-1.5">
               <Award className="w-4 h-4 text-amber-500" />
               <span>Horas con Mayor Recaudación Hoy</span>
             </h4>
-            <span className="text-[10px] text-slate-700 dark:text-slate-300 font-mono font-bold">Top 3 Franjas</span>
+            <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold">Top 3 Franjas</span>
           </div>
 
           <div className="space-y-2">
@@ -583,12 +583,12 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
                   key={slot.hour}
                   className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
                     isLead 
-                      ? 'bg-amber-500/15 border-amber-500/40 text-amber-950 dark:text-amber-200' 
-                      : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100'
+                      ? 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-200' 
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-xs font-mono ${
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs tabular-nums ${
                       isLead 
                         ? 'bg-amber-500 text-slate-950' 
                         : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
@@ -596,20 +596,20 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
                       {rank + 1}
                     </span>
                     <div>
-                      <div className="font-black text-sm font-mono text-slate-950 dark:text-white">
+                      <div className="font-bold text-sm tabular-nums text-slate-950 dark:text-white">
                         {slot.hour} - {((slot.hourNum + 1) % 24).toString().padStart(2, '0')}:00
                       </div>
-                      <div className="text-[11px] text-slate-700 dark:text-slate-300 font-medium">
+                      <div className="text-[13px] text-slate-600 dark:text-slate-400 font-medium">
                         {slot.todayVehicles} vehículos registrados
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="font-black text-sm text-slate-950 dark:text-white font-mono">
+                    <div className="font-bold text-sm tabular-nums text-slate-950 dark:text-white">
                       {formatCurrency(slot.todayRevenue, rates.currencySymbol)}
                     </div>
-                    <div className={`text-[10px] font-black ${
+                    <div className={`text-xs font-bold tabular-nums ${
                       slot.diffRevenue >= 0 ? 'text-emerald-800 dark:text-emerald-400' : 'text-rose-800 dark:text-rose-400'
                     }`}>
                       {slot.diffRevenue >= 0 ? `+${slot.pctRevenue}% vs 7D` : `${slot.pctRevenue}% vs 7D`}
@@ -622,55 +622,55 @@ export const ExecutiveSummaryReport: React.FC<ExecutiveSummaryReportProps> = ({
         </div>
 
         {/* Right: Operational Insights & Automated Diagnostic */}
-        <div className="lg:col-span-6 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col justify-between">
+        <div className="lg:col-span-6 wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2.5">
-              <h4 className="font-black text-xs text-slate-950 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+              <h4 className="font-display text-base font-bold text-slate-950 dark:text-white flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-sky-500" />
                 <span>Diagnóstico Operativo Automatizado</span>
               </h4>
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-black border border-emerald-500/30">
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-500/30">
                 Auditoría Activa
               </span>
             </div>
 
-            <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
               {kpis.totalRevPct >= 0 ? (
                 <>
-                  La estación de parqueadero registra un <strong className="text-emerald-800 dark:text-emerald-400 font-black">desempeño positivo de +{kpis.totalRevPct}%</strong> en comparación con el promedio semanal. La franja horaria más rentable es la de las <strong className="text-slate-950 dark:text-white font-black">{kpis.todayPeak.hour}</strong> con un ingreso de {formatCurrency(kpis.todayPeak.revenue, rates.currencySymbol)}.
+                  La estación de parqueadero registra un <strong className="text-emerald-800 dark:text-emerald-400 font-bold">desempeño positivo de +{kpis.totalRevPct}%</strong> en comparación con el promedio semanal. La franja horaria más rentable es la de las <strong className="text-slate-950 dark:text-white font-bold">{kpis.todayPeak.hour}</strong> con un ingreso de {formatCurrency(kpis.todayPeak.revenue, rates.currencySymbol)}.
                 </>
               ) : (
                 <>
-                  El flujo registrado en la jornada actual se encuentra un <strong className="text-rose-800 dark:text-rose-400 font-black">{kpis.totalRevPct}% por debajo</strong> del promedio móvil de los últimos 7 días. Se recomienda verificar rotación de celdas libres y verificar taquillas activas.
+                  El flujo registrado en la jornada actual se encuentra un <strong className="text-rose-800 dark:text-rose-400 font-bold">{kpis.totalRevPct}% por debajo</strong> del promedio móvil de los últimos 7 días. Se recomienda verificar rotación de celdas libres y verificar taquillas activas.
                 </>
               )}
             </p>
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
-                <span className="text-[10px] text-slate-700 dark:text-slate-300 block uppercase font-black">Variación de Tráfico</span>
-                <span className={`font-mono font-black text-sm ${kpis.totalVehPct >= 0 ? 'text-emerald-800 dark:text-emerald-400' : 'text-rose-800 dark:text-rose-400'}`}>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span className="text-[13px] text-slate-600 dark:text-slate-400 block font-medium">Variación de Tráfico</span>
+                <span className={`font-bold tabular-nums text-sm ${kpis.totalVehPct >= 0 ? 'text-emerald-800 dark:text-emerald-400' : 'text-rose-800 dark:text-rose-400'}`}>
                   {kpis.totalVehPct >= 0 ? `+${kpis.totalVehPct}%` : `${kpis.totalVehPct}%`}
                 </span>
-                <span className="text-[10px] text-slate-600 dark:text-slate-200 block font-medium">vs media 7 días</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 block font-medium">vs media 7 días</span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
-                <span className="text-[10px] text-slate-700 dark:text-slate-300 block uppercase font-black">Comportamiento Ticket</span>
-                <span className={`font-mono font-black text-sm ${kpis.avgTicketDiffPct >= 0 ? 'text-emerald-800 dark:text-emerald-400' : 'text-rose-800 dark:text-rose-400'}`}>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                <span className="text-[13px] text-slate-600 dark:text-slate-400 block font-medium">Comportamiento Ticket</span>
+                <span className={`font-bold tabular-nums text-sm ${kpis.avgTicketDiffPct >= 0 ? 'text-emerald-800 dark:text-emerald-400' : 'text-rose-800 dark:text-rose-400'}`}>
                   {kpis.avgTicketDiffPct >= 0 ? `+${kpis.avgTicketDiffPct}%` : `${kpis.avgTicketDiffPct}%`}
                 </span>
-                <span className="text-[10px] text-slate-600 dark:text-slate-200 block font-medium">eficiencia x vehículo</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400 block font-medium">eficiencia x vehículo</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-slate-300 dark:border-slate-700 flex items-center justify-between text-[11px] text-slate-700 dark:text-slate-300">
+          <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[13px] text-slate-600 dark:text-slate-400">
             <span className="flex items-center gap-1 font-bold">
               <Info className="w-3.5 h-3.5 text-amber-500" />
               <span>Sede: {currentBranch?.name || businessInfo?.name || 'Sede Principal'}</span>
             </span>
-            <span className="font-mono font-bold">Actualizado en Tiempo Real</span>
+            <span className="font-semibold">Actualizado en Tiempo Real</span>
           </div>
         </div>
       </div>
