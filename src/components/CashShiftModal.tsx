@@ -711,7 +711,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
   return (
     <div className="space-y-4 pb-8">
       {/* Operative Day & Shift Banner */}
-      <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-xl py-2.5 px-4 shadow-sm border border-slate-200 dark:border-slate-800">
+      <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 text-slate-900 dark:text-white">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Clock className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0" />
@@ -719,21 +719,21 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               <div className="flex items-center gap-2 flex-wrap">
                 {currentUser?.permissions?.canViewOperationalDayInHistory !== false ? (
                   <>
-                    <span className="text-sm font-black text-slate-900 dark:text-white">
+                    <span className="font-display text-lg font-bold text-slate-900 dark:text-white">
                       Día Operativo #{operationalDay.dayNumber || 1}
                     </span>
-                    <span className="bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full">
                       En Operación
                     </span>
                   </>
                 ) : (
-                  <span className="text-sm font-black text-slate-900 dark:text-white">
+                  <span className="font-display text-lg font-bold text-slate-900 dark:text-white">
                     Control de Caja y Turnos
                   </span>
                 )}
                 <span className="text-slate-600 dark:text-slate-300 text-xs hidden lg:inline">|</span>
-                <span className="text-xs text-slate-600 dark:text-slate-300">
-                  Fecha: <strong className="text-amber-700 dark:text-amber-400 font-mono font-bold">
+                <span className="text-sm text-slate-600 dark:text-slate-300">
+                  Fecha: <strong className="text-amber-700 dark:text-amber-400 font-bold tabular-nums">
                     {(() => {
                       const dStr = operationalDay.formattedDate || operationalDay.date || '';
                       if (/^\d{4}-\d{2}-\d{2}$/.test(dStr.trim())) {
@@ -745,11 +745,11 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   </strong>
                 </span>
                 <span className="text-slate-600 dark:text-slate-300 text-xs hidden lg:inline">•</span>
-                <span className="text-xs text-slate-600 dark:text-slate-300">
-                  Turno Activo: <strong className="text-slate-900 dark:text-white font-mono">Turno #{currentShift.shiftNumber}</strong>
+                <span className="text-sm text-slate-600 dark:text-slate-300">
+                  Turno Activo: <strong className="text-slate-900 dark:text-white font-semibold tabular-nums">Turno #{currentShift.shiftNumber}</strong>
                 </span>
                 <span className="text-slate-600 dark:text-slate-300 text-xs hidden lg:inline">•</span>
-                <span className="text-xs text-slate-700 dark:text-slate-200">
+                <span className="text-sm text-slate-700 dark:text-slate-200">
                   Operador: <strong className="text-slate-700 dark:text-slate-200">{currentShift.operatorName}</strong>
                 </span>
               </div>
@@ -757,11 +757,11 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
           </div>
 
           {/* Quick Sub-navigation */}
-          <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs shrink-0">
+          <div className="inline-flex flex-wrap items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 text-sm shrink-0 dark:border-slate-700 dark:bg-slate-900">
             <button
               onClick={() => setActiveSubTab('arqueo')}
-              className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer ${
-                activeSubTab === 'arqueo' ? 'bg-amber-500 text-slate-950 dark:bg-amber-400 dark:text-slate-950 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+              className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold transition cursor-pointer ${
+                activeSubTab === 'arqueo' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Arqueo de Turno
@@ -769,8 +769,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             {currentUser?.permissions?.canCloseOperationalDay !== false && (
               <button
                 onClick={() => setActiveSubTab('cierre_dia')}
-                className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer ${
-                  activeSubTab === 'cierre_dia' ? 'bg-amber-500 text-slate-950 dark:bg-amber-400 dark:text-slate-950 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+                className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold transition cursor-pointer ${
+                  activeSubTab === 'cierre_dia' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                 }`}
               >
                 Cierre Definitivo Día
@@ -778,8 +778,8 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             )}
             <button
               onClick={() => setActiveSubTab('movements')}
-              className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer ${
-                activeSubTab === 'movements' ? 'bg-amber-500 text-slate-950 dark:bg-amber-400 dark:text-slate-950 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700'
+              className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold transition cursor-pointer ${
+                activeSubTab === 'movements' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               Gastos/Movimientos ({currentShift.cashMovements.length})
@@ -787,10 +787,10 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             <div className="w-[1px] h-4 bg-slate-300 dark:bg-slate-700 mx-1 hidden sm:block"></div>
             <button
               onClick={() => setActiveSubTab('history')}
-              className={`px-3 py-1.5 rounded-md font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`min-h-[44px] px-4 rounded-lg text-sm font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 activeSubTab === 'history'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-indigo-800 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800'
+                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
               }`}
             >
               <History className="w-3.5 h-3.5" />
@@ -798,7 +798,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </button>
             <button
               onClick={() => setIsHistoryModalOpen(true)}
-              className="px-2 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-md transition-colors cursor-pointer"
+              className="min-h-[44px] min-w-[44px] px-3 inline-flex items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition cursor-pointer"
               title="Abrir en Ventana Emergente Completa"
             >
               <ExternalLink className="w-3.5 h-3.5" />
@@ -815,72 +815,72 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
           {/* Summary Breakdown Grid of Current Shift (Hidden for cashiers if canViewFinancials is false) */}
           {canViewFinancials ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-              <div className="bg-white dark:bg-slate-900 py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs">
-                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase block tracking-wider">Base Apertura</span>
-                <span className="text-sm font-black text-slate-950 dark:text-slate-100 font-mono">
+              <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900">
+                <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400 block">Base Apertura</span>
+                <span className="font-display text-lg font-bold tabular-nums text-slate-950 dark:text-slate-100">
                   {formatCurrency(currentShift.initialCash, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-emerald-50/70 dark:bg-emerald-950/40 py-2 px-3 rounded-xl border border-emerald-300 dark:border-emerald-600/40 shadow-2xs">
-                <span className="text-[10px] font-bold text-emerald-900 dark:text-emerald-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="wz-surface rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                <span className="text-[13px] font-medium text-emerald-900 dark:text-emerald-300 flex items-center gap-1">
                   <Banknote className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Efectivo Turno</span>
                 </span>
-                <span className="text-sm font-black text-emerald-800 dark:text-emerald-300 font-mono">
+                <span className="font-display text-lg font-bold tabular-nums text-emerald-800 dark:text-emerald-300">
                   {formatCurrency(shiftTotals.cash, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-purple-50/70 dark:bg-purple-950/40 py-2 px-3 rounded-xl border border-purple-300 dark:border-purple-600/40 shadow-2xs">
-                <span className="text-[10px] font-bold text-purple-900 dark:text-purple-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="wz-surface rounded-2xl border border-purple-200 bg-purple-50 px-4 py-3.5 dark:border-purple-500/30 dark:bg-purple-500/10">
+                <span className="text-[13px] font-medium text-purple-900 dark:text-purple-300 flex items-center gap-1">
                   <Smartphone className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                   <span>Billeteras</span>
                 </span>
-                <span className="text-sm font-black text-purple-800 dark:text-purple-300 font-mono">
+                <span className="font-display text-lg font-bold tabular-nums text-purple-800 dark:text-purple-300">
                   {formatCurrency(shiftTotals.wallet, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-amber-50/70 dark:bg-amber-950/40 py-2 px-3 rounded-xl border border-amber-300 dark:border-amber-600/40 shadow-2xs">
-                <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="wz-surface rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 dark:border-amber-500/30 dark:bg-amber-500/10">
+                <span className="text-[13px] font-medium text-amber-900 dark:text-amber-300 flex items-center gap-1">
                   <QrCode className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                   <span>QR Bancario</span>
                 </span>
-                <span className="text-sm font-black text-amber-800 dark:text-amber-300 font-mono">
+                <span className="font-display text-lg font-bold tabular-nums text-amber-800 dark:text-amber-300">
                   {formatCurrency(shiftTotals.qr, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-teal-50/70 dark:bg-teal-950/40 py-2 px-3 rounded-xl border border-teal-300 dark:border-teal-600/40 shadow-2xs">
-                <span className="text-[10px] font-bold text-teal-900 dark:text-teal-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="wz-surface rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3.5 dark:border-teal-500/30 dark:bg-teal-500/10">
+                <span className="text-[13px] font-medium text-teal-900 dark:text-teal-300 flex items-center gap-1">
                   <Zap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                   <span>Llaves Bre-B</span>
                 </span>
-                <span className="text-sm font-black text-teal-800 dark:text-teal-300 font-mono">
+                <span className="font-display text-lg font-bold tabular-nums text-teal-800 dark:text-teal-300">
                   {formatCurrency(shiftTotals.breB, currencySymbol)}
                 </span>
               </div>
 
-              <div className="bg-sky-50/70 dark:bg-sky-950/40 py-2 px-3 rounded-xl border border-sky-300 dark:border-sky-600/40 shadow-2xs">
-                <span className="text-[10px] font-bold text-sky-900 dark:text-sky-300 uppercase block tracking-wider flex items-center gap-1">
+              <div className="wz-surface rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3.5 dark:border-sky-500/30 dark:bg-sky-500/10">
+                <span className="text-[13px] font-medium text-sky-900 dark:text-sky-300 flex items-center gap-1">
                   <CreditCard className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                   <span>Datáfonos</span>
                 </span>
-                <span className="text-sm font-black text-sky-800 dark:text-sky-300 font-mono">
+                <span className="font-display text-lg font-bold tabular-nums text-sky-800 dark:text-sky-300">
                   {formatCurrency(shiftTotals.card, currencySymbol)}
                 </span>
               </div>
             </div>
           ) : (
-            <div className="p-4 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700 dark:text-slate-300 shadow-xs">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700 dark:border-white/[0.07] dark:bg-slate-900 dark:text-slate-300">
               <div className="flex items-center gap-2.5">
                 {isBlindCount ? (
                   <EyeOff className="w-5 h-5 text-amber-500 shrink-0" />
                 ) : (
                   <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0" />
                 )}
-                <span className="text-xs">
+                <span className="text-sm">
                   {isBlindCount ? (
                     <><strong>Arqueo de Turno Protegido (Modo Ciego):</strong> Por política antifraude y control dual, declare su dinero físico contado. Los saldos teóricos esperados permanecen ocultos.</>
                   ) : (
@@ -891,13 +891,13 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               <div className="flex items-center gap-2 shrink-0">
                 {isBlindCount ? (
                   <>
-                    <span className="text-[11px] font-mono font-bold bg-amber-500/10 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-semibold bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200 border border-amber-200 dark:border-amber-500/30 px-3 py-1.5 rounded-full">
                       🔒 Modo Ciego Activo
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowSupervisorPinModal(true)}
-                      className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 flex items-center gap-1 cursor-pointer transition-colors"
+                      className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer transition-colors"
                       title="Desbloquear con clave de supervisor"
                     >
                       <Lock className="w-3 h-3" />
@@ -908,7 +908,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setSupervisorUnlocked(false)}
-                    className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 flex items-center gap-1 cursor-pointer transition-colors"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <EyeOff className="w-3 h-3" />
                     <span>Volver a Ocultar</span>
@@ -920,23 +920,23 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Conteo Físico & Arqueo */}
-            <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <div className="lg:col-span-7 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200/70 dark:border-slate-800">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <DollarSign className="w-4 h-4 text-emerald-600" />
                   <span>Conteo Físico para Arqueo de Turno #{currentShift.shiftNumber}</span>
                 </h3>
-                <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-300">
+                <span className="text-[13px] font-medium tabular-nums text-slate-600 dark:text-slate-300">
                   {shiftTotals.totalVehicles} vehículos liquidados
                 </span>
               </div>
 
               {/* Expected balance vs counted */}
-              <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3">
                 {!isBlindCount && (
-                  <div className="flex justify-between items-center text-xs p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-slate-700 dark:text-slate-300 border border-slate-200/60 dark:border-slate-800">
+                  <div className="flex justify-between items-center text-sm px-3.5 py-3 bg-white dark:bg-slate-900 rounded-xl text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                     <span className="font-semibold text-slate-600 dark:text-slate-400">Saldo Teórico Esperado en Gaveta (Efectivo):</span>
-                    <span className="text-sm font-black font-mono text-slate-950 dark:text-white">
+                    <span className="font-display text-lg font-bold tabular-nums text-slate-950 dark:text-white">
                       {formatCurrency(expectedCashInDrawer, currencySymbol)}
                     </span>
                   </div>
@@ -944,18 +944,18 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                    <label className="block text-[13px] font-medium text-slate-700 dark:text-slate-300">
                       Dinero Físico en Gaveta Contado ($):
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowDenominationCalculator(!showDenominationCalculator)}
-                      className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
+                      className="min-h-[44px] text-sm font-semibold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1.5 cursor-pointer"
                     >
                       <Banknote className="w-3.5 h-3.5" />
                       <span>{showDenominationCalculator ? 'Ocultar Desglose' : 'Desglosar Billetes y Monedas'}</span>
                       {totalDenominationsAmount > 0 && (
-                        <span className="font-mono bg-emerald-100 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded text-[10px] text-emerald-800 dark:text-emerald-300">
+                        <span className="tabular-nums bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 px-2 py-0.5 rounded-lg text-xs text-emerald-800 dark:text-emerald-300">
                           {formatCurrency(totalDenominationsAmount, currencySymbol)}
                         </span>
                       )}
@@ -968,15 +968,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                     placeholder="Digite el total contado..."
                     value={countedCashInput}
                     onChange={(e) => setCountedCashInput(e.target.value)}
-                    className="w-full text-2xl font-black font-mono bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 focus:border-emerald-500 rounded-xl px-4 py-2.5 outline-none text-slate-950 dark:text-white text-center shadow-xs"
+                    className="w-full min-h-[56px] font-display text-3xl font-bold tabular-nums text-center rounded-xl border border-slate-300 bg-white px-4 text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
 
                 {/* Desglose Táctil de Billetes y Monedas */}
                 {showDenominationCalculator && (
-                  <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in duration-200 shadow-sm">
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-slate-100">
+                  <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-4 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800 pb-3">
+                      <div className="flex items-center gap-1.5 font-display text-base font-bold text-slate-900 dark:text-slate-100">
                         <Banknote className="w-4 h-4 text-emerald-500" />
                         <span>Calculadora de Billetes y Monedas</span>
                       </div>
@@ -984,14 +984,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         <button
                           type="button"
                           onClick={handleResetDenominations}
-                          className="text-[11px] text-rose-600 dark:text-rose-400 hover:text-rose-700 font-bold hover:underline cursor-pointer"
+                          className="min-h-[44px] px-3 text-sm text-rose-700 dark:text-rose-400 hover:text-rose-800 font-semibold hover:underline cursor-pointer"
                         >
                           Limpiar
                         </button>
                         <button
                           type="button"
                           onClick={handleApplyDenominationsToCount}
-                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold cursor-pointer shadow-xs"
+                          className="min-h-[44px] px-4 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 text-sm font-bold text-white hover:-translate-y-0.5 transition cursor-pointer dark:from-emerald-500 dark:to-emerald-600"
                         >
                           Copiar al Conteo
                         </button>
@@ -1000,15 +1000,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
                     {/* Billetes */}
                     <div>
-                      <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
-                        Billetes (COP) - Subtotal: <strong className="text-emerald-700 dark:text-emerald-400 font-mono">{formatCurrency(totalBillsAmount, currencySymbol)}</strong>
+                      <div className="text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-2">
+                        Billetes (COP) - Subtotal: <strong className="text-emerald-700 dark:text-emerald-400 font-bold tabular-nums">{formatCurrency(totalBillsAmount, currencySymbol)}</strong>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {[100000, 50000, 20000, 10000, 5000, 2000].map((denom) => (
-                          <div key={denom} className="p-2 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col gap-1">
-                            <div className="flex justify-between items-center text-[11px]">
-                              <span className="font-bold font-mono text-slate-900 dark:text-slate-100">${denom.toLocaleString('es-CO')}</span>
-                              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">x {billCounts[denom] || 0}</span>
+                          <div key={denom} className="p-2.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-1.5">
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="font-bold tabular-nums text-slate-900 dark:text-slate-100">${denom.toLocaleString('es-CO')}</span>
+                              <span className="text-xs text-slate-600 dark:text-slate-400 tabular-nums">x {billCounts[denom] || 0}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <input
@@ -1016,20 +1016,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                                 min="0"
                                 value={billCounts[denom] || ''}
                                 onChange={(e) => setBillCounts({ ...billCounts, [denom]: Math.max(0, parseInt(e.target.value) || 0) })}
-                                className="w-full text-xs font-mono font-bold bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-center text-slate-900 dark:text-slate-100"
+                                className="w-full min-w-0 min-h-[44px] text-base font-bold tabular-nums text-center rounded-xl border border-slate-300 bg-white px-1.5 text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                                 placeholder="0"
                               />
                               <button
                                 type="button"
                                 onClick={() => setBillCounts({ ...billCounts, [denom]: (billCounts[denom] || 0) + 1 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="min-h-[44px] min-w-[40px] px-1.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                               >
                                 +1
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setBillCounts({ ...billCounts, [denom]: (billCounts[denom] || 0) + 5 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="min-h-[44px] min-w-[40px] px-1.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                               >
                                 +5
                               </button>
@@ -1041,15 +1041,15 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
 
                     {/* Monedas */}
                     <div>
-                      <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
-                        Monedas (COP) - Subtotal: <strong className="text-amber-700 dark:text-amber-400 font-mono">{formatCurrency(totalCoinsAmount, currencySymbol)}</strong>
+                      <div className="text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-2">
+                        Monedas (COP) - Subtotal: <strong className="text-amber-700 dark:text-amber-400 font-bold tabular-nums">{formatCurrency(totalCoinsAmount, currencySymbol)}</strong>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {[1000, 500, 200, 100, 50].map((denom) => (
-                          <div key={denom} className="p-2 bg-slate-50 dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col gap-1">
-                            <div className="flex justify-between items-center text-[11px]">
-                              <span className="font-bold font-mono text-slate-900 dark:text-slate-100">${denom.toLocaleString('es-CO')}</span>
-                              <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">x {coinCounts[denom] || 0}</span>
+                          <div key={denom} className="p-2.5 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col gap-1.5">
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="font-bold tabular-nums text-slate-900 dark:text-slate-100">${denom.toLocaleString('es-CO')}</span>
+                              <span className="text-xs text-slate-600 dark:text-slate-400 tabular-nums">x {coinCounts[denom] || 0}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <input
@@ -1057,20 +1057,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                                 min="0"
                                 value={coinCounts[denom] || ''}
                                 onChange={(e) => setCoinCounts({ ...coinCounts, [denom]: Math.max(0, parseInt(e.target.value) || 0) })}
-                                className="w-full text-xs font-mono font-bold bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-1 text-center text-slate-900 dark:text-slate-100"
+                                className="w-full min-w-0 min-h-[44px] text-base font-bold tabular-nums text-center rounded-xl border border-slate-300 bg-white px-1.5 text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                                 placeholder="0"
                               />
                               <button
                                 type="button"
                                 onClick={() => setCoinCounts({ ...coinCounts, [denom]: (coinCounts[denom] || 0) + 1 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="min-h-[44px] min-w-[40px] px-1.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                               >
                                 +1
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setCoinCounts({ ...coinCounts, [denom]: (coinCounts[denom] || 0) + 5 })}
-                                className="px-1.5 py-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer"
+                                className="min-h-[44px] min-w-[40px] px-1.5 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                               >
                                 +5
                               </button>
@@ -1080,9 +1080,9 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-bold text-xs">
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center font-bold text-sm">
                       <span className="text-slate-800 dark:text-slate-200">Gran Total Físico Calculado:</span>
-                      <span className="text-sm font-mono text-emerald-700 dark:text-emerald-400 font-black">
+                      <span className="font-display text-xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
                         {formatCurrency(totalDenominationsAmount, currencySymbol)}
                       </span>
                     </div>
@@ -1090,12 +1090,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                 )}
 
                 {!isBlindCount && countedCashInput && cashDifference !== null && (
-                  <div className={`p-3 rounded-xl border flex items-center justify-between text-xs font-mono font-bold ${
+                  <div className={`rounded-xl border px-3.5 py-3 flex items-center justify-between text-sm font-semibold ${
                     cashDifference === 0
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-600/50 text-emerald-900 dark:text-emerald-200'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200'
                       : cashDifference > 0
-                      ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-600/50 text-sky-900 dark:text-sky-200'
-                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-600/50 text-rose-900 dark:text-rose-200'
+                      ? 'bg-sky-50 border-sky-200 text-sky-900 dark:bg-sky-500/10 dark:border-sky-500/30 dark:text-sky-200'
+                      : 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-200'
                   }`}>
                     <div className="flex items-center gap-2">
                       {cashDifference === 0 ? (
@@ -1111,7 +1111,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                           : 'Faltante de Caja:'}
                       </span>
                     </div>
-                    <span className="text-base font-black">
+                    <span className="font-display text-2xl font-bold tabular-nums">
                       {formatCurrency(Math.abs(cashDifference), currencySymbol)}
                     </span>
                   </div>
@@ -1119,14 +1119,14 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               </div>
 
               {/* Next operator parameters */}
-              <div className="p-4 bg-amber-50/70 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-700/50 space-y-3">
-                <span className="text-xs font-bold text-amber-950 dark:text-amber-300 uppercase block">
+              <div className="p-4 bg-amber-50 dark:bg-amber-500/10 rounded-2xl border border-amber-200 dark:border-amber-500/30 space-y-3">
+                <span className="font-display text-base font-bold text-amber-950 dark:text-amber-200 block">
                   Datos para Apertura del Siguiente Turno (Turno #{currentShift.shiftNumber + 1})
                 </span>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                    <label className="block text-[13px] font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       Nombre del Próximo Cajero
                     </label>
                     <input
@@ -1134,12 +1134,12 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       value={nextOperatorName}
                       onChange={(e) => setNextOperatorName(e.target.value)}
                       placeholder="Nombre del cajero..."
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 font-bold outline-none text-slate-900 dark:text-slate-100 focus:border-amber-500 shadow-xs"
+                      className="w-full font-semibold min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase mb-1">
+                    <label className="block text-[13px] font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       Base de Caja para el Próximo Turno ($)
                     </label>
                     <input
@@ -1147,19 +1147,19 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                       step="any"
                       value={nextBaseCash}
                       onChange={(e) => setNextBaseCash(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 font-mono font-bold outline-none text-slate-900 dark:text-slate-100 focus:border-amber-500 shadow-xs"
+                      className="w-full font-bold tabular-nums min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 {canViewFinancials ? (
                   <button
                     type="button"
                     onClick={() => setPrintedVoucherType('arqueo')}
-                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+                    className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <Printer className="w-4 h-4" />
                     <span>Ver Comprobante de Arqueo</span>
@@ -1170,10 +1170,10 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   type="button"
                   onClick={handleExecuteArqueo}
                   disabled={!countedCashInput}
-                  className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+                  className={`min-h-[56px] px-6 rounded-2xl text-base font-bold flex items-center gap-2 transition cursor-pointer ${
                     countedCashInput 
-                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-95'
-                      : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700 cursor-not-allowed'
+                      ? 'bg-gradient-to-b from-emerald-600 to-emerald-700 text-white shadow-[0_14px_28px_-14px_rgba(5,150,105,.9)] hover:-translate-y-0.5 active:scale-95 dark:from-emerald-500 dark:to-emerald-600'
+                      : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700 cursor-not-allowed'
                   }`}
                 >
                   <Lock className="w-4 h-4 text-emerald-100" />
@@ -1183,93 +1183,93 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {/* Right: Operational Details & Breakdown Table */}
-            <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
-              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="lg:col-span-5 wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
+              <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 pb-4 border-b border-slate-200/70 dark:border-slate-800">
                 Detalle Financiero del Turno
               </h3>
 
               {canViewFinancials ? (
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800">
                     <span className="text-slate-600 dark:text-slate-400">Base de Apertura:</span>
                     <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
                       {formatCurrency(currentShift.initialCash, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-emerald-800 dark:text-emerald-400 font-semibold">
+                  <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-emerald-800 dark:text-emerald-400 font-semibold">
                     <span>+ Recaudo Efectivo en Parqueadero:</span>
-                    <span className="font-mono font-bold">
+                    <span className="font-bold tabular-nums">
                       {formatCurrency(shiftTotals.cash, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-purple-800 dark:text-purple-400 font-semibold">
+                  <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-purple-800 dark:text-purple-400 font-semibold">
                     <span>+ Recaudo Billeteras (Nequi/Daviplata):</span>
-                    <span className="font-mono font-bold">
+                    <span className="font-bold tabular-nums">
                       {formatCurrency(shiftTotals.wallet, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-amber-800 dark:text-amber-400 font-semibold">
+                  <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-amber-800 dark:text-amber-400 font-semibold">
                     <span>+ Recaudo Códigos QR:</span>
-                    <span className="font-mono font-bold">
+                    <span className="font-bold tabular-nums">
                       {formatCurrency(shiftTotals.qr, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-teal-800 dark:text-teal-400 font-semibold">
+                  <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-teal-800 dark:text-teal-400 font-semibold">
                     <span>+ Recaudo Llaves Bre-B:</span>
-                    <span className="font-mono font-bold">
+                    <span className="font-bold tabular-nums">
                       {formatCurrency(shiftTotals.breB, currencySymbol)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-sky-800 dark:text-sky-400 font-semibold">
+                  <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-sky-800 dark:text-sky-400 font-semibold">
                     <span>+ Recaudo Tarjetas / Datáfonos:</span>
-                    <span className="font-mono font-bold">
+                    <span className="font-bold tabular-nums">
                       {formatCurrency(shiftTotals.card, currencySymbol)}
                     </span>
                   </div>
 
                   {totalExpenses > 0 && (
-                    <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-rose-700 dark:text-rose-400 font-semibold">
+                    <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-rose-700 dark:text-rose-400 font-semibold">
                       <span>- Gastos de Caja Menor:</span>
-                      <span className="font-mono font-bold">
+                      <span className="font-bold tabular-nums">
                         -{formatCurrency(totalExpenses, currencySymbol)}
                       </span>
                     </div>
                   )}
 
                   {totalPickups > 0 && (
-                    <div className="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800 text-indigo-700 dark:text-indigo-400 font-semibold">
+                    <div className="flex justify-between py-2.5 border-b border-slate-200/70 dark:border-slate-800 text-indigo-700 dark:text-indigo-400 font-semibold">
                       <span>- Recogidas / Liberación de Gaveta:</span>
-                      <span className="font-mono font-bold">
+                      <span className="font-bold tabular-nums">
                         -{formatCurrency(totalPickups, currencySymbol)}
                       </span>
                     </div>
                   )}
 
-                  <div className="pt-2 border-t-2 border-slate-200 dark:border-slate-700 flex justify-between text-sm font-black text-slate-950 dark:text-white">
+                  <div className="pt-3 border-t-2 border-slate-200 dark:border-slate-700 flex justify-between items-center text-base font-bold text-slate-950 dark:text-white">
                     <span>TOTAL OPERADO EN TURNO:</span>
-                    <span className="font-mono text-emerald-700 dark:text-emerald-400">
+                    <span className="font-display text-2xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
                       {formatCurrency(shiftTotals.totalCollected, currencySymbol)}
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className="p-6 text-center space-y-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl">
+                <div className="p-6 text-center space-y-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl">
                   <ShieldCheck className="w-10 h-10 text-slate-700 dark:text-slate-200 mx-auto" />
-                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                     Desglose en Vivo Restringido para Cajero
                   </p>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-300">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-300">
                     El usuario de caja solo podrá conocer y verificar los totales al realizar el arqueo final de turno.
                   </p>
                 </div>
               )}
 
-              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-[11px] text-slate-600 dark:text-slate-300">
+              <div className="px-3.5 py-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-[13px] text-slate-600 dark:text-slate-300">
                 * Al realizar el arqueo, se expedirá automáticamente el comprobante impreso para entrega física al supervisor y se iniciará el turno siguiente.
               </div>
             </div>
@@ -1278,18 +1278,18 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
           {/* ========================================================================= */}
           {/* ARQUEOS DE TURNO ANTERIORES CERRADOS (HISTÓRICO INTEGRADO)                */}
           {/* ========================================================================= */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200/70 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <span>Arqueos de Turno Anteriores Cerrados</span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                       {safeClosedShifts.length} {safeClosedShifts.length === 1 ? 'Turno' : 'Turnos'}
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400">
                     Historial de turnos operados con sus respectivos comprobantes y cuadres de caja
                   </p>
                 </div>
@@ -1298,7 +1298,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveSubTab('history')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition-all cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center gap-1.5 min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition cursor-pointer self-start sm:self-auto"
               >
                 <History className="w-3.5 h-3.5" />
                 <span>Ver Todos en Panel Histórico →</span>
@@ -1306,7 +1306,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
             </div>
 
             {safeClosedShifts.length === 0 ? (
-              <div className="text-center py-8 text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-center py-8 text-sm text-slate-600 dark:text-slate-400">
                 Aún no hay arqueos de turnos anteriores cerrados registrados.
               </div>
             ) : (
@@ -1320,20 +1320,20 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                   return (
                     <div
                       key={shift.id}
-                      className="bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3 hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-2xs"
+                      className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 space-y-3 hover:border-indigo-300 dark:border-white/[0.07] dark:bg-slate-900 dark:hover:border-indigo-700 transition"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded">
+                          <span className="font-mono text-xs font-bold bg-indigo-600 text-white px-2.5 py-0.5 rounded-lg">
                             Turno #{shift.shiftNumber}
                           </span>
                           {shift.consecutiveCode && (
-                            <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-200 dark:border-slate-700">
                               {shift.consecutiveCode}
                             </span>
                           )}
                           {shift.isAudited && (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-800 flex items-center gap-1">
                               <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-sky-400" />
                               Auditado
                             </span>
@@ -1349,7 +1349,7 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                             });
                             setIsHistoryModalOpen(true);
                           }}
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white shadow-xs transition-all cursor-pointer"
+                          className="inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-xl text-sm font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white transition cursor-pointer"
                           title="Ver tiquete térmico con márgenes y descargar PDF"
                         >
                           <Printer className="w-3.5 h-3.5 text-indigo-400" />
@@ -1357,27 +1357,27 @@ export const CashShiftModal: React.FC<CashShiftModalProps> = ({
                         </button>
                       </div>
 
-                      <div className="text-xs text-slate-600 dark:text-slate-400 space-y-0.5">
+                      <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                         <div className="flex items-center justify-between">
                           <span>Cajero: <strong className="text-slate-900 dark:text-slate-100">{shift.operatorName}</strong></span>
                           <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
                         </div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[13px] text-slate-600 dark:text-slate-400">
                           Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] font-mono">
-                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
-                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Recaudo Total</span>
+                      <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200/70 dark:border-slate-800 text-sm tabular-nums">
+                        <div className="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-medium font-sans text-slate-600 dark:text-slate-400 block">Recaudo Total</span>
                           <span className="font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(total, currencySymbol)}</span>
                         </div>
-                        <div className="bg-white dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-800">
-                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Efectivo en Caja</span>
+                        <div className="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-medium font-sans text-slate-600 dark:text-slate-400 block">Efectivo en Caja</span>
                           <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(shift.finalCountedCash || cash, currencySymbol)}</span>
                         </div>
-                        <div className={`p-2 rounded border ${diff === 0 ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 text-rose-800'}`}>
-                          <span className="text-[9px] uppercase font-sans text-slate-500 block">Cuadre Físico</span>
+                        <div className={`p-2.5 rounded-xl border ${diff === 0 ? 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200' : 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-200'}`}>
+                          <span className="text-xs font-medium font-sans text-slate-600 dark:text-slate-400 block">Cuadre Físico</span>
                           <span className="font-bold">{diff === 0 ? 'Cuadrado $0' : formatCurrency(diff, currencySymbol)}</span>
                         </div>
                       </div>
