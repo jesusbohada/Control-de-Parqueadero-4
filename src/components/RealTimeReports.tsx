@@ -2184,7 +2184,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                   <div className="pt-2 border-t border-emerald-200/60 dark:border-emerald-800/40 flex items-center justify-between text-sm">
                     <span className="text-slate-600 dark:text-slate-400">Recaudo Total:</span>
                     <span className="font-bold tabular-nums text-emerald-700 dark:text-emerald-300">
-                      {formatCurrency(day.totalCollected || 440000, rates.currencySymbol)}
+                      {formatCurrency(day.totalCollected || 0, rates.currencySymbol)}
                     </span>
                   </div>
                 </div>
@@ -3216,7 +3216,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                 <div className="text-slate-600 dark:text-slate-400 font-medium text-[13px]">Recaudo en Cierres</div>
                 <div className="font-display text-xl font-bold tabular-nums text-emerald-800 dark:text-emerald-400">
                   {formatCurrency(
-                    safeClosedDays.reduce((acc, d) => acc + (d.totalCollected || 0), 0) || 440000,
+                    safeClosedDays.reduce((acc, d) => acc + (d.totalCollected || 0), 0),
                     rates.currencySymbol
                   )}
                 </div>
@@ -3444,7 +3444,7 @@ export const RealTimeReports: React.FC<RealTimeReportsProps> = ({
                         <span>{shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'Cerrado'}</span>
                       </div>
                       <div className="text-[13px] text-slate-600 dark:text-slate-400">
-                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} (19/10/2026)
+                        Horario: {new Date(shift.startTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })} - {shift.endTime ? new Date(shift.endTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }) : 'N/A'} ({new Date(shift.startTime).toLocaleDateString('es-CO')})
                       </div>
                     </div>
 
