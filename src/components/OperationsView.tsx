@@ -3956,13 +3956,13 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
       {/* ========================================================= */}
       {/* BOTTOM: VEHÍCULOS ACTUALMENTE EN EL PARQUEADERO           */}
       {/* ========================================================= */}
-      <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+      <div className="wz-surface overflow-hidden rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)]">
         {/* Table Header Controls */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-950/70">
+        <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+            <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
               <span>Vehículos en Parqueadero</span>
-              <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs px-2 py-0.5 rounded-full font-semibold">
+              <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1 rounded-full font-semibold tabular-nums">
                 {activeTickets.length} activos
               </span>
             </h3>
@@ -3970,14 +3970,14 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
 
           {/* Filters & Search */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-slate-100/90 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-1 text-xs">
+            <div className="flex items-center gap-2 flex-wrap text-sm">
               <button
                 type="button"
                 onClick={() => setTableFilterType('all')}
-                className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                className={`min-h-[44px] px-3.5 rounded-xl text-sm font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                   tableFilterType === 'all'
-                    ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                    : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                 }`}
               >
                 Todos ({activeTickets.length})
@@ -3990,20 +3990,20 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                     key={cat.id}
                     type="button"
                     onClick={() => setTableFilterType(cat.id)}
-                    className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                    className={`min-h-[44px] px-3.5 rounded-xl flex items-center gap-1.5 text-sm font-semibold transition cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                       isSelected
-                        ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                        : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                     }`}
                     title={`${cat.name}: ${count} en parqueadero`}
                   >
                     {getVehicleIcon(cat.icon || cat.id, 'w-3.5 h-3.5')}
                     <span>{cat.name}</span>
                     {count > 0 && (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                      <span className={`text-xs px-2 py-0.5 rounded-full tabular-nums font-bold ${
                         isSelected
-                          ? 'bg-slate-950/20 text-slate-950'
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                          ? 'bg-blue-700/15 text-blue-900 dark:bg-blue-400/20 dark:text-blue-100'
+                          : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                       }`}>
                         {count}
                       </span>
@@ -4019,54 +4019,54 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                 value={tableSearch}
                 onChange={(e) => setTableSearch(e.target.value)}
                 placeholder="Filtrar por placa..."
-                className="text-xs bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg pl-8 pr-3 py-1.5 focus:border-amber-500 text-slate-900 dark:text-white placeholder:text-slate-400 outline-none w-36 sm:w-44 font-mono font-bold"
+                className="min-h-[48px] rounded-xl border border-slate-300 bg-white pl-10 pr-3.5 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 w-48 sm:w-56 font-mono font-bold"
               />
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             </div>
           </div>
         </div>
 
         {/* Table Content */}
         <div className="overflow-x-auto max-h-[520px] scrollbar-thin">
-          <table className="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-            <thead className="pk-table-sticky-header bg-slate-100/95 dark:bg-slate-950/95 backdrop-blur-md text-slate-700 dark:text-slate-200 font-bold uppercase tracking-wider text-[10px] border-b-2 border-slate-200 dark:border-slate-800 shadow-2xs">
+          <table className="w-full text-left text-sm text-slate-700 dark:text-slate-300">
+            <thead className="pk-table-sticky-header bg-slate-50 dark:bg-slate-800/60 text-[13px] font-medium text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th className="py-3 px-4">Ticket</th>
-                <th className="py-3 px-4">Placa / Matrícula</th>
-                <th className="py-3 px-4">Puesto</th>
-                <th className="py-3 px-4">Hora Entrada</th>
-                <th className="py-3 px-4">Tiempo Transcurrido</th>
-                <th className="py-3 px-4">Tarifa Estimada</th>
-                <th className="py-3 px-4 text-right">Acción de Cobro</th>
+                <th className="py-3 px-4 font-medium">Ticket</th>
+                <th className="py-3 px-4 font-medium">Placa / Matrícula</th>
+                <th className="py-3 px-4 font-medium">Puesto</th>
+                <th className="py-3 px-4 font-medium">Hora Entrada</th>
+                <th className="py-3 px-4 font-medium">Tiempo Transcurrido</th>
+                <th className="py-3 px-4 font-medium">Tarifa Estimada</th>
+                <th className="py-3 px-4 text-right font-medium">Acción de Cobro</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
               {filteredActiveTickets.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 px-4 text-center">
                     {activeTickets.length === 0 ? (
                       <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 max-w-sm mx-auto space-y-2.5">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-500/30">
                           <Car className="w-6 h-6" />
                         </div>
-                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Patio de Estacionamiento 100% Libre</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">
+                        <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-base">Patio de Estacionamiento 100% Libre</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                           No hay vehículos estacionados en este momento. Registre un nuevo ingreso con el formulario superior o mediante la cámara ANPR.
                         </p>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 max-w-sm mx-auto space-y-2.5">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-500/30">
                           <Search className="w-6 h-6" />
                         </div>
-                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Sin vehículos coincidentes</h4>
-                        <p className="text-xs text-slate-500 leading-relaxed">
+                        <h4 className="font-display font-bold text-slate-800 dark:text-slate-200 text-base">Sin vehículos coincidentes</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                           No se encontró ningún vehículo activo con el filtro "{tableSearch}". Verifique la placa o limpie la búsqueda.
                         </p>
                         <button
                           type="button"
                           onClick={() => { setTableSearch(''); setTableFilterType('all'); }}
-                          className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline pt-1 cursor-pointer"
+                          className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                         >
                           Limpiar búsqueda y mostrar todos ({activeTickets.length})
                         </button>
@@ -4084,11 +4084,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                   return (
                     <tr
                       key={ticket.id}
-                      className={`hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors ${
+                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${
                         isSelected ? 'bg-amber-500/10 dark:bg-amber-500/15 font-medium' : ''
                       }`}
                     >
-                      <td className="py-3 px-4 font-mono font-bold text-slate-600 dark:text-slate-300">
+                      <td className="py-3 px-4 font-mono font-bold tabular-nums text-slate-700 dark:text-slate-300">
                         #{ticket.ticketNumber}
                       </td>
                       <td className="py-3 px-4">
@@ -4098,11 +4098,11 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           </span>
                           <div>
                             <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-slate-600 dark:text-slate-400 capitalize font-bold">
+                              <span className="text-xs text-slate-600 dark:text-slate-400 capitalize font-semibold">
                                 {getVehicleName(ticket.vehicleType)}
                               </span>
                               {ticket.isForeignPlate && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded font-sans uppercase">
+                                <span className="inline-flex items-center gap-0.5 text-xs font-semibold bg-sky-50 text-sky-800 dark:bg-sky-500/10 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 px-1.5 py-0.5 rounded-lg font-sans">
                                   🌐 {ticket.originCountry || 'Ext'}
                                 </span>
                               )}
@@ -4111,38 +4111,38 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2 py-0.5 rounded font-mono font-black text-xs">
+                        <span className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 px-2.5 py-1 rounded-lg font-mono font-bold text-sm">
                           {ticket.spotCode}
                         </span>
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-300">
+                      <td className="py-3 px-4 tabular-nums text-slate-700 dark:text-slate-300">
                         {new Date(ticket.entryTime).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 font-mono text-slate-800 dark:text-slate-200 font-bold">
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${
-                            elapsedMinutes > 180 
-                              ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.8)] animate-ping' 
-                              : elapsedMinutes > 60 
-                              ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.7)]' 
-                              : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)] animate-pulse'
+                        <div className="flex items-center gap-2 tabular-nums text-slate-800 dark:text-slate-200 font-semibold">
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                            elapsedMinutes > 180
+                              ? 'bg-rose-500 motion-safe:animate-pulse'
+                              : elapsedMinutes > 60
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500'
                           }`} />
                           <span>{calc.formattedDuration}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 font-mono font-black text-emerald-700 dark:text-emerald-400 text-sm">
+                      <td className="py-3 px-4 font-display font-bold tabular-nums text-emerald-700 dark:text-emerald-400 text-base">
                         {calc.isWithinGracePeriod ? (
-                          <span className="text-slate-500 dark:text-slate-400 font-normal text-xs">Gracia ($0)</span>
+                          <span className="inline-flex rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm font-medium text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">Gracia ($0)</span>
                         ) : (
                           formatCurrency(calc.totalAmount, rates.currencySymbol)
                         )}
                       </td>
-                      <td className="py-3 px-4 text-right space-x-1.5">
+                      <td className="py-3 px-4 text-right space-x-2 whitespace-nowrap">
                         {currentUser?.permissions.canReprintTickets !== false && (
                           <button
                             type="button"
                             onClick={() => onPrintTicket(ticket, 'entry')}
-                            className="p-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:border-slate-700 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             title="Reimprimir Ticket de Ingreso"
                           >
                             <Printer className="w-4 h-4" />
@@ -4152,12 +4152,12 @@ export const OperationsView: React.FC<OperationsViewProps> = ({
                           <button
                             type="button"
                             onClick={() => selectVehicleForExit(ticket)}
-                            className="pk-pos-key px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black rounded-xl border-b-2 border-emerald-800 transition-all shadow-xs cursor-pointer text-xs"
+                            className="inline-flex min-h-[44px] items-center rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(5,150,105,.9)] transition hover:-translate-y-0.5 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30 cursor-pointer dark:from-emerald-500 dark:to-emerald-600"
                           >
                             Liquidar Salida
                           </button>
                         ) : (
-                          <span className="text-[11px] text-slate-600 dark:text-slate-300 italic px-2 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded">
+                          <span className="text-[13px] text-slate-600 dark:text-slate-300 px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
                             Solo consulta
                           </span>
                         )}
