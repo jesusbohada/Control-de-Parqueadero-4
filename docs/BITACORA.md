@@ -4,7 +4,7 @@ Documento vivo: qué es el sistema, qué se ha hecho, en qué estado está cada 
 **Regla:** se lee al empezar una sesión de trabajo y se actualiza al cerrar cada cambio (PR integrado, despliegue, decisión).
 Nunca escribir aquí claves, tokens ni contenido de `.env`.
 
-_Última actualización: 2026-11-27_
+_Última actualización: 2026-11-27 (tarde)_
 
 ---
 
@@ -43,8 +43,9 @@ POS de parqueadero multi-sede: entradas/salidas, cobro y tarifas, turnos y cierr
 | #10 | 2026-11-26 | **Patio POS nuevo** (claro/oscuro) con selector Clásica/Nueva por usuario; además, el usuario exacto gana sobre el alias de login cajero/caja |
 | #11 | 2026-11-27 | **Mapa de plazas nuevo** (claro/oscuro) con el mismo selector |
 | #12 | 2026-11-27 | **Efecto Cristal** opcional (por usuario, apagado por defecto) en las vistas nuevas |
+| #15 | 2026-11-27 | **Rediseño completo del Patio sin perder funciones:** se retiró el Patio nuevo recortado (ocultaba medios de pago, descuentos, convenios, ticket perdido, DIAN, placa extranjera, ANPR y la tabla) y se rediseñó la pantalla completa cambiando solo estilos (verificado con `scripts/check-style-only.ts`). El Mapa nuevo quedó con todo lo del clásico. Cristal también en el Patio |
 
-Las vistas nuevas son opcionales: por defecto todos ven la clásica.
+Patio: una sola pantalla (completa, con el diseño nuevo), con Cristal opcional. Mapa: selector Clásica/Nueva (clásica por defecto).
 
 ## 4. Estado de despliegue
 
@@ -59,16 +60,17 @@ Orden obligatorio al desplegar: primero el Central, después cada sede (ver guí
 
 ## 5. Verificación
 
-- `npm run verify` (typecheck + pruebas): 81/81 al 2026-11-27. CI en GitHub en cada PR.
+- `npm run verify` (typecheck + pruebas): 75/75 al 2026-11-27 (se retiraron las 6 pruebas del Patio recortado). CI en GitHub en cada PR.
 - Pruebas E2E manuales hechas en bases aisladas: entrada/salida/cierre de turno de cajero, supervisor, sync Central↔sede.
-- Las vistas nuevas (Patio, Mapa, Cristal) solo se revisaron con datos de ejemplo; **falta probarlas en la app real** y medir el rendimiento del Cristal en las PCs de caja.
+- El Patio rediseñado, el Mapa nuevo y Cristal solo se revisaron con datos de ejemplo (claro y oscuro); **falta probarlas en la app real** y medir el rendimiento del Cristal en las PCs de caja.
 
 ## 6. Riesgos y deuda abiertos
 
 - Nunca levantar servidores de prueba contra la base real: verificar en el log la línea `[PostgreSQL] Conexión establecida ... a: <base>` antes de operar.
 - PostgreSQL local usa autenticación `trust` solo para 127.0.0.1/::1 (la LAN se rechaza).
 - 101 variables locales sin uso; `public/assets/farmadesk.exe` duplicado sin uso; ruta de desarrollo fija en `server/routes/farmadesk.ts`.
-- `src/App.tsx` sigue en ~5.9k líneas.
+- `src/App.tsx` sigue en ~5.9k líneas; `OperationsView.tsx` ~4.2k.
+- **Dinero:** la tabla de vehículos del Patio calcula el valor actual sin las categorías de vehículo (`calculateParkingFee` sin `vehicleCategories`), a diferencia del mapa y del cobro; puede mostrar un valor distinto con tarifas por categoría. Ver roadmap 1.3.
 - Manuales de instalación desactualizados respecto a noviembre.
 
 ## 7. Próximos pasos
@@ -80,3 +82,4 @@ Ver [`docs/ROADMAP.md`](ROADMAP.md) (fases, prioridades, dependencias y criterio
 - 2026-11-26 — Las vistas nuevas van detrás de un selector por usuario y equipo (localStorage), con la clásica por defecto, para cambiar sin riesgo y volver con un clic.
 - 2026-11-26 — `CENTRAL_SERVER_URL` no se configura en el equipo de desarrollo hasta que el Central tenga el código nuevo.
 - 2026-11-27 — El efecto Cristal aplica desenfoque solo a superficies grandes, para no penalizar PCs de caja modestas.
+- 2026-11-27 — **Regla de rediseño:** cambiar el aspecto sin quitar nada de lo que se muestra ni de lo que se puede hacer. Se rediseña la pantalla existente cambiando solo estilos (`className`), comprobado con `npx tsx scripts/check-style-only.ts <archivo>`; no se crean pantallas paralelas recortadas.

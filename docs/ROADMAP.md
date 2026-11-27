@@ -3,7 +3,7 @@
 Qué viene, en qué orden y cuándo está terminado cada punto. Lo ya hecho vive en la [bitácora](BITACORA.md).
 **Regla:** al terminar un punto, se borra de aquí y se anota en el historial de la bitácora; al decidir algo nuevo, se agrega aquí con prioridad y criterio de terminado.
 
-_Última actualización: 2026-11-27_
+_Última actualización: 2026-11-27 (tarde)_
 
 Prioridad: **P0** urgente · **P1** importante · **P2** cuando haya espacio.
 
@@ -24,17 +24,19 @@ Los puertos 3000/3001 están expuestos a internet y el Central y las sedes sigue
 
 | # | Tarea | Depende de | Terminado cuando |
 |---|---|---|---|
-| 1.1 | Probar **Patio POS nuevo** y **Mapa nuevo** con un cajero real | 0.2 | Un turno completo (entradas, cobros, cierre) sin volver a la vista clásica |
+| 1.1 | Probar el **Patio rediseñado** y el **Mapa nuevo** con un cajero real | 0.2 | Un turno completo (entradas, todos los medios de pago, cierre) sin errores ni funciones faltantes |
 | 1.2 | Medir el **efecto Cristal** en las PCs de caja | 1.1 | Sin lentitud perceptible; si la hay, se documenta en qué equipos apagarlo |
+| 1.3 | Revisar el **valor actual de la tabla del Patio** (se calcula sin categorías de vehículo) | — | Prueba automática que compara tabla, mapa y cobro con tarifas por categoría; mismos valores |
 
 ## Fase 2 — Interfaz nueva, siguientes pantallas · P1
 
-Cada pantalla nueva sale de `src/App.tsx` a su propio componente (así `App.tsx` se va achicando sin una reescritura grande) y va detrás del mismo selector Clásica/Nueva por usuario.
+Regla: se rediseña la pantalla existente cambiando solo estilos (`scripts/check-style-only.ts` debe dar OK); nada de lo que hoy se muestra o se puede hacer desaparece. Si la pantalla vive en `src/App.tsx`, primero se extrae a su propio componente (commit aparte, sin cambios de comportamiento).
 
 | # | Tarea | Depende de | Terminado cuando |
 |---|---|---|---|
-| 2.1 | **Turno y caja** nuevo (apertura, arqueo, cierre) | 1.1 | Totales idénticos a la vista clásica en pruebas; pruebas automáticas de los cálculos de caja; claro/oscuro |
-| 2.2 | **Abonados** nuevo | 2.1 | Alta, renovación y vencimientos funcionando en la vista nueva; claro/oscuro |
+| 2.1 | Rediseño de **Turno y caja** (apertura, arqueo, cierre) | 1.1 | Solo estilos (checker OK); mismos campos y totales; claro/oscuro |
+| 2.2 | Rediseño de **Abonados** | 2.1 | Solo estilos (checker OK); alta, renovación y vencimientos intactos; claro/oscuro |
+| 2.3 | Decidir si el **Mapa nuevo** pasa a ser el único (retirar el clásico) | 1.1 | Cajeros lo usan un turno sin echar nada de menos |
 
 ## Fase 3 — Deuda técnica · P2
 
