@@ -34,7 +34,7 @@ Regla: se rediseña la pantalla existente cambiando solo estilos (`scripts/check
 
 | # | Tarea | Depende de | Terminado cuando |
 |---|---|---|---|
-| 2.1 | Rediseño de **Turno y caja** (apertura, arqueo, cierre) | 1.1 | Solo estilos (checker OK); mismos campos y totales; claro/oscuro |
+| 2.1 | Rediseño del **panel histórico de turnos** (`CashShiftsHistoryModal`, también usado en Reportes) | — | Solo estilos (checker OK); sin tocar comprobantes imprimibles; claro/oscuro |
 | 2.2 | Rediseño de **Abonados** | 2.1 | Solo estilos (checker OK); alta, renovación y vencimientos intactos; claro/oscuro |
 | 2.3 | Decidir si el **Mapa nuevo** pasa a ser el único (retirar el clásico) | 1.1 | Cajeros lo usan un turno sin echar nada de menos |
 
