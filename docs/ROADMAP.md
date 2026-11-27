@@ -34,7 +34,7 @@ Regla: se rediseña la pantalla existente cambiando solo estilos (`scripts/check
 
 | # | Tarea | Depende de | Terminado cuando |
 |---|---|---|---|
-| 2.2 | Rediseño de **Abonados** | 2.1 | Solo estilos (checker OK); alta, renovación y vencimientos intactos; claro/oscuro |
+| 2.2 | Rediseño del resto de pantallas (Reportes, Usuarios, Configuración, Plazas, etc.), una por PR | — | Solo estilos (checker OK); sin tocar áreas imprimibles; claro/oscuro |
 | 2.3 | Decidir si el **Mapa nuevo** pasa a ser el único (retirar el clásico) | 1.1 | Cajeros lo usan un turno sin echar nada de menos |
 
 ## Fase 3 — Deuda técnica · P2

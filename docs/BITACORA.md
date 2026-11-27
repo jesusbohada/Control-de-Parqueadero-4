@@ -46,6 +46,7 @@ POS de parqueadero multi-sede: entradas/salidas, cobro y tarifas, turnos y cierr
 | #15 | 2026-11-27 | **Rediseño completo del Patio sin perder funciones:** se retiró el Patio nuevo recortado (ocultaba medios de pago, descuentos, convenios, ticket perdido, DIAN, placa extranjera, ANPR y la tabla) y se rediseñó la pantalla completa cambiando solo estilos (verificado con `scripts/check-style-only.ts`). El Mapa nuevo quedó con todo lo del clásico. Cristal también en el Patio |
 | #16 | 2026-11-27 | **Rediseño de Turno y caja** (arqueo, cierre del día, gastos/recogidas/ingresos, histórico integrado, modales de impresión, comprobante y PIN) solo en estilos (checker OK); el comprobante térmico impreso no se tocó. Corregido: el horario de cada arqueo cerrado mostraba la fecha fija "19/10/2026" en vez de la real |
 | #17 | 2026-11-27 | Rediseño del **panel histórico de arqueos y cierres** (`CashShiftsHistoryModal`, también en Reportes) y sus modales (recálculo, notas, auditoría, marco de impresión), solo estilos; comprobante imprimible intacto |
+| #18 | 2026-11-27 | Rediseño de **Abonados** (`SubscribersModal`): métricas, filtros, tabla con estados activo/por vencer/vencido y formulario de alta/edición, solo estilos |
 
 Patio: una sola pantalla (completa, con el diseño nuevo), con Cristal opcional. Mapa: selector Clásica/Nueva (clásica por defecto).
 
