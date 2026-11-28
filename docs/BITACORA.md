@@ -49,6 +49,7 @@ POS de parqueadero multi-sede: entradas/salidas, cobro y tarifas, turnos y cierr
 | #18 | 2026-11-27 | Rediseño de **Abonados** (`SubscribersModal`): métricas, filtros, tabla con estados activo/por vencer/vencido y formulario de alta/edición, solo estilos |
 | #19 | 2026-11-27 | Rediseño de **Reportes** (`RealTimeReports`, `ExecutiveSummaryReport`): resumen, contable PUC/DIAN, análisis, IA, histórico de tickets y cierres, solo estilos. Corregido: con cierres sin total se mostraban **$440.000 inventados** (dato de demostración), y una fecha fija "19/10/2026" en los arqueos |
 | #20 | 2026-11-27 | Rediseño de **Usuarios y permisos** (`UsersManagementModal`): lista de usuarios, perfiles, matriz de permisos por perfil, formulario de alta/edición, modales y casillas de permisos/visibilidad, solo estilos |
+| #21 | 2026-11-27 | Rediseño de **Configuración**: Tarifas (`RatesSettingsModal`), Medios de pago (`PaymentMethodsSettings`, QR con fondo blanco), Categorías de vehículo, Convenios comerciales y Conceptos de gasto, solo estilos |
 
 Patio: una sola pantalla (completa, con el diseño nuevo), con Cristal opcional. Mapa: selector Clásica/Nueva (clásica por defecto).
 
