@@ -35,7 +35,7 @@ Regla: se rediseña la pantalla existente cambiando solo estilos (`scripts/check
 
 | # | Tarea | Depende de | Terminado cuando |
 |---|---|---|---|
-| 2.2 | Rediseño del resto de pantallas (Plazas, Impresoras, Modo de trabajo, Sedes/Central, Cámaras ANPR, etc.), una por PR | — | Solo estilos (checker OK); sin tocar áreas imprimibles; claro/oscuro |
+| 2.2 | Rediseño del resto de pantallas (Sedes/Central, Cámaras ANPR, Base de datos, barra lateral y navegación, etc.), una por PR | — | Solo estilos (checker OK); sin tocar áreas imprimibles; claro/oscuro |
 | 2.3 | Decidir si el **Mapa nuevo** pasa a ser el único (retirar el clásico) | 1.1 | Cajeros lo usan un turno sin echar nada de menos |
 
 ## Fase 3 — Deuda técnica · P2

@@ -262,28 +262,28 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
   return (
     <div 
       id="system-work-mode-config-modal-overlay"
-      className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 overflow-y-auto"}
+      className={embedded ? "w-full animate-in fade-in duration-150" : "fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-sm p-4 overflow-y-auto"}
     >
       <div 
         id="system-work-mode-config-modal-container"
-        className={embedded ? "bg-white rounded-xl shadow-xl border border-slate-300 w-full overflow-hidden flex flex-col my-auto" : "bg-white rounded-xl shadow-2xl border border-slate-300 w-full max-w-5xl overflow-hidden flex flex-col my-auto animate-in fade-in zoom-in-95 duration-150"}
+        className={embedded ? "wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:bg-slate-900 w-full overflow-hidden flex flex-col my-auto" : "wz-surface rounded-[22px] border border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:bg-slate-900 w-full max-w-5xl overflow-hidden flex flex-col my-auto animate-in fade-in zoom-in-95 duration-150"}
       >
         {/* Top Header matching reference software bar */}
         <div 
           id="config-modal-header"
-          className="bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 border-b border-slate-300 px-6 py-3 flex items-center justify-between"
+          className="bg-white dark:bg-slate-900 border-b border-slate-200/70 dark:border-slate-800 px-5 pt-5 pb-4 flex items-center justify-between gap-3 flex-wrap"
         >
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+              <h2 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap">
                 Configuración del Sistema y Modo de Trabajo
-                <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
+                <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
                   formData.workMode === 'server' 
-                    ? 'bg-purple-100 text-purple-800 border-purple-300' 
-                    : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                    ? 'bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-500/10 dark:text-purple-200 dark:border-purple-500/30' 
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30'
                 }`}>
                   {formData.workMode === 'server' ? 'MODO: SERVIDOR APLICACIÓN' : 'MODO: PUNTO DE VENTA (SUCURSAL)'}
                 </span>
@@ -299,7 +299,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
               id="btn-save-system-config-top"
               type="button"
               onClick={() => handleSave()}
-              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               GUARDAR CONFIGURACIÓN
@@ -308,7 +308,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
               id="btn-close-system-config-modal"
               type="button"
               onClick={onClose}
-              className="p-2 rounded-lg text-slate-700 dark:text-slate-200 hover:text-slate-600 hover:bg-slate-200 transition-colors"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -318,16 +318,16 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
         {/* Navigation Tabs Bar */}
         <div 
           id="config-modal-tabs-bar"
-          className="bg-slate-100 border-b border-slate-300 px-4 flex items-center space-x-1 overflow-x-auto text-xs font-semibold select-none"
+          className="bg-white dark:bg-slate-900 border-b border-slate-200/70 dark:border-slate-800 px-4 py-2.5 flex items-center gap-1 overflow-x-auto text-sm font-semibold select-none"
         >
           <button
             id="tab-btn-pos"
             type="button"
             onClick={() => setActiveTab('pos')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'pos'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Store className="w-3.5 h-3.5" />
@@ -338,10 +338,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
             id="tab-btn-servers"
             type="button"
             onClick={() => setActiveTab('servers')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'servers'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Server className="w-3.5 h-3.5" />
@@ -352,10 +352,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
             id="tab-btn-zones"
             type="button"
             onClick={() => setActiveTab('zones')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'zones'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -366,10 +366,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
             id="tab-btn-prefixes"
             type="button"
             onClick={() => setActiveTab('prefixes')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'prefixes'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Hash className="w-3.5 h-3.5" />
@@ -380,10 +380,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
             id="tab-btn-email"
             type="button"
             onClick={() => setActiveTab('email')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'email'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Mail className="w-3.5 h-3.5" />
@@ -394,10 +394,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
             id="tab-btn-integrations"
             type="button"
             onClick={() => setActiveTab('integrations')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'integrations'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
@@ -408,10 +408,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
             id="tab-btn-alerts"
             type="button"
             onClick={() => setActiveTab('alerts')}
-            className={`px-4 py-2.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            className={`min-h-[44px] px-4 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap ${
               activeTab === 'alerts'
-                ? 'border-blue-600 text-blue-700 bg-white font-bold shadow-sm'
-                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 hover:bg-slate-200/60'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
@@ -420,11 +420,11 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
         </div>
 
         {/* Tab Content Body */}
-        <div className="p-6 overflow-y-auto max-h-[72vh] bg-slate-50/50">
+        <div className="p-6 overflow-y-auto max-h-[72vh] bg-slate-50/50 dark:bg-slate-950/40">
           {showSavedToast && (
             <div 
               id="config-saved-toast-notification"
-              className="mb-5 p-3 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 text-sm font-semibold flex items-center gap-2 shadow-sm animate-in fade-in duration-200"
+              className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm font-semibold text-emerald-900 flex items-center gap-2 animate-in fade-in duration-200 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200"
             >
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
               <span>Configuración guardada y aplicada con éxito. El modo de trabajo actual es: <strong>{formData.workMode === 'server' ? 'Servidor Aplicación (Matriz)' : 'Punto de Venta (Sucursal)'}</strong>.</span>
@@ -439,16 +439,16 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
               {/* Main Panel Box: Datos de Configuración del Punto de Venta */}
               <div 
                 id="pos-config-card"
-                className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative"
+                className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative"
               >
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Datos de Configuración del Punto de Venta / Servidor
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                   {/* Nombre del Establecimiento */}
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Nombre del Establecimiento / Razón Social
                     </label>
                     <input
@@ -457,13 +457,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.establishmentName}
                       onChange={(e) => handleInputChange('establishmentName', e.target.value)}
                       placeholder="Ej. DROMEDICAS DEL ORIENTE SAS / PARKING CONTROL"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 dark:text-slate-200 uppercase"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 uppercase"
                     />
                   </div>
 
                   {/* N.I.T. del Establecimiento */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       N.I.T. del Establecimiento
                     </label>
                     <input
@@ -472,13 +472,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.establishmentNit}
                       onChange={(e) => handleInputChange('establishmentNit', e.target.value)}
                       placeholder="Ej. 900265730-0"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
                   {/* Representante Legal */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Representante Legal
                     </label>
                     <input
@@ -487,13 +487,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.legalRepresentative}
                       onChange={(e) => handleInputChange('legalRepresentative', e.target.value)}
                       placeholder="Nombre del representante legal o administrador"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
                   {/* Día Operativo */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Día Operativo Activo
                     </label>
                     <input
@@ -502,13 +502,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.operationalDate}
                       onChange={(e) => handleInputChange('operationalDate', e.target.value)}
                       placeholder="DD/MM/YYYY"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
                   {/* Serial Impresora / Máquina Fiscal */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Serial Impresora / Máquina Fiscal
                     </label>
                     <input
@@ -517,20 +517,20 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.printerSerialOrFiscalMachine}
                       onChange={(e) => handleInputChange('printerSerialOrFiscalMachine', e.target.value)}
                       placeholder="Ej. TC6Y313412 / POS-58MM-SERIAL"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200 uppercase"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono uppercase"
                     />
                   </div>
 
                   {/* Sucursal del Sistema Selector */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                      <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400">
                         Sucursal del Sistema
                       </label>
                       <button
                         type="button"
                         onClick={() => setIsAddingNewBranch(!isAddingNewBranch)}
-                        className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        className="min-h-[44px] text-[13px] font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 flex items-center gap-1"
                       >
                         <Plus className="w-3 h-3" />
                         {isAddingNewBranch ? 'Cancelar' : 'Registrar Nueva Sede'}
@@ -548,7 +548,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           handleInputChange('establishmentName', b.name);
                         }
                       }}
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 dark:text-slate-200 bg-white"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     >
                       {branches.map(branch => (
                         <option key={branch.id} value={branch.id}>
@@ -561,13 +561,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                   {/* Bodega / Patio Predeterminado */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                      <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400">
                         Bodega Predeterminada / Patio o Zona Base
                       </label>
                       <button
                         type="button"
                         onClick={handleOpenNewWarehouse}
-                        className="text-[11px] font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 flex items-center gap-1 cursor-pointer"
+                        className="min-h-[44px] text-[13px] font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 flex items-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         Registrar Nuevo Patio / Bodega
@@ -577,7 +577,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       id="select-default-warehouse"
                       value={formData.defaultWarehouseOrYard}
                       onChange={(e) => handleInputChange('defaultWarehouseOrYard', e.target.value)}
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800 dark:text-slate-200 bg-white"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     >
                       {localWarehouses.map(wh => (
                         <option key={wh.id} value={wh.name}>
@@ -596,19 +596,19 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                   {isAddingNewWarehouse && activeTab === 'pos' && (
                     <div 
                       id="quick-warehouse-register-panel"
-                      className="md:col-span-2 p-4 rounded-xl bg-amber-50/70 border border-amber-200 space-y-3 animate-in fade-in"
+                      className="md:col-span-2 p-4 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 space-y-3 animate-in fade-in"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <WarehouseIcon className="w-4 h-4 text-amber-700" />
-                          <h4 className="text-xs font-bold text-amber-900 uppercase">
+                          <WarehouseIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />
+                          <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
                             {editingWarehouseId ? 'Editar Patio o Bodega' : 'Registrar Nuevo Patio, Nivel o Bodega'}
                           </h4>
                         </div>
                         <button
                           type="button"
                           onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
-                          className="text-slate-400 hover:text-slate-600 text-xs"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -616,34 +616,34 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
 
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                         <div>
-                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Código</label>
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Código</label>
                           <input
                             type="text"
                             placeholder="Ej. PAT-02"
                             value={warehouseForm.code}
                             onChange={(e) => setWarehouseForm(prev => ({ ...prev, code: e.target.value }))}
-                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded uppercase font-bold"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 uppercase font-bold"
                           />
                         </div>
                         <div className="sm:col-span-2">
-                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Nombre del Patio / Nivel / Bodega</label>
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Nombre del Patio / Nivel / Bodega</label>
                           <input
                             type="text"
                             placeholder="Ej. Sótano Nivel -1 o Patio Bahía 2"
                             value={warehouseForm.name}
                             onChange={(e) => setWarehouseForm(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Capacidad (Plazas)</label>
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Capacidad (Plazas)</label>
                           <input
                             type="number"
                             min="1"
                             placeholder="50"
                             value={warehouseForm.capacity}
                             onChange={(e) => setWarehouseForm(prev => ({ ...prev, capacity: parseInt(e.target.value) || 0 }))}
-                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                           />
                         </div>
                       </div>
@@ -652,14 +652,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                         <button
                           type="button"
                           onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
-                          className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800 font-medium"
+                          className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                         >
                           Cancelar
                         </button>
                         <button
                           type="button"
                           onClick={handleSaveWarehouseAction}
-                          className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
+                          className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 flex items-center gap-1.5 cursor-pointer"
                         >
                           <Save className="w-3.5 h-3.5" />
                           {editingWarehouseId ? 'Actualizar Patio / Bodega' : 'Guardar y Asignar'}
@@ -672,40 +672,40 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                   {isAddingNewBranch && (
                     <div 
                       id="quick-branch-register-panel"
-                      className="md:col-span-2 p-4 rounded-lg bg-blue-50 border border-blue-200 space-y-3 animate-in fade-in"
+                      className="md:col-span-2 p-4 rounded-xl bg-blue-50 border border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30 space-y-3 animate-in fade-in"
                     >
-                      <h4 className="text-xs font-bold text-blue-900 uppercase">
+                      <h4 className="text-sm font-bold text-blue-900 dark:text-blue-200">
                         Registrar Nueva Sede / Sucursal para el Sistema
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Código Sede</label>
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Código Sede</label>
                           <input
                             type="text"
                             placeholder="Ej. SUC-006"
                             value={newBranchCode}
                             onChange={(e) => setNewBranchCode(e.target.value)}
-                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded uppercase font-bold"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 uppercase font-bold"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Nombre de la Sucursal</label>
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Nombre de la Sucursal</label>
                           <input
                             type="text"
                             placeholder="Ej. Sede Chapinero Centro"
                             value={newBranchName}
                             onChange={(e) => setNewBranchName(e.target.value)}
-                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Ciudad</label>
+                          <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Ciudad</label>
                           <input
                             type="text"
                             placeholder="Ej. Bucaramanga"
                             value={newBranchCity}
                             onChange={(e) => setNewBranchCity(e.target.value)}
-                            className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                           />
                         </div>
                       </div>
@@ -713,14 +713,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                         <button
                           type="button"
                           onClick={() => setIsAddingNewBranch(false)}
-                          className="px-3 py-1 text-xs text-slate-600 dark:text-slate-300 hover:text-slate-800"
+                          className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                         >
                           Cancelar
                         </button>
                         <button
                           type="button"
                           onClick={handleCreateBranchQuickly}
-                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold shadow-sm"
+                          className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-blue-500 dark:to-blue-600"
                         >
                           Agregar Sucursal
                         </button>
@@ -731,17 +731,17 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                   {/* ================================================================= */}
                   {/* SELECTOR CRÍTICO: MODO DE TRABAJO (SERVIDOR VS PUNTO DE VENTA)    */}
                   {/* ================================================================= */}
-                  <div className="md:col-span-2 pt-2 border-t border-slate-200">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-2">
+                  <div className="md:col-span-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <label className="block font-display text-base font-bold text-slate-900 dark:text-slate-100 mb-2">
                       Modo de Trabajo de Esta Aplicación
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Opción 1: Servidor Aplicación */}
                       <label 
-                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
+                        className={`min-h-[52px] p-4 rounded-2xl cursor-pointer transition flex items-start gap-3 focus-within:ring-4 focus-within:ring-blue-500/30 ${
                           formData.workMode === 'server'
-                            ? 'border-purple-600 bg-purple-50/70 shadow-sm ring-1 ring-purple-400'
-                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <input
@@ -750,11 +750,11 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           value="server"
                           checked={formData.workMode === 'server'}
                           onChange={() => handleInputChange('workMode', 'server')}
-                          className="mt-1 w-4 h-4 text-purple-600 focus:ring-purple-500"
+                          className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500"
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <Server className={`w-4 h-4 ${formData.workMode === 'server' ? 'text-purple-700' : 'text-slate-600 dark:text-slate-300'}`} />
+                            <Server className={`w-4 h-4 ${formData.workMode === 'server' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`} />
                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
                               Servidor Aplicación (Matriz Central)
                             </span>
@@ -767,10 +767,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
 
                       {/* Opción 2: Punto de Venta */}
                       <label 
-                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-start gap-3 ${
+                        className={`min-h-[52px] p-4 rounded-2xl cursor-pointer transition flex items-start gap-3 focus-within:ring-4 focus-within:ring-blue-500/30 ${
                           formData.workMode === 'pos'
-                            ? 'border-blue-600 bg-blue-50/70 shadow-sm ring-1 ring-blue-400'
-                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <input
@@ -779,11 +779,11 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           value="pos"
                           checked={formData.workMode === 'pos'}
                           onChange={() => handleInputChange('workMode', 'pos')}
-                          className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500"
+                          className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500"
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <Store className={`w-4 h-4 ${formData.workMode === 'pos' ? 'text-blue-700' : 'text-slate-600 dark:text-slate-300'}`} />
+                            <Store className={`w-4 h-4 ${formData.workMode === 'pos' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`} />
                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
                               Punto de Venta (Terminal Sucursal)
                             </span>
@@ -796,26 +796,26 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                     </div>
 
                     {/* Nota de Blindaje de Seguridad Multi-Sede */}
-                    <div className="mt-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex items-start gap-2.5">
+                    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 text-sm text-slate-700 flex items-start gap-2.5 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-300">
                       <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-                      <div className="text-[11px] leading-relaxed">
-                        <strong className="text-slate-900 block font-semibold">Blindaje de Seguridad Multi-Sede:</strong>
+                      <div className="text-[13px] leading-relaxed">
+                        <strong className="text-slate-900 dark:text-slate-100 block font-semibold">Blindaje de Seguridad Multi-Sede:</strong>
                         Solo la máquina física autorizada como Servidor Central Matriz puede emitir y propagar Globales a la red. Si una terminal o sucursal se marca como servidor local, sus datos quedan aislados y el sistema bloquea automáticamente cualquier envío o sobreescritura de parámetros hacia el Servidor Central.
                       </div>
                     </div>
                   </div>
 
                   {/* MODO DE FACTURACIÓN */}
-                  <div className="md:col-span-2 pt-2 border-t border-slate-200">
-                    <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-2">
+                  <div className="md:col-span-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <label className="block font-display text-base font-bold text-slate-900 dark:text-slate-100 mb-2">
                       Modo de Facturación
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <label 
-                        className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center gap-2.5 ${
+                        className={`min-h-[52px] px-3 rounded-2xl cursor-pointer transition flex items-center gap-2.5 text-sm font-semibold focus-within:ring-4 focus-within:ring-blue-500/30 ${
                           formData.billingMode === 'pos_invoice'
-                            ? 'border-blue-600 bg-blue-50 text-blue-900 font-bold'
-                            : 'border-slate-200 bg-white text-slate-700 dark:text-slate-200 hover:bg-slate-50'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <input
@@ -824,16 +824,16 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           value="pos_invoice"
                           checked={formData.billingMode === 'pos_invoice'}
                           onChange={() => handleInputChange('billingMode', 'pos_invoice')}
-                          className="w-4 h-4 text-blue-600"
+                          className="h-5 w-5 text-blue-600"
                         />
-                        <span className="text-xs">Factura P.O.S. / Tiquete</span>
+                        <span className="text-sm">Factura P.O.S. / Tiquete</span>
                       </label>
 
                       <label 
-                        className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center gap-2.5 ${
+                        className={`min-h-[52px] px-3 rounded-2xl cursor-pointer transition flex items-center gap-2.5 text-sm font-semibold focus-within:ring-4 focus-within:ring-blue-500/30 ${
                           formData.billingMode === 'open_accounts'
-                            ? 'border-blue-600 bg-blue-50 text-blue-900 font-bold'
-                            : 'border-slate-200 bg-white text-slate-700 dark:text-slate-200 hover:bg-slate-50'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <input
@@ -842,16 +842,16 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           value="open_accounts"
                           checked={formData.billingMode === 'open_accounts'}
                           onChange={() => handleInputChange('billingMode', 'open_accounts')}
-                          className="w-4 h-4 text-blue-600"
+                          className="h-5 w-5 text-blue-600"
                         />
-                        <span className="text-xs">Mesas y Cuentas Abiertas</span>
+                        <span className="text-sm">Mesas y Cuentas Abiertas</span>
                       </label>
 
                       <label 
-                        className={`p-3 rounded-lg border cursor-pointer transition-all flex items-center gap-2.5 ${
+                        className={`min-h-[52px] px-3 rounded-2xl cursor-pointer transition flex items-center gap-2.5 text-sm font-semibold focus-within:ring-4 focus-within:ring-blue-500/30 ${
                           formData.billingMode === 'time_service'
-                            ? 'border-blue-600 bg-blue-50 text-blue-900 font-bold'
-                            : 'border-slate-200 bg-white text-slate-700 dark:text-slate-200 hover:bg-slate-50'
+                            ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                            : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                         }`}
                       >
                         <input
@@ -860,9 +860,9 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           value="time_service"
                           checked={formData.billingMode === 'time_service'}
                           onChange={() => handleInputChange('billingMode', 'time_service')}
-                          className="w-4 h-4 text-blue-600"
+                          className="h-5 w-5 text-blue-600"
                         />
-                        <span className="text-xs">Serv. Por Tiempo / Parqueadero</span>
+                        <span className="text-sm">Serv. Por Tiempo / Parqueadero</span>
                       </label>
                     </div>
                   </div>
@@ -876,22 +876,22 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           {/* ========================================================================= */}
           {activeTab === 'servers' && (
             <div className="space-y-5">
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Parámetros de Conexión y Enlace al Servidor Central
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
-                  <div className="md:col-span-2 p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-start gap-3">
+                  <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 flex items-start gap-3 dark:border-slate-700 dark:bg-slate-800/60">
                     <Globe className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                    <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                       Especifique la dirección IP o nombre de host del <strong>Servidor Central Matriz</strong>. Las sucursales enviarán a este destino su telemetría en tiempo real y consultarán paquetes de configuración y actualizaciones de software.
                     </div>
                   </div>
 
                   {/* Host IP Servidor Central */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Dirección IP / Host Servidor Central
                     </label>
                     <input
@@ -900,13 +900,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.centralServerHost}
                       onChange={(e) => handleInputChange('centralServerHost', e.target.value)}
                       placeholder="Ej. 192.168.10.150 o central.parkingcontrol.com"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
                   {/* Puerto App POS LAN */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Puerto de Servicio App POS (LAN)
                     </label>
                     <input
@@ -915,16 +915,16 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.centralServerPort}
                       onChange={(e) => handleInputChange('centralServerPort', parseInt(e.target.value) || 3000)}
                       placeholder="3000"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
                   {/* SECCIÓN ESPECIAL: PUERTOS FARMADESK CONTROL REMOTO */}
-                  <div className="md:col-span-2 p-4 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 space-y-3 mt-2 shadow-inner">
+                  <div className="md:col-span-2 p-4 rounded-2xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 space-y-3 mt-2">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="flex items-center gap-2">
-                        <Radio className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 animate-pulse" />
-                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                        <Radio className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 motion-safe:animate-pulse" />
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                           Puerto Personalizado FarmaDesk Pro® (Escritorio Remoto & Señalización)
                         </h4>
                       </div>
@@ -935,7 +935,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                           handleInputChange('farmadeskLanPort', 9050);
                           handleInputChange('farmadeskWanPort', 9050);
                         }}
-                        className="text-[11px] text-cyan-800 dark:text-cyan-300 hover:text-cyan-500 underline font-mono cursor-pointer"
+                        className="min-h-[44px] text-[13px] font-semibold text-cyan-800 dark:text-cyan-300 hover:text-cyan-600 underline cursor-pointer"
                       >
                         Restablecer Valor Predeterminado (Puerto 9050)
                       </button>
@@ -944,9 +944,9 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                       {/* Puerto Señalización FarmaDesk */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1 flex items-center justify-between">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
                           <span>Puerto Señalización FarmaDesk (TCP/WS)</span>
-                          <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-mono">Predeterminado: 9050</span>
+                          <span className="text-xs text-cyan-700 dark:text-cyan-400 font-mono">Predeterminado: 9050</span>
                         </label>
                         <input
                           id="input-farmadesk-port"
@@ -959,33 +959,33 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                             handleInputChange('farmadeskWanPort', val);
                           }}
                           placeholder="9050"
-                          className="w-full px-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:border-cyan-500 font-mono text-cyan-800 dark:text-cyan-300 font-bold"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-semibold"
                         />
-                        <p className="text-[10px] text-slate-700 dark:text-slate-200 mt-1">
+                        <p className="text-xs text-slate-700 dark:text-slate-200 mt-1">
                           Canal WebSocket relay nativo Rust (60 FPS, Ed25519) para control remoto corporativo.
                         </p>
                       </div>
 
                       {/* Puerto Mutex Local FarmaDesk */}
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1 flex items-center justify-between">
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
                           <span>Instancia Local FarmaDesk (Mutex Port)</span>
-                          <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono">Fijo: 19060</span>
+                          <span className="text-xs text-blue-700 dark:text-blue-400 font-mono">Fijo: 19060</span>
                         </label>
                         <input
                           id="input-farmadesk-mutex"
                           type="text"
                           disabled
                           value="19060 (Instancia Única)"
-                          className="w-full px-3 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg font-mono text-slate-500 dark:text-slate-400 font-bold cursor-not-allowed"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-slate-100 px-3.5 text-base font-mono font-semibold text-slate-500 cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
                         />
-                        <p className="text-[10px] text-slate-700 dark:text-slate-200 mt-1">
+                        <p className="text-xs text-slate-700 dark:text-slate-200 mt-1">
                           Garantiza que una sola instancia del cliente Rust FarmaDesk corra en memoria por terminal.
                         </p>
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] font-mono flex items-center justify-between gap-2 flex-wrap">
+                    <div className="bg-slate-50 dark:bg-slate-950 px-3.5 py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-[13px] font-mono flex items-center justify-between gap-2 flex-wrap">
                       <span className="text-slate-700 dark:text-slate-200">Endpoints FarmaDesk Pro Configurados:</span>
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className="text-cyan-600 dark:text-cyan-400 font-bold">
@@ -1000,7 +1000,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
 
                   {/* Token de Autenticación */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Token de Enlace Cifrado / API Key
                     </label>
                     <input
@@ -1009,13 +1009,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.centralAuthToken}
                       onChange={(e) => handleInputChange('centralAuthToken', e.target.value)}
                       placeholder="PK-CENTRAL-AUTH-TOKEN-2026-X99"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
                   {/* Nombre de la Base de Datos */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Base de Datos Asignada
                     </label>
                     <input
@@ -1024,13 +1024,13 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.databaseName}
                       onChange={(e) => handleInputChange('databaseName', e.target.value)}
                       placeholder="ParqueaderoPOS_DB_Principal"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
                   {/* Intervalo de Sincronización Automática */}
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Frecuencia de Sincronización Automática en Segundo Plano (Minutos)
                     </label>
                     <div className="flex items-center space-x-3">
@@ -1040,9 +1040,9 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                         max="60"
                         value={formData.autoSyncIntervalMinutes}
                         onChange={(e) => handleInputChange('autoSyncIntervalMinutes', parseInt(e.target.value) || 5)}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
                       />
-                      <span className="text-xs font-bold font-mono px-3 py-1 bg-slate-100 border border-slate-300 rounded text-slate-800 dark:text-slate-200 min-w-[70px] text-center">
+                      <span className="text-sm font-bold tabular-nums px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-slate-800 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 min-w-[76px] text-center">
                         {formData.autoSyncIntervalMinutes} min
                       </span>
                     </div>
@@ -1050,17 +1050,17 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                 </div>
 
                 {/* Botón de Test de Conexión en Vivo */}
-                <div className="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Prueba de Conectividad con el Servidor</h4>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-300">Envía una solicitud de ping y verifica el handshake con el servidor central.</p>
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Prueba de Conectividad con el Servidor</h4>
+                    <p className="text-xs text-slate-600 dark:text-slate-300">Envía una solicitud de ping y verifica el handshake con el servidor central.</p>
                   </div>
                   <button
                     id="btn-test-server-connection"
                     type="button"
                     onClick={handleTestCentralConnection}
                     disabled={isTestingConnection}
-                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                    className="min-h-[44px] px-5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-sm font-semibold flex items-center gap-2 transition disabled:opacity-50 cursor-pointer"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isTestingConnection ? 'animate-spin' : ''}`} />
                     {isTestingConnection ? 'Probando Enlace...' : 'Probar Conexión en Vivo'}
@@ -1071,10 +1071,10 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                 {connectionTestResult.status !== 'idle' && (
                   <div 
                     id="connection-test-result-box"
-                    className={`mt-4 p-3.5 rounded-lg border text-xs font-medium flex items-start gap-2.5 animate-in fade-in ${
+                    className={`mt-4 rounded-xl border px-3.5 py-3 text-sm font-medium flex items-start gap-2.5 animate-in fade-in ${
                       connectionTestResult.status === 'success'
-                        ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                        : 'bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-900 dark:text-emerald-200'
+                        : 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/30 text-rose-900 dark:text-rose-200'
                     }`}
                   >
                     {connectionTestResult.status === 'success' ? (
@@ -1085,7 +1085,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                     <div>
                       <p>{connectionTestResult.message}</p>
                       {connectionTestResult.latency && (
-                        <p className="font-mono text-[11px] font-bold text-emerald-700 mt-1">
+                        <p className="font-mono tabular-nums text-xs font-bold text-emerald-700 dark:text-emerald-300 mt-1">
                           Latencia de respuesta: {connectionTestResult.latency} ms | Estado: OK (HTTP 200)
                         </p>
                       )}
@@ -1102,20 +1102,20 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           {activeTab === 'zones' && (
             <div className="space-y-6">
               {/* PANEL DE GESTIÓN Y CREACIÓN DE PATIOS / BODEGAS */}
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded flex items-center gap-1.5">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                   <WarehouseIcon className="w-3.5 h-3.5 text-amber-600" />
                   Catálogo de Patios, Niveles y Bodegas
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-1 pb-4 border-b border-slate-100">
-                  <p className="text-xs text-slate-500">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-1 pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
                     Crea y administra los diferentes patios, pisos, sótanos o bodegas disponibles en el parqueadero o sucursal.
                   </p>
                   <button
                     type="button"
                     onClick={handleOpenNewWarehouse}
-                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 flex items-center gap-1.5 shrink-0 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Registrar Nuevo Patio / Bodega
@@ -1124,18 +1124,18 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
 
                 {/* Formulario de Registro o Edición de Bodega / Patio */}
                 {isAddingNewWarehouse && (
-                  <div className="mt-4 p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-3 animate-in fade-in">
+                  <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30 space-y-3 animate-in fade-in">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <WarehouseIcon className="w-4 h-4 text-amber-700" />
-                        <h4 className="text-xs font-bold text-amber-900 uppercase">
+                        <WarehouseIcon className="w-4 h-4 text-amber-700 dark:text-amber-300" />
+                        <h4 className="text-sm font-bold text-amber-900 dark:text-amber-200">
                           {editingWarehouseId ? 'Editar Patio / Bodega' : 'Crear Nuevo Patio, Nivel o Bodega'}
                         </h4>
                       </div>
                       <button
                         type="button"
                         onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
-                        className="text-slate-400 hover:text-slate-600"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -1143,34 +1143,34 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
 
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Código</label>
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Código</label>
                         <input
                           type="text"
                           placeholder="Ej. PAT-02"
                           value={warehouseForm.code}
                           onChange={(e) => setWarehouseForm(prev => ({ ...prev, code: e.target.value }))}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded uppercase font-bold bg-white"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 uppercase font-bold"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Nombre del Patio / Nivel / Bodega</label>
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Nombre del Patio / Nivel / Bodega</label>
                         <input
                           type="text"
                           placeholder="Ej. Sótano Nivel -1 o Patio Bahía 2"
                           value={warehouseForm.name}
                           onChange={(e) => setWarehouseForm(prev => ({ ...prev, name: e.target.value }))}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium bg-white"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">Capacidad (Plazas)</label>
+                        <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">Capacidad (Plazas)</label>
                         <input
                           type="number"
                           min="1"
                           placeholder="50"
                           value={warehouseForm.capacity}
                           onChange={(e) => setWarehouseForm(prev => ({ ...prev, capacity: parseInt(e.target.value) || 0 }))}
-                          className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded font-medium bg-white"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                     </div>
@@ -1179,14 +1179,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       <button
                         type="button"
                         onClick={() => { setIsAddingNewWarehouse(false); setEditingWarehouseId(null); }}
-                        className="px-3 py-1.5 text-xs text-slate-600 hover:text-slate-800 font-medium cursor-pointer"
+                        className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer"
                       >
                         Cancelar
                       </button>
                       <button
                         type="button"
                         onClick={handleSaveWarehouseAction}
-                        className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
+                        className="min-h-[44px] rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition disabled:opacity-50 dark:from-blue-500 dark:to-blue-600 flex items-center gap-1.5 cursor-pointer"
                       >
                         <Save className="w-3.5 h-3.5" />
                         {editingWarehouseId ? 'Guardar Cambios' : 'Registrar Patio / Bodega'}
@@ -1202,33 +1202,33 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                     return (
                       <div
                         key={wh.id}
-                        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border transition-all ${
+                        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-3.5 rounded-2xl border transition ${
                           isDefault 
-                            ? 'bg-blue-50/60 border-blue-300 shadow-xs' 
-                            : 'bg-slate-50/50 hover:bg-slate-50 border-slate-200'
+                            ? 'border-blue-300 bg-blue-50 dark:border-blue-500/40 dark:bg-blue-500/10' 
+                            : 'bg-white hover:bg-slate-50 border-slate-200 dark:bg-slate-800/40 dark:hover:bg-slate-800 dark:border-slate-700'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${isDefault ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                          <div className={`p-2 rounded-xl ${isDefault ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
                             <WarehouseIcon className="w-4 h-4" />
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
+                              <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-lg bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                                 {wh.code}
                               </span>
                               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                 {wh.name}
                               </span>
                               {isDefault && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-100 dark:border-blue-500/30">
                                   <Check className="w-3 h-3 text-blue-600" />
                                   Predeterminada en esta Caja
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-slate-500 mt-0.5">
-                              Capacidad: <span className="font-semibold text-slate-700">{wh.capacity || 50} plazas</span> | Sede: {wh.branchName || 'Sede Principal'}
+                            <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
+                              Capacidad: <span className="font-semibold text-slate-700 dark:text-slate-200">{wh.capacity || 50} plazas</span> | Sede: {wh.branchName || 'Sede Principal'}
                             </p>
                           </div>
                         </div>
@@ -1238,7 +1238,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                             <button
                               type="button"
                               onClick={() => handleInputChange('defaultWarehouseOrYard', wh.name)}
-                              className="px-2.5 py-1 text-xs text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded font-medium cursor-pointer"
+                              className="min-h-[44px] px-3.5 text-sm font-semibold text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl cursor-pointer dark:bg-blue-500/10 dark:text-blue-200 dark:border-blue-500/30 dark:hover:bg-blue-500/20"
                             >
                               Asignar como Predeterminada
                             </button>
@@ -1247,7 +1247,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                             type="button"
                             onClick={() => handleEditWarehouse(wh)}
                             title="Editar Patio o Bodega"
-                            className="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded cursor-pointer"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-600 hover:text-blue-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 cursor-pointer"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
@@ -1255,7 +1255,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                             type="button"
                             onClick={() => handleDeleteWarehouseAction(wh.id)}
                             title="Eliminar Patio o Bodega"
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded cursor-pointer"
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 hover:text-rose-700 hover:bg-rose-50 dark:text-slate-400 dark:hover:bg-rose-500/10 cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -1267,14 +1267,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
               </div>
 
               {/* Zonas Base Asignadas */}
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Configuración de Zonas de Estacionamiento
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Zona Principal Asignada
                     </label>
                     <input
@@ -1282,12 +1282,12 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.primaryZoneName}
                       onChange={(e) => handleInputChange('primaryZoneName', e.target.value)}
                       placeholder="Patio Principal (Nivel 1)"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Zona Secundaria / Auxiliar
                     </label>
                     <input
@@ -1295,7 +1295,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.secondaryZoneName || ''}
                       onChange={(e) => handleInputChange('secondaryZoneName', e.target.value)}
                       placeholder="Zona VIP Subterránea"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
                 </div>
@@ -1308,14 +1308,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           {/* ========================================================================= */}
           {activeTab === 'prefixes' && (
             <div className="space-y-5">
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Prefijos de Facturación y Consecutivos
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Prefijo Predeterminado de Factura / Ticket
                     </label>
                     <input
@@ -1323,19 +1323,19 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.defaultPrefix}
                       onChange={(e) => handleInputChange('defaultPrefix', e.target.value.toUpperCase())}
                       placeholder="FE-PK / POS"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg font-mono font-bold text-slate-800 dark:text-slate-200 uppercase"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-bold uppercase"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Consecutivo de Facturación Actual
                     </label>
                     <input
                       type="number"
                       value={formData.currentSequenceNumber}
                       onChange={(e) => handleInputChange('currentSequenceNumber', parseInt(e.target.value) || 1)}
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg font-mono font-bold text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono font-bold"
                     />
                   </div>
                 </div>
@@ -1348,14 +1348,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           {/* ========================================================================= */}
           {activeTab === 'email' && (
             <div className="space-y-5">
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Notificaciones por Correo Electrónico
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Correo Electrónico de Alertas y Reportes
                     </label>
                     <input
@@ -1363,12 +1363,12 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.alertEmail}
                       onChange={(e) => handleInputChange('alertEmail', e.target.value)}
                       placeholder="gerencia@parkingcontrol.com"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Servidor SMTP
                     </label>
                     <input
@@ -1376,12 +1376,12 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.smtpServer || ''}
                       onChange={(e) => handleInputChange('smtpServer', e.target.value)}
                       placeholder="smtp.parkingcontrol.com"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg text-slate-800 dark:text-slate-200"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Puerto SMTP
                     </label>
                     <input
@@ -1389,27 +1389,27 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.smtpPort || 587}
                       onChange={(e) => handleInputChange('smtpPort', parseInt(e.target.value) || 587)}
                       placeholder="587"
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg text-slate-800 dark:text-slate-200 font-mono"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono"
                     />
                   </div>
 
-                  <div className="md:col-span-2 pt-3 border-t border-slate-200 space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  <div className="md:col-span-2 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                    <label className="flex min-h-[44px] items-center gap-2.5 cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
                       <input
                         type="checkbox"
                         checked={formData.notifyOnShiftClose}
                         onChange={(e) => handleInputChange('notifyOnShiftClose', e.target.checked)}
-                        className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+                        className="rounded h-5 w-5 text-blue-600 focus:ring-blue-500"
                       />
                       <span>Enviar copia del arqueo detallado por email al cerrar cada turno</span>
                     </label>
 
-                    <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <label className="flex min-h-[44px] items-center gap-2.5 cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">
                       <input
                         type="checkbox"
                         checked={formData.notifyOnDefinitiveDayClose}
                         onChange={(e) => handleInputChange('notifyOnDefinitiveDayClose', e.target.checked)}
-                        className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+                        className="rounded h-5 w-5 text-blue-600 focus:ring-blue-500"
                       />
                       <span>Enviar resumen contable consolidado al realizar el Cierre Definitivo de Día</span>
                     </label>
@@ -1424,57 +1424,57 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           {/* ========================================================================= */}
           {activeTab === 'integrations' && (
             <div className="space-y-5">
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Hardware e Integraciones Vehiculares
                 </div>
 
                 <div className="space-y-4 mt-2">
-                  <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div className="px-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3 dark:border-slate-700 dark:bg-slate-800/60">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Control de Talanquera Vehicular Automática</h4>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300">Envía pulso de apertura por puerto serial COM / Relé al emitir o cobrar ticket.</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Control de Talanquera Vehicular Automática</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">Envía pulso de apertura por puerto serial COM / Relé al emitir o cobrar ticket.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex min-h-[44px] items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.enableBarrierControl}
                         onChange={(e) => handleInputChange('enableBarrierControl', e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div className="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-blue-500/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
 
-                  <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div className="px-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3 dark:border-slate-700 dark:bg-slate-800/60">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Cámara LPR Reconocimiento Automático de Placas</h4>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300">Detecta automáticamente la placa vehicular en la entrada y salida.</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Cámara LPR Reconocimiento Automático de Placas</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">Detecta automáticamente la placa vehicular en la entrada y salida.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex min-h-[44px] items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.enableLprCamera}
                         onChange={(e) => handleInputChange('enableLprCamera', e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div className="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-blue-500/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
 
-                  <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div className="px-4 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3 dark:border-slate-700 dark:bg-slate-800/60">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Lector de Tarjetas RFID / Tags de Mensualidades</h4>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300">Permite lectura rápida de abonados y tarjetas sin contacto.</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Lector de Tarjetas RFID / Tags de Mensualidades</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">Permite lectura rápida de abonados y tarjetas sin contacto.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <label className="relative inline-flex min-h-[44px] items-center cursor-pointer">
                       <input
                         type="checkbox"
                         checked={formData.enableRfidReader}
                         onChange={(e) => handleInputChange('enableRfidReader', e.target.checked)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div className="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-blue-500/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                   </div>
                 </div>
@@ -1487,14 +1487,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
           {/* ========================================================================= */}
           {activeTab === 'alerts' && (
             <div className="space-y-5">
-              <div className="bg-white rounded-xl border border-slate-300 shadow-sm p-6 relative">
-                <div className="absolute -top-3 left-6 bg-white px-2 text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider border border-slate-200 rounded">
+              <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 p-6 relative">
+                <div className="absolute -top-3.5 left-6 rounded-xl border border-slate-200 bg-white px-3 py-0.5 font-display text-sm font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                   Mensajes de Ticket y Alertas de Aforo
                 </div>
 
                 <div className="space-y-4 mt-2">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="block text-[13px] font-medium text-slate-600 dark:text-slate-400 mb-1">
                       Mensaje de Advertencia / Pie de Ticket
                     </label>
                     <textarea
@@ -1502,14 +1502,14 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                       value={formData.ticketFooterMessage}
                       onChange={(e) => handleInputChange('ticketFooterMessage', e.target.value)}
                       placeholder="Gracias por su visita. Conserve su ticket en lugar seguro. No deje objetos de valor."
-                      className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-lg text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
-                  <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+                  <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">Alerta de Capacidad Crítica / Pocas Plazas Libres</h4>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300">Notifica visualmente cuando el patio tenga menos de N plazas disponibles.</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Alerta de Capacidad Crítica / Pocas Plazas Libres</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-300">Notifica visualmente cuando el patio tenga menos de N plazas disponibles.</p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
@@ -1518,7 +1518,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
                         max="20"
                         value={formData.lowSpotThreshold}
                         onChange={(e) => handleInputChange('lowSpotThreshold', parseInt(e.target.value) || 5)}
-                        className="w-16 px-2 py-1 text-xs font-bold font-mono border border-slate-300 rounded text-center"
+                        className="min-h-[48px] w-20 rounded-xl border border-slate-300 bg-white px-2 text-base font-bold tabular-nums text-center text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                       <span className="text-xs text-slate-600 dark:text-slate-300">plazas</span>
                     </div>
@@ -1532,7 +1532,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
         {/* Bottom Footer Actions */}
         <div 
           id="config-modal-footer"
-          className="bg-slate-100 border-t border-slate-300 px-6 py-3.5 flex items-center justify-between"
+          className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800/70 dark:border-slate-800 px-6 py-4 flex items-center justify-between gap-3 flex-wrap"
         >
           <div className="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-slate-600 dark:text-slate-300" />
@@ -1544,7 +1544,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
               id="btn-cancel-system-config-footer"
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-800 hover:bg-slate-200 rounded-lg transition-colors"
+              className="min-h-[44px] rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               Cancelar
             </button>
@@ -1552,7 +1552,7 @@ export const SystemWorkModeConfigModal: React.FC<SystemWorkModeConfigModalProps>
               id="btn-save-system-config-footer"
               type="button"
               onClick={() => handleSave()}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              className="min-h-[56px] rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-6 text-base font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition flex items-center gap-2 dark:from-blue-500 dark:to-blue-600"
             >
               <Save className="w-4 h-4" />
               GUARDAR CONFIGURACIÓN

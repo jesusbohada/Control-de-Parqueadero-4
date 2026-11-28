@@ -252,30 +252,30 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/50 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="wz-surface rounded-[22px] bg-white dark:bg-slate-900 border border-slate-900/[0.06] dark:border-white/[0.07] shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] w-full max-w-2xl flex flex-col max-h-[92vh] overflow-hidden text-slate-900 dark:text-slate-100">
         
         {/* Header */}
-        <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 pt-5 pb-4 border-b border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 text-white dark:from-slate-700 dark:to-slate-800 flex items-center justify-center shrink-0">
               <Printer className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+              <h2 className="font-display text-lg font-bold flex items-center gap-2">
                 <span>Impresión Térmica & Tickets POS</span>
-                <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full">
                   80mm / 58mm
                 </span>
               </h2>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
                 Configuración de rollos térmicos, automatización de recibos, gaveta monedero y pruebas
               </p>
             </div>
           </div>
           <button 
             onClick={onClose} 
-            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             title="Cerrar ventana"
           >
             <X className="w-5 h-5" />
@@ -283,14 +283,14 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 px-5 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-xs font-bold shrink-0">
+        <div className="mx-5 mt-4 flex w-fit max-w-[calc(100%-2.5rem)] items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 text-sm font-semibold shrink-0 dark:border-slate-700 dark:bg-slate-900">
           <button
             type="button"
             onClick={() => { setActiveTab('devices'); setEditingPrinter(null); }}
-            className={`py-3 px-3.5 border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+            className={`min-h-[44px] px-3.5 rounded-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
               activeTab === 'devices'
-                ? 'border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/5'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Printer className="w-4 h-4" />
@@ -300,10 +300,10 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
           <button
             type="button"
             onClick={() => { setActiveTab('automation'); setEditingPrinter(null); }}
-            className={`py-3 px-3.5 border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+            className={`min-h-[44px] px-3.5 rounded-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
               activeTab === 'automation'
-                ? 'border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/5'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Sliders className="w-4 h-4" />
@@ -313,10 +313,10 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
           <button
             type="button"
             onClick={() => { setActiveTab('test_lab'); setEditingPrinter(null); }}
-            className={`py-3 px-3.5 border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
+            className={`min-h-[44px] px-3.5 rounded-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${
               activeTab === 'test_lab'
-                ? 'border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/5'
-                : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
             }`}
           >
             <Sparkles className="w-4 h-4" />
@@ -326,7 +326,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
 
         {/* Feedback message */}
         {saveSuccessMsg && (
-          <div className="mx-5 mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 animate-in fade-in duration-150">
+          <div className="mx-5 mt-4 px-3.5 py-3 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-500/10 dark:border-emerald-500/30 dark:text-emerald-200 text-sm font-semibold flex items-center gap-2 animate-in fade-in duration-150">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{saveSuccessMsg}</span>
           </div>
@@ -341,24 +341,24 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
               
               {/* Formulario de Edición / Creación si editingPrinter !== null */}
               {editingPrinter ? (
-                <form onSubmit={handleSavePrinterForm} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-amber-500/40 space-y-4 animate-in fade-in duration-150">
-                  <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                <form onSubmit={handleSavePrinterForm} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-blue-600/30 dark:border-blue-400/30 space-y-4 animate-in fade-in duration-150">
+                  <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-slate-800 pb-3">
+                    <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <Edit2 className="w-3.5 h-3.5" />
                       <span>{editingPrinter.name ? `Editar: ${editingPrinter.name}` : 'Nueva Impresora Térmica'}</span>
                     </h3>
                     <button
                       type="button"
                       onClick={() => setEditingPrinter(null)}
-                      className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                      className="min-h-[44px] px-3 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white cursor-pointer"
                     >
                       Cancelar
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div className="space-y-1">
-                      <label className="font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                         Nombre Identificador en POS:
                       </label>
                       <input
@@ -367,12 +367,12 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                         value={editingPrinter.name}
                         onChange={(e) => setEditingPrinter({ ...editingPrinter, name: e.target.value })}
                         placeholder="Ej: Impresora Principal Taquilla"
-                        className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                        className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                         Nombre del Dispositivo en el Sistema (Driver SO):
                       </label>
                       <input
@@ -380,18 +380,18 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                         value={editingPrinter.printerName}
                         onChange={(e) => setEditingPrinter({ ...editingPrinter, printerName: e.target.value })}
                         placeholder="Ej: POS-80, XP-58, TM-T20"
-                        className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                        className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                         Puerto / Tipo de Conexión:
                       </label>
                       <select
                         value={editingPrinter.port}
                         onChange={(e) => setEditingPrinter({ ...editingPrinter, port: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white font-mono focus:outline-hidden focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                        className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 cursor-pointer"
                       >
                         <option value="USB">USB (Predeterminado / Plug & Play)</option>
                         <option value="Network">Red Ethernet / IP (192.168.x.x:9100)</option>
@@ -403,17 +403,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="font-bold text-slate-700 dark:text-slate-300">
+                      <label className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                         Ancho de Rollo Térmico:
                       </label>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => setEditingPrinter({ ...editingPrinter, paperSize: '80mm' })}
-                          className={`flex-1 py-2 px-3 rounded-lg font-bold border transition-all cursor-pointer ${
+                          className={`flex-1 min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                             editingPrinter.paperSize === '80mm'
-                              ? 'bg-amber-500 text-slate-950 border-amber-600 shadow-xs'
-                              : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                              ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                              : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                           }`}
                         >
                           80 mm (Estándar)
@@ -421,10 +421,10 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setEditingPrinter({ ...editingPrinter, paperSize: '58mm' })}
-                          className={`flex-1 py-2 px-3 rounded-lg font-bold border transition-all cursor-pointer ${
+                          className={`flex-1 min-h-[52px] rounded-2xl px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer ${
                             editingPrinter.paperSize === '58mm'
-                              ? 'bg-amber-500 text-slate-950 border-amber-600 shadow-xs'
-                              : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
+                              ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                              : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                           }`}
                         >
                           58 mm (Mini)
@@ -434,33 +434,33 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   </div>
 
                   {/* Opciones de hardware */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800 text-xs">
-                    <label className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-slate-200/70 dark:border-slate-800 text-sm">
+                    <label className="flex items-center gap-2 min-h-[44px] px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editingPrinter.isDefault}
                         onChange={(e) => setEditingPrinter({ ...editingPrinter, isDefault: e.target.checked })}
-                        className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                        className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                       />
                       <span className="font-semibold text-slate-800 dark:text-slate-200">Impresora Predeterminada</span>
                     </label>
 
-                    <label className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+                    <label className="flex items-center gap-2 min-h-[44px] px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editingPrinter.autoCut ?? true}
                         onChange={(e) => setEditingPrinter({ ...editingPrinter, autoCut: e.target.checked })}
-                        className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                        className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                       />
                       <span className="font-semibold text-slate-800 dark:text-slate-200">Auto-corte (GS V)</span>
                     </label>
 
-                    <label className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
+                    <label className="flex items-center gap-2 min-h-[44px] px-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={editingPrinter.openDrawer ?? true}
                         onChange={(e) => setEditingPrinter({ ...editingPrinter, openDrawer: e.target.checked })}
-                        className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                        className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                       />
                       <span className="font-semibold text-slate-800 dark:text-slate-200">Abrir Gaveta (ESC p)</span>
                     </label>
@@ -470,13 +470,13 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setEditingPrinter(null)}
-                      className="px-4 py-1.5 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition cursor-pointer disabled:opacity-50 dark:from-blue-500 dark:to-blue-600"
                     >
                       <Save className="w-3.5 h-3.5" />
                       <span>Guardar Impresora</span>
@@ -486,11 +486,11 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
               ) : null}
 
               {/* Sección de Detección Automática de Impresoras del Sistema Operativo */}
-              <div className="p-4 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-800/40 space-y-3">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Cpu className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    <h3 className="text-xs font-bold text-indigo-950 dark:text-indigo-200">
+                    <Cpu className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                    <h3 className="font-display text-base font-bold text-slate-900 dark:text-white">
                       Impresoras Físicas Detectadas en Windows ({systemPrinters.length})
                     </h3>
                   </div>
@@ -498,7 +498,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                     type="button"
                     onClick={handleScanSystemPrinters}
                     disabled={isScanningPrinters}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 transition-all cursor-pointer shadow-xs"
+                    className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                     title="Volver a escanear impresoras conectadas en Windows"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isScanningPrinters ? 'animate-spin' : ''}`} />
@@ -506,12 +506,12 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   </button>
                 </div>
 
-                <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                <p className="text-[13px] text-slate-600 dark:text-slate-400">
                   El sistema detecta automáticamente impresoras térmicas (POS-80, SAT, EPSON, etc.) conectadas por USB o Red. Haz clic en <strong>Vincular</strong> para activarla como la impresora de tickets instantánea.
                 </p>
 
                 {systemPrinters.length === 0 ? (
-                  <div className="text-[11px] text-slate-500 italic py-1">
+                  <div className="text-[13px] text-slate-600 dark:text-slate-400 italic py-1">
                     {isScanningPrinters ? 'Escaneando dispositivos instalados en el sistema...' : 'No se detectaron impresoras adicionales. Asegúrate de tener el driver de tu impresora térmica instalado en Windows.'}
                   </div>
                 ) : (
@@ -522,9 +522,9 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       return (
                         <div
                           key={sp.id}
-                          className={`p-2.5 rounded-lg border flex items-center justify-between gap-2 text-xs transition-all ${
+                          className={`p-3 rounded-xl border flex items-center justify-between gap-2 text-sm transition-all ${
                             isCurrentDefault
-                              ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-600'
+                              ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30'
                               : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'
                           }`}
                         >
@@ -534,17 +534,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                                 {sp.name}
                               </span>
                               {sp.isThermal && (
-                                <span className="text-[8px] font-bold px-1.5 py-0.2 bg-amber-500/20 text-amber-800 dark:text-amber-300 rounded font-mono">
+                                <span className="text-xs font-semibold px-1.5 py-0.5 bg-amber-50 border border-amber-200 text-amber-900 dark:bg-amber-500/10 dark:border-amber-500/30 dark:text-amber-200 rounded-md">
                                   TÉRMICA
                                 </span>
                               )}
                               {sp.isDefault && (
-                                <span className="text-[8px] font-bold px-1.5 py-0.2 bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded font-mono">
+                                <span className="text-xs font-semibold px-1.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-900 dark:bg-blue-500/10 dark:border-blue-500/30 dark:text-blue-200 rounded-md">
                                   WINDOWS DEF
                                 </span>
                               )}
                             </div>
-                            <div className="text-[10px] text-slate-500 font-mono mt-0.5">
+                            <div className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                               Puerto: {sp.port || 'USB'} · Rollo: {sp.paperSize}
                             </div>
                           </div>
@@ -552,10 +552,10 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleBindSystemPrinter(sp)}
-                            className={`px-2 py-1 rounded text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
+                            className={`min-h-[44px] px-3 rounded-xl text-sm font-semibold shrink-0 transition-all cursor-pointer ${
                               isCurrentDefault
-                                ? 'bg-emerald-600 text-white shadow-xs'
-                                : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800/60'
+                                ? 'bg-emerald-600 text-white'
+                                : 'wz-tile border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800'
                             }`}
                             title="Vincular como impresora principal de tickets del POS"
                           >
@@ -571,7 +571,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
               {/* Lista de impresoras */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  <span className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
                     Impresoras Instaladas ({printers.length})
                   </span>
                   {!editingPrinter && (
@@ -588,7 +588,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                         autoCut: true,
                         openDrawer: true
                       })}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition cursor-pointer disabled:opacity-50 dark:from-blue-500 dark:to-blue-600"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Agregar Impresora</span>
@@ -597,12 +597,12 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                 </div>
 
                 {printers.length === 0 ? (
-                  <div className="p-6 text-center bg-slate-50 dark:bg-slate-950/60 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 space-y-2">
+                  <div className="p-6 text-center bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 space-y-2">
                     <Printer className="w-10 h-10 text-slate-400 mx-auto opacity-60" />
-                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       No hay impresoras térmicas específicas registradas
                     </p>
-                    <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+                    <p className="text-[13px] text-slate-600 dark:text-slate-400 max-w-sm mx-auto">
                       El sistema utilizará la impresora predeterminada de Windows a través del diálogo estándar del navegador.
                     </p>
                   </div>
@@ -610,41 +610,41 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   printers.map((printer) => (
                     <div
                       key={printer.id}
-                      className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                      className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                         printer.isDefault
-                          ? 'bg-amber-500/5 border-amber-500/40 shadow-xs'
-                          : 'bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800'
+                          ? 'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30'
+                          : 'wz-surface bg-white border-slate-900/[0.06] dark:bg-slate-900 dark:border-white/[0.07]'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                           printer.isDefault
-                            ? 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                            ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-200 dark:border-blue-500/30'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                         }`}>
                           <Printer className="w-5 h-5" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="text-xs font-bold text-slate-900 dark:text-white">{printer.name}</h4>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">{printer.name}</h4>
                             {printer.isDefault ? (
-                              <span className="text-[9px] font-mono font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:border-emerald-500/30">
                                 PREDETERMINADA
                               </span>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => handleSetDefault(printer)}
-                                className="text-[9px] font-bold text-amber-600 dark:text-amber-400 hover:underline cursor-pointer"
+                                className="inline-flex min-h-[44px] items-center text-xs font-semibold text-blue-700 dark:text-blue-300 hover:underline cursor-pointer"
                               >
                                 Hacer Predeterminada
                               </button>
                             )}
-                            <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            <span className="text-xs font-semibold tabular-nums px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                               {printer.paperSize || '80mm'}
                             </span>
                           </div>
-                          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5 font-mono">
+                          <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
                             Driver: {printer.printerName || 'Genérico'} · Puerto: {printer.port || 'USB'}
                           </p>
                         </div>
@@ -654,7 +654,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setEditingPrinter(printer)}
-                          className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                           title="Editar parámetros de la impresora"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -667,7 +667,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                               onDelete(printer.id);
                             }
                           }}
-                          className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
+                          className="inline-flex h-11 w-11 items-center justify-center text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
                           title="Eliminar impresora"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -683,23 +683,23 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
           {/* TAB 2: AUTOMATIZACIÓN Y FORMATO */}
           {activeTab === 'automation' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-2">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4">
+                <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <Sliders className="w-3.5 h-3.5" />
                   <span>Comportamiento de Impresión Operativa</span>
                 </h3>
 
-                <div className="space-y-3 text-xs">
+                <div className="space-y-3 text-sm">
                   {/* Silent direct spooler print */}
-                  <label className="flex items-center justify-between p-3.5 rounded-xl bg-amber-500/10 border-2 border-amber-500/40 cursor-pointer hover:border-amber-500 transition-colors shadow-xs">
+                  <label className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-blue-50 border border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30 cursor-pointer hover:border-blue-400 transition-colors">
                     <div className="space-y-0.5 max-w-[85%]">
                       <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                        <span className="font-black text-slate-950 dark:text-white block text-sm">
+                        <Zap className="w-4 h-4 text-blue-700 dark:text-blue-300 shrink-0" />
+                        <span className="font-bold text-slate-950 dark:text-white block text-sm">
                           Impresión Instantánea en Segundo Plano (Sin Diálogo del Navegador)
                         </span>
                       </div>
-                      <span className="text-[11px] text-slate-600 dark:text-slate-400 block">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400 block">
                         Envía la orden directamente al spooler de Windows hacia la impresora física térmica en menos de 1 segundo. Cero clics, cero ventanas emergentes ni demoras.
                       </span>
                     </div>
@@ -707,17 +707,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="checkbox"
                       checked={localSilentBackgroundPrint}
                       onChange={(e) => setLocalSilentBackgroundPrint(e.target.checked)}
-                      className="w-5 h-5 accent-amber-500 rounded cursor-pointer shrink-0"
+                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer shrink-0"
                     />
                   </label>
 
                   {/* Auto print on entry */}
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
+                  <label className="flex items-center justify-between gap-3 min-h-[52px] p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400/60 transition-colors">
                     <div className="space-y-0.5">
-                      <span className="font-bold text-slate-900 dark:text-white block">
+                      <span className="font-semibold text-slate-900 dark:text-white block">
                         Impresión Automática de Ticket al Ingreso
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400">
                         Dispara inmediatamente la impresión del ticket apenas se registra una placa en taquilla
                       </span>
                     </div>
@@ -725,17 +725,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="checkbox"
                       checked={localAutoPrintEntry}
                       onChange={(e) => setLocalAutoPrintEntry(e.target.checked)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                     />
                   </label>
 
                   {/* Auto print on exit */}
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
+                  <label className="flex items-center justify-between gap-3 min-h-[52px] p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400/60 transition-colors">
                     <div className="space-y-0.5">
-                      <span className="font-bold text-slate-900 dark:text-white block">
+                      <span className="font-semibold text-slate-900 dark:text-white block">
                         Impresión Automática de Comprobante / Factura al Salir
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400">
                         Imprime inmediatamente la tirilla de cobro y salida tras completar el pago
                       </span>
                     </div>
@@ -743,17 +743,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="checkbox"
                       checked={localAutoPrintExit}
                       onChange={(e) => setLocalAutoPrintExit(e.target.checked)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                     />
                   </label>
 
                   {/* Auto print on shift close */}
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
+                  <label className="flex items-center justify-between gap-3 min-h-[52px] p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400/60 transition-colors">
                     <div className="space-y-0.5">
-                      <span className="font-bold text-slate-900 dark:text-white block">
+                      <span className="font-semibold text-slate-900 dark:text-white block">
                         Impresión Automática de Comprobante al Cerrar Turno (Arqueo)
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400">
                         Imprime la tirilla con arqueo, efectivo contado, diferencia y firmas al finalizar el turno
                       </span>
                     </div>
@@ -761,17 +761,17 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="checkbox"
                       checked={localAutoPrintShiftClose}
                       onChange={(e) => setLocalAutoPrintShiftClose(e.target.checked)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                     />
                   </label>
 
                   {/* Auto print on day close */}
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
+                  <label className="flex items-center justify-between gap-3 min-h-[52px] p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400/60 transition-colors">
                     <div className="space-y-0.5">
-                      <span className="font-bold text-slate-900 dark:text-white block">
+                      <span className="font-semibold text-slate-900 dark:text-white block">
                         Impresión Automática al Cierre Definitivo de Jornada (Reporte Z)
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400">
                         Imprime el comprobante consolidado de la jornada y efectivo a consignar al cerrar el día
                       </span>
                     </div>
@@ -779,18 +779,18 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="checkbox"
                       checked={localAutoPrintDayClose}
                       onChange={(e) => setLocalAutoPrintDayClose(e.target.checked)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                     />
                   </label>
 
                   {/* Open cash drawer */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 hover:border-amber-500/40 transition-colors">
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 hover:border-blue-400/60 transition-colors">
                     <label className="flex items-center justify-between cursor-pointer">
                       <div className="space-y-0.5">
-                        <span className="font-bold text-slate-900 dark:text-white block">
+                        <span className="font-semibold text-slate-900 dark:text-white block">
                           Apertura Automática de Cajón Monedero
                         </span>
-                        <span className="text-[11px] text-slate-500">
+                        <span className="text-[13px] text-slate-600 dark:text-slate-400">
                           Envía el pulso eléctrico (ESC p / RJ11) a la gaveta de dinero en cada cobro en efectivo
                         </span>
                       </div>
@@ -798,16 +798,16 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                         type="checkbox"
                         checked={localOpenDrawer}
                         onChange={(e) => setLocalOpenDrawer(e.target.checked)}
-                        className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                        className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                       />
                     </label>
-                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-500">Pulso físico multi-pin (Pin 2 / Pin 5 / DLE DC4)</span>
+                    <div className="pt-2 border-t border-slate-200/70 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400">Pulso físico multi-pin (Pin 2 / Pin 5 / DLE DC4)</span>
                       <button
                         type="button"
                         onClick={handleTriggerOpenDrawerTest}
                         disabled={isTestingDrawer}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 rounded-lg text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                        className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                         title="Envía el pulso de apertura a la gaveta a través de la impresora para probar el solenoide"
                       >
                         <DollarSign className={`w-3.5 h-3.5 ${isTestingDrawer ? 'animate-bounce' : ''}`} />
@@ -817,12 +817,12 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   </div>
 
                   {/* Auto cut paper */}
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-500/40 transition-colors">
+                  <label className="flex items-center justify-between gap-3 min-h-[52px] p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400/60 transition-colors">
                     <div className="space-y-0.5">
-                      <span className="font-bold text-slate-900 dark:text-white block">
+                      <span className="font-semibold text-slate-900 dark:text-white block">
                         Corte Automático de Papel (Auto-Cutter)
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[13px] text-slate-600 dark:text-slate-400">
                         Envía la secuencia de corte total/parcial de papel (GS V) al final de cada tirilla
                       </span>
                     </div>
@@ -830,51 +830,51 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="checkbox"
                       checked={localCutPaper}
                       onChange={(e) => setLocalCutPaper(e.target.checked)}
-                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
                     />
                   </label>
 
                   {/* Default paper width */}
                   <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
-                    <span className="font-bold text-slate-900 dark:text-white block">
+                    <span className="font-semibold text-slate-900 dark:text-white block">
                       Ancho de Papel Predeterminado del Sistema:
                     </span>
-                    <div className="flex gap-3">
-                      <label className="flex items-center gap-2 cursor-pointer">
+                    <div className="flex flex-wrap gap-3">
+                      <label className="flex items-center gap-2 min-h-[44px] cursor-pointer">
                         <input
                           type="radio"
                           name="defaultPaper"
                           value="80mm"
                           checked={localDefaultPaper === '80mm'}
                           onChange={() => setLocalDefaultPaper('80mm')}
-                          className="accent-amber-500"
+                          className="accent-blue-600 w-5 h-5"
                         />
-                        <span className="text-xs font-semibold">80 mm (Estándar POS)</span>
+                        <span className="text-sm font-semibold">80 mm (Estándar POS)</span>
                       </label>
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-2 min-h-[44px] cursor-pointer">
                         <input
                           type="radio"
                           name="defaultPaper"
                           value="58mm"
                           checked={localDefaultPaper === '58mm'}
                           onChange={() => setLocalDefaultPaper('58mm')}
-                          className="accent-amber-500"
+                          className="accent-blue-600 w-5 h-5"
                         />
-                        <span className="text-xs font-semibold">58 mm (Compacto / Mini)</span>
+                        <span className="text-sm font-semibold">58 mm (Compacto / Mini)</span>
                       </label>
                     </div>
                   </div>
 
                   {/* Custom Ticket Footer */}
                   <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
-                    <span className="font-bold text-slate-900 dark:text-white block">
+                    <span className="font-semibold text-slate-900 dark:text-white block">
                       Texto de Pie de Página en Tickets:
                     </span>
                     <textarea
                       rows={2}
                       value={localFooterText}
                       onChange={(e) => setLocalFooterText(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-amber-500"
+                      className="w-full min-h-[48px] py-2.5 rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       placeholder="Mensaje de agradecimiento o póliza legal..."
                     />
                   </div>
@@ -884,7 +884,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                   <button
                     type="button"
                     onClick={handleSaveAutomationSettings}
-                    className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                    className="inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-5 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition cursor-pointer disabled:opacity-50 dark:from-blue-500 dark:to-blue-600"
                   >
                     <Save className="w-4 h-4" />
                     <span>Guardar Preferencias de Impresión</span>
@@ -897,24 +897,24 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
           {/* TAB 3: BANCO DE PRUEBAS TÉRMICAS (LIVE TEST LAB) */}
           {activeTab === 'test_lab' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                  <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Laboratorio de Calibración Térmica</span>
                   </h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
                     Lanza una tirilla física para validar márgenes, nitidez del código de barras y corte.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="flex bg-slate-200 dark:bg-slate-800 p-0.5 rounded-lg border border-slate-300 dark:border-slate-700 text-xs font-mono">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900 text-sm font-semibold">
                     <button
                       type="button"
                       onClick={() => setTestPaperWidth('80mm')}
-                      className={`px-2 py-0.5 rounded font-bold transition-all cursor-pointer ${
-                        testPaperWidth === '80mm' ? 'bg-amber-500 text-slate-950' : 'text-slate-600 dark:text-slate-400 hover:text-white'
+                      className={`min-h-[44px] px-3 rounded-lg tabular-nums transition-all cursor-pointer ${
+                        testPaperWidth === '80mm' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                       }`}
                     >
                       80mm
@@ -922,20 +922,20 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setTestPaperWidth('58mm')}
-                      className={`px-2 py-0.5 rounded font-bold transition-all cursor-pointer ${
-                        testPaperWidth === '58mm' ? 'bg-amber-500 text-slate-950' : 'text-slate-600 dark:text-slate-400 hover:text-white'
+                      className={`min-h-[44px] px-3 rounded-lg tabular-nums transition-all cursor-pointer ${
+                        testPaperWidth === '58mm' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                       }`}
                     >
                       58mm
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={handleTriggerOpenDrawerTest}
                       disabled={isTestingDrawer}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 px-4 rounded-xl bg-gradient-to-b from-emerald-600 to-emerald-700 text-white text-sm font-semibold hover:-translate-y-px transition-all cursor-pointer disabled:opacity-50"
                       title="Envía únicamente el pulso eléctrico para abrir el cajón monedero conectado a la impresora"
                     >
                       <DollarSign className={`w-3.5 h-3.5 ${isTestingDrawer ? 'animate-bounce' : ''}`} />
@@ -946,7 +946,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="button"
                       onClick={handleTriggerInstantSpoolerTest}
                       disabled={isDirectSpoolPrinting}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_14px_28px_-14px_rgba(29,78,216,.9)] hover:-translate-y-0.5 transition cursor-pointer disabled:opacity-50 dark:from-blue-500 dark:to-blue-600"
                       title="Envía el ticket directamente a la impresora seleccionada en Windows sin abrir ventanas"
                     >
                       <Zap className={`w-4 h-4 ${isDirectSpoolPrinting ? 'animate-pulse' : ''}`} />
@@ -957,7 +957,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                       type="button"
                       onClick={handleTriggerTestPrint}
                       disabled={isTestPrinting}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
                       title="Probar mediante cuadro de diálogo del navegador o modo Kiosco"
                     >
                       <Printer className="w-4 h-4" />
@@ -968,7 +968,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
               </div>
 
               {/* Selector de tipo de comprobante de prueba */}
-              <div className="flex gap-2 text-xs font-bold">
+              <div className="flex flex-wrap gap-2 text-sm font-semibold">
                 {[
                   { id: 'entry', label: '1. Ticket de Entrada' },
                   { id: 'exit', label: '2. Comprobante de Salida POS' },
@@ -978,10 +978,10 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
                     key={item.id}
                     type="button"
                     onClick={() => setTestTicketType(item.id as any)}
-                    className={`flex-1 py-1.5 px-2 rounded-lg border transition-all cursor-pointer text-center ${
+                    className={`flex-1 min-h-[52px] py-2 px-2 rounded-2xl transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 cursor-pointer text-center ${
                       testTicketType === item.id
-                        ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500'
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                        ? 'border-2 border-blue-700 bg-gradient-to-b from-blue-50 to-blue-100 text-blue-900 shadow-[0_8px_16px_-10px_rgba(29,78,216,.7)] dark:border-blue-400 dark:from-blue-500/20 dark:to-blue-500/10 dark:text-blue-100'
+                        : 'wz-tile border border-slate-200 bg-white text-slate-700 hover:-translate-y-px dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
                     }`}
                   >
                     {item.label}
@@ -990,7 +990,7 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
               </div>
 
               {/* Vista previa en vivo del ticket térmico */}
-              <div className="p-4 bg-neutral-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-center max-h-[50vh] overflow-y-auto">
+              <div className="p-4 bg-slate-100 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 flex justify-center max-h-[50vh] overflow-y-auto">
                 <div
                   id="printable-ticket"
                   data-paper-width={testPaperWidth}
@@ -1132,14 +1132,14 @@ export const PrinterSettingsModal: React.FC<PrinterSettingsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center text-xs shrink-0">
-          <div className="text-slate-500 font-mono">
+        <div className="px-5 py-4 border-t border-slate-200/70 dark:border-slate-800 flex flex-wrap gap-3 justify-between items-center text-[13px] shrink-0">
+          <div className="text-slate-600 dark:text-slate-400">
             Formato activo: <strong className="text-slate-900 dark:text-white">{localDefaultPaper}</strong> · Rollos ESC/POS
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl font-bold transition-all cursor-pointer shadow-xs"
+            className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer disabled:opacity-50"
           >
             Cerrar
           </button>
