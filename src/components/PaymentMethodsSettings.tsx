@@ -429,13 +429,13 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-slate-800">
         <div>
-          <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <h3 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-amber-500" />
             <span>Panel de Configuración de Medios de Pago</span>
           </h3>
-          <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+          <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-0.5">
             Administre las opciones desplegables de Billeteras, Códigos QR, Llaves Bre-B, Datáfonos y políticas de cobro.
           </p>
         </div>
@@ -444,7 +444,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
           <button
             type="button"
             onClick={handleResetDefaults}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 gap-1.5"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Restablecer</span>
@@ -452,7 +452,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
           <button
             type="button"
             onClick={() => handleSubmit()}
-            className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 shadow-sm transition-all active:scale-98 cursor-pointer"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.6)] transition hover:-translate-y-px cursor-pointer dark:from-blue-500 dark:to-blue-600"
           >
             <Save className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>Guardar Cambios</span>
@@ -461,21 +461,21 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
       </div>
 
       {savedSuccess && (
-        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/80 rounded-xl text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
-          <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 font-black" />
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm font-semibold text-emerald-900 flex items-center gap-2 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
+          <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span>¡Configuración de medios de pago y pasarela guardada exitosamente!</span>
         </div>
       )}
 
       {/* Internal Sub-Tabs Navigation */}
-      <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 overflow-x-auto pb-1">
+      <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-900">
         <button
           type="button"
           onClick={() => setActiveSubTab('wallets')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold transition cursor-pointer ${
             activeSubTab === 'wallets'
-              ? 'bg-purple-600 text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           <Smartphone className="w-4 h-4" />
@@ -485,10 +485,10 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <button
           type="button"
           onClick={() => setActiveSubTab('qrs')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold transition cursor-pointer ${
             activeSubTab === 'qrs'
-              ? 'bg-amber-600 text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           <QrCode className="w-4 h-4" />
@@ -498,10 +498,10 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <button
           type="button"
           onClick={() => setActiveSubTab('bre_b')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold transition cursor-pointer ${
             activeSubTab === 'bre_b'
-              ? 'bg-teal-600 text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           <Zap className="w-4 h-4" />
@@ -511,10 +511,10 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <button
           type="button"
           onClick={() => setActiveSubTab('terminals')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold transition cursor-pointer ${
             activeSubTab === 'terminals'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           <CreditCard className="w-4 h-4" />
@@ -524,10 +524,10 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <button
           type="button"
           onClick={() => setActiveSubTab('bank_accounts')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold transition cursor-pointer ${
             activeSubTab === 'bank_accounts'
-              ? 'bg-indigo-600 text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           <Building2 className="w-4 h-4" />
@@ -537,10 +537,10 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <button
           type="button"
           onClick={() => setActiveSubTab('preferences')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex min-h-[44px] shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3.5 text-sm font-semibold transition cursor-pointer ${
             activeSubTab === 'preferences'
-              ? 'bg-slate-800 dark:bg-slate-700 text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+              : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
           }`}
         >
           <Sliders className="w-4 h-4" />
@@ -553,17 +553,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
                 Opciones de Billeteras Digitales
               </h4>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Aparecerán dentro del botón principal "Billeteras" en la pantalla de cobro.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowAddWallet(prev => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 border border-purple-200 dark:border-purple-800/60 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-purple-200 bg-purple-50 px-4 text-sm font-semibold text-purple-800 transition hover:bg-purple-100 cursor-pointer dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-200 dark:hover:bg-purple-500/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{showAddWallet ? 'Cancelar' : 'Nueva Billetera'}</span>
@@ -572,57 +572,57 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
           {/* Add Wallet Form */}
           {showAddWallet && (
-            <form onSubmit={handleCreateWallet} className="p-4 bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/60 rounded-2xl space-y-3">
-              <h5 className="font-bold text-xs text-purple-900 dark:text-purple-200">Agregar Billetera Digital</h5>
+            <form onSubmit={handleCreateWallet} className="rounded-2xl border border-purple-200 bg-purple-50 p-4 space-y-3 dark:border-purple-500/30 dark:bg-purple-500/10">
+              <h5 className="font-display text-base font-bold text-purple-900 dark:text-purple-100">Agregar Billetera Digital</h5>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Nombre (ej. Nequi, Daviplata, Dale)</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre (ej. Nequi, Daviplata, Dale)</label>
                   <input
                     type="text"
                     required
                     value={newWallet.name}
                     onChange={e => setNewWallet(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Nequi"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Número de Celular / Cuenta</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Número de Celular / Cuenta</label>
                   <input
                     type="text"
                     required
                     value={newWallet.phoneNumber}
                     onChange={e => setNewWallet(prev => ({ ...prev, phoneNumber: e.target.value }))}
                     placeholder="310 892 4511"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Nombre del Titular</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre del Titular</label>
                   <input
                     type="text"
                     value={newWallet.holderName}
                     onChange={e => setNewWallet(prev => ({ ...prev, holderName: e.target.value }))}
                     placeholder="Estacionamiento Central"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div className="sm:col-span-3">
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Imagen QR Digital (Opcional)</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Imagen QR Digital (Opcional)</label>
                   <div className="flex items-center gap-2.5">
                     {newWallet.qrImageUrl ? (
-                      <div className="relative group shrink-0 w-12 h-12 border border-slate-300 rounded-lg overflow-hidden bg-white">
+                      <div className="relative group shrink-0 w-12 h-12 border border-slate-300 rounded-xl overflow-hidden bg-white">
                         <img src={newWallet.qrImageUrl} alt="QR preview" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                         <button
                           type="button"
                           onClick={() => setNewWallet(prev => ({ ...prev, qrImageUrl: '' }))}
-                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer"
+                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity cursor-pointer"
                         >
                           Quitar
                         </button>
                       </div>
                     ) : (
-                      <div className="w-12 h-12 border border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-700 dark:text-slate-200 bg-slate-50 shrink-0">
+                      <div className="w-12 h-12 border border-dashed border-slate-300 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 shrink-0">
                         <QrCode className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </div>
                     )}
@@ -642,7 +642,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                     />
                     <label
                       htmlFor="new-wallet-qr"
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-lg text-[10px] font-bold cursor-pointer transition-colors"
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                     >
                       Cargar Imagen QR
                     </label>
@@ -653,13 +653,13 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddWallet(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-purple-600 hover:bg-purple-700"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-purple-600 to-purple-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.6)] transition hover:-translate-y-px cursor-pointer dark:from-purple-500 dark:to-purple-600"
                 >
                   Guardar Billetera
                 </button>
@@ -672,9 +672,9 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
             {localConfig.wallets.map((wallet) => (
               <div
                 key={wallet.id}
-                className={`p-3.5 rounded-2xl border transition-all ${
+                className={`p-4 rounded-2xl border transition ${
                   wallet.enabled
-                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs'
+                    ? 'wz-surface border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900'
                     : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 opacity-60'
                 }`}
               >
@@ -684,55 +684,55 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       e.preventDefault();
                       handleSaveEditWallet();
                     }}
-                    className="space-y-3 animate-in fade-in duration-100"
+                    className="space-y-3 motion-safe:animate-in motion-safe:fade-in duration-100"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Nombre</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre</label>
                         <input
                           type="text"
                           required
                           value={editWallet.name || ''}
                           onChange={e => setEditWallet(prev => ({ ...prev, name: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Celular / Cuenta</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Celular / Cuenta</label>
                         <input
                           type="text"
                           required
                           value={editWallet.phoneNumber || ''}
                           onChange={e => setEditWallet(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Titular</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Titular</label>
                         <input
                           type="text"
                           required
                           value={editWallet.holderName || ''}
                           onChange={e => setEditWallet(prev => ({ ...prev, holderName: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Código QR Digital</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Código QR Digital</label>
                         <div className="flex items-center gap-2.5">
                           {editWallet.qrImageUrl ? (
-                            <div className="relative group shrink-0 w-10 h-10 border border-slate-300 dark:border-slate-600 rounded bg-white overflow-hidden">
+                            <div className="relative group shrink-0 w-12 h-12 border border-slate-300 dark:border-slate-600 rounded-xl bg-white overflow-hidden">
                               <img src={editWallet.qrImageUrl} alt="QR preview" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                               <button
                                 type="button"
                                 onClick={() => setEditWallet(prev => ({ ...prev, qrImageUrl: '' }))}
-                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[8px] font-bold transition-opacity cursor-pointer"
+                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity cursor-pointer"
                               >
                                 Quitar
                               </button>
                             </div>
                           ) : (
-                            <div className="w-10 h-10 border border-dashed border-slate-300 dark:border-slate-700 rounded flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 shrink-0">
+                            <div className="w-12 h-12 border border-dashed border-slate-300 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 shrink-0">
                               <QrCode className="w-3.5 h-3.5 text-slate-400" />
                             </div>
                           )}
@@ -752,7 +752,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                           />
                           <label
                             htmlFor={`edit-wallet-qr-${wallet.id}`}
-                            className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                            className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             Cargar Imagen QR
                           </label>
@@ -763,14 +763,14 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       >
                         Cancelar
                       </button>
                       <button
                         type="button"
                         onClick={handleSaveEditWallet}
-                        className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-b from-purple-600 to-purple-700 px-3.5 text-sm font-bold text-white cursor-pointer transition hover:-translate-y-px dark:from-purple-500 dark:to-purple-600"
                       >
                         Guardar Cambios
                       </button>
@@ -779,28 +779,28 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 ) : (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-800 dark:bg-purple-500/15 dark:text-purple-200">
                         <Smartphone className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{wallet.name}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{wallet.name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-lg font-semibold ${
                             wallet.enabled
-                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-500/30'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                           }`}>
                             {wallet.enabled ? 'Activa' : 'Inactiva'}
                           </span>
                           {wallet.qrImageUrl && (
-                            <span className="text-[9px] bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                            <span className="text-xs bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
                               <QrCode className="w-2.5 h-2.5" />
                               <span>Con QR</span>
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 mt-0.5">
-                          {wallet.phoneNumber} • <span className="font-sans text-slate-500 dark:text-slate-400">{wallet.holderName}</span>
+                        <div className="text-[13px] font-mono tabular-nums text-slate-600 dark:text-slate-400 mt-0.5">
+                          {wallet.phoneNumber} • <span className="font-sans text-slate-600 dark:text-slate-400">{wallet.holderName}</span>
                         </div>
                       </div>
                     </div>
@@ -809,7 +809,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleStartEditWallet(wallet)}
-                        className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 cursor-pointer dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         title="Editar billetera"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -817,16 +817,16 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleToggleWallet(wallet.id)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                           wallet.enabled ? 'bg-purple-600' : 'bg-slate-300 dark:bg-slate-700'
                         }`}
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${wallet.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${wallet.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteWallet(wallet.id)}
-                        className="p-1 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-rose-50 hover:text-rose-700 cursor-pointer dark:text-slate-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                         title="Eliminar opción"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -845,17 +845,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
                 Opciones de Códigos QR Disponibles
               </h4>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Aparecerán dentro del botón principal "Códigos QR" en la liquidación.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowAddQr(prev => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800/60 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 cursor-pointer dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200 dark:hover:bg-amber-500/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{showAddQr ? 'Cancelar' : 'Nuevo Código QR'}</span>
@@ -864,67 +864,67 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
           {/* Add QR Form */}
           {showAddQr && (
-            <form onSubmit={handleCreateQr} className="p-4 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-2xl space-y-3">
-              <h5 className="font-bold text-xs text-amber-900 dark:text-amber-200">Registrar Nuevo Código QR</h5>
+            <form onSubmit={handleCreateQr} className="rounded-2xl border border-amber-200 bg-amber-50 p-4 space-y-3 dark:border-amber-500/30 dark:bg-amber-500/10">
+              <h5 className="font-display text-base font-bold text-amber-900 dark:text-amber-100">Registrar Nuevo Código QR</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Nombre Descriptivo</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre Descriptivo</label>
                   <input
                     type="text"
                     required
                     value={newQr.name}
                     onChange={e => setNewQr(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="QR Bancolombia / QR Redeban"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Banco o Red Emisora</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Banco o Red Emisora</label>
                   <input
                     type="text"
                     value={newQr.bankOrEntity}
                     onChange={e => setNewQr(prev => ({ ...prev, bankOrEntity: e.target.value }))}
                     placeholder="Bancolombia / Redeban"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Número de Cuenta o Código de Comercio</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Número de Cuenta o Código de Comercio</label>
                   <input
                     type="text"
                     required
                     value={newQr.accountNumber}
                     onChange={e => setNewQr(prev => ({ ...prev, accountNumber: e.target.value }))}
                     placeholder="Cta Ahorros: 458-923841-02"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Nombre del Titular</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre del Titular</label>
                   <input
                     type="text"
                     value={newQr.holderName}
                     onChange={e => setNewQr(prev => ({ ...prev, holderName: e.target.value }))}
                     placeholder="Estacionamiento Central SAS"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Imagen QR Digital (Opcional)</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Imagen QR Digital (Opcional)</label>
                   <div className="flex items-center gap-2.5">
                     {newQr.qrImageUrl ? (
-                      <div className="relative group shrink-0 w-12 h-12 border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden bg-white">
+                      <div className="relative group shrink-0 w-12 h-12 border border-slate-300 dark:border-slate-600 rounded-xl overflow-hidden bg-white">
                         <img src={newQr.qrImageUrl} alt="QR preview" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                         <button
                           type="button"
                           onClick={() => setNewQr(prev => ({ ...prev, qrImageUrl: '' }))}
-                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[9px] font-bold transition-opacity cursor-pointer"
+                          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity cursor-pointer"
                         >
                           Quitar
                         </button>
                       </div>
                     ) : (
-                      <div className="w-12 h-12 border border-dashed border-slate-300 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 shrink-0">
+                      <div className="w-12 h-12 border border-dashed border-slate-300 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 shrink-0">
                         <QrCode className="w-4 h-4 text-slate-400" />
                       </div>
                     )}
@@ -944,7 +944,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                     />
                     <label
                       htmlFor="new-qr-image"
-                      className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[10px] font-bold cursor-pointer transition-colors"
+                      className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                     >
                       Cargar Imagen QR
                     </label>
@@ -955,13 +955,13 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddQr(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-600 to-amber-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.6)] transition hover:-translate-y-px cursor-pointer dark:from-amber-500 dark:to-amber-600"
                 >
                   Guardar Código QR
                 </button>
@@ -974,9 +974,9 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
             {localConfig.qrCodes.map((qr) => (
               <div
                 key={qr.id}
-                className={`p-3.5 rounded-2xl border transition-all ${
+                className={`p-4 rounded-2xl border transition ${
                   qr.enabled
-                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs'
+                    ? 'wz-surface border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900'
                     : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 opacity-60'
                 }`}
               >
@@ -986,65 +986,65 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       e.preventDefault();
                       handleSaveEditQr();
                     }}
-                    className="space-y-3 animate-in fade-in duration-100"
+                    className="space-y-3 motion-safe:animate-in motion-safe:fade-in duration-100"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Nombre Descriptivo</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre Descriptivo</label>
                         <input
                           type="text"
                           required
                           value={editQr.name || ''}
                           onChange={e => setEditQr(prev => ({ ...prev, name: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Banco o Entidad</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Banco o Entidad</label>
                         <input
                           type="text"
                           required
                           value={editQr.bankOrEntity || ''}
                           onChange={e => setEditQr(prev => ({ ...prev, bankOrEntity: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">N° Cuenta o Comercio</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">N° Cuenta o Comercio</label>
                         <input
                           type="text"
                           required
                           value={editQr.accountNumber || ''}
                           onChange={e => setEditQr(prev => ({ ...prev, accountNumber: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Titular</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Titular</label>
                         <input
                           type="text"
                           required
                           value={editQr.holderName || ''}
                           onChange={e => setEditQr(prev => ({ ...prev, holderName: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Imagen QR Digital</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Imagen QR Digital</label>
                         <div className="flex items-center gap-2.5">
                           {editQr.qrImageUrl ? (
-                            <div className="relative group shrink-0 w-10 h-10 border border-slate-300 dark:border-slate-600 rounded bg-white overflow-hidden">
+                            <div className="relative group shrink-0 w-12 h-12 border border-slate-300 dark:border-slate-600 rounded-xl bg-white overflow-hidden">
                               <img src={editQr.qrImageUrl} alt="QR preview" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
                               <button
                                 type="button"
                                 onClick={() => setEditQr(prev => ({ ...prev, qrImageUrl: '' }))}
-                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[8px] font-bold transition-opacity cursor-pointer"
+                                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity cursor-pointer"
                               >
                                 Quitar
                               </button>
                             </div>
                           ) : (
-                            <div className="w-10 h-10 border border-dashed border-slate-300 dark:border-slate-700 rounded flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 shrink-0">
+                            <div className="w-12 h-12 border border-dashed border-slate-300 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 shrink-0">
                               <QrCode className="w-3.5 h-3.5 text-slate-400" />
                             </div>
                           )}
@@ -1064,7 +1064,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                           />
                           <label
                             htmlFor={`edit-qr-img-${qr.id}`}
-                            className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                            className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                           >
                             Cargar Imagen QR
                           </label>
@@ -1075,14 +1075,14 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       >
                         Cancelar
                       </button>
                       <button
                         type="button"
                         onClick={handleSaveEditQr}
-                        className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-b from-amber-600 to-amber-700 px-3.5 text-sm font-bold text-white cursor-pointer transition hover:-translate-y-px dark:from-amber-500 dark:to-amber-600"
                       >
                         Guardar Cambios
                       </button>
@@ -1091,28 +1091,28 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 ) : (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center justify-center shrink-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-200">
                         <QrCode className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{qr.name}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{qr.name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-lg font-semibold ${
                             qr.enabled
-                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-500/30'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                           }`}>
                             {qr.enabled ? 'Activo' : 'Inactivo'}
                           </span>
                           {qr.qrImageUrl && (
-                            <span className="text-[9px] bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 font-extrabold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                            <span className="text-xs bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
                               <QrCode className="w-2.5 h-2.5" />
                               <span>Con QR</span>
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 mt-0.5">
-                          {qr.accountNumber} • <span className="font-sans text-slate-500 dark:text-slate-400">{qr.bankOrEntity}</span>
+                        <div className="text-[13px] font-mono tabular-nums text-slate-600 dark:text-slate-400 mt-0.5">
+                          {qr.accountNumber} • <span className="font-sans text-slate-600 dark:text-slate-400">{qr.bankOrEntity}</span>
                         </div>
                       </div>
                     </div>
@@ -1121,7 +1121,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleStartEditQr(qr)}
-                        className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 cursor-pointer dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         title="Editar código QR"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -1129,16 +1129,16 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleToggleQr(qr.id)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                           qr.enabled ? 'bg-amber-600' : 'bg-slate-300 dark:bg-slate-700'
                         }`}
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${qr.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${qr.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteQr(qr.id)}
-                        className="p-1 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-rose-50 hover:text-rose-700 cursor-pointer dark:text-slate-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                         title="Eliminar opción"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1157,17 +1157,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
                 Llaves Interoperables Bre-B (Banco de la República)
               </h4>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Sistema nacional de pagos instantáneos en Colombia. Aparecerán dentro del botón "Llave Bre-B".
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowAddBreB(prev => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/40 border border-teal-200 dark:border-teal-800/60 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-4 text-sm font-semibold text-teal-800 transition hover:bg-teal-100 cursor-pointer dark:border-teal-500/30 dark:bg-teal-500/10 dark:text-teal-200 dark:hover:bg-teal-500/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{showAddBreB ? 'Cancelar' : 'Nueva Llave Bre-B'}</span>
@@ -1176,15 +1176,15 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
           {/* Add Bre-B Form */}
           {showAddBreB && (
-            <form onSubmit={handleCreateBreB} className="p-4 bg-teal-50/70 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800/60 rounded-2xl space-y-3">
-              <h5 className="font-bold text-xs text-teal-900 dark:text-teal-200">Registrar Llave Bre-B</h5>
+            <form onSubmit={handleCreateBreB} className="rounded-2xl border border-teal-200 bg-teal-50 p-4 space-y-3 dark:border-teal-500/30 dark:bg-teal-500/10">
+              <h5 className="font-display text-base font-bold text-teal-900 dark:text-teal-100">Registrar Llave Bre-B</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Tipo de Llave</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Tipo de Llave</label>
                   <select
                     value={newBreB.keyType}
                     onChange={e => setNewBreB(prev => ({ ...prev, keyType: e.target.value as any }))}
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="phone" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Número Celular</option>
                     <option value="national_id" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Cédula / NIT</option>
@@ -1193,35 +1193,35 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Valor de la Llave</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Valor de la Llave</label>
                   <input
                     type="text"
                     required
                     value={newBreB.keyValue}
                     onChange={e => setNewBreB(prev => ({ ...prev, keyValue: e.target.value }))}
                     placeholder="3108924511 o NIT"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Entidad Bancaria Aliada</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Entidad Bancaria Aliada</label>
                   <input
                     type="text"
                     required
                     value={newBreB.registeredEntity}
                     onChange={e => setNewBreB(prev => ({ ...prev, registeredEntity: e.target.value }))}
                     placeholder="Bancolombia / Davivienda / Nequi"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Titular</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Titular</label>
                   <input
                     type="text"
                     value={newBreB.holderName}
                     onChange={e => setNewBreB(prev => ({ ...prev, holderName: e.target.value }))}
                     placeholder="Estacionamiento Central SAS"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
               </div>
@@ -1229,13 +1229,13 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddBreB(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-teal-600 to-teal-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.6)] transition hover:-translate-y-px cursor-pointer dark:from-teal-500 dark:to-teal-600"
                 >
                   Guardar Llave Bre-B
                 </button>
@@ -1248,9 +1248,9 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
             {localConfig.breBKeys.map((key) => (
               <div
                 key={key.id}
-                className={`p-3.5 rounded-2xl border transition-all ${
+                className={`p-4 rounded-2xl border transition ${
                   key.enabled
-                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs'
+                    ? 'wz-surface border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900'
                     : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 opacity-60'
                 }`}
               >
@@ -1260,14 +1260,14 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       e.preventDefault();
                       handleSaveEditBreB();
                     }}
-                    className="space-y-2.5 animate-in fade-in duration-100"
+                    className="space-y-3 motion-safe:animate-in motion-safe:fade-in duration-100"
                   >
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Tipo de Llave</label>
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Tipo de Llave</label>
                       <select
                         value={editBreB.keyType || 'phone'}
                         onChange={e => setEditBreB(prev => ({ ...prev, keyType: e.target.value as any }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                        className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       >
                         <option value="phone" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Número Celular</option>
                         <option value="national_id" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Cédula / NIT</option>
@@ -1276,47 +1276,47 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Valor de la Llave</label>
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Valor de la Llave</label>
                       <input
                         type="text"
                         required
                         value={editBreB.keyValue || ''}
                         onChange={e => setEditBreB(prev => ({ ...prev, keyValue: e.target.value }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-slate-900 dark:text-slate-100"
+                        className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Entidad Bancaria</label>
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Entidad Bancaria</label>
                       <input
                         type="text"
                         required
                         value={editBreB.registeredEntity || ''}
                         onChange={e => setEditBreB(prev => ({ ...prev, registeredEntity: e.target.value }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                        className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Titular</label>
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Titular</label>
                       <input
                         type="text"
                         required
                         value={editBreB.holderName || ''}
                         onChange={e => setEditBreB(prev => ({ ...prev, holderName: e.target.value }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                        className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
                     <div className="flex justify-end gap-1.5 pt-1">
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       >
                         Cancelar
                       </button>
                       <button
                         type="button"
                         onClick={handleSaveEditBreB}
-                        className="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-b from-teal-600 to-teal-700 px-3.5 text-sm font-bold text-white cursor-pointer transition hover:-translate-y-px dark:from-teal-500 dark:to-teal-600"
                       >
                         Guardar Cambios
                       </button>
@@ -1325,17 +1325,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 ) : (
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 flex items-center justify-center shrink-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-200">
                         <Zap className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{key.keyTypeName}</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{key.keyTypeName}</span>
                         </div>
-                        <div className="text-xs font-bold font-mono text-teal-900 dark:text-teal-300 mt-0.5">
+                        <div className="text-sm font-bold font-mono tabular-nums text-teal-900 dark:text-teal-200 mt-0.5">
                           {key.keyValue}
                         </div>
-                        <div className="text-[10px] text-slate-600 dark:text-slate-400">
+                        <div className="text-xs text-slate-600 dark:text-slate-400">
                           {key.registeredEntity} • {key.holderName}
                         </div>
                       </div>
@@ -1345,7 +1345,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleStartEditBreB(key)}
-                        className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 cursor-pointer dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         title="Editar llave"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -1353,16 +1353,16 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleToggleBreB(key.id)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                           key.enabled ? 'bg-teal-600' : 'bg-slate-300 dark:bg-slate-700'
                         }`}
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${key.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${key.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteBreB(key.id)}
-                        className="p-1 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-rose-50 hover:text-rose-700 cursor-pointer dark:text-slate-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                         title="Eliminar llave"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1381,17 +1381,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
                 Datáfonos y Terminales de Pago con Tarjeta
               </h4>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Dispositivos POS autorizados para cobro con tarjeta Débito / Crédito.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowAddTerminal(prev => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800/60 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 text-sm font-semibold text-blue-800 transition hover:bg-blue-100 cursor-pointer dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{showAddTerminal ? 'Cancelar' : 'Nuevo Datáfono'}</span>
@@ -1400,28 +1400,28 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
           {/* Add Terminal Form */}
           {showAddTerminal && (
-            <form onSubmit={handleCreateTerminal} className="p-4 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/60 rounded-2xl space-y-3">
-              <h5 className="font-bold text-xs text-blue-900 dark:text-blue-200">Registrar Datáfono</h5>
+            <form onSubmit={handleCreateTerminal} className="rounded-2xl border border-blue-200 bg-blue-50 p-4 space-y-3 dark:border-blue-500/30 dark:bg-blue-500/10">
+              <h5 className="font-display text-base font-bold text-blue-900 dark:text-blue-100">Registrar Datáfono</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Nombre o Red (Redeban, Bold, Credibanco)</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre o Red (Redeban, Bold, Credibanco)</label>
                   <input
                     type="text"
                     required
                     value={newTerminal.name}
                     onChange={e => setNewTerminal(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="Datáfono Bold Móvil"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Número Serial / Identificador</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Número Serial / Identificador</label>
                   <input
                     type="text"
                     value={newTerminal.serialNumber}
                     onChange={e => setNewTerminal(prev => ({ ...prev, serialNumber: e.target.value }))}
                     placeholder="BLD-10294"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-slate-100 outline-none"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                   />
                 </div>
               </div>
@@ -1429,13 +1429,13 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowAddTerminal(false)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.6)] transition hover:-translate-y-px cursor-pointer dark:from-blue-500 dark:to-blue-600"
                 >
                   Guardar Datáfono
                 </button>
@@ -1448,9 +1448,9 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
             {localConfig.terminals.map((term) => (
               <div
                 key={term.id}
-                className={`p-3.5 rounded-2xl border transition-all ${
+                className={`p-4 rounded-2xl border transition ${
                   term.enabled
-                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs'
+                    ? 'wz-surface border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900'
                     : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 opacity-60'
                 }`}
               >
@@ -1460,39 +1460,39 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       e.preventDefault();
                       handleSaveEditTerminal();
                     }}
-                    className="space-y-2.5 animate-in fade-in duration-100"
+                    className="space-y-3 motion-safe:animate-in motion-safe:fade-in duration-100"
                   >
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Nombre / Red</label>
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Nombre / Red</label>
                       <input
                         type="text"
                         required
                         value={editTerminal.name || ''}
                         onChange={e => setEditTerminal(prev => ({ ...prev, name: e.target.value }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs text-slate-900 dark:text-slate-100"
+                        className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Número Serial / Identificador</label>
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Número Serial / Identificador</label>
                       <input
                         type="text"
                         value={editTerminal.serialNumber || ''}
                         onChange={e => setEditTerminal(prev => ({ ...prev, serialNumber: e.target.value }))}
-                        className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-slate-900 dark:text-slate-100"
+                        className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                       />
                     </div>
                     <div className="flex justify-end gap-1.5 pt-1">
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       >
                         Cancelar
                       </button>
                       <button
                         type="button"
                         onClick={handleSaveEditTerminal}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-b from-blue-600 to-blue-700 px-3.5 text-sm font-bold text-white cursor-pointer transition hover:-translate-y-px dark:from-blue-500 dark:to-blue-600"
                       >
                         Guardar Cambios
                       </button>
@@ -1501,22 +1501,22 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 ) : (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 flex items-center justify-center shrink-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-200">
                         <CreditCard className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{term.name}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold ${
+                          <span className="text-sm font-bold text-slate-900 dark:text-slate-100">{term.name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-lg font-semibold ${
                             term.enabled
-                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-500/30'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                           }`}>
                             {term.enabled ? 'Activo' : 'Inactivo'}
                           </span>
                         </div>
                         {term.serialNumber && (
-                          <div className="text-[11px] font-mono text-slate-600 dark:text-slate-400 mt-0.5">
+                          <div className="text-[13px] font-mono tabular-nums text-slate-600 dark:text-slate-400 mt-0.5">
                             Serial: {term.serialNumber}
                           </div>
                         )}
@@ -1527,7 +1527,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleStartEditTerminal(term)}
-                        className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 cursor-pointer dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         title="Editar datáfono"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -1535,16 +1535,16 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleToggleTerminal(term.id)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                           term.enabled ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-700'
                         }`}
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${term.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${term.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteTerminal(term.id)}
-                        className="p-1 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-rose-50 hover:text-rose-700 cursor-pointer dark:text-slate-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                         title="Eliminar datáfono"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -1563,17 +1563,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+              <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
                 Cuentas Bancarias para Transferencia Directa
               </h4>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Administre las cuentas bancarias autorizadas para recibir pagos por transferencia. Puede montar el código QR de cada una.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowAddBankAccount(prev => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-semibold text-indigo-800 transition hover:bg-indigo-100 cursor-pointer dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-200 dark:hover:bg-indigo-500/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>{showAddBankAccount ? 'Cancelar' : 'Nueva Cuenta Bancaria'}</span>
@@ -1582,77 +1582,77 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
           {/* Add Bank Account Form */}
           {showAddBankAccount && (
-            <form onSubmit={handleCreateBankAccount} className="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/80 rounded-2xl space-y-3 animate-in slide-in-from-top-2 duration-150">
-              <h5 className="text-xs font-bold text-indigo-900 dark:text-indigo-200">Registrar Nueva Cuenta Bancaria</h5>
+            <form onSubmit={handleCreateBankAccount} className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 space-y-3 dark:border-indigo-500/30 dark:bg-indigo-500/10 motion-safe:animate-in motion-safe:slide-in-from-top-2 duration-150">
+              <h5 className="font-display text-base font-bold text-indigo-900 dark:text-indigo-100">Registrar Nueva Cuenta Bancaria</h5>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Entidad Bancaria</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Entidad Bancaria</label>
                   <input
                     type="text"
                     required
                     value={newBankAccount.bankName || ''}
                     onChange={e => setNewBankAccount(prev => ({ ...prev, bankName: e.target.value }))}
                     placeholder="e.g. Bancolombia, Banco de Bogotá"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Tipo de Cuenta</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Tipo de Cuenta</label>
                   <select
                     value={newBankAccount.accountType || 'savings'}
                     onChange={e => setNewBankAccount(prev => ({ ...prev, accountType: e.target.value as 'savings' | 'checking' }))}
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="savings">Ahorros</option>
                     <option value="checking">Corriente</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Número de Cuenta</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Número de Cuenta</label>
                   <input
                     type="text"
                     required
                     value={newBankAccount.accountNumber || ''}
                     onChange={e => setNewBankAccount(prev => ({ ...prev, accountNumber: e.target.value }))}
                     placeholder="e.g. 458-923841-02"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 font-mono text-slate-900 dark:text-slate-100"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Titular de la Cuenta</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Titular de la Cuenta</label>
                   <input
                     type="text"
                     value={newBankAccount.holderName || ''}
                     onChange={e => setNewBankAccount(prev => ({ ...prev, holderName: e.target.value }))}
                     placeholder="e.g. Estacionamiento Central SAS"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">Documento / NIT</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Documento / NIT</label>
                   <input
                     type="text"
                     value={newBankAccount.holderId || ''}
                     onChange={e => setNewBankAccount(prev => ({ ...prev, holderId: e.target.value }))}
                     placeholder="e.g. NIT 901.458.723-1"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">URL de Código QR (Opcional)</label>
+                  <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">URL de Código QR (Opcional)</label>
                   <input
                     type="text"
                     value={newBankAccount.qrImageUrl || ''}
                     onChange={e => setNewBankAccount(prev => ({ ...prev, qrImageUrl: e.target.value }))}
                     placeholder="https://ejemplo.com/qr-cuenta.png"
-                    className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-1.5 outline-none focus:border-indigo-500 text-slate-900 dark:text-slate-100"
+                    className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
               </div>
 
               {/* Upload QR Digital Image File */}
-              <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-dashed border-indigo-200 dark:border-indigo-800/60">
-                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-200 mb-1">Cargar Imagen Digital de Código QR</label>
+              <div className="rounded-xl border border-dashed border-indigo-200 bg-white p-3 dark:border-indigo-500/30 dark:bg-slate-800/80">
+                <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Cargar Imagen Digital de Código QR</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
@@ -1664,20 +1664,20 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                         });
                       }
                     }}
-                    className="text-xs text-slate-600 dark:text-slate-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/70 cursor-pointer"
+                    className="text-sm text-slate-600 dark:text-slate-400 file:mr-3 file:min-h-[40px] file:rounded-xl file:border-0 file:px-3 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-500/15 file:text-indigo-800 dark:file:text-indigo-200 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-500/25 cursor-pointer"
                   />
                   {newBankAccount.qrImageUrl && (
                     <div className="flex items-center gap-2">
                       <img
                         src={newBankAccount.qrImageUrl}
                         alt="Previsualización"
-                        className="w-8 h-8 rounded border object-contain bg-white"
+                        className="w-8 h-8 rounded-lg border object-contain bg-white"
                         referrerPolicy="no-referrer"
                       />
                       <button
                         type="button"
                         onClick={() => setNewBankAccount(prev => ({ ...prev, qrImageUrl: '' }))}
-                        className="text-[10px] font-bold text-red-500 hover:underline cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-rose-700 hover:underline cursor-pointer dark:text-rose-300"
                       >
                         Quitar QR
                       </button>
@@ -1687,18 +1687,18 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
               </div>
 
               {/* PSE Integration Settings for this account */}
-              <div className="bg-blue-50/70 dark:bg-blue-950/30 p-3 rounded-xl border border-blue-200 dark:border-blue-900/80 space-y-3">
+              <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 space-y-3 dark:border-blue-500/30 dark:bg-blue-500/10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <img src="/pse_logo.png" alt="PSE" className="w-5 h-5 rounded-full object-contain bg-white p-0.5" />
-                    <span className="text-xs font-bold text-blue-950 dark:text-blue-200">Integración de Pagos PSE para esta Cuenta</span>
+                    <span className="text-sm font-bold text-blue-900 dark:text-blue-200">Integración de Pagos PSE para esta Cuenta</span>
                   </div>
-                  <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-blue-900 dark:text-blue-300">
+                  <label className="flex min-h-[44px] items-center gap-2 cursor-pointer text-sm font-semibold text-blue-900 dark:text-blue-200">
                     <input
                       type="checkbox"
                       checked={newBankAccount.enablePse ?? true}
                       onChange={e => setNewBankAccount(prev => ({ ...prev, enablePse: e.target.checked }))}
-                      className="rounded text-blue-600 focus:ring-blue-500"
+                      className="h-5 w-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <span>Habilitar PSE</span>
                   </label>
@@ -1706,7 +1706,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">
                       Enlace de Pago PSE (URL Portal)
                     </label>
                     <input
@@ -1714,11 +1714,11 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       value={newBankAccount.pseUrl || ''}
                       onChange={e => setNewBankAccount(prev => ({ ...prev, pseUrl: e.target.value }))}
                       placeholder="https://www.pse.com.co/pago-en-linea"
-                      className="w-full bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-800 rounded-lg px-3 py-1.5 outline-none focus:border-blue-500 font-mono text-[11px] text-slate-900 dark:text-slate-100"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                    <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">
                       URL de Código QR PSE (Opcional)
                     </label>
                     <input
@@ -1726,14 +1726,14 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       value={newBankAccount.pseQrUrl || ''}
                       onChange={e => setNewBankAccount(prev => ({ ...prev, pseQrUrl: e.target.value }))}
                       placeholder="/pse_logo.png o URL externa"
-                      className="w-full bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-800 rounded-lg px-3 py-1.5 outline-none focus:border-blue-500 font-mono text-[11px] text-slate-900 dark:text-slate-100"
+                      className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                     />
                   </div>
                 </div>
 
                 {/* Subir archivo de imagen QR PSE */}
-                <div className="flex items-center gap-3 pt-1 border-t border-blue-100 dark:border-blue-900/60">
-                  <label className="text-[11px] font-semibold text-blue-900 dark:text-blue-300 shrink-0">Subir QR de PSE:</label>
+                <div className="flex items-center gap-3 pt-2 border-t border-blue-200/70 dark:border-blue-500/20">
+                  <label className="text-[13px] font-medium text-blue-900 dark:text-blue-200 shrink-0">Subir QR de PSE:</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -1744,20 +1744,20 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                         });
                       }
                     }}
-                    className="text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:py-0.5 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:font-semibold file:bg-blue-100 dark:file:bg-blue-900/50 file:text-blue-800 dark:file:text-blue-200 hover:file:bg-blue-200 dark:hover:file:bg-blue-900/80 cursor-pointer"
+                    className="text-sm text-slate-600 dark:text-slate-400 file:mr-3 file:min-h-[40px] file:rounded-xl file:border-0 file:px-3 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-500/15 file:text-blue-800 dark:file:text-blue-200 hover:file:bg-blue-100 dark:hover:file:bg-blue-500/25 cursor-pointer"
                   />
                   {newBankAccount.pseQrUrl && (
                     <div className="flex items-center gap-1.5 shrink-0">
                       <img
                         src={newBankAccount.pseQrUrl}
                         alt="QR PSE"
-                        className="w-6 h-6 rounded border object-contain bg-white"
+                        className="w-6 h-6 rounded-lg border object-contain bg-white"
                         referrerPolicy="no-referrer"
                       />
                       <button
                         type="button"
                         onClick={() => setNewBankAccount(prev => ({ ...prev, pseQrUrl: '' }))}
-                        className="text-[10px] font-bold text-red-500 hover:underline cursor-pointer"
+                        className="inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-rose-700 hover:underline cursor-pointer dark:text-rose-300"
                       >
                         Quitar
                       </button>
@@ -1769,7 +1769,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
               <div className="flex justify-end gap-2 pt-1">
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-98 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-indigo-600 to-indigo-700 px-4 text-sm font-bold text-white shadow-[0_10px_20px_-12px_rgba(15,23,42,.6)] transition hover:-translate-y-px cursor-pointer dark:from-indigo-500 dark:to-indigo-600"
                 >
                   Registrar Cuenta
                 </button>
@@ -1782,10 +1782,10 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
             {localConfig.bankAccounts.map((account) => (
               <div
                 key={account.id}
-                className={`p-4 rounded-2xl border transition-all ${
+                className={`p-4 rounded-2xl border transition ${
                   account.enabled
-                    ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xs'
-                    : 'bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800/60 opacity-60'
+                    ? 'wz-surface border-slate-900/[0.06] bg-white shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900'
+                    : 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 opacity-60'
                 }`}
               >
                 {editingId === account.id ? (
@@ -1794,72 +1794,72 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       e.preventDefault();
                       handleSaveEditBankAccount();
                     }}
-                    className="space-y-3 animate-in fade-in duration-100"
+                    className="space-y-3 motion-safe:animate-in motion-safe:fade-in duration-100"
                   >
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Banco</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Banco</label>
                         <input
                           type="text"
                           required
                           value={editBankAccount.bankName || ''}
                           onChange={e => setEditBankAccount(prev => ({ ...prev, bankName: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Tipo</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Tipo</label>
                         <select
                           value={editBankAccount.accountType || 'savings'}
                           onChange={e => setEditBankAccount(prev => ({ ...prev, accountType: e.target.value as 'savings' | 'checking' }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         >
                           <option value="savings">Ahorros</option>
                           <option value="checking">Corriente</option>
                         </select>
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">N° Cuenta</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">N° Cuenta</label>
                         <input
                           type="text"
                           required
                           value={editBankAccount.accountNumber || ''}
                           onChange={e => setEditBankAccount(prev => ({ ...prev, accountNumber: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs font-mono text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Titular</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Titular</label>
                         <input
                           type="text"
                           value={editBankAccount.holderName || ''}
                           onChange={e => setEditBankAccount(prev => ({ ...prev, holderName: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Documento / NIT</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Documento / NIT</label>
                         <input
                           type="text"
                           value={editBankAccount.holderId || ''}
                           onChange={e => setEditBankAccount(prev => ({ ...prev, holderId: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">URL QR</label>
+                        <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">URL QR</label>
                         <input
                           type="text"
                           value={editBankAccount.qrImageUrl || ''}
                           onChange={e => setEditBankAccount(prev => ({ ...prev, qrImageUrl: e.target.value }))}
-                          className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs text-slate-900 dark:text-slate-100"
+                          className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                     </div>
 
                     {/* QR upload in edit */}
-                    <div className="bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
-                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Actualizar Imagen QR</label>
+                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 dark:border-slate-600 dark:bg-slate-800/60">
+                      <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Actualizar Imagen QR</label>
                       <div className="flex items-center gap-2">
                         <input
                           type="file"
@@ -1871,20 +1871,20 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                               });
                             }
                           }}
-                          className="text-[10px] text-slate-600 dark:text-slate-300 file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:bg-indigo-50 dark:file:bg-indigo-900/50 file:text-indigo-700 dark:file:text-indigo-300 cursor-pointer"
+                          className="text-sm text-slate-600 dark:text-slate-400 file:mr-3 file:min-h-[40px] file:rounded-xl file:border-0 file:px-3 file:text-sm file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-500/15 file:text-indigo-800 dark:file:text-indigo-200 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-500/25 cursor-pointer"
                         />
                         {editBankAccount.qrImageUrl && (
                           <div className="flex items-center gap-1.5 shrink-0">
                             <img
                               src={editBankAccount.qrImageUrl}
                               alt="QR"
-                              className="w-6 h-6 border object-contain bg-white rounded"
+                              className="w-6 h-6 border object-contain bg-white rounded-lg"
                               referrerPolicy="no-referrer"
                             />
                             <button
                               type="button"
                               onClick={() => setEditBankAccount(prev => ({ ...prev, qrImageUrl: '' }))}
-                              className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                              className="inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-rose-700 hover:underline cursor-pointer dark:text-rose-300"
                             >
                               Quitar
                             </button>
@@ -1894,18 +1894,18 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                     </div>
 
                     {/* PSE configuration in edit */}
-                    <div className="bg-blue-50/70 dark:bg-blue-950/30 p-2.5 rounded-lg border border-blue-200 dark:border-blue-900/80 space-y-2">
+                    <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 space-y-3 dark:border-blue-500/30 dark:bg-blue-500/10">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
                           <img src="/pse_logo.png" alt="PSE" className="w-4 h-4 rounded-full object-contain bg-white p-0.5" />
-                          <span className="text-[11px] font-bold text-blue-950 dark:text-blue-200">Configuración PSE</span>
+                          <span className="text-sm font-bold text-blue-900 dark:text-blue-200">Configuración PSE</span>
                         </div>
-                        <label className="flex items-center gap-1 cursor-pointer text-[10px] font-semibold text-blue-900 dark:text-blue-300">
+                        <label className="flex min-h-[44px] items-center gap-2 cursor-pointer text-sm font-semibold text-blue-900 dark:text-blue-200">
                           <input
                             type="checkbox"
                             checked={editBankAccount.enablePse ?? true}
                             onChange={e => setEditBankAccount(prev => ({ ...prev, enablePse: e.target.checked }))}
-                            className="rounded text-blue-600"
+                            className="h-5 w-5 rounded text-blue-600 cursor-pointer"
                           />
                           <span>PSE Activo</span>
                         </label>
@@ -1913,29 +1913,29 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">Enlace Pago PSE</label>
+                          <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">Enlace Pago PSE</label>
                           <input
                             type="url"
                             value={editBankAccount.pseUrl || ''}
                             onChange={e => setEditBankAccount(prev => ({ ...prev, pseUrl: e.target.value }))}
                             placeholder="https://..."
-                            className="w-full bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-800 rounded px-2 py-1 text-[11px] font-mono text-slate-900 dark:text-slate-100"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                           />
                         </div>
                         <div>
-                          <label className="block text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-0.5">URL QR PSE</label>
+                          <label className="mb-1 block text-[13px] font-medium text-slate-600 dark:text-slate-400">URL QR PSE</label>
                           <input
                             type="text"
                             value={editBankAccount.pseQrUrl || ''}
                             onChange={e => setEditBankAccount(prev => ({ ...prev, pseQrUrl: e.target.value }))}
                             placeholder="/pse_logo.png o URL"
-                            className="w-full bg-white dark:bg-slate-800 border border-blue-300 dark:border-blue-800 rounded px-2 py-1 text-[11px] font-mono text-slate-900 dark:text-slate-100"
+                            className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 font-mono tabular-nums"
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-1 border-t border-blue-100 dark:border-blue-900/60">
-                        <label className="text-[9px] font-bold text-blue-900 dark:text-blue-300 shrink-0">Subir QR PSE:</label>
+                      <div className="flex items-center gap-2 pt-2 border-t border-blue-200/70 dark:border-blue-500/20">
+                        <label className="text-[13px] font-medium text-blue-900 dark:text-blue-200 shrink-0">Subir QR PSE:</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -1946,20 +1946,20 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                               });
                             }
                           }}
-                          className="text-[9px] text-slate-600 dark:text-slate-300 file:mr-1.5 file:py-0.5 file:px-1.5 file:rounded file:border-0 file:bg-blue-100 dark:file:bg-blue-900/50 file:text-blue-800 dark:file:text-blue-200 cursor-pointer"
+                          className="text-sm text-slate-600 dark:text-slate-400 file:mr-3 file:min-h-[40px] file:rounded-xl file:border-0 file:px-3 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-500/15 file:text-blue-800 dark:file:text-blue-200 hover:file:bg-blue-100 dark:hover:file:bg-blue-500/25 cursor-pointer"
                         />
                         {editBankAccount.pseQrUrl && (
                           <div className="flex items-center gap-1 shrink-0">
                             <img
                               src={editBankAccount.pseQrUrl}
                               alt="QR PSE"
-                              className="w-5 h-5 border object-contain bg-white rounded"
+                              className="w-5 h-5 border object-contain bg-white rounded-lg"
                               referrerPolicy="no-referrer"
                             />
                             <button
                               type="button"
                               onClick={() => setEditBankAccount(prev => ({ ...prev, pseQrUrl: '' }))}
-                              className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                              className="inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-rose-700 hover:underline cursor-pointer dark:text-rose-300"
                             >
                               Quitar
                             </button>
@@ -1972,13 +1972,13 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded text-[10px] font-bold cursor-pointer transition-colors"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 cursor-pointer dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       >
                         Cancelar
                       </button>
                       <button
                         type="submit"
-                        className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold cursor-pointer transition-colors"
+                        className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-gradient-to-b from-indigo-600 to-indigo-700 px-3.5 text-sm font-bold text-white cursor-pointer transition hover:-translate-y-px dark:from-indigo-500 dark:to-indigo-600"
                       >
                         Guardar Cambios
                       </button>
@@ -1987,34 +1987,34 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 ) : (
                   <div className="flex items-start justify-between gap-2.5">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/60">
+                      <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-800 dark:text-indigo-200 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-500/30">
                         <Building2 className="w-5 h-5" />
                       </div>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-slate-900 dark:text-slate-100">{account.bankName}</span>
-                          <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase border ${
+                          <span className="font-display text-base font-bold text-slate-900 dark:text-slate-100">{account.bankName}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-lg font-semibold border ${
                             account.accountType === 'savings'
-                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800/60'
-                              : 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800/60'
+                              ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-900 dark:text-amber-200 border-amber-200 dark:border-amber-500/30'
+                              : 'bg-blue-50 dark:bg-blue-500/10 text-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-500/30'
                           }`}>
                             {account.accountType === 'savings' ? 'Ahorros' : 'Corriente'}
                           </span>
                         </div>
-                        <div className="text-xs font-semibold text-slate-800 dark:text-slate-200 font-mono">
+                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 font-mono tabular-nums">
                           N°: {account.accountNumber}
                         </div>
-                        <div className="text-[11px] text-slate-600 dark:text-slate-300">
-                          Titular: <span className="font-medium text-slate-700 dark:text-slate-200">{account.holderName}</span>
+                        <div className="text-[13px] text-slate-600 dark:text-slate-400">
+                          Titular: <span className="font-medium text-slate-800 dark:text-slate-100">{account.holderName}</span>
                         </div>
                         {account.holderId && (
-                          <div className="text-[10px] text-slate-700 dark:text-slate-200 font-mono">
+                          <div className="text-xs text-slate-700 dark:text-slate-200 font-mono tabular-nums">
                             Doc: {account.holderId}
                           </div>
                         )}
                         {account.qrImageUrl && (
                           <div className="pt-1.5 flex items-center gap-2">
-                            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1">
+                            <span className="text-xs text-indigo-700 dark:text-indigo-300 font-semibold flex items-center gap-1">
                               <QrCode className="w-3.5 h-3.5" />
                               Código QR Vinculado
                             </span>
@@ -2022,7 +2022,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                               <img
                                 src={account.qrImageUrl}
                                 alt="QR Bancario"
-                                className="w-8 h-8 rounded border object-contain bg-white cursor-zoom-in hover:scale-150 transition-transform origin-left duration-200"
+                                className="w-8 h-8 rounded-lg border object-contain bg-white cursor-zoom-in hover:scale-150 transition-transform origin-left duration-200"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -2031,17 +2031,17 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
                         {/* PSE Status, Portal Link & PSE QR */}
                         {(account.enablePse ?? true) && (
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 mt-2 flex flex-wrap items-center gap-2">
-                            <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-900/60 px-2 py-0.5 rounded-md">
+                          <div className="pt-3 border-t border-slate-200/70 dark:border-slate-800 mt-3 flex flex-wrap items-center gap-2">
+                            <div className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 px-2.5 py-1 rounded-lg">
                               <img src="/pse_logo.png" alt="PSE" className="w-4 h-4 rounded-full object-contain bg-white p-0.5" />
-                              <span className="text-[10px] font-bold text-blue-900 dark:text-blue-300">Canal PSE Habilitado</span>
+                              <span className="text-xs font-bold text-blue-900 dark:text-blue-200">Canal PSE Habilitado</span>
                             </div>
                             {account.pseUrl && (
                               <a
                                 href={account.pseUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[10px] font-semibold text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/40 px-2 py-0.5 rounded-md flex items-center gap-1 transition-colors"
+                                className="text-xs font-semibold text-blue-800 dark:text-blue-200 hover:text-blue-900 dark:hover:text-blue-100 bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-500/10 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors"
                               >
                                 <ExternalLink className="w-2.5 h-2.5" />
                                 <span>Probar Portal PSE</span>
@@ -2049,11 +2049,11 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                             )}
                             {account.pseQrUrl && (
                               <div className="flex items-center gap-1">
-                                <span className="text-[9px] font-mono text-slate-600 dark:text-slate-300 font-bold">QR PSE:</span>
+                                <span className="text-xs font-mono tabular-nums text-slate-600 dark:text-slate-300 font-bold">QR PSE:</span>
                                 <img
                                   src={account.pseQrUrl}
                                   alt="QR PSE"
-                                  className="w-6 h-6 rounded border border-blue-200 dark:border-blue-800 object-contain bg-white cursor-zoom-in hover:scale-150 transition-transform origin-left duration-200"
+                                  className="w-6 h-6 rounded-lg border border-blue-200 dark:border-blue-800 object-contain bg-white cursor-zoom-in hover:scale-150 transition-transform origin-left duration-200"
                                   referrerPolicy="no-referrer"
                                 />
                               </div>
@@ -2067,7 +2067,7 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleStartEditBankAccount(account)}
-                        className="p-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 cursor-pointer dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
                         title="Editar cuenta bancaria"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -2075,16 +2075,16 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                       <button
                         type="button"
                         onClick={() => handleToggleBankAccount(account.id)}
-                        className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/30 ${
                           account.enabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'
                         }`}
                       >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${account.enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${account.enabled ? 'translate-x-5' : 'translate-x-0'}`} />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteBankAccount(account.id)}
-                        className="p-1 text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-rose-50 hover:text-rose-700 cursor-pointer dark:text-slate-400 dark:hover:bg-rose-500/10 dark:hover:text-rose-300"
                         title="Eliminar cuenta"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -2100,18 +2100,18 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
 
       {/* --- SUB-TAB 5: PREFERENCES --- */}
       {activeSubTab === 'preferences' && (
-        <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+        <div className="wz-surface rounded-[22px] border border-slate-900/[0.06] bg-gradient-to-b from-white to-slate-50/60 shadow-[0_1px_2px_rgba(15,23,42,.05),0_24px_48px_-28px_rgba(15,23,42,.35)] dark:border-white/[0.07] dark:from-slate-900 dark:to-slate-900/80 dark:shadow-[0_24px_48px_-28px_rgba(0,0,0,.8)] p-5 space-y-4">
+          <h4 className="font-display text-lg font-bold text-slate-900 dark:text-slate-100">
             Políticas Generales y Comportamiento POS
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
-              <label className="font-bold text-slate-800 dark:text-slate-200 block">Medio de Pago por Defecto</label>
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 space-y-2">
+              <label className="block text-sm font-bold text-slate-900 dark:text-slate-100">Medio de Pago por Defecto</label>
               <select
                 value={localConfig.defaultMethod}
                 onChange={(e) => setLocalConfig(prev => ({ ...prev, defaultMethod: e.target.value as PaymentMethod }))}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 font-medium text-slate-800 dark:text-slate-100 outline-none"
+                className="min-h-[48px] w-full rounded-xl border border-slate-300 bg-white px-3.5 text-base text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-500/25 focus:border-blue-600 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="cash">Efectivo</option>
                 <option value="card">Tarjeta Débito / Crédito</option>
@@ -2120,35 +2120,35 @@ export const PaymentMethodsSettings: React.FC<PaymentMethodsSettingsProps> = ({
                 <option value="bre_b">Llave Bre-B</option>
                 <option value="transfer">Transferencia Bancaria</option>
               </select>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">Preseleccionado automáticamente al abrir el diálogo de cobro.</p>
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">Preseleccionado automáticamente al abrir el diálogo de cobro.</p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-800 dark:text-slate-200">Permitir Pago Mixto</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Permitir Pago Mixto</span>
                 <input
                   type="checkbox"
                   checked={localConfig.allowMixedPayment}
                   onChange={(e) => setLocalConfig(prev => ({ ...prev, allowMixedPayment: e.target.checked }))}
-                  className="w-4 h-4 text-amber-600 rounded"
+                  className="h-5 w-5 rounded text-amber-600 cursor-pointer"
                 />
               </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Permite combinar Efectivo con Billeteras (Nequi, Daviplata), QR, Bre-B o Tarjeta en un solo cobro.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="wz-surface rounded-2xl border border-slate-900/[0.06] bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05),0_10px_24px_-16px_rgba(15,23,42,.3)] dark:border-white/[0.07] dark:bg-slate-900 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-800 dark:text-slate-200">Exigir N° Referencia / Aprobación</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-100">Exigir N° Referencia / Aprobación</span>
                 <input
                   type="checkbox"
                   checked={localConfig.requireReferenceForElectronic}
                   onChange={(e) => setLocalConfig(prev => ({ ...prev, requireReferenceForElectronic: e.target.checked }))}
-                  className="w-4 h-4 text-amber-600 rounded"
+                  className="h-5 w-5 rounded text-amber-600 cursor-pointer"
                 />
               </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300">
+              <p className="text-[13px] text-slate-600 dark:text-slate-400">
                 Obliga al cajero a registrar el número de comprobante de la transferencia o voucher del datáfono.
               </p>
             </div>
